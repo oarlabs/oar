@@ -79,8 +79,16 @@ work is not evidence about the work.
 
 ## RETURN SHAPE
 ```
-verdict: CLEAN | FINDINGS | HALT
+verdict: CLEAN | FINDINGS | REJECT | HALT
 ```
+The verdict is the loop's brake, so use it precisely. **FINDINGS means
+approved with punch items** — they ride the fix pass and do NOT buy you a
+second review round. **REJECT** is reserved for defects that defeat the
+build's purpose (a critical, or majors that demand redesign); it buys exactly
+one more round. If you cannot approve with caveats you will reject forever,
+and the round after that your REJECT gets discounted too. The stopping rules
+live in the standing rules under "WHEN THE LOOP ENDS"; you argue severity,
+{{OWNER_ROLE}}'s materiality bar decides what survives.
 1. **Coverage statement.** What you actually examined, and what you could not
    reach. Read first, so no reader mistakes your scope for the whole diff.
 2. **Findings**, numbered, each: severity · location (file:line) · what is

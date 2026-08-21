@@ -140,6 +140,42 @@ self-reports as a plausible minor caveat.
 
 Reviewer charters are standing files that implementing lanes cannot edit.
 
+## WHEN THE LOOP ENDS — review terminates by rule, not by exhaustion
+
+An adversarial loop with no stopping rule iterates to stupidity or forever.
+The engine above (dispositions, oracle manufacture, escape rate) does not
+stop a loop by itself; these rules do:
+
+1. **The bounded shape.** Implement → spec-side review → fix pass → gates →
+   commit. One review round by default. The fix pass answers the review, the
+   gates answer the fix pass, and **nobody reviews a review.** Only a REJECT
+   verdict buys a second full round.
+2. **The verdict vocabulary is the brake.** A reviewer returns exactly one of:
+   APPROVE · APPROVE-WITH-PUNCH-ITEMS · REJECT · HALT.
+   APPROVE-WITH-PUNCH-ITEMS means *approved* — the items ride the fix pass and
+   do **not** buy another review round. Reviewers who cannot approve with
+   caveats will reject forever.
+3. **Diminishing severity, or redesign.** Each round's worst finding must be
+   less severe than the last round's. A fix pass that produces NEW findings at
+   the previous round's severity is a design problem — stop looping and
+   redesign; a third round of the same severity is the loop failing, not
+   working.
+4. **Set a materiality bar, and kill below it in writing.** Decide what
+   matters (user impact, adopter impact — name yours) before the loop runs.
+   Findings below the bar are REJECTED with a one-line reason — a
+   first-class disposition, not a failure. Silent skips are forbidden in both
+   directions: neither dropped findings nor endlessly polished ones.
+   Perfection for its own sake is a failure mode with a cost column.
+5. **Discovery loops get caps.** Open-ended finding loops (walks, audits,
+   fuzzing-by-review) declare a cap up front and may close AT CAP, NOT-DRY —
+   recorded honestly as a structural finding. A loop that cannot say "we
+   stopped and here is what remained" will not stop.
+6. **Witnessing is a stop signal.** If a round catches something an existing
+   check should have caught (escape rate rising), stop the loop and fix the
+   check — more review of the same class is witnessing, not learning.
+
+{{OWNER_ROLE}} owns the bar and the caps; the coordinator enforces the shape.
+
 ## ORACLE MANUFACTURE is a round step, not a nice-to-have
 
 *(module 04 — delete if you keep no ledgers.)*

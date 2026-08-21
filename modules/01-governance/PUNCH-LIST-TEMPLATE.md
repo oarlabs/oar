@@ -83,7 +83,13 @@ reader must never have to re-derive the list to find out what happened to it.
 
 | # | Disposition | Landed in | Enforcing check | Ledger row |
 |---|---|---|---|---|
-| 1 | DONE · NOT DONE + reason · OUT OF SCOPE + owner · SUPERSEDED by D<n> | `file:line` | `<gate/case/rule id>` or UNCHECKED + reason | JUDGMENT-LEDGER ✓ |
+| 1 | DONE · NOT DONE + reason · REJECTED below the bar + reason · OUT OF SCOPE + owner · SUPERSEDED by D<n> | `file:line` | `<gate/case/rule id>` or UNCHECKED + reason | JUDGMENT-LEDGER ✓ |
+
+**REJECTED-below-the-bar is a first-class disposition, not a failure.** Set
+the materiality bar (what impact matters — name yours) before the round runs;
+an item below it dies with a one-line reason. This is the brake that keeps a
+punch list from iterating to polish: perfection for its own sake is a failure
+mode with a cost column. See the standing rules, "WHEN THE LOOP ENDS".
 
 **Round totals:** items <n> · escapes <n> of <n> · halts raised <n> ·
 UNCHECKED closures <n>
