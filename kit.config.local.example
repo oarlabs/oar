@@ -1,0 +1,74 @@
+# ==========================================================================
+# kit.config.local — the machine-specific overlay. COPY, DO NOT COMMIT.
+# ==========================================================================
+#     cp kit.config.local.example kit.config.local
+#
+# THIS FILE MUST BE GITIGNORED, and nothing has done that for you yet.
+# QUICKSTART adds the `kit.config.local` rule to `.gitignore` at Step 4, three
+# steps after it tells you to copy this file at Step 1 - so in between, the copy
+# is an untracked file holding absolute paths. Following the QUICKSTART in
+# order, no commit happens in that gap and the rule lands before the first one
+# does. Adopting this file on its own, or committing early: add the rule NOW,
+# before you fill anything in.
+#
+# Anything you set here overrides the same key in the committed `kit.config`
+# beside it (the tools read kit.config first, then this file, later wins).
+#
+# WHAT BELONGS HERE — the two categories, and the reason for each:
+#
+#   ABSOLUTE PATHS. Correct only on this machine, and wrong (often silently)
+#   for anyone else who clones. A hook that fails to start because a path
+#   moved is a hook that enforces nothing, and nothing in the tool output will
+#   say so.
+#
+#   THE PROTECTED LOCATION. Naming your deployed build, client export, or
+#   production directory in a committed file publishes a small map of your
+#   infrastructure. The tripwire needs the value; the repository does not.
+#
+# WHAT DOES NOT BELONG HERE: anything another contributor also needs. If two
+# people must agree on it, it goes in the committed kit.config, or their runs
+# mean different things and neither of them finds out.
+# ==========================================================================
+
+# NOTE ON PLACEHOLDERS: every commented example below is placeholder-shaped
+# (`/abs/path/...`, `your-...`), and the kit's tools read placeholder-shaped
+# values as UNSET on purpose - so an example left uncommented configures
+# nothing rather than configuring a rule that guards nothing. Replace the
+# value; do not merely uncomment the line.
+
+# PROJECT_ROOT is usually UNNECESSARY - every tool walks up to `.git` first.
+# Set it only for a worktree, a non-git checkout, or a harness launched from
+# somewhere else.
+# PROJECT_ROOT = /abs/path/to/this/checkout
+
+# PROTECTED_PATH lives here, while PROTECTED_PATH_ENABLED lives in the
+# committed kit.config: the switch is a shared decision, the location is not.
+# PROTECTED_PATH = /abs/path/to/the/protected/location
+
+# KNOWLEDGE_DIR belongs here ONLY when it is an absolute path - a notes system,
+# wiki or vault outside the repo (QUICKSTART Step 6 makes that decision). A
+# repo-relative value such as `docs` is shareable and belongs in the committed
+# kit.config instead. Same rule as everything else in this file: an absolute
+# path never enters the committed half, where it would leak into the
+# de-identification scan and be wrong for every other clone.
+# KNOWLEDGE_DIR = /abs/path/to/your/knowledge-base
+
+# STATUSLINE_CMD - the status board (module 05). Absolute path, hence here.
+#
+# NEVER USE DOUBLE QUOTES IN THIS VALUE. It is substituted into a JSON string,
+# so a `"` breaks the settings file - and unparseable settings mean no hooks
+# either. Prefer a path with no spaces and no quotes at all:
+#
+# STATUSLINE_CMD = python /home/you/project/tools/statusline.py
+#
+# If the path DOES contain spaces, single quotes survive JSON and are accepted
+# by pwsh and POSIX shells alike:
+#
+# STATUSLINE_CMD = python '/home/you/My Project/tools/statusline.py'
+#
+# The Windows-optimised board, same rules:
+# STATUSLINE_CMD = pwsh -NoProfile -ExecutionPolicy Bypass -File C:/you/project/tools/statusline.ps1
+# VERIFY_OUT_DIR = /abs/path/outside/the/repo/verify-out
+# STATUSLINE_CMD = pwsh -NoProfile -File /abs/path/to/tools/statusline.ps1
+# AGENT_TRANSCRIPT_DIR = /abs/path/to/your/harness/agent/transcripts
+# STATUS_BOARD_LINE_FILE = /abs/path/to/statusboard.txt

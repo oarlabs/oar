@@ -1,0 +1,191 @@
+<!--
+==============================================================================
+TEMPLATE: the standing coordinator rules. Copy to your repo root as CLAUDE.md
+(or whatever file your harness loads into every session automatically).
+==============================================================================
+SLOTS USED IN THIS FILE
+  {{PROJECT_NAME}} {{CHECKPOINT_GLOB}} {{LEDGERS_DIR}} {{REPORTS_DIR}}
+  {{ORCHESTRATOR_TIER}} {{LANE_TIER}} {{SWEEP_TIER}} {{MODEL_EXEMPT_TYPES}}
+  {{FORBIDDEN_SPAWN_TIER}} {{GATE_COMMAND}} {{CERT_PATHS}} {{CERT_TOKEN_FILE}}
+  {{PROTECTED_PATH}} {{OWNER_ROLE}} {{COORDINATOR_ROLE}} {{KNOWLEDGE_DIR}}
+  {{DEMOTION_REVIEW_STAGES}} {{PROSE_VOICE}}
+
+HOW TO USE IT
+  1. Substitute the slots. Note KNOWLEDGE_DIR: this file interpolates it
+     unconditionally in the "Working with" section below, so if your
+     kit.config sets it to NONE, substitute a repo path such as `docs` there
+     rather than the literal word, and say in that line that the repo copy is
+     source of truth. If your knowledge base IS at an absolute path, the KEY
+     belongs in the gitignored kit.config.local, never in the committed
+     kit.config - and substituting that path here makes this rendered file a
+     tracked file carrying an absolute path, which the de-identification scan
+     will report. Both are fine if chosen deliberately; QUICKSTART Step 6 has
+     the branch.
+  2. DELETE every rule you cannot yet enforce or do not yet believe. A standing
+     rules file that contains aspirations is a file people learn to skim, and a
+     skimmed rules file is worse than a short one.
+  3. Keep it SHORT. This text is re-read at the top of every session and
+     competes for attention with the actual work. The reference build's version
+     stayed near one screen for months; every line in it had been paid for.
+  4. Each rule that survives should be traceable to something that went wrong.
+     If you cannot name the failure, the rule is a guess - park it in the
+     failure-floor ledger as a proposal instead of binding it here.
+
+DELETE THIS COMMENT BLOCK when you adopt the file.
+==============================================================================
+-->
+
+# {{PROJECT_NAME}} — binding coordinator rules (these survive every session clear)
+
+**ON RESUME: read the newest `{{CHECKPOINT_GLOB}}` FIRST — and if none exists
+yet, you write the first one at this stage's close.**
+`{{LEDGERS_DIR}}/LESSONS.md` is law.
+
+A resume-grade checkpoint (~90 lines is the measured norm) carries: where the
+mainline stands, the owner's open decision queue verbatim, a numbered cold-start
+resume list, and what supersedes what. A checkpoint a stranger cannot cold-start
+from is a diary entry, not a checkpoint. (Doctrine: BLUEPRINT §7.) Those four
+clauses are the whole shape contract; no template file ships for it and no check
+notices a missing checkpoint, so writing the first one is on you.
+
+**WRITING STANDARD: `{{PROSE_VOICE}}`.** Every committed or published write-up —
+reports, checkpoints, papers, module docs — uses this voice. `technical` means
+plain technical-writer prose: short declarative sentences, defined terms, active
+voice, no aphoristic flourishes. Conversation with {{OWNER_ROLE}} is not bound;
+artifacts that outlive the session are. (Slot definition: kit.config §9.)
+
+## MODEL TIERING — the orchestrator orchestrates, it does not execute
+
+Every spawn declares an explicit model tier. `{{LANE_TIER}}` for implementers,
+reviewers, investigators and smoke engineers; `{{SWEEP_TIER}}` for mechanical
+sweeps. Omitting the tier silently inherits the session model — which is
+`{{ORCHESTRATOR_TIER}}`, the most expensive seat in the project — and nothing in
+the output will tell you it happened.
+
+- *(module 02 — delete these two lines if you have not adopted it)* A
+  PreToolUse hook refuses undeclared spawns and undeclared workflow scripts.
+  Exempt types (they carry their own model): `{{MODEL_EXEMPT_TYPES}}`.
+- Nested spawns INHERIT their parent's tier. **No agent and no charter may ever
+  request `{{FORBIDDEN_SPAWN_TIER}}` by name.**
+- Lane constraints do NOT auto-propagate to grandchildren. A charter that lets
+  its lane spawn helpers must RESTATE the constraints in the text it will pass
+  down.
+
+## HALT authority (the andon cord)
+
+Every charter, at every depth, grants standing authority to stop the round:
+return `verdict: HALT` with a reason. Workflow scripts check for it after every
+stage and stop launching. Stage reports publish the halt count.
+
+**Zero halts across a phase is a finding, not a success.** It means either
+nothing was hard enough to stop for, or the cord is not really connected.
+
+Every synthesis or writer charter OPENS with the guard: *empty, placeholder, or
+contradictory inputs → HALT immediately, before producing anything.* A writer
+handed no data will confidently write something, and that something costs a full
+lane's budget to produce and a full reviewer's budget to disbelieve.
+
+## Coordinator hygiene
+
+- **Stage targeted paths, always.** Never `git add -A` or `git add .` — not
+  "not while an agent is in flight", just never. The narrower rule invited the
+  judgement call ("nothing is running, so this is fine"), and the judgement was
+  wrong at least once. One rule, no exceptions to remember, and it is the rule
+  the hook in module 02 actually enforces. A blanket add sweeps a lane's scratch
+  into your commit and you find out three commits later.
+- **Subagents never commit** and never write into `{{REPORTS_DIR}}`. They return
+  report bodies; {{COORDINATOR_ROLE}} saves them **verbatim**. Rewriting a lane's
+  report on the way to disk destroys the only independent account of what
+  happened.
+- *(module 02's tripwire — delete this line if you have no protected
+  location)* Agents never touch `{{PROTECTED_PATH}}`; see the tripwire section
+  below.
+- Long-running exclusive resources (a build engine, a device, a database) run
+  **one at a time**, serially, and are reaped before the next starts. Where the
+  serialisation comes from a genuinely exclusive resource, say so — where
+  isolation is cheap (worktrees, per-agent branches), use it instead and merge.
+- *(delete if you do not run workflow scripts)* Downstream prompts must
+  interpolate REAL upstream results.
+  Placeholder text runs the writer dataless. Re-read every synthesis prompt for
+  a live interpolation before launch — this is a pre-launch check, not a hope.
+
+## Certification
+
+**Certification is `{{GATE_COMMAND}}`.** *(module 03 — if you have not adopted
+it, point this at whatever single command you already run, or delete the section
+and say plainly that certification is manual.)* One command, one summary line,
+one exit code. Certification-by-narration — five commands typed from a charter with five
+output lines a human eyeballs — is retired, because a gate that was skipped and
+a gate that passed look identical once the scrollback is gone.
+
+Certification is a property of a **TREE**, not of a commit: a green run over a
+dirty judge surface certifies nothing.
+
+## The protected-path tripwire (module 02, optional — DELETE IF UNUSED)
+
+Any Edit/Write/shell touch of `{{PROTECTED_PATH}}` **asks {{OWNER_ROLE}}**, at
+any agent depth. The nod is pre-granted only while `{{CERT_TOKEN_FILE}}` names a
+commit that contains the newest change to `{{CERT_PATHS}}` **and** those paths
+are clean. {{COORDINATOR_ROLE}} writes that token ONLY at a fully certified
+close. Any subsequent change to `{{CERT_PATHS}}` — committed or merely sitting in
+the working tree — invalidates it automatically.
+
+## Reviewers onboard SPEC-SIDE
+
+A reviewer receives the verbatim punch list, {{OWNER_ROLE}}'s rulings, and the
+diff. **Never the implementer's report.** The implementer's "consciously left
+out" section is a *claim the reviewer independently cross-checks*, not a
+briefing — omission-by-misunderstanding is invisible from the inside and
+self-reports as a plausible minor caveat.
+
+Reviewer charters are standing files that implementing lanes cannot edit.
+
+## ORACLE MANUFACTURE is a round step, not a nice-to-have
+
+*(module 04 — delete if you keep no ledgers.)*
+Every closed item lands in `{{LEDGERS_DIR}}/JUDGMENT-LEDGER.md` naming the
+executable check that would go red if the ruling were inverted — **or** the row
+says UNCHECKED with the reason and the shape the check would take. Silence is
+the failure mode: a ruling that lives only in prose is one the next round
+inverts *in equally good faith*.
+
+Stage reports carry the **ESCAPE RATE**: items an existing check should have
+caught. If it does not fall across rounds, the loop is witnessing, not learning.
+
+## Stage close checklist — in order, none skipped
+
+1. Report saved **verbatim** to `{{REPORTS_DIR}}/<stage>/`.
+2. Evidence copied alongside it (logs, screenshots, artefacts).
+3. Ledger row with **actual** cost and the process/implementation split.
+4. **JUDGMENT-LEDGER append** — every closed item names its check, or UNCHECKED
+   + reason.
+5. Targeted commit — name the paths (this is the same rule as above, not a
+   softer restatement of it).
+6. **If you have CI:** push — CI re-judges every push, and a red CI run is a
+   stage-close blocker. *Delete this step if you do not have CI yet;* a
+   checklist step nobody can perform teaches people to skip steps.
+7. Refresh whatever dashboard or summary artefact {{OWNER_ROLE}} reads.
+8. **LESSONS refresh** — any tuition paid this stage becomes a numbered item.
+
+## STRUCTURE OVER SENTENCES
+
+`{{LEDGERS_DIR}}/FAILURE-FLOOR.md` is the audit of every rule's enforcement
+layer. When a prose rule fails: record it in LESSONS, then **promote it a layer**
+or mark it ACCEPTED with the residual named, and update that document. A rule
+enforced only by prose is debt, and debt should be visible.
+
+Promotion has a reverse gear. Every rule carries a last-fired date; at each
+phase gate, any rule quiet for {{DEMOTION_REVIEW_STAGES}} stages is reviewed and
+retired, demoted, or re-affirmed. **{{OWNER_ROLE}} rules; no agent retires
+anything.** Zero demotions across an entire phase is itself a finding.
+
+## Working with {{OWNER_ROLE}}
+
+Full profile: `{{KNOWLEDGE_DIR}}/collaboration-profile.md` (that copy is source
+of truth). The eight defaults, until overridden deliberately:
+
+recommendation-first · validation gates before the next phase · verbatim capture
+· an explicit disposition on every item (silent skips are the betrayal) · honest
+partials over padded completes · blameless ownership with structural fixes ·
+loud failures over silent drops · feel-words are measurements waiting to be
+taken.

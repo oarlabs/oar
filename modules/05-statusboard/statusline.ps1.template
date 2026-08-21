@@ -1,0 +1,213 @@
+# =============================================================================
+# TEMPLATE - the status board. Substitute the slots and wire it via your
+# harness's statusLine setting (see modules/02-enforcement/settings.json.template).
+#
+# SLOTS: {{PROJECT_ROOT}} {{SIDEQUEST_FLAG}} {{SIDEQUEST_STALE_DAYS}}
+#        {{STATUS_BAR_CELLS}} {{STATUS_CLEAR_MARK_PCT}} {{AGENT_TRANSCRIPT_DIR}}
+#        {{STATUS_BOARD_LINE_FILE}}
+#
+# The harness pipes a JSON blob on stdin at every refresh. Segments, in order:
+#
+#   [SIDEQUEST banner]  who is flying  |  model  |  context bar  |  spend  |
+#   wall clock  |  +/- lines  |  branch@sha  |  [board line]
+#
+# ...then one detail line per live agent underneath.
+#
+# THE ONE RULE THIS FILE IS BUILT ON: every segment is GUARDED. A missing
+# field, an unreadable file, an absent git repo - the segment disappears, the
+# board still renders. A status line that throws is a status line that gets
+# removed within the day, and then you have no board at all.
+#
+# WHY A BOARD AT ALL: the two facts you most need mid-session are the two your
+# transcript cannot show you - what is running right now, and how close the
+# context window is to the point where clearing beats continuing.
+# =============================================================================
+
+$ErrorActionPreference = 'SilentlyContinue'
+
+# Harnesses capture stdout as a pipe, not a console, so PowerShell falls back to
+# the OEM codepage and mangles the glyphs below into "?". Force UTF-8 (no BOM).
+try { [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false } catch {}
+
+$raw = [Console]::In.ReadToEnd()
+$j = $null; try { $j = $raw | ConvertFrom-Json } catch {}
+$e = [char]27
+function seg($color, $text) { "$e[${color}m$text$e[0m" }
+$parts = @()
+$repo = '{{PROJECT_ROOT}}'
+
+# -----------------------------------------------------------------------------
+# SIDEQUEST BANNER - rendered FIRST, on a coloured field, or not at all.
+#
+# The flag file's EXISTENCE is the whole state machine: the /sidequest skill
+# writes it at snapshot time and DELETES it at close. Absence is the main line,
+# so the main-line path costs exactly one Test-Path.
+#
+# THE STALENESS AMBER: past {{SIDEQUEST_STALE_DAYS}} days the banner changes
+# colour. A side quest that has quietly become the main line is a fact the board
+# should state out loud, not one you should be expected to notice - the day
+# counter alone is a number people stop reading by day four, which is precisely
+# when it starts mattering.
+#
+# A corrupt or unreadable flag degrades to a LOUD "state file unreadable"
+# banner. It must never degrade to no banner: a missing banner asserts "you are
+# back on the main line", which would be a silent lie in exactly the situation
+# where you most need the truth.
+# -----------------------------------------------------------------------------
+$sqFile = Join-Path $repo '{{SIDEQUEST_FLAG}}'
+if (Test-Path $sqFile) {
+    $sq = $null
+    try { $sq = Get-Content $sqFile -Raw | ConvertFrom-Json } catch {}
+    if ($sq -and $sq.slug) {
+        $days  = $null
+        $stale = $false
+        if ($sq.started) {
+            $d0 = $null
+            try { $d0 = [datetime]::ParseExact([string]$sq.started, 'yyyy-MM-dd', $null) } catch {}
+            if ($d0) {
+                $days  = 1 + ((Get-Date).Date - $d0.Date).Days
+                $stale = ($days -gt [int]'{{SIDEQUEST_STALE_DAYS}}')
+            }
+        }
+        $sqTxt = "$([char]0x2694)  SIDEQUEST $($sq.slug)"
+        if ($days) { $sqTxt += " $([char]0x00B7) day $days" }
+        if ($stale) { $sqTxt += " $([char]0x00B7) STALE" }
+        if ($sq.mainline_resume) {
+            $mr = [string]$sq.mainline_resume
+            if ($mr.Length -gt 44) { $mr = $mr.Substring(0, 43) + [char]0x2026 }
+            $sqTxt += " $([char]0x00B7) main: $mr"
+        }
+        # 101 = red field (fresh quest), 103 = amber field (stale quest).
+        $field = if ($stale) { '30;103;1' } else { '97;101;1' }
+        $parts += seg $field " $sqTxt "
+    } else {
+        $parts += seg '97;101;1' " $([char]0x2694)  SIDEQUEST (state file unreadable) "
+    }
+}
+
+# -----------------------------------------------------------------------------
+# WHO IS FLYING
+# Live subagents are transcripts in this session's agent directory that are
+# either still being appended to (recent mtime) or parked mid-tool-call - a
+# running agent's last event is a tool call, a finished one ends on plain text.
+# Set AGENT_TRANSCRIPT_DIR to NONE in kit.config to drop this whole block; it is
+# the most harness-specific thing on the board.
+# -----------------------------------------------------------------------------
+$parts += seg '97;1' "$([char]0x25C9)  main"
+$agentLines = @()
+$agentRoot = '{{AGENT_TRANSCRIPT_DIR}}'
+if ($j.session_id -and $agentRoot -ne 'NONE') {
+    $subs = Join-Path $agentRoot "$($j.session_id)/subagents"
+    $now = Get-Date
+    $cut = $now.AddSeconds(-120)
+    $live = @(Get-ChildItem $subs -Filter 'agent-*.jsonl' -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { $_.LastWriteTime -gt $now.AddMinutes(-45) } |
+        Where-Object { $_.LastWriteTime -gt $cut -or
+                       ((Get-Content $_.FullName -Tail 1) -match '"type"\s*:\s*"tool_use"') } |
+        Sort-Object CreationTime)
+    if ($live.Count) {
+        $parts += seg '96;1' ("$([char]0x2692) $($live.Count) flying")
+        foreach ($t in ($live | Select-Object -First 8)) {
+            $m = $null
+            try { $m = Get-Content ($t.FullName -replace '\.jsonl$', '.meta.json') -Raw | ConvertFrom-Json } catch {}
+            # THE TIER IS ON THE BOARD ON PURPOSE. An agent silently running at
+            # the orchestrator tier is invisible in every other surface, and the
+            # cost of not noticing compounds for the length of the session.
+            $tier = if ($m.model) { $m.model } elseif ($m.agentType) { $m.agentType } else { '?' }
+            $role = $m.description
+            if (-not $role) {
+                $head = ''
+                try { $head = (Get-Content $t.FullName -TotalCount 1) } catch {}
+                # Charters in this project lead with a stable role vocabulary;
+                # extend the alternation to match yours.
+                $mt = [regex]::Match($head, '(SCOUT|IMPLEMENTER|REVIEWER|SMOKE ENGINEER|REPORT WRITER|SYNTHESIS WRITER|INVESTIGATOR)[^."\\]{0,40}')
+                $role = if ($mt.Success) { $mt.Value.Trim() } else { 'agent' }
+            }
+            if ($role.Length -gt 46) { $role = $role.Substring(0, 45) + [char]0x2026 }
+            $up = $now - $t.CreationTime
+            $upTxt = if ($up.TotalHours -ge 1) { '{0}h{1:d2}m' -f [int][math]::Floor($up.TotalHours), $up.Minutes }
+                     else { '{0}m' -f [int][math]::Floor($up.TotalMinutes) }
+            $idle = [int]($now - $t.LastWriteTime).TotalSeconds
+            $idleCol = if ($idle -ge 120) { '93' } else { '92' }
+            $kb = [int]($t.Length / 1024)
+            $agentLines += ((seg '96' "  $([char]0x2692) ") + (seg '95;1' $tier) +
+                            (seg '90' ' ') + (seg '96;1' $role) +
+                            (seg '90' (" $([char]0x00B7) up $upTxt $([char]0x00B7) ")) +
+                            (seg $idleCol "$([char]0x270E) ${idle}s") +
+                            (seg '90' (" $([char]0x00B7) ${kb}KB")))
+        }
+        if ($live.Count -gt 8) { $agentLines += seg '90' ("    $([char]0x2026) +$($live.Count - 8) more") }
+    }
+}
+
+if ($j.model.display_name) { $parts += seg '96;1' "$([char]0x26A1) $($j.model.display_name)" }
+
+# -----------------------------------------------------------------------------
+# THE CONTEXT BAR
+# Zone-coloured by POSITION, not by fill, so the bar shows the terrain AHEAD
+# rather than only where you are. The heavy bar at the mark is the CLEAR MARK:
+# past it, every turn rides degraded recall and auto-compaction looms, while a
+# project with good checkpoint documents makes a clear-and-resume nearly free.
+# That is the trade the mark encodes - it is a property of your documentation,
+# not a property of the model, so move it if your resumes are expensive.
+# -----------------------------------------------------------------------------
+$pct = $j.context_window.used_percentage
+if ($null -eq $pct -and $j.context_window.context_window_size) {
+    $pct = 100.0 * $j.context_window.total_input_tokens / $j.context_window.context_window_size
+}
+if ($null -ne $pct) {
+    $pct  = [math]::Round($pct)
+    $W    = [int]'{{STATUS_BAR_CELLS}}'
+    $markPct = [int]'{{STATUS_CLEAR_MARK_PCT}}'
+    $mark = [int][math]::Round($W * $markPct / 100.0)
+    # [math]::Clamp refuses mixed double/int overloads and fails silently here;
+    # Min/Max with explicit casts instead.
+    $fill = [int][math]::Min($W, [math]::Max(0, [math]::Round($pct / 100.0 * $W)))
+    $bar = ''
+    for ($i = 0; $i -lt $W; $i++) {
+        if ($i -eq $mark) { $bar += seg '97;1' ([string][char]0x2503) }
+        $zone = if ($i -lt [int]($W / 2)) { '92' } elseif ($i -lt $mark) { '93' } else { '91' }
+        $bar += if ($i -lt $fill) { seg $zone ([string][char]0x2588) } else { seg '90' ([string][char]0x2591) }
+    }
+    $col = if ($pct -ge $markPct) { '91;1' } elseif ($pct -ge 50) { '93' } else { '92' }
+    $tok = $j.context_window.total_input_tokens
+    $tokTxt = if ($tok -ge 1000000) { ' {0:n1}M' -f ($tok / 1000000) }
+              elseif ($tok -ge 1000) { ' {0:n0}k' -f ($tok / 1000) }
+              elseif ($tok) { " $tok" } else { '' }
+    $ctx = $bar + (seg $col " $pct%$tokTxt")
+    if ($pct -ge $markPct) { $ctx += seg '91;1' (' ' + [char]0x2702 + ' clear') }
+    $parts += $ctx
+}
+
+# --- session vitals ----------------------------------------------------------
+if ($j.cost.total_cost_usd) { $parts += seg '90' ('$' + [math]::Round($j.cost.total_cost_usd, 2)) }
+if ($j.cost.total_duration_ms) {
+    $ts = [TimeSpan]::FromMilliseconds($j.cost.total_duration_ms)
+    $dur = if ($ts.TotalHours -ge 1) { '{0}h{1:d2}m' -f [int][math]::Floor($ts.TotalHours), $ts.Minutes }
+           else { '{0}m' -f [int][math]::Floor($ts.TotalMinutes) }
+    $parts += seg '90' "$([char]0x23F1)  $dur"
+}
+$la = [int]$j.cost.total_lines_added; $lr = [int]$j.cost.total_lines_removed
+if ($la -or $lr) { $parts += ((seg '92' "+$la") + (seg '90' '/') + (seg '91' "-$lr")) }
+
+# --- repo --------------------------------------------------------------------
+$sha = git -C $repo rev-parse --short HEAD 2>$null
+if ($sha) {
+    $branch = git -C $repo rev-parse --abbrev-ref HEAD 2>$null
+    $dirty = if (git -C $repo status --porcelain -uno 2>$null) { seg '93' "$([char]0x00B1)" } else { seg '92' "$([char]0x2713)" }
+    $parts += ((seg '95' "$branch@$sha") + $dirty)
+}
+
+# --- the coordinator's hand-maintained board line ----------------------------
+# Stage state, cert state, next gate. Updated at every stage transition. An
+# absent file simply drops the segment.
+$board = '{{STATUS_BOARD_LINE_FILE}}'
+if ($board -ne 'NONE' -and (Test-Path $board)) {
+    $line = Get-Content $board -TotalCount 1
+    if ($line) { $parts += seg '96' $line }
+}
+
+($parts -join (seg '90' ' | '))
+# One line per live agent under the board (max 8): tier, role, uptime, seconds
+# since last write (amber when quiet 2min+), transcript size as a work proxy.
+$agentLines

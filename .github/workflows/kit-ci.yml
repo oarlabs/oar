@@ -1,0 +1,159 @@
+# =============================================================================
+# THE KIT'S OWN CI — does this thing actually run on a host that is not the
+# machine it was written on?
+#
+# This is NOT modules/07-ci/verify.yml.template. That file is the template you
+# copy into YOUR project, and it pins and downloads a toolchain. This one is
+# the kit proving a claim about itself, and the claim is narrow and testable:
+#
+#     the four executable pieces of this kit run on Linux and on Windows,
+#     on stock Python, with nothing downloaded.
+#
+# DEAD SIMPLE ON PURPOSE. No toolchain fetch, no checksum pin, no cache, no
+# matrix of Python versions. Every one of those would be a way for this job to
+# go red for a reason that has nothing to do with the question being asked, and
+# a CI job that is red for irrelevant reasons is a CI job people stop reading.
+#
+# WHAT A GREEN TICK HERE MEANS: the core tools are host-agnostic.
+# WHAT IT DOES NOT MEAN: that the templates are correct (they are documents),
+# that module 07's workflow template works (it is unproven — see its README),
+# or that the .ps1 status board runs anywhere but Windows (it does not; that is
+# what tools/statusline.py is for).
+# =============================================================================
+
+name: kit-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kit-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: core tools on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false        # a Windows-only failure is the whole point
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: python and git versions (for the log)
+        run: |
+          python --version
+          git --version
+
+      # -- 1. the de-identification scanner proves it can still FIRE --------
+      - name: deident scanner selftest
+        run: python tools/deident_scan.py --selftest
+
+      # -- 2. the certification runner's own bench -------------------------
+      - name: verify selftest (the judges, judged)
+        run: python modules/03-verification/verify.py --selftest
+
+      # -- 2b. the status board, all four banner states --------------------
+      - name: statusline selftest
+        run: python tools/statusline.py --selftest
+
+      # -- 2b2. THE CLASS, AS A LINT. Eight defects across six adoption
+      #         walks were one defect: a check whose expectation comes from
+      #         the artifact it asserts about. This fails when that is true
+      #         and unwaived, and its own selftest reconstructs two of the
+      #         historical instances as negative controls.
+      - name: expectation-source lint (and its negative controls)
+        run: |
+          python tools/expectation_lint.py --selftest
+          python tools/expectation_lint.py
+
+      # -- 2b3. the adoption doctor's own judging layer. Its negative
+      #         controls reconstruct real defects (the Debian `python` shim,
+      #         a shipped example value read as configured, a floor of 1) and
+      #         run the REAL resolver, the REAL case probe and the REAL path
+      #         comparator against this host - which is the half a Linux
+      #         runner and a Windows runner answer differently.
+      - name: kit-doctor selftest
+        run: python tools/kit_doctor.py --selftest
+
+      # -- 2c. the fixture harness's OWN pure layer. It shipped a
+      #        ship-blocker (a substring test on a regex field) that reported
+      #        maximal green over an unwired gate. A checker with no checker.
+      - name: hook-fixture harness selftest
+        run: python modules/02-enforcement/hook_fixtures.py --selftest
+
+      # -- 3. the enforcement gate: armed, alive, correctly deciding -------
+      - name: hook fixtures (strict, armed)
+        run: python modules/02-enforcement/hook_fixtures.py --strict --armed .claude/settings.json
+
+      # -- 3b. THE DEAD-MAN CASE. A gate that has never been seen red has
+      #        not been shown to work, and that applies to the gate's own
+      #        harness. This step INVERTS the expected exit code: it passes
+      #        only when the corpse hook makes the fixtures go red.
+      - name: dead-man case (must go RED)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = tempfile.mkdtemp()
+          subprocess.run([sys.executable,
+                          "modules/02-enforcement/hook_fixtures.py",
+                          "--make-deadman", d], check=True)
+          corpse = str(pathlib.Path(d) / "hook_model_gate.py")
+          p = subprocess.run([sys.executable,
+                              "modules/02-enforcement/hook_fixtures.py",
+                              "--hook", corpse],
+                             capture_output=True, text=True)
+          print(p.stdout[-2000:])
+          if p.returncode == 0:
+              print("::error::the dead-man clause did NOT fire - a corpse hook "
+                    "produced a clean run. Silence from a corpse was read as "
+                    "consent.")
+              sys.exit(1)
+          if "DEAD-MAN" not in p.stdout:
+              print("::error::the run went red, but not for the dead-man "
+                    "reason. Check what actually failed.")
+              sys.exit(1)
+          print("dead-man clause fired as required (exit "
+                f"{p.returncode})")
+
+      # -- 4. the adoption path, end to end, in a throwaway repo -----------
+      - name: adoption smoke
+        run: python tools/adoption_smoke.py
+
+      # -- 4b. ...and its own negative control: with the original repo-root
+      #        defect planted back, the smoke must report INSTRUMENTED and
+      #        exit 2. Exit 0 here would mean the smoke has stopped detecting
+      #        the defect it was written for.
+      - name: adoption smoke negative control (must be INSTRUMENTED, exit 2)
+        shell: python
+        run: |
+          import subprocess, sys
+          p = subprocess.run([sys.executable, "tools/adoption_smoke.py",
+                              "--plant-f1"], capture_output=True, text=True)
+          print(p.stdout[-2000:])
+          if p.returncode != 2 or "INSTRUMENTED" not in p.stdout:
+              print(f"::error::expected INSTRUMENTED + exit 2, got exit "
+                    f"{p.returncode}. Either the control did not fire, or the "
+                    f"verdict vocabulary changed.")
+              sys.exit(1)
+          print("negative control fired as required")
+
+      # -- 5. the kit's own full certification -----------------------------
+      #    Last, because it is the only step whose greenness depends on the
+      #    checkout being clean, which is the one thing a hosted runner can
+      #    plausibly get wrong (line endings). If this is the only red step on
+      #    one OS, read the judges gate's file list before anything else.
+      - name: the kit certifies itself
+        run: python modules/03-verification/verify.py

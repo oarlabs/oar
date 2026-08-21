@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "NEGATIVE-CONTROL OVERRIDE TABLE - example. Keys: require, fail_pattern,",
+    "expect_min. Unknown keys and unknown gate names are REFUSED (exit 2),",
+    "because an override that is silently ignored produces a green you will",
+    "read as a proven negative control.",
+    "",
+    "Computed gates (judges) cannot be doctored here: nothing would consult",
+    "the override, so the runner refuses rather than pretending.",
+    "",
+    "Any run that names this file exits 2 INSTRUMENTED and cannot certify.",
+    "Keep real negative-control files OUTSIDE the repo when you use them in",
+    "anger - this one is committed only as documentation of the shape."
+  ],
+  "expect_min": { "example_unit": 99999 },
+  "require": { "example_lint": "example_lint: this line is never printed" }
+}

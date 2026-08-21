@@ -1,0 +1,35 @@
+# THE CONFIG SPLIT. `kit.config` IS COMMITTED - it has to be, because a config
+# the tools cannot find is a set of rules that silently stops existing, and
+# nothing in any output says so. What must never be committed is the overlay
+# that carries absolute paths and the protected location.
+kit.config.local
+
+# Never commit a real de-identification token list: it is a tidy, greppable
+# index of exactly the words someone did not want published. The empty
+# instructional deident.tokens IS committed (it is force-added if needed).
+deident.tokens.local
+*.tokens.private
+
+# Session state, not tree state.
+.claude/sidequest.json
+.claude/cert-green.json
+.claude/settings.local.json
+
+# Verification artefacts. The runner refuses an --out inside the repo, but a
+# stray one should never be committed either.
+verify-out/
+*.verify.json
+
+# `tools/kit_render.py` writes every rendering to `<name>.kit-new` and never
+# over the real file, so a rendered file is a scratch file until a human moves
+# it into place. Adopters are told to add this line in QUICKSTART Step 4's
+# optional-path note; the kit carries it too, because the tool's own negative
+# control aims a run at this clone to prove the refusal holds.
+*.kit-new
+
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+Thumbs.db
+desktop.ini

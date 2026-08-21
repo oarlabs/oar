@@ -1,0 +1,241 @@
+# =============================================================================
+# TEMPLATE - the certification gates, in CI. Copy to
+# .github/workflows/verify.yml and substitute the slots.
+#
+# SLOTS: {{GATE_COMMAND}} {{VERIFY_RUNNER}} {{CI_RUNNER_OS}}
+#        {{CI_TIMEOUT_MINUTES}} {{CI_SKIP_GATES}} {{CI_EXPECTED_EXIT}}
+#        {{CI_TOOLCHAIN_URL}} {{CI_TOOLCHAIN_ARCHIVE}} {{CI_TOOLCHAIN_SHA512}}
+#        {{TOOLCHAIN_PIN}} {{CI_ARTIFACT_RETENTION_DAYS}}
+#
+# -----------------------------------------------------------------------------
+# READ THE RUNNER'S DOCSTRING BEFORE CHANGING ANYTHING HERE.
+# The exit-code contract below is the runner's, not this file's:
+#     0 PASS   every gate ran green, uninstrumented - THE ONLY CERTIFICATION
+#     1 FAIL   at least one gate went red
+#     2 INSTRUMENTED / ABORTED
+#     3 PARTIAL every gate that RAN was green, but gates were skipped
+#
+# -----------------------------------------------------------------------------
+# WHAT CI GREEN MEANS, AND WHAT IT DOES NOT
+# -----------------------------------------------------------------------------
+# If CI skips any gate, this job's green is exit 3 - and that is deliberate, not
+# a compromise smuggled in quietly. A hosted runner has no screen, no device, no
+# 90 minutes for your slowest suite. So CI asserts PARTIAL-with-zero-red and
+# NOTHING WEAKER, and the run is not a certification. The local full run remains
+# the certification bar.
+#
+# Asserting `exit == {{CI_EXPECTED_EXIT}}` rather than `exit != 1` is the whole
+# point:
+#   * exit 0 here would mean the skip list silently emptied and the runner
+#     somehow claimed a full certification - that is NEWS, not success;
+#   * exit 2 would mean an abort or an instrumented run - also news.
+# Only the expected code is the expected shape. A CI contract that accepts
+# "anything but failure" cannot tell you when it stopped testing.
+#
+# -----------------------------------------------------------------------------
+# NAME EVERY SKIPPED GATE, AND GIVE EACH ITS OWN REASON
+# -----------------------------------------------------------------------------
+# Collapsing them into "not supported yet" loses the only useful information:
+# which of them can EVER be lifted. Replace this block with your real list.
+#
+#   <gate>  - STRUCTURAL, will not change. <e.g. it drives a real window / a
+#             real device, and a hosted runner has neither.>
+#   <gate>  - TIME. <e.g. 40 minutes against a 90-minute job on slower
+#             hardware. Lifting it means accepting a much longer feedback loop:
+#             a deliberate decision, not an oversight.>
+#   <gate>  - UNSOLVED. <e.g. needs a fixture from a previous certified build
+#             and somewhere to mint the next one; neither has an answer on a
+#             runner yet. Follow-up, tracked at <link>.>
+#
+# A gate that cannot run here is NAMED in the skip list, never left to fail
+# obscurely and never quietly dropped.
+# =============================================================================
+
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      skip:
+        description: >-
+          Gates to skip, comma-separated. The default is the only set known to
+          run on a hosted runner; widening it is how you find out what breaks.
+        required: false
+        default: '{{CI_SKIP_GATES}}'
+
+permissions:
+  contents: read
+
+# One run per ref. A superseded run's green is noise, and on a self-hosted
+# runner it can also be a second process fighting for an exclusive resource.
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # THE TOOLCHAIN PIN. The runner's own `toolchain` gate independently asserts
+  # that whatever binary it ends up running reports exactly this version - and
+  # if these lines and that gate ever disagree, THE GATE IS THE ONE THAT
+  # DECIDES. Two sources of truth are fine as long as one of them is the judge.
+  TOOLCHAIN_VERSION: '{{TOOLCHAIN_PIN}}'
+  TOOLCHAIN_ARCHIVE: '{{CI_TOOLCHAIN_ARCHIVE}}'
+  # SHA-512 of the archive, taken from the publisher's own published sums file.
+  # AN UNVERIFIED DOWNLOAD IS A STRANGER'S CODE DECIDING WHETHER YOUR TREE IS
+  # GREEN. The archive is checked against this constant BEFORE it is unpacked,
+  # and a mismatch STOPS the job rather than warning.
+  TOOLCHAIN_SHA512: '{{CI_TOOLCHAIN_SHA512}}'
+  VERIFY_SKIP: ${{ inputs.skip || '{{CI_SKIP_GATES}}' }}
+
+jobs:
+  verify:
+    runs-on: {{CI_RUNNER_OS}}
+    timeout-minutes: {{CI_TIMEOUT_MINUTES}}
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # ------------------------------------------------------------------
+      # the toolchain: cached, downloaded, and CHECKSUM-VERIFIED
+      # ------------------------------------------------------------------
+      - name: cache toolchain ${{ env.TOOLCHAIN_VERSION }}
+        id: toolchain-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/toolchain
+          # The checksum is IN the key on purpose: repin the archive and the
+          # cache misses, instead of a stale toolchain outliving its pin.
+          key: toolchain-${{ env.TOOLCHAIN_VERSION }}-${{ env.TOOLCHAIN_SHA512 }}
+
+      - name: download and verify the toolchain
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ProgressPreference    = 'SilentlyContinue'   # or IWR crawls on big files
+          $dir = Join-Path $env:RUNNER_TEMP 'toolchain'
+          $zip = Join-Path $env:RUNNER_TEMP $env:TOOLCHAIN_ARCHIVE
+          $url = '{{CI_TOOLCHAIN_URL}}'
+
+          Write-Host "downloading $url"
+          Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
+
+          $actual   = (Get-FileHash -Algorithm SHA512 -LiteralPath $zip).Hash.ToLower()
+          $expected = $env:TOOLCHAIN_SHA512.ToLower()
+          if ($actual -ne $expected) {
+              Write-Host "::error::toolchain archive SHA-512 MISMATCH - refusing to unpack."
+              Write-Host "  expected $expected"
+              Write-Host "  actual   $actual"
+              Write-Host "  Either the release asset was replaced, or this download was tampered with."
+              Write-Host "  Do NOT 'fix' this by updating the pin without re-reading the publisher's own sums file."
+              exit 1
+          }
+          Write-Host "SHA-512 verified against the pin: $actual"
+
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          Expand-Archive -LiteralPath $zip -DestinationPath $dir -Force
+          Remove-Item -LiteralPath $zip -Force
+
+      - name: export the toolchain path
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dir = Join-Path $env:RUNNER_TEMP 'toolchain'
+          $exe = Join-Path $dir '<the binary inside the archive>'
+          if (-not (Test-Path -LiteralPath $exe)) {
+              Write-Host "::error::no binary at $exe"
+              Get-ChildItem -LiteralPath $dir -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
+              exit 1
+          }
+          "TOOLCHAIN_EXE=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      # ------------------------------------------------------------------
+      # the runner's own bench, BEFORE anything expensive
+      # ------------------------------------------------------------------
+      - name: verify selftest (the judges, judged)
+        run: python {{VERIFY_RUNNER}} --selftest
+
+      # ------------------------------------------------------------------
+      # OPTIONAL: any warm-up your toolchain needs on a cold checkout.
+      # Pay it HERE, explicitly, on the job clock. Left implicit, a first-boot
+      # import or index cost lands inside a gate's timeout and reads as a hang -
+      # and someone will "fix" it by raising the timeout.
+      # ------------------------------------------------------------------
+      - name: warm up
+        run: |
+          Write-Host 'no warm-up required'   # replace, or delete this step
+
+      - name: did the warm-up dirty the tree?
+        run: |
+          # DIAGNOSTIC, not a gate - the runner's own judge-paths-clean gate is
+          # the gate. This exists because the warm-up is the one step that
+          # writes into the checkout, and when it mints an untracked sidecar the
+          # judges gate goes red and THIS line is where anyone will look first.
+          # The fix is to commit the sidecar, not to loosen the gate.
+          $porcelain = (git status --porcelain) | Out-String
+          if ([string]::IsNullOrWhiteSpace($porcelain)) {
+              Write-Host 'tree still clean after warm-up'
+          } else {
+              Write-Host '::warning::the warm-up left the tree dirty; the judges gate will say so:'
+              Write-Host $porcelain
+          }
+          exit 0
+
+      # ------------------------------------------------------------------
+      # the gates
+      # ------------------------------------------------------------------
+      - name: run the gates
+        id: verify
+        run: |
+          # --out MUST be outside the repo (the runner aborts otherwise): a run
+          # that writes into the tree it judges dirties that tree.
+          {{GATE_COMMAND}} --skip "$env:VERIFY_SKIP" --out "$env:RUNNER_TEMP/verify"
+          $code = $LASTEXITCODE
+          Write-Host "verify exited $code"
+          "code=$code" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          # Deliberately exit 0: the code is DATA for the contract step below,
+          # not this step's verdict. Failing here would skip the artifact upload
+          # and lose exactly the evidence a red run exists to produce.
+          exit 0
+
+      - name: upload verify artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-${{ github.run_number }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/verify
+          retention-days: {{CI_ARTIFACT_RETENTION_DAYS}}
+          if-no-files-found: warn
+
+      - name: the CI contract
+        run: |
+          $code = '${{ steps.verify.outputs.code }}'
+          $want = '{{CI_EXPECTED_EXIT}}'
+          Write-Host '-------------------------------------------------------------'
+          Write-Host 'CI green = every gate that CAN run here is green.'
+          Write-Host 'The local full run remains the certification bar.'
+          Write-Host '-------------------------------------------------------------'
+          Write-Host "skipped this run : $env:VERIFY_SKIP"
+          Write-Host "verify exit      : $code   (this job requires exactly $want)"
+          if ($code -eq $want) {
+            Write-Host 'Expected shape. Every gate that ran was green; the skipped ones are named above.'
+            exit 0
+          }
+          switch ($code) {
+            '0' { Write-Host '::error::exit 0 (PASS) from CI, which claims a FULL certification including gates a hosted runner cannot run. The skip list is wrong, or the run order changed under this workflow.'; exit 1 }
+            '1' { Write-Host '::error::exit 1 (FAIL) - at least one gate went red. The red gates are named in the summary line above and in the uploaded verify.json.'; exit 1 }
+            '2' { Write-Host '::error::exit 2 (INSTRUMENTED/ABORTED) - the runner refused to start, or ran doctored. Either way it certified nothing.'; exit 1 }
+            '3' { Write-Host '::error::exit 3 (PARTIAL) but this job expected a full PASS. Gates were skipped that should not have been.'; exit 1 }
+            default { Write-Host "::error::unexpected exit $code - not a code in the contract (0/1/2/3). Treating as failure."; exit 1 }
+          }

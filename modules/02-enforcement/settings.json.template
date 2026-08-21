@@ -1,0 +1,96 @@
+{
+  "__COMMENT__": [
+    "TEMPLATE - harness settings that WIRE the enforcement layer. Copy to your",
+    "harness's project settings file (for Claude Code: .claude/settings.json).",
+    "",
+    "SLOTS: {{PROJECT_ROOT}} {{PROTECTED_PATH}} {{PYTHON_BIN}} {{STATUSLINE_CMD}}",
+    "",
+    "This file is deliberately VALID JSON with the slots inside strings, so you",
+    "can run the fixture harness's --armed check against it before you have",
+    "substituted anything:",
+    "    python hook_fixtures.py --armed settings.json.template",
+    "",
+    "THREE THINGS ARE WIRED HERE, AND THEY ARE NOT INTERCHANGEABLE",
+    "-------------------------------------------------------------",
+    "1. permissions.ask - a HARNESS rule. It binds every agent at every depth",
+    "   and no session can talk it out of prompting. This is the strongest",
+    "   local control you have, and it is why the protected path appears BOTH",
+    "   here and in the hook: the harness rule is the floor, the hook is what",
+    "   can lift it when a cert-green token says the tree is certified.",
+    "2. hooks.PreToolUse - the gate. ONE hook file, wired at THREE matcher",
+    "   blocks covering seven tool names. --armed asserts the four that carry",
+    "   rules (Workflow, Agent, Bash, Edit); the other three ride the same",
+    "   blocks. Wiring two blocks and forgetting the third is the classic",
+    "   silent hole: every fixture stays green and one whole class stops",
+    "   being enforced. The --armed check exists for exactly that.",
+    "   {{PROJECT_ROOT}} in those three commands is the ABSOLUTE path to your",
+    "   repo root, forward slashes, TYPED IN HERE BY HAND. It is not read from",
+    "   the kit.config key of the same name - that key is a runtime fallback",
+    "   for when .git discovery fails, and it ships empty on purpose. An empty",
+    "   substitution yields python \\\"/tools/hook_model_gate.py\\\", which the",
+    "   next --armed run reports as UNSTARTABLE.",
+    "3. statusLine - the board. Optional; see module 05. {{STATUSLINE_CMD}}",
+    "   is substituted into a JSON STRING, so its value must contain NO double",
+    "   quotes: one `\\\"` here yields settings that do not parse, and a harness",
+    "   that cannot parse its settings has no hooks either. Use an unquoted",
+    "   path, or single quotes if it contains spaces. Delete this block if you",
+    "   are not adopting module 05.",
+    "",
+    "REMOVE the __COMMENT__ key when you adopt this file if your harness is",
+    "strict about unknown top-level keys. Most tolerate it, and keeping it",
+    "means the reasoning travels with the wiring.",
+    "",
+    "ONE HOOK FILE, THREE MATCHER BLOCKS - not three hook files. A single",
+    "decision surface is a single thing to test, and the fixture harness tests",
+    "exactly the file named here."
+  ],
+
+  "permissions": {
+    "ask": [
+      "Edit({{PROTECTED_PATH}}/**)",
+      "Write({{PROTECTED_PATH}}/**)"
+    ]
+  },
+
+  "statusLine": {
+    "type": "command",
+    "command": "{{STATUSLINE_CMD}}",
+    "padding": 0
+  },
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Workflow|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\"",
+            "timeout": 20,
+            "statusMessage": "Checking model tiers..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\"",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\"",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

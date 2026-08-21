@@ -1,0 +1,186 @@
+{
+  "_comment": [
+    "THE EXPECTATION-SOURCE REGISTRY. Every check in this kit declares two",
+    "things: the SUBJECT it asserts about, and the ARTIFACT its EXPECTATION is",
+    "read from. `tools/expectation_lint.py` fails when those are the same",
+    "artifact and no waiver explains why.",
+    "",
+    "This file exists because the same defect was found eight times by six",
+    "independent adoption walks, each time wearing a different hat, and the",
+    "operating architecture's own promotion rule says a prose rule that keeps",
+    "failing gets promoted to a mechanical layer. The design question 'where",
+    "does this check's expectation come from?' is now an answer every check",
+    "has to write down.",
+    "",
+    "expectation_from: \"inline\" means hand-written literals in the checking",
+    "code. Those are the specification, they do not move when the code moves,",
+    "and they are deliberately out of scope.",
+    "",
+    "ADDING A CHECK? Add a row. The lint cross-checks the fixture family",
+    "against hook_fixtures.py, so an unregistered fixture is caught; for",
+    "everything else, an absent row is invisible - the residual, named in",
+    "KNOWN-ISSUES rather than papered over."
+  ],
+
+  "checks": [
+    { "id": "fixture:a", "subject": "modules/02-enforcement/hook_model_gate.py:workflow-tier-rule", "expectation_from": "inline" },
+    { "id": "fixture:b", "subject": "modules/02-enforcement/hook_model_gate.py:workflow-tier-rule", "expectation_from": "inline" },
+    { "id": "fixture:c", "subject": "modules/02-enforcement/hook_model_gate.py:agent-tier-rule", "expectation_from": "inline" },
+    { "id": "fixture:d", "subject": "modules/02-enforcement/hook_model_gate.py:agent-tier-rule", "expectation_from": "inline" },
+    { "id": "fixture:e", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:f", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:g", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:h", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:i", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+
+    {
+      "id": "fixture:j",
+      "subject": "kit.config:FORBIDDEN_SPAWN_TIER",
+      "expectation_from": "kit.config",
+      "waived": true,
+      "reason": "THE ORIGINAL INSTANCE. The payload names the tier the rule forbids, and both come from kit.config, so fixture and rule move in lockstep - weaken the key and the fixture weakens with it, still green. Unavoidable for a config-driven rule: the fixture's job is 'the hook honours whatever the config says'. Covered STRUCTURALLY instead: kit.config is in JUDGE_PATHS, so any uncommitted change to it reds the `judges` gate; and the fixture additionally asserts the deny REASON renders the configured tier, which a placeholder value cannot satisfy."
+    },
+    {
+      "id": "fixture:k",
+      "subject": "kit.config:MODEL_EXEMPT_TYPES",
+      "expectation_from": "kit.config",
+      "waived": true,
+      "reason": "Same shape as fixture:j, same structural cover (kit.config in JUDGE_PATHS). Weaker in practice than j was: fixture c's payload is hard-coded, so widening the exempt list moves the hook's answer out from under an independent expectation and IS caught."
+    },
+    {
+      "id": "fixture:l",
+      "subject": "kit.config:PROTECTED_PATH",
+      "expectation_from": "kit.config",
+      "waived": true,
+      "reason": "The payload is built from the configured path when one is set. Narrowed twice since: when the path is UNSET the payload uses a synthetic probe no config can name (so an unconfigured tripwire can no longer pass by matching its own placeholder), and the accept-set is now exactly `ask` when no cert-green token exists rather than {ask, allow}. Structural cover: kit.config in JUDGE_PATHS."
+    },
+    {
+      "id": "fixture:m",
+      "subject": "kit.config:PROTECTED_PATH",
+      "expectation_from": "kit.config",
+      "waived": true,
+      "reason": "As fixture:l, for the Edit branch."
+    },
+    { "id": "fixture:t", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:u", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:v", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:w", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:x", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:y", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:z", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:aa", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:ab", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:ae", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:af", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:ag", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:ah", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:ai", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:aj", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:ak", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:al", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:am", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:an", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
+    { "id": "fixture:r", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
+    { "id": "fixture:s", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
+    { "id": "fixture:ac", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
+    { "id": "fixture:ad", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
+
+    { "id": "fixture:n", "subject": "modules/02-enforcement/hook_model_gate.py:tool-scope", "expectation_from": "inline" },
+    { "id": "fixture:o", "subject": "modules/02-enforcement/hook_model_gate.py:fail-open", "expectation_from": "inline" },
+    { "id": "fixture:p", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
+    { "id": "fixture:q", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
+
+    {
+      "id": "check:armed",
+      "subject": ".claude/settings.json",
+      "expectation_from": ".claude/settings.json",
+      "waived": true,
+      "reason": "INSTANCE 6, and only half-closable. Whether the hook is wired can only be read from the settings file itself; there is no second source for the harness's intent. What WAS closable is startability - the script a matched command names is now checked against the FILESYSTEM, an independent artifact, and a missing one reports UNSTARTABLE. Residual, accepted: a settings file that is internally consistent and wrong (wired to the correct path of the wrong hook) reads as armed."
+    },
+    { "id": "check:deadman", "subject": "modules/02-enforcement/hook_fixtures.py:dead-man-clause", "expectation_from": "inline" },
+    { "id": "check:matcher-arms", "subject": "modules/02-enforcement/hook_fixtures.py:matcher_arms", "expectation_from": "inline" },
+    { "id": "check:startability", "subject": ".claude/settings.json:hook-commands", "expectation_from": "filesystem" },
+    { "id": "check:placeholder-rule", "subject": "modules/02-enforcement/hook_fixtures.py:is_placeholder", "expectation_from": "inline" },
+
+    { "id": "gate:judges", "subject": "the working tree", "expectation_from": "git" },
+    { "id": "gate:hooks", "subject": "modules/02-enforcement/hook_fixtures.py", "expectation_from": "modules/03-verification/verify.py" },
+    { "id": "gate:example_unit", "subject": "modules/03-verification/examples/fake_suite.py", "expectation_from": "modules/03-verification/verify.py" },
+    { "id": "gate:example_lint", "subject": "modules/03-verification/examples/fake_lint.py", "expectation_from": "modules/03-verification/verify.py" },
+    { "id": "check:startup-assertion", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "filesystem" },
+    { "id": "check:judged-paths-not-excluded", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "git" },
+
+    { "id": "selftest:verify", "subject": "modules/03-verification/verify.py:judging-layer", "expectation_from": "inline" },
+    { "id": "selftest:statusline", "subject": "tools/statusline.py", "expectation_from": "inline" },
+    { "id": "selftest:deident", "subject": "tools/deident_scan.py", "expectation_from": "inline" },
+    { "id": "selftest:hook-fixtures", "subject": "modules/02-enforcement/hook_fixtures.py:pure-layer", "expectation_from": "inline" },
+
+    {
+      "id": "smoke:phase9-document-order",
+      "subject": "QUICKSTART.md",
+      "expectation_from": "tools/adoption_smoke.py",
+      "reason": "Not self-referential by artifact - the checkpoints are hand-transcribed from the document into the walker, so an edit to one does not move the other. That is also its weakness, and a different one: the walker can drift out of date with the prose it transcribes. It runs the COMMANDS, not the explanations. Named in KNOWN-ISSUES as a residual."
+    },
+    { "id": "smoke:phase8-config-in-judge-surface", "subject": "kit.config", "expectation_from": "modules/03-verification/verify.py:JUDGE_PATHS" },
+    { "id": "smoke:phase10-slot-registry", "subject": "modules/**/*.template", "expectation_from": "kit.config.example" },
+    { "id": "smoke:phase10-slot-manifests", "subject": "template SLOTS headers", "expectation_from": "the template body" },
+    {
+      "id": "smoke:phase12-excluded-judge-path",
+      "subject": "modules/03-verification/verify.py:git_excluded",
+      "expectation_from": "git",
+      "reason": "The control for the SHIPPED exclusion probe, where check:judged-paths-not-excluded covers only how the startup assertion reacts to an injected answer. The phase plants a real ignore rule over a real judge path in a real repository, in both rule shapes, and compares the runner against `git check-ignore` run independently. It exists because the first version of the probe corrupted every path it asked about and all three gates stayed green: an injected-answer check cannot see a transport defect."
+    },
+    {
+      "id": "smoke:phase13-render-agrees",
+      "subject": "tools/kit_render.py:rendering",
+      "expectation_from": "tools/adoption_smoke.py:document_order",
+      "reason": "Not self-referential by artifact, and deliberately so. document_order() renders the same templates BY HAND - a person's transcription of QUICKSTART - and phase 13 requires the tool's rendering to match it byte for byte (CLAUDE.md, the collaboration profile, TOKEN-LEDGER.md) and key for key (the structural settings merge). The two authorities are kept apart on purpose: the walk must never call the tool and the tool must never read the walk, or the kit loses its only independent expectation of what a rendered file looks like. When they disagree the arbiter is neither of them - it is the QUICKSTART step the hand model transcribes, and on this phase's first run the document ruled for the tool. Scope: this row covers the RENDERING sub-steps only; the guard assertions in the same phase are registered separately at smoke:phase13-render-guards. Residuals: the walk can drift out of date with the prose it transcribes; and the walk copies three of the four ledgers unrendered at Step 7, so JUDGMENT-LEDGER, FAILURE-FLOOR and LESSONS are checked against Step 7's printed checkpoint rather than diffed - every slot they carry is already covered by the CLAUDE.md byte-diff, and TOKEN-LEDGER is hand-rendered because RATIO_CEILING appears nowhere else."
+    },
+    {
+      "id": "smoke:phase13-render-guards",
+      "subject": "tools/kit_render.py:containment",
+      "expectation_from": "filesystem",
+      "reason": "The same phase also asserts the two containment guards END TO END - a real subprocess, a real target repository, a real kit checkout - and those expectations do not come from the hand model. Guard 1 is measured by pointing a run at the kit clone and checking the kit tree afterwards; guard 1b by a LEDGERS_DIR that climbs out of the target and checking that the outside directory was never created; guard 2 by hashing every hand-rendered file before and after. The tool's own selftest proves the same refusals in process, which cannot see a filesystem that disagrees with the decision layer - the same argument smoke:phase12 makes about the exclusion probe."
+    },
+    { "id": "selftest:kit-render", "subject": "tools/kit_render.py", "expectation_from": "inline" },
+    { "id": "selftest:kit-doctor", "subject": "tools/kit_doctor.py:judging-layer", "expectation_from": "inline" },
+
+    {
+      "id": "doctor:version",
+      "subject": "tools/kit_doctor.py:KIT_VERSION",
+      "expectation_from": "VERSION",
+      "reason": "Two artifacts on purpose. The stamp records which kit release a tree was adopted from; the constant records which release the tools came from. Neither can be checked against the FILES - a version stamp is a claim by whoever last copied - but the two disagreeing is exactly the state a partial re-copy leaves behind, and that is mechanically checkable."
+    },
+    {
+      "id": "doctor:config",
+      "subject": "kit.config",
+      "expectation_from": "modules/02-enforcement/hook_model_gate.py:PLACEHOLDER_SHAPES",
+      "reason": "The rule for 'is this key configured or still an example value' is imported from the shipped hook rather than re-implemented in the doctor. A fourth reader of that rule is the arrangement that produced the original defect."
+    },
+    { "id": "doctor:judge-paths-exist", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "filesystem" },
+    { "id": "doctor:judge-paths-ignored", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "git" },
+    { "id": "doctor:judge-paths-agree", "subject": "kit.config:JUDGE_PATHS+CERT_PATHS", "expectation_from": "modules/03-verification/verify.py" },
+    {
+      "id": "doctor:vacuous-gate",
+      "subject": "modules/03-verification/verify.py:GATES",
+      "expectation_from": "inline",
+      "reason": "Three disjuncts, two of them structural properties of the gate table judged against hand-written rules (a require pattern with no capture group; a floor of 1 or less), and the third read from the FILESYSTEM (no docs/ORACLE-<gate>.md page). Registered as inline because the two rules that decide vacuity are hand-written literals; the filesystem half is named here so the row is not read as covering less than it does."
+    },
+    { "id": "doctor:dirty-paths", "subject": "the working tree", "expectation_from": "git" },
+    { "id": "doctor:hook-interpreter", "subject": ".claude/settings.json:hook-commands", "expectation_from": "filesystem" },
+    { "id": "doctor:protected-case", "subject": "modules/02-enforcement/hook_model_gate.py:touches_protected", "expectation_from": "filesystem" },
+    {
+      "id": "doctor:cert-token",
+      "subject": ".claude/cert-green.json",
+      "expectation_from": "git",
+      "reason": "Whether a token still covers the tree is git's answer (the newest commit touching CERT_PATHS is contained in the token's sha, and those paths are clean). What the check ALSO does is print the honest label on every run - the token is unsigned and forgeable by anything that can write a file - and that half has no expectation source because it is not a measurement. It is a disclosure, and it is the control."
+    },
+
+    {
+      "id": "lint:expectation-source",
+      "subject": "checks-registry.json",
+      "expectation_from": "checks-registry.json",
+      "waived": true,
+      "reason": "The registry can only be checked against itself for internal consistency - there is no independent source for what a check's expectation ought to be. What it therefore cannot catch is an entry that is simply ABSENT. Narrowed for TWO families now, whose ids are recovered from the source and cross-checked both ways: the hook fixtures in hook_fixtures.py, and the doctor's checks in tools/kit_doctor.py. The doctor was the reason to generalise the cross-check rather than trust the author - ten unregistered checks in one commit would have grown this blind spot faster than the lint that discloses it. Everything outside those two families still depends on the author adding a row. Stated as a residual in KNOWN-ISSUES rather than presented as closed."
+    }
+  ]
+}

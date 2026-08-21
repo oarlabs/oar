@@ -1,0 +1,73 @@
+{
+  "__COMMENT__": [
+    "THE KIT'S OWN HARNESS WIRING - a real one, not a template. The template",
+    "you copy into your project is modules/02-enforcement/settings.json.template.",
+    "",
+    "This file exists for two reasons:",
+    "  1. verify.py's `hooks` gate asserts the hook is ARMED, and 'armed' is a",
+    "     claim about a settings file. Without one, certification could only",
+    "     ever prove what the hook DECIDES, never that anything CALLS it - the",
+    "     precise half that people forget.",
+    "  2. It is the worked example. ONE hook file, THREE matcher blocks,",
+    "     seven tool names.",
+    "",
+    "NO permissions.ask BLOCK, deliberately. This kit's own kit.config sets",
+    "PROTECTED_PATH_ENABLED = false, and QUICKSTART Step 4 tells adopters to",
+    "delete that block when the tripwire is off. Shipping a placeholder",
+    "ask-rule for a directory that does not exist would have the kit preaching",
+    "one thing and doing another - and would train whoever ran it to click",
+    "through a prompt about nothing, which is how real prompts stop being read.",
+    "The TEMPLATE still carries the block, with its own note; that is where it",
+    "belongs. When you enable the tripwire, that block is the strongest local",
+    "control you have: a harness rule binds every agent at every depth, and the",
+    "hook is what can LIFT it under a cert-green token.",
+    "",
+    "THE COMMANDS ARE RELATIVE ON PURPOSE. An absolute path would be correct",
+    "on exactly one machine and would put someone's home directory into a",
+    "public template. The cost is real and is stated here rather than hidden:",
+    "a relative command only resolves when the harness runs with this repo as",
+    "its working directory. IN YOUR OWN PROJECT USE ABSOLUTE PATHS - a hook",
+    "that cannot start is a hook that silently enforces nothing, which is the",
+    "failure this whole module exists to prevent.",
+    "",
+    "No statusLine block: wiring tools/statusline.py here would need the same",
+    "absolute path, for the same reason. Module 05's README carries the JSON",
+    "for both boards."
+  ],
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Workflow|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"modules/02-enforcement/hook_model_gate.py\"",
+            "timeout": 20,
+            "statusMessage": "Checking model tiers..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"modules/02-enforcement/hook_model_gate.py\"",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"modules/02-enforcement/hook_model_gate.py\"",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

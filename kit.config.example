@@ -1,0 +1,361 @@
+# ==========================================================================
+# kit.config - THE ONE FILE WHERE THIS KIT MEETS YOUR PROJECT
+# ==========================================================================
+# The annotated registry: every `{{SLOT}}` token that appears in any template
+# under modules/ is REGISTERED here and nowhere else. If a template uses a slot
+# this file does not define, that is a bug in the kit (see the self-check
+# below).
+#
+# Registered is not the same as valued. Some keys are registered here and get
+# their value elsewhere, on purpose: PROJECT_ROOT ships EMPTY and PROTECTED_PATH
+# ships as NONE, because an absolute path is wrong for everyone else who clones
+# - their values belong in the gitignored `kit.config.local` beside this file,
+# or nowhere at all. And nothing reads a config key to FILL a template slot:
+# substitution is by hand (see below), so `{{PROJECT_ROOT}}` in the module 02
+# settings template is an absolute path you type in at QUICKSTART Step 4,
+# whether or not the key here is set.
+#
+# THE TWO-FILE SPLIT - copy BOTH:
+#
+#     cp kit.config.example       kit.config          # COMMITTED
+#     cp kit.config.local.example kit.config.local    # GITIGNORED
+#
+#   kit.config        repo-relative, shareable values. It MUST be committed:
+#                     a config the tools cannot find is a set of rules that
+#                     silently stops existing, and nothing in any output says
+#                     so.
+#   kit.config.local  absolute paths and the protected location. It must NOT
+#                     be committed: those values are wrong for everyone else
+#                     who clones, and publish a small map of your machine.
+#
+# Both are read from the same directory, `.local` last, later wins. The kit
+# ships a filled-in `kit.config` of its own, next to this file, as a worked
+# example.
+#
+# HOW SUBSTITUTION HAPPENS: by hand, deliberately, once. There is no templating
+# engine, and that is a decision rather than an omission - the templates are
+# documents a human has to read and argue with before they bind anything. Open
+# a template, replace the slots, delete the guidance comments you have absorbed,
+# keep the ones you have not. `kit.config` then survives as the registry of what
+# you chose, which is what QUICKSTART.md's final check reads back to you.
+#
+# FORMAT: KEY = value. `#` starts a comment. No quoting rules, no interpolation.
+# Values shown are ILLUSTRATIVE DEFAULTS, not recommendations, except where the
+# comment says otherwise.
+#
+# SELF-CHECK - every slot a template uses must be defined here. Run this after
+# any edit to a template, from the kit root; it should print nothing:
+#
+#   python -c "import re,pathlib;d={m.group(1) for m in re.finditer(r'(?m)^([A-Z0-9_]+)\s*=',pathlib.Path('kit.config.example').read_text(encoding='utf-8'))};u={m.group(1) for p in pathlib.Path('modules').rglob('*') if p.is_file() for m in re.finditer(r'\{\{([A-Z0-9_]+)\}\}',p.read_text(encoding='utf-8',errors='ignore'))};print('\n'.join(sorted(u-d)))"
+#
+# A template using an undefined slot is a slot the adopter will never fill in,
+# and an unfilled slot ships to production looking like a placeholder nobody saw.
+# ==========================================================================
+
+
+# --------------------------------------------------------------------------
+# 1. IDENTITY AND GEOGRAPHY
+# --------------------------------------------------------------------------
+
+# Human-readable project name. Appears in governance headers, ledger titles,
+# CI job names, and the status board.
+PROJECT_NAME = Example Project
+
+# THIS ONE BELONGS IN kit.config.local, OR NOWHERE AT ALL.
+#
+# It is an absolute path, and this file is the COMMITTED half - putting it here
+# contradicts the split described at the top and hands everyone who clones a
+# path that is wrong on their machine. Two better options, in order:
+#
+#   1. OMIT IT. Every tool resolves the root by walking up to `.git` first, and
+#      that covers a normal checkout. This is the right answer for most repos.
+#   2. Set it in `kit.config.local` for the cases discovery cannot cover - a
+#      worktree, a non-git checkout, a harness launched from elsewhere.
+#
+# If you do set it: forward slashes on Windows, because several tools normalise
+# backslashes and several do not, and a path that only matches half the time is
+# a tripwire that fires half the time.
+# THE SLOT IS NOT THIS KEY. `{{PROJECT_ROOT}}` appears in the module 02
+# settings template's three hook commands, and that slot is filled BY HAND at
+# QUICKSTART Step 4 with the absolute path to your repo root. Nothing reads
+# this key to fill it. Leaving the key empty is the recommended answer and does
+# not mean leaving the slot empty: an empty slot yields
+# `python "/tools/hook_model_gate.py"`, which the next `--armed` run reports as
+# UNSTARTABLE. This key is a RUNTIME override, used only when `.git` discovery
+# fails.
+#
+# Left EMPTY on purpose. Empty means "discover it" - and the key stays
+# present, not commented out, so this file remains the complete registry
+# of every slot (see the self-check in the header).
+PROJECT_ROOT =
+
+# Where durable knowledge lives OUTSIDE the repo - the notes system, wiki, or
+# vault that outlives any one session. The sidequest module writes its close
+# record here; the governance template points at it for source-of-truth docs.
+# Set to NONE if you have no such place. The templates do NOT branch on that
+# value - `{{KNOWLEDGE_DIR}}` is interpolated unconditionally - so when it is
+# NONE, substitute a REPO path (`docs`) at the two sites that use it rather
+# than the literal word: `modules/01-governance/CLAUDE.md.template` and
+# `modules/08-collaboration/PROFILE-TEMPLATE.md`. The repo copy then becomes
+# source of truth instead of a mirror; say so where the template says it is not.
+#
+# WHICH HALF: a repo-relative value (`docs`) is shareable and belongs here, in
+# the committed file. An ABSOLUTE path does not - set it in kit.config.local
+# instead and leave this key alone, or the committed config carries one
+# machine's geography and the de-identification scan reports it as an escape.
+# The overlay is read last, so the key is still visible to everything that
+# reads it.
+KNOWLEDGE_DIR = /abs/path/to/your/knowledge-base
+
+# Directory (repo-relative) where stage reports are saved verbatim by the
+# coordinator. Lane agents never write here - they return report bodies.
+REPORTS_DIR = docs/reports
+
+# Directory (repo-relative) holding the four ledgers from modules/04-ledgers.
+LEDGERS_DIR = docs
+
+# Repo-relative path to the current checkpoint/resume document, or a glob whose
+# newest match is the one to read. This is the first thing a cold session reads.
+CHECKPOINT_GLOB = docs/CHECKPOINT-*.md
+
+
+# --------------------------------------------------------------------------
+# 2. MODEL TIERS
+#    The kit is written for a harness where a spawn can name its model. Names
+#    are yours; the kit only cares that the three roles are DISTINCT and that
+#    the orchestrator tier is never the default for lane work.
+# --------------------------------------------------------------------------
+
+# The seat that charters, launches, synthesises, commits, and talks to the
+# owner. It must never be the tier that executes lane work.
+ORCHESTRATOR_TIER = your-top-tier-model
+
+# Implementers, reviewers, smoke/floors engineers, investigators.
+LANE_TIER = your-mid-tier-model
+
+# Mechanical sweeps: renames, inventories, format passes.
+SWEEP_TIER = your-small-model
+
+# Agent types that carry their own model definition and are therefore exempt
+# from the "declare a tier" rule. Comma-separated. Keep this list SHORT and
+# audited - every entry is a hole in the gate.
+MODEL_EXEMPT_TYPES = fork
+
+# Named so charters can forbid it explicitly: no spawn, at any depth, may
+# request the orchestrator tier by name. Usually the same value as
+# ORCHESTRATOR_TIER; it is a separate slot because some harnesses expose the
+# orchestrator under a different identifier than the one you would type.
+FORBIDDEN_SPAWN_TIER = your-top-tier-model
+
+
+# --------------------------------------------------------------------------
+# 3. CERTIFICATION
+# --------------------------------------------------------------------------
+
+# THE one command that certifies a tree. One invocation, one summary line, one
+# exit code. If you need two commands, you do not yet have certification - you
+# have a habit.
+GATE_COMMAND = python tools/verify.py
+
+# Repo-relative path to the verify runner itself (module 03 gives you a
+# skeleton to copy here).
+VERIFY_RUNNER = tools/verify.py
+
+# THE JUDGE SURFACE - paths whose contents decide what "green" MEANS. An
+# uncommitted edit to any of them invalidates certification, because the run
+# would be judging a tree by rules that are not in the tree. Comma-separated,
+# repo-relative.
+#
+# NAME FILES, NOT DIRECTORIES. `tools` is the tempting value and it is almost
+# always wrong: a whole tools directory sweeps in scratch scripts, one-off
+# migration helpers, formatting passes and other cosmetics, so certification
+# starts going red for reasons that have nothing to do with judgement. What
+# happens next is predictable - people stop reading the gate, then they start
+# working around it, and a control everybody routes around enforces nothing
+# while still costing everyone attention. List the actual judges.
+#
+# AND LIST THIS FILE. **The config that parameterises the judges is itself a
+# judge.** Measured on this kit: with `kit.config` missing from the list, an
+# uncommitted `FORBIDDEN_SPAWN_TIER = nothing-is-forbidden` produced a clean
+# `VERIFY: PASS` and a hooks gate still reporting that the rules "decide
+# correctly" - because the fixture guarding that rule reads its expectation
+# from the very file being weakened. Fixture and rule move together, so the
+# fixture is blind to it.
+#
+# WHO READS THIS KEY: nothing does. The judges gate reads the `JUDGE_PATHS`
+# constant inside your copy of `verify.py`. This line is documentation, and
+# keeping the two in agreement is a manual job - see QUICKSTART Step 4.
+JUDGE_PATHS = tools/verify.py, tools/hook_model_gate.py, tools/hook_fixtures.py, .claude/settings.json, kit.config
+
+# THE CERTIFIED TREE - the paths the gates are actually about. Comma-separated,
+# repo-relative. Deliberately narrower than the whole repo: a docs commit must
+# not invalidate a certification, or nobody will keep the token honest.
+#
+# WHO READS THIS KEY: `hook_model_gate.py`, and only for the cert-green
+# tripwire. The judges gate reads the `CERT_PATHS` constant inside your copy of
+# `verify.py`. Keep the two in agreement by hand: if they disagree, the hook and
+# the runner hold different opinions about what has been certified, and neither
+# will say so.
+CERT_PATHS = src, tests, assets
+
+# Toolchain pin. The gate asserts the version string exactly; "it built on my
+# machine" is a measurement of the machine.
+TOOLCHAIN_NAME = your-runtime
+TOOLCHAIN_VERSION_CMD = your-runtime --version
+TOOLCHAIN_PIN = 1.2.3
+PYTHON_MIN = 3.10
+
+# Where the verify runner writes logs and artefacts. MUST be outside
+# PROJECT_ROOT: a run that writes into the tree it judges dirties that tree.
+VERIFY_OUT_DIR = /abs/path/outside/the/repo/verify-out
+
+
+# --------------------------------------------------------------------------
+# 4. THE OPTIONAL PROTECTED-PATH TRIPWIRE
+#    Turn this on when there is a location agents must not modify without a
+#    human nod: a deployed build, a client-facing export, a production config,
+#    a data directory. Leave DISABLED and the hook simply never consults it.
+# --------------------------------------------------------------------------
+
+PROTECTED_PATH_ENABLED = false
+
+# Absolute path (or distinctive fragment). The hook matches it in file paths
+# and in shell command strings, after normalising backslashes to slashes.
+#
+# ALSO A kit.config.local VALUE. `PROTECTED_PATH_ENABLED` above is a shareable
+# boolean and belongs here; the PATH is one machine's geography and does not.
+# Splitting them is not fussiness - a committed absolute path is what makes the
+# de-identification scan in QUICKSTART Step 9 unreachable by its own advice.
+# NONE here; the real value goes in kit.config.local when you enable the
+# tripwire. The key stays present so the registry stays complete.
+PROTECTED_PATH = NONE
+
+# The pre-authorisation token. When certification is fully green the
+# coordinator writes {"sha": "<commit>"} here, and the tripwire ALLOWS instead
+# of ASKING - but only while no commit touching CERT_PATHS has landed since,
+# and only while CERT_PATHS is clean in `git status`. Certification is a
+# property of a TREE, not of a commit.
+CERT_TOKEN_FILE = .claude/cert-green.json
+
+
+# How the harness invokes an interpreter. Used in the settings template's hook
+# commands. Give an absolute path if your harness does not inherit your PATH -
+# a hook that cannot start is a hook that silently stops guarding.
+PYTHON_BIN = python
+
+
+# --------------------------------------------------------------------------
+# 5. STATUS BOARD
+# --------------------------------------------------------------------------
+
+# The full command the harness runs to render the status line. Substituted
+# into the settings template. Set to NONE and delete that block to skip
+# module 05.
+#
+# Defaults to the PORTABLE board, which is the one module 05 recommends -
+# stock Python, runs on any host. The pwsh variant is the Windows-optimised
+# alternative and is commented out below. Use an ABSOLUTE path: the harness
+# does not promise a working directory, and a status line that fails to start
+# produces no board at all, which reads exactly like "nothing is happening".
+# SB-B. This is an ABSOLUTE-PATH key, so like PROJECT_ROOT and PROTECTED_PATH
+# it belongs in `kit.config.local`, not in the committed half. The worked
+# example lives there.
+#
+# TWO RULES WHEN YOU WRITE IT, both learned the hard way:
+#   * NO DOUBLE QUOTES. This value is substituted into a JSON string
+#     (`"command": "{{STATUSLINE_CMD}}"`), so an embedded `"` produces a
+#     settings file that does not parse - and a harness that cannot parse its
+#     settings has no hooks either, which turns a cosmetic mistake into a
+#     silently disarmed gate.
+#   * If the path contains spaces, wrap it in SINGLE quotes. They survive JSON
+#     substitution untouched and both pwsh and POSIX shells accept them.
+STATUSLINE_CMD = NONE
+
+# Context-window bar: cells, and the cell index of the "clear the session" mark.
+STATUS_BAR_CELLS = 16
+STATUS_CLEAR_MARK_PCT = 75
+
+# Sidequest banner staleness. Past this many days the banner turns amber: an
+# open side quest that has stopped being a detour and become the main line is a
+# fact the board should state, not a fact you should notice.
+SIDEQUEST_STALE_DAYS = 3
+
+# Repo-relative flag file whose EXISTENCE means "this session is forked".
+SIDEQUEST_FLAG = .claude/sidequest.json
+
+# Optional single-line file the coordinator hand-maintains for stage state.
+# Set to NONE to drop the segment.
+STATUS_BOARD_LINE_FILE = /abs/path/to/statusboard.txt
+
+# Harness-specific: where per-subagent transcripts live, if your harness exposes
+# them. Used only to render "who is flying". Set to NONE to drop the segment.
+AGENT_TRANSCRIPT_DIR = NONE
+
+
+# --------------------------------------------------------------------------
+# 6. CI
+# --------------------------------------------------------------------------
+
+CI_RUNNER_OS = windows-latest
+CI_TIMEOUT_MINUTES = 90
+
+# Gates the hosted runner cannot host. Comma-separated; every entry needs a
+# REASON in the workflow header, and the reasons must be different sentences -
+# collapsing them into "not supported yet" loses the only useful information,
+# which is which of them can ever be lifted.
+CI_SKIP_GATES = smoke
+
+# Exit code the CI contract step requires. 3 (PARTIAL) when CI_SKIP_GATES is
+# non-empty; 0 (PASS) only when CI runs every gate.
+CI_EXPECTED_EXIT = 3
+
+# Pinned toolchain download for the runner.
+CI_TOOLCHAIN_URL = https://example.invalid/your-runtime-1.2.3.zip
+CI_TOOLCHAIN_ARCHIVE = your-runtime-1.2.3.zip
+CI_TOOLCHAIN_SHA512 = <paste the checksum from the publisher's own sums file>
+CI_ARTIFACT_RETENTION_DAYS = 14
+
+
+# --------------------------------------------------------------------------
+# 7. COST DISCIPLINE
+# --------------------------------------------------------------------------
+
+# process / implementation ratio ceiling. DERIVE this from your own first few
+# stages rather than adopting a number; the ledger template shows the
+# derivation. A ceiling is a tripwire that opens a conversation at a gate,
+# never an automatic budget.
+RATIO_CEILING = derive-from-your-own-data
+
+# Stages without a fired rule before that rule faces demotion review.
+DEMOTION_REVIEW_STAGES = 3
+
+
+# --------------------------------------------------------------------------
+# 8. VOCABULARY
+#    The kit refers to the human seat generically. If your project has a
+#    different word for it (client, PO, principal, maintainer), set it once.
+# --------------------------------------------------------------------------
+
+OWNER_ROLE = the owner
+COORDINATOR_ROLE = the coordinator
+
+
+# --------------------------------------------------------------------------
+# 9. WRITING STANDARD
+#    The voice used for everything that gets committed or published: stage
+#    reports, checkpoints, papers, module docs. This exists because the
+#    reference build's owner had to ask for plain prose repeatedly before it
+#    became a rule - a repeated correction is a standing standard.
+# --------------------------------------------------------------------------
+
+# `technical`  - plain technical-writer prose: short declarative sentences,
+#                defined terms, active voice, tables where they help, no
+#                aphoristic flourishes. The default, and the right choice for
+#                anything a newcomer will read cold.
+# `doctrinal`  - the compressed, aphoristic house style some operators prefer
+#                for internal doctrine. Legible to insiders; harder for
+#                everyone else. Choose it deliberately, per project.
+# The slot is consumed by module 01's governance template (a WRITING STANDARD
+# line) and by humans; no tool parses it. Conversation with the owner is not
+# bound by it - only artifacts that outlive the session are.
+PROSE_VOICE = technical

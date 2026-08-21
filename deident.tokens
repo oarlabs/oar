@@ -1,0 +1,25 @@
+# deident.tokens - SHIPPED EMPTY ON PURPOSE.
+#
+# One token per line. Blank lines and #-comments ignored. Matching is
+# substring, case-insensitive by default (see --case-sensitive).
+#
+# DO NOT COMMIT REAL TOKENS TO THIS FILE.
+# A committed token list is itself the leak: it is a tidy, greppable index of
+# exactly the words someone did not want published. This file exists so the
+# wiring is discoverable, not so it can be filled in.
+#
+# Keep your real list OUTSIDE the repository - a scratch directory, a secrets
+# store, your CI secret - and point the scanner at it:
+#
+#     python tools/deident_scan.py --tokens <path-outside-the-repo> --strict
+#
+# What belongs on a real list (categories, not examples):
+#   - every person's name, handle, and email local-part
+#   - your organisation / client / product names that must not travel
+#   - machine-specific absolute path fragments (user directory names, drive
+#     letters plus a distinctive folder, sync-service folder names)
+#   - internal repository, host, and project names
+#   - session, ticket, and account identifiers
+#
+# Verify the scanner still fires before you trust a clean run:
+#     python tools/deident_scan.py --selftest
