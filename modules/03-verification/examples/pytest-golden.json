@@ -1,0 +1,155 @@
+{
+  "_comment": [
+    "GOLDEN FIXTURES - real pytest output, captured by",
+    "`gate_line.py --capture-golden`, replayed by `--selftest`.",
+    "",
+    "`raw_summary` is pytest's OWN -q summary line with its duration",
+    "normalised to <t>. It is the negative control: a gate pointed",
+    "straight at pytest would have to judge that line, and the",
+    "selftest requires validate() to refuse it.",
+    "",
+    "Regenerating this file is a reviewed commit. It is the",
+    "expectation the selftest reads, so recapturing over a defect",
+    "would install the defect as the new expectation."
+  ],
+  "pytest_version": "9.1.1",
+  "python": "3.14",
+  "cases": [
+    {
+      "id": "all-pass",
+      "suite": "all_pass",
+      "pytest_args": [],
+      "counts": {
+        "collected": 3,
+        "deselected": 0,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "errored": 0
+      },
+      "failed_ids": [],
+      "errored_ids": [],
+      "lines": [
+        "unit_suite: 3/3 tests passed, 0 skipped, 0 errors"
+      ],
+      "green": true,
+      "raw_summary": "3 passed in <t>s",
+      "raw_exit": 0
+    },
+    {
+      "id": "pass-with-skips",
+      "suite": "with_skips",
+      "pytest_args": [],
+      "counts": {
+        "collected": 5,
+        "deselected": 0,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 2,
+        "errored": 0
+      },
+      "failed_ids": [],
+      "errored_ids": [],
+      "lines": [
+        "unit_suite: 3/3 tests passed, 2 skipped, 0 errors"
+      ],
+      "green": true,
+      "raw_summary": "3 passed, 2 skipped in <t>s",
+      "raw_exit": 0
+    },
+    {
+      "id": "failures",
+      "suite": "failures",
+      "pytest_args": [],
+      "counts": {
+        "collected": 3,
+        "deselected": 0,
+        "passed": 2,
+        "failed": 1,
+        "skipped": 0,
+        "errored": 0
+      },
+      "failed_ids": [
+        "failures/test_failures.py::test_deliberate_failure"
+      ],
+      "errored_ids": [],
+      "lines": [
+        "unit_suite: THESE FAILED: failures/test_failures.py::test_deliberate_failure",
+        "unit_suite: 2/3 tests passed, 0 skipped, 0 errors"
+      ],
+      "green": false,
+      "raw_summary": "1 failed, 2 passed in <t>s",
+      "raw_exit": 1
+    },
+    {
+      "id": "errors",
+      "suite": "errors",
+      "pytest_args": [],
+      "counts": {
+        "collected": 3,
+        "deselected": 0,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "errored": 1
+      },
+      "failed_ids": [],
+      "errored_ids": [
+        "errors/test_errors.py::test_needs_a_broken_fixture"
+      ],
+      "lines": [
+        "unit_suite: THESE ERRORED: errors/test_errors.py::test_needs_a_broken_fixture",
+        "unit_suite: 2/3 tests passed, 0 skipped, 1 errors"
+      ],
+      "green": false,
+      "raw_summary": "2 passed, 1 error in <t>s",
+      "raw_exit": 1
+    },
+    {
+      "id": "collapsed-collection",
+      "suite": "collapsed",
+      "pytest_args": [],
+      "counts": {
+        "collected": 0,
+        "deselected": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "errored": 0
+      },
+      "failed_ids": [],
+      "errored_ids": [],
+      "lines": [
+        "unit_suite: COLLAPSED COLLECTION: 0 tests collected - the suite did not run",
+        "unit_suite: 0/0 tests passed, 0 skipped, 0 errors"
+      ],
+      "green": false,
+      "raw_summary": "no tests ran in <t>s",
+      "raw_exit": 5
+    },
+    {
+      "id": "subset",
+      "suite": "subset",
+      "pytest_args": [
+        "-k",
+        "parser"
+      ],
+      "counts": {
+        "collected": 2,
+        "deselected": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "errored": 0
+      },
+      "failed_ids": [],
+      "errored_ids": [],
+      "lines": [
+        "unit_suite: 2/2 tests passed, 0 skipped, 0 errors (subset: 2 of 4)"
+      ],
+      "green": false,
+      "raw_summary": "2 passed, 2 deselected in <t>s",
+      "raw_exit": 0
+    }
+  ]
+}

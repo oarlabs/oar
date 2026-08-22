@@ -24,7 +24,7 @@ The kit's own certification proves the kit works *in the kit*. It says nothing
 about the thing the kit actually ships, which is a SET OF INSTRUCTIONS for
 copying files into somebody else's repository.
 
-That gap is not theoretical. A stranger-adoption test walked QUICKSTART
+That gap is not theoretical. An LLM-persona adoption walk followed QUICKSTART
 literally in a scratch project and the runner's repo root resolved to
 `<repo>/tools/` - so `git -C tools status -- src` returned an empty string
 with exit 0, an empty porcelain is how "clean" is spelled, and the gate whose
@@ -60,6 +60,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import importlib.util
 import json
 import os
 import re
@@ -81,13 +82,41 @@ HOOK = KIT / "modules" / "02-enforcement" / "hook_model_gate.py"
 FIXTURES = KIT / "modules" / "02-enforcement" / "hook_fixtures.py"
 SETTINGS_TMPL = KIT / "modules" / "02-enforcement" / "settings.json.template"
 BOARD = KIT / "tools" / "statusline.py"
+# Module 04's instrument and the one ledger the runner's `escapes` gate reads.
+# Both land at STEP 4, not Step 7, and that ordering is load-bearing for the
+# same reason the settings file's is: the startup assertion refuses to run
+# over a path that is not in the tree, and Step 4 ends in a certification run.
+ESCAPE_RATE = KIT / "modules" / "04-ledgers" / "escape_rate.py"
+JUDGMENT_LEDGER = KIT / "modules" / "04-ledgers" / "JUDGMENT-LEDGER.md"
 LINT = KIT / "tools" / "expectation_lint.py"
 
 # SB-C: a governance file that still contains a shipped example value is a rule
 # nobody is enforcing, written down as though somebody were.
-RENDERED_PLACEHOLDER = re.compile(
-    r"your-(?:top-tier|mid-tier|small|lane|sweep)[a-z-]*|/abs/path/to/|"
-    r"derive-from-your-own-data|https://example\.invalid")
+#
+# IMPORTED, NOT COPIED. This pattern used to be defined here, and a second,
+# narrower copy of the same idea then grew inside `tools/kit_doctor.py
+# --level1` - the kit's oldest defect class (two readers of one rule, drifting
+# apart) arriving by a new road. The definition now lives beside the shared
+# unset rule in `modules/02-enforcement/hook_model_gate.py` and both checkers
+# read it from there. There is no fallback copy on purpose: this file only ever
+# runs inside a kit checkout, and a silent local copy is the thing being
+# prevented.
+def _load_rendered_placeholder():
+    # Bytecode writing is suppressed for the duration: importing a module by
+    # path drops a `__pycache__` beside the file it read, and this file's
+    # own phase 13 hashes the kit tree it is standing in.
+    prior = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True
+    try:
+        spec = importlib.util.spec_from_file_location("_oar_shared_rule", HOOK)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.RENDERED_PLACEHOLDER
+    finally:
+        sys.dont_write_bytecode = prior
+
+
+RENDERED_PLACEHOLDER = _load_rendered_placeholder()
 
 GREEN, RED, YELLOW, BOLD, RESET = (
     "\033[32m", "\033[31m", "\033[33m", "\033[1m", "\033[0m")
@@ -222,6 +251,14 @@ def adapt_runner(text: str) -> str:
         "set CERT_PATHS", flags=re.S)
     sub(r'HOOK_FIXTURES = "[^"]*"', 'HOOK_FIXTURES = "tools/hook_fixtures.py"',
         "repoint HOOK_FIXTURES")
+    # Step 4.1b - module 04's two constants. They ship with the KIT's values
+    # (its own tool path, its own KNOWN-ISSUES.md table) exactly as JUDGE_PATHS
+    # and HOOK_FIXTURES do, so an adopter repoints them here or the startup
+    # assertion aborts naming a file they do not have.
+    sub(r'ESCAPE_TOOL = "[^"]*"', 'ESCAPE_TOOL = "tools/escape_rate.py"',
+        "repoint ESCAPE_TOOL")
+    sub(r'ESCAPE_LEDGER = "[^"]*"',
+        'ESCAPE_LEDGER = "docs/JUDGMENT-LEDGER.md"', "repoint ESCAPE_LEDGER")
 
     # Step 4.2 - repoint the surviving gate at this project's real suite
     sub(r'"modules/03-verification/examples/fake_suite\.py"', '"src/suite.py"',
@@ -248,8 +285,9 @@ def adapt_runner(text: str) -> str:
 
 def adapt_runner_finish(text: str) -> str:
     sub_pairs = [
-        ('RUN_ORDER = ["judges", "hooks", "unit_suite", "example_lint"]',
-         'RUN_ORDER = ["judges", "hooks", "unit_suite"]'),
+        ('RUN_ORDER = ["judges", "hooks", "escapes", "unit_suite", '
+         '"example_lint"]',
+         'RUN_ORDER = ["judges", "hooks", "escapes", "unit_suite"]'),
     ]
     for a, b in sub_pairs:
         if a not in text:
@@ -380,8 +418,14 @@ def scaffold(root: Path, planted: bool = False) -> None:
     (root / "README.md").write_text("# scaffolded project\n", encoding="utf-8")
 
     for src, name in ((RUNNER, "verify.py"), (HOOK, "hook_model_gate.py"),
-                      (FIXTURES, "hook_fixtures.py"), (BOARD, "statusline.py")):
+                      (FIXTURES, "hook_fixtures.py"), (BOARD, "statusline.py"),
+                      (ESCAPE_RATE, "escape_rate.py")):
         shutil.copy2(src, root / "tools" / name)
+    # The judgment ledger lands with the runner, because the runner's
+    # `escapes` gate names it and a named path that is not in the tree aborts
+    # the run. Step 7 substitutes its slots; Step 4 only has to make it exist.
+    (root / "docs").mkdir(exist_ok=True)
+    shutil.copy2(JUDGMENT_LEDGER, root / "docs" / "JUDGMENT-LEDGER.md")
 
     # the runner, adapted per QUICKSTART Step 4
     rt = (root / "tools" / "verify.py").read_text(encoding="utf-8")
@@ -496,8 +540,15 @@ def document_order(tmp: Path, py: str, verbose: bool = False):
         "__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n",
         encoding="utf-8")
     for src, name in ((RUNNER, "verify.py"), (HOOK, "hook_model_gate.py"),
-                      (FIXTURES, "hook_fixtures.py"), (BOARD, "statusline.py")):
+                      (FIXTURES, "hook_fixtures.py"), (BOARD, "statusline.py"),
+                      (ESCAPE_RATE, "escape_rate.py")):
         shutil.copy2(src, root / "tools" / name)
+    # Step 4 lands the judgment ledger too - see the constant's comment. The
+    # step's own copy list says so, and the reason is the one Step 4 already
+    # gives for the settings file: a gate that names a missing path aborts,
+    # and Step 4 ends in a certification run.
+    (root / "docs").mkdir(exist_ok=True)
+    shutil.copy2(JUDGMENT_LEDGER, root / "docs" / "JUDGMENT-LEDGER.md")
     rt = adapt_runner_finish(adapt_runner(
         (root / "tools" / "verify.py").read_text(encoding="utf-8")))
     (root / "tools" / "verify.py").write_text(rt, encoding="utf-8")
@@ -675,12 +726,20 @@ def document_order(tmp: Path, py: str, verbose: bool = False):
     # - exists in the tree at done. It used to be `mkdir -p docs`, and the
     # standing rules ended up pointing at a directory nobody had created.
     (root / "docs" / "reports").mkdir(parents=True, exist_ok=True)
-    for name in ("JUDGMENT-LEDGER.md", "FAILURE-FLOOR.md", "LESSONS.md",
-                 "TOKEN-LEDGER.md"):
+    # THREE ledgers here, not four: the judgment ledger landed at Step 4 with
+    # the runner that reads it. Assert it is still there before copying the
+    # rest, so a future edit that moves it back to Step 7 shows up as this
+    # step failing rather than as an abort three checks later.
+    step("Step 7 · the judgment ledger arrived at Step 4 (the runner's "
+         "escapes gate names it) and is still in the tree",
+         (root / "docs" / "JUDGMENT-LEDGER.md").is_file(),
+         "docs/JUDGMENT-LEDGER.md is missing - Step 4's copy list dropped it")
+    for name in ("FAILURE-FLOOR.md", "LESSONS.md", "TOKEN-LEDGER.md"):
         shutil.copy2(KIT / "modules/04-ledgers" / name, root / "docs" / name)
     kept = (root / "docs" / "README.md").read_text(encoding="utf-8")
     reports_ok = (root / "docs" / "reports").is_dir() and "docs/reports" in gov
-    step("Step 7 · four ledgers land, REPORTS_DIR exists, docs/README.md is "
+    step("Step 7 · all four ledgers are in the tree (three copied here, the "
+         "judgment ledger at Step 4), REPORTS_DIR exists, docs/README.md is "
          "NOT clobbered",
          all((root / "docs" / n).is_file() for n in
              ("JUDGMENT-LEDGER.md", "FAILURE-FLOOR.md", "LESSONS.md",
@@ -689,7 +748,7 @@ def document_order(tmp: Path, py: str, verbose: bool = False):
          "" if kept.strip() == "# my docs index" else "README.md was overwritten")
 
     # STEP 7'S SECOND INSTRUCTION, ON ONE LEDGER: "Then substitute their slots
-    # and delete their header blocks." The walk copies all four unrendered,
+    # and delete their header blocks." The walk leaves all four unrendered,
     # which models a reader who skipped that sentence and leaves the four files
     # with no hand rendering for phase 13 to diff against.
     #
@@ -982,6 +1041,26 @@ def excluded_judge_path(tmp: Path, py: str, verbose: bool = False):
              "" if (rc == 2 and named) else
              f"exit {rc} (want 2), path named exactly = {named}. "
              f"{IGNORED_JUDGE_STEPS}")
+        # THE PRINTED REMEDY, ASSERTED AGAINST THE ONE THIS PHASE PROVES.
+        # P3W-3: the message used to say "remove the rule that covers it",
+        # which on the directory-rule shape below means deleting `.claude/`
+        # from the ignore file - and that rule also covers session state and
+        # the certification token. The remedy the control at the end of this
+        # phase actually demonstrates is `git add -f <the one file>`, so the
+        # message has to print that one, first.
+        remedy_ok = ("git add -f .claude/settings.json" in clean
+                     and clean.index("git add -f")
+                     < clean.index("git check-ignore"))
+        step(f"{shape} rule: the printed remedy is the one THIS phase proves "
+             f"(`git add -f <the file>`, ahead of the rule removal)",
+             remedy_ok,
+             "" if remedy_ok else
+             f"the abort message does not lead with the force-track remedy. "
+             f"The control below force-tracks the file and requires the run "
+             f"to start; a message that instead tells an existing repo to "
+             f"delete its `.claude/` rule commits session state and the "
+             f"cert token. Offending text: "
+             f"{next((l for l in clean.splitlines() if 'EXCLUDED' in l), '')[:200]!r}")
         # The mangled-path signature of the transport defect, asserted by
         # itself: a quoted or escaped path is not a path, and the message tells
         # the adopter to paste it into a command. Signatures, not a raw
@@ -1047,10 +1126,24 @@ def excluded_judge_path(tmp: Path, py: str, verbose: bool = False):
 # its own body sends a reader hunting for a slot that is not there, or worse,
 # lets them think they have substituted everything when they have not.
 #
-# Two assertions, both mechanical:
+# Three assertions, all mechanical:
 #   * every slot any template uses is defined in kit.config.example;
-#   * every template's own SLOTS manifest matches the slots in its body.
+#   * every template's own SLOTS manifest matches the slots in its body;
+#   * every slot the WALK DOCUMENTS name in prose is defined there too.
 SLOT_TOKEN = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
+
+# THE WALK DOCUMENTS - checked for REGISTRY MEMBERSHIP only. These are not
+# templates: nobody substitutes them, so they carry no `SLOTS:` manifest and
+# there is nothing to diff one against. What they DO carry is slot names in
+# their prose, and a walk document naming a slot the registry does not define
+# sends its reader hunting for a key that does not exist. That half is
+# mechanical, so it is checked.
+#
+# THE HEADLINE COUNTS STAY MODULES-ONLY, deliberately. `kit_render.py`'s
+# docstring quotes the "23 slot-carrying files under modules/" figure this
+# phase reports, so a headline whose population silently grew would make that
+# cross-reference wrong while both files still looked right.
+WALK_DOCS = ("QUICKSTART.md", "LEVEL-1.md")
 
 
 def split_manifest(text: str):
@@ -1098,7 +1191,7 @@ def slot_problems(kit: Path):
             r"(?m)^([A-Z0-9_]+)\s*=",
             (kit / "kit.config.example").read_text(encoding="utf-8"))}
     except Exception as e:
-        return [f"kit.config.example is unreadable: {e!r}"], 0, 0
+        return [f"kit.config.example is unreadable: {e!r}"], 0, 0, 0
     n_templates = 0
     n_nomanifest = 0
     for f in sorted((kit / "modules").rglob("*")):
@@ -1128,7 +1221,19 @@ def slot_problems(kit: Path):
         for extra in sorted(man - body):
             problems.append(f"{rel}: SLOTS manifest lists {{{{{extra}}}}} but "
                             f"the body never uses it")
-    return problems, n_templates, n_nomanifest
+    n_walk = 0
+    for name in WALK_DOCS:
+        f = kit / name
+        if not f.is_file():
+            problems.append(f"{name}: named as a walk document and not there")
+            continue
+        n_walk += 1
+        for slot in sorted(set(SLOT_TOKEN.findall(
+                f.read_text(encoding="utf-8")))):
+            if slot not in registry:
+                problems.append(f"{name}: names {{{{{slot}}}}} in prose, which "
+                                f"kit.config.example does not define")
+    return problems, n_templates, n_nomanifest, n_walk
 
 
 # ==========================================================================
@@ -1586,16 +1691,18 @@ def main() -> int:
                                     "where the document places it")
 
         # ---- 10. the slot registry, checked against itself --------------
-        probs, n_t, n_skip = slot_problems(KIT)
+        probs, n_t, n_skip, n_walk = slot_problems(KIT)
         for x in probs[:12]:
             print(f"        {RED}slot{RESET} {x}")
         # The headline states COVERAGE, not just the green count. The previous
         # wording read as "all templates checked" while ten slot-using files
         # carried no detected manifest and were skipped without a number.
-        phase(f"10. every slot in all {n_t + n_skip} slot-using files is "
-              f"registered, and the {n_t} of them that carry a SLOTS manifest "
-              f"match their bodies ({n_skip} carry no manifest: registry "
-              f"checked, body-vs-manifest not applicable)", not probs,
+        phase(f"10. every slot in all {n_t + n_skip} slot-using files under "
+              f"modules/ is registered, and the {n_t} of them that carry a "
+              f"SLOTS manifest match their bodies ({n_skip} carry no manifest: "
+              f"registry checked, body-vs-manifest not applicable) — plus the "
+              f"{n_walk} walk document(s) at the root, registry-checked on the "
+              f"slots they name in prose", not probs,
               "" if not probs else f"{len(probs)} manifest/registry problem(s)")
 
         # ---- 11. THE CLASS, AS A LINT -----------------------------------

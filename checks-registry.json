@@ -6,7 +6,7 @@
     "artifact and no waiver explains why.",
     "",
     "This file exists because the same defect was found eight times by six",
-    "independent adoption walks, each time wearing a different hat, and the",
+    "LLM-persona adoption walks, each time wearing a different hat, and the",
     "operating architecture's own promotion rule says a prose rule that keeps",
     "failing gets promoted to a mechanical layer. The design question 'where",
     "does this check's expectation come from?' is now an answer every check",
@@ -109,8 +109,22 @@
     { "id": "check:startup-assertion", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "filesystem" },
     { "id": "check:judged-paths-not-excluded", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "git" },
 
+    {
+      "id": "gate:escapes",
+      "subject": "the escape-rate table in the judgment ledger",
+      "expectation_from": "modules/03-verification/verify.py",
+      "reason": "NOT a waiver - recorded because this gate's expectation is split and the split is the interesting part. The LINE FORMAT and the CEILING both live in verify.py's `escapes` entry, inside JUDGE_PATHS, so raising the ceiling is a reviewed commit; the DATA is the ledger table, which is deliberately NOT in JUDGE_PATHS because it is the subject being measured and putting it there would make every ordinary ledger append invalidate certification. The residual that buys: an uncommitted edit to the table moves the published number within a run. Compensating control, and it is weaker than a proof: the number is printed on every certification, so a changed number is in the log. Stated in KNOWN-ISSUES, 'The kit's own numbers'." },
+
     { "id": "selftest:verify", "subject": "modules/03-verification/verify.py:judging-layer", "expectation_from": "inline" },
+    { "id": "selftest:escape-rate", "subject": "modules/04-ledgers/escape_rate.py:pure-layer", "expectation_from": "inline" },
     { "id": "selftest:statusline", "subject": "tools/statusline.py", "expectation_from": "inline" },
+    { "id": "selftest:statusline-escape", "subject": "tools/statusline.py:escape-segment", "expectation_from": "inline" },
+    { "id": "check:statusline-escape-authority", "subject": "tools/statusline.py:escape-segment",
+      "expectation_from": "modules/04-ledgers/escape_rate.py",
+      "reason": "NOT a waiver - recorded because it is a cross-file binding and a reader should be able to see which file is the authority. The status board renders an escape rate; the number, the ceiling the sparkline is scaled against and the state word all come from escape_rate.py, which the board imports and calls. A board that parsed the ledger itself would be a SECOND parser of one table - the two-authorities class this kit's tools spend their selftests hunting - and it would drift from the tool module 03's `escapes` gate runs, so the board and the gate would publish different numbers from the same file, both green. The statusline selftest's authority section therefore imports escape_rate.py and requires the rendered percentage, the ceiling and the state word to be the tool's, with a forced red that changes the tool's number and requires the board's to move with it. THE CEILING CLAUSE IS BOUND ON THE REPORT THE BOARD PRODUCED, not on one the test handed the ceiling to: spec-side review measured the difference by replacing the ceiling inside `escape_state` with a literal 40.0 and passing 90/90, because the check then in place only proved that `report()` echoes its own argument. That line is now labelled a PRECONDITION and the binding reads `escape_state(...)[1]['ceiling_pct']`, which is the value the board actually scales against; the same mutation now goes red naming that check. The class has precedent - KNOWN-ISSUES round 19 records a silently drifted gate ceiling as one of this kit's own escapes. Residual, stated: that section is the one part of that selftest which touches a filesystem, and when the tool is not reachable (the board copied out of a kit checkout) it reports UNAVAILABLE rather than passing in silence." },
+    { "id": "check:statusline-tick-ramp", "subject": "tools/statusline.py:tick-ramp",
+      "expectation_from": "the Python codec registry",
+      "reason": "NOT a waiver - recorded because the expectation is deliberately NOT a literal. Whether a console can display the sparkline's block characters is a property of its code page, so the check asks the platform's own codec table (encode the ramp with the stream's encoding name and see whether it raises) rather than carrying a hand-written list of encodings that can. A literal list would be the same defect as a hard-coded `sys.platform == 'win32'` branch: wrong in both directions, since a Windows terminal set to UTF-8 draws the blocks and a POSIX host under LANG=C does not. The selftest drives the derivation with cp1252, cp437, ascii and an unknown encoding name and requires the ASCII ramp for each, so an edit that hard-coded the block ramp goes red. Residual, stated in the function's own docstring: an in-process check cannot see a console that misreports its code page, and the board's other segments draw block characters unconditionally, which predates this segment and is unchanged by it." },
     { "id": "selftest:deident", "subject": "tools/deident_scan.py", "expectation_from": "inline" },
     { "id": "selftest:hook-fixtures", "subject": "modules/02-enforcement/hook_fixtures.py:pure-layer", "expectation_from": "inline" },
 
@@ -143,6 +157,40 @@
     },
     { "id": "selftest:kit-render", "subject": "tools/kit_render.py", "expectation_from": "inline" },
     { "id": "selftest:kit-doctor", "subject": "tools/kit_doctor.py:judging-layer", "expectation_from": "inline" },
+    {
+      "id": "selftest:gate-line",
+      "subject": "modules/03-verification/gate_line.py:pure-layer",
+      "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+      "reason": "NOT a waiver - recorded because it is a cross-file binding and a reader should be able to see which file is the authority. The adapter's expectation is not a literal somebody typed: it is what pytest actually reported when `--capture-golden` ran the six fixture suites in `examples/pytest_suites/`, committed as captured. The pure layer is then required to rebuild those lines and those verdicts exactly. Regenerating the golden file is a reviewed commit for the same reason - recapturing over a defect would install the defect as the new expectation. Residual, stated: the LIVE half (re-running pytest and comparing) needs pytest installed, and this kit's CI deliberately downloads nothing, so there the selftest prints LIVE HALF NOT RUN with the reason rather than passing in silence."
+    },
+
+    { "id": "golden:all-pass", "subject": "modules/03-verification/gate_line.py:all-pass", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
+    { "id": "golden:pass-with-skips", "subject": "modules/03-verification/gate_line.py:pass-with-skips", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
+    { "id": "golden:failures", "subject": "modules/03-verification/gate_line.py:failures", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
+    { "id": "golden:errors", "subject": "modules/03-verification/gate_line.py:errors", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
+    { "id": "golden:collapsed-collection", "subject": "modules/03-verification/gate_line.py:collapsed-collection", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
+    { "id": "golden:subset", "subject": "modules/03-verification/gate_line.py:subset", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
+
+    { "id": "escape:nc-i", "subject": "modules/04-ledgers/escape_rate.py:no-table", "expectation_from": "inline" },
+    { "id": "escape:nc-ii", "subject": "modules/04-ledgers/escape_rate.py:two-tables", "expectation_from": "inline" },
+    { "id": "escape:nc-iii", "subject": "modules/04-ledgers/escape_rate.py:no-separator", "expectation_from": "inline" },
+    { "id": "escape:nc-iv", "subject": "modules/04-ledgers/escape_rate.py:non-integer-count", "expectation_from": "inline" },
+    { "id": "escape:nc-v", "subject": "modules/04-ledgers/escape_rate.py:escapes-exceed-items", "expectation_from": "inline" },
+    { "id": "escape:nc-vi", "subject": "modules/04-ledgers/escape_rate.py:half-uncountable-items", "expectation_from": "inline" },
+    { "id": "escape:nc-vii", "subject": "modules/04-ledgers/escape_rate.py:half-uncountable-escapes", "expectation_from": "inline" },
+    { "id": "escape:nc-viii", "subject": "modules/04-ledgers/escape_rate.py:empty-round-label", "expectation_from": "inline" },
+    { "id": "escape:nc-ix", "subject": "modules/04-ledgers/escape_rate.py:short-row-not-skipped", "expectation_from": "inline" },
+    { "id": "escape:nc-x", "subject": "modules/04-ledgers/escape_rate.py:negative-count", "expectation_from": "inline" },
+    { "id": "escape:nc-xi", "subject": "modules/04-ledgers/escape_rate.py:over-ceiling", "expectation_from": "inline" },
+    { "id": "escape:nc-xii", "subject": "modules/04-ledgers/escape_rate.py:state-word-dropped", "expectation_from": "inline" },
+    { "id": "escape:nc-xiii", "subject": "modules/04-ledgers/escape_rate.py:round-row-outside-table-body", "expectation_from": "inline" },
+    { "id": "escape:nc-xiv", "subject": "modules/04-ledgers/escape_rate.py:gate_ceiling", "expectation_from": "inline" },
+
+    {
+      "id": "check:escape-ceiling-agrees",
+      "subject": "modules/04-ledgers/escape_rate.py:DEFAULT_CEILING",
+      "expectation_from": "modules/03-verification/verify.py",
+      "reason": "NOT a waiver - recorded because this check closes a measured two-authorities defect and a reader should be able to see which authority is which. The escape-rate ceiling is written twice as an operative value: the `--ceiling` literal in the runner's `escapes` gate command, and `DEFAULT_CEILING` in the tool. Nothing related them, and spec-side review measured the consequence - a copy of the tool with `DEFAULT_CEILING` at 90.0 published `ceiling 90.0%` from the standalone command the documents tell an adopter to type, while the same tool through the gate published 35.0, both green. `escape_rate.py --selftest` section F now reads the runner's source and requires agreement: the same cross-check shape as the fixture/registry and doctor/registry families, and it reads a genuinely different file from its subject. A THIRD spelling in `.github/workflows/kit-ci.yml` was deleted rather than bound - that step now passes no `--ceiling` and takes the tool's default - so two authorities remain and they are bound. Residual, stated: section F is the one part of that selftest that touches a filesystem, and when the runner is not reachable (this tool copied out of a kit checkout) it reports UNAVAILABLE rather than passing in silence." },
 
     {
       "id": "doctor:version",
@@ -174,13 +222,55 @@
       "expectation_from": "git",
       "reason": "Whether a token still covers the tree is git's answer (the newest commit touching CERT_PATHS is contained in the token's sha, and those paths are clean). What the check ALSO does is print the honest label on every run - the token is unsigned and forgeable by anything that can write a file - and that half has no expectation source because it is not a measurement. It is a disclosure, and it is the control."
     },
+    {
+      "id": "doctor:floor-staleness",
+      "subject": "the adopting repository's FAILURE-FLOOR.md",
+      "expectation_from": "kit.config:DEMOTION_REVIEW_STAGES",
+      "reason": "The anti-ratchet, promoted out of prose. The floor's own demotion-review section says every rule quiet for N stages gets RETIRE, DEMOTE or RE-AFFIRM at each phase gate, and nothing checked it - the owner's question was 'what is checking the lessons'. The window comes from the config key, NOT from the floor: a check that read its own threshold out of the file it judges could be cleared by editing that file, which is the class this registry exists for. The stage-to-day conversion is derived from the floor's own distinct firing dates because no file in an adopting repository relates stages to days, and the arithmetic is printed on every run so the threshold can be argued with. Residual, stated in the finding rather than here alone: rows reading `never` or `unknown - predates recording` cannot be dated and are reported as NOT MEASURED rather than counted either way, and the check reads a clock, so a project that has simply stopped recording looks stale - which is the correct reading for an anti-ratchet."
+    },
+    {
+      "id": "doctor:binding-digest",
+      "subject": "the adopting repository's rules file and newest checkpoint",
+      "expectation_from": "modules/01-governance/CLAUDE.md.template",
+      "reason": "The other half of the anti-ratchet, and the only ceiling in this kit derived from a measurement of the kit's own shipped documents. The rules file is re-read at the top of every session; the module-01 template states 'keep it SHORT' three times and nothing measured it. DIGEST_CEILING_LINES = 325 by the four-step method TOKEN-LEDGER.md gives for the cost ratio: (191 rendered template lines + the 90-line measured checkpoint norm) x 1.15, rounded up to the nearest 25, with the arithmetic printed on every run, green included. The FIRST OBSERVATION IS BOUND TO ITS SOURCE: --selftest measures modules/01-governance/CLAUDE.md.template live and requires it to still render to 191 lines, so if the template grows the derivation's input has moved and the selftest goes red naming both numbers - the same binding shape as check:escape-ceiling-agrees, built because that ceiling drifted silently once already. Residual, stated: n = 2 observations, one project, LOW confidence, and the check counts lines without judging whether any line earned its place."
+    },
+
+    {
+      "id": "doctor:l1-documents",
+      "subject": "the adopting repository's LEDGERS_DIR and collaboration profile",
+      "expectation_from": "modules/04-ledgers",
+      "reason": "The file names Level 1 installs are the kit's shipped skeletons, and the doctor carries them as a literal because an adopted tree has no modules/ directory to read. The literal is held to the shipped set by a --selftest cross-check that runs whenever the tool sits in a kit checkout, so a renamed skeleton fails here rather than in an adopter's tree."
+    },
+    { "id": "doctor:l1-rendered", "subject": "the adopting repository's Level-1 documents", "expectation_from": "modules/02-enforcement/hook_model_gate.py:RENDERED_PLACEHOLDER",
+      "reason": "The shipped-value half of this check reads the kit's shared rendered-text rule, imported rather than re-implemented - tools/adoption_smoke.py phase 9 asks the same question about the same class of file and now reads the same constant. The first version of this check carried a one-element list of its own and reported HEALTHY over six documents titled 'Example Project': two readers of one rule, drifting, which is the class this registry exists for. The clause the check implements - no surviving slot, no template header block, one shipped value allowed through by name (RATIO_CEILING) - is specified by the QUICKSTART Step 7 and Step 8 checkpoints. The marker words are literals in the tool, cross-checked against the shipped templates by --selftest, which also reads kit.config.example and requires every shipped example value that reaches a Level-1 document to be caught by the shared rule." },
+    { "id": "doctor:l1-committed", "subject": "the adopting repository's Level-1 documents", "expectation_from": "git" },
+    {
+      "id": "doctor:l1-config-complete",
+      "subject": "the adopting repository's kit.config",
+      "expectation_from": "kit.config.example",
+      "reason": "The shipped example is the registry of every key the templates interpolate, so it is the only honest expectation for 'does this config carry them all' - and it is a different artifact from the config being judged. Built because LEVEL-1.md step 2 prints `cp kit.config.example ./kit.config`, which on a repository that already has a config destroys every answer in it, and the reason an adopter reaches for that command is usually a key that renders as an unfilled slot. The check names the missing keys and names the destructive remedy as destructive in the same red. Residual: it judges PRESENCE of keys only - whether a value is an answer or a shipped example is doctor:l1-rendered's question, on the documents they render into. When no kit.config.example can be found the check reports UNKNOWN rather than passing."
+    },
+    {
+      "id": "doctor:l1-ledger-collision",
+      "subject": "the adopting repository's LEDGERS_DIR",
+      "expectation_from": "modules/04-ledgers",
+      "reason": "The kit's four ledger filenames are fixed - the doctor hard-codes them and LEDGERS_DIR is the only thing an adopter can move - so on a repository that already keeps ledgers the install has three possible outcomes and the documents name none of them. Two of the three used to be green: install alongside, and overwrite. Measured on this kit's own program repository, which had LESSONS-LEARNED.md beside the kit's LESSONS.md and TOKEN_LEDGER.md beside TOKEN-LEDGER.md, every check green over two documents answering one question. The expectation is the shipped skeleton set, carried as the same literal doctor:l1-documents uses and held to modules/04-ledgers by the same --selftest cross-check. Comparison is on a normalised stem (case, punctuation and the .md suffix removed) with containment counted as collision, because the measured spellings differed only by a hyphen and a suffix."
+    },
+    {
+      "id": "doctor:l1-knowledge-dir",
+      "subject": "kit.config:KNOWLEDGE_DIR",
+      "expectation_from": "modules/02-enforcement/hook_model_gate.py:is_placeholder",
+      "reason": "Whether the value is a configured answer or the shipped example is decided by the kit's shared placeholder rule, imported rather than re-implemented - a fourth reader of that rule is the arrangement that produced the original defect. The one departure is stated in the judge: for this key NONE is a decision (kit.config.example says to set it when there is no knowledge base outside the repo), so the NONE case is answered before the shared rule is consulted, and whether the named directory exists is the filesystem's answer."
+    },
+    { "id": "doctor:l1-interview", "subject": "the adopting repository's collaboration profile:INTERVIEW", "expectation_from": "modules/08-collaboration/PROFILE-TEMPLATE.md",
+      "reason": "The three states an interview status may hold are defined by the shipped profile template's STATUS block. --selftest reads that template and requires the shipped line to be judged UNANSWERED, so the pattern is proven against the artifact it was written for rather than against a copy the test wrote itself." },
 
     {
       "id": "lint:expectation-source",
       "subject": "checks-registry.json",
       "expectation_from": "checks-registry.json",
       "waived": true,
-      "reason": "The registry can only be checked against itself for internal consistency - there is no independent source for what a check's expectation ought to be. What it therefore cannot catch is an entry that is simply ABSENT. Narrowed for TWO families now, whose ids are recovered from the source and cross-checked both ways: the hook fixtures in hook_fixtures.py, and the doctor's checks in tools/kit_doctor.py. The doctor was the reason to generalise the cross-check rather than trust the author - ten unregistered checks in one commit would have grown this blind spot faster than the lint that discloses it. Everything outside those two families still depends on the author adding a row. Stated as a residual in KNOWN-ISSUES rather than presented as closed."
+      "reason": "The registry can only be checked against itself for internal consistency - there is no independent source for what a check's expectation ought to be. What it therefore cannot catch is an entry that is simply ABSENT. Narrowed for FOUR families now, whose ids are recovered from the source and cross-checked both ways: the hook fixtures in hook_fixtures.py, the doctor's checks in tools/kit_doctor.py, the escape-rate tool's negative controls in modules/04-ledgers/escape_rate.py, and the gate-line adapter's golden fixtures in modules/03-verification/gate_line.py. The doctor was the reason to generalise the cross-check rather than trust the author - ten unregistered checks in one commit would have grown this blind spot faster than the lint that discloses it - and the escape-rate tool arrived with a set of them, every one reported by this cross-check on its first run before any were registered. Everything outside those four families still depends on the author adding a row. Stated as a residual in KNOWN-ISSUES rather than presented as closed."
     }
   ]
 }

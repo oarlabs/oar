@@ -104,8 +104,8 @@ deliberately **not** denied: it stages nothing, and it is the command an
 operator reaches for after a deny.
 
 **No completeness is claimed.** That covered list grew twice in one week —
-three readers found one set, and a fourth found ten more forms in a single
-session after them. What still defeats it, all measured:
+three independent persona reads found one set, and a fourth read found ten
+more forms in a single session after them. What still defeats it, all measured:
 
 - a nested shell (`sh -c 'git add -A'`, `bash -lc "…"`), a backslash line
   continuation, backtick command substitution, `xargs git add`, a shell alias,

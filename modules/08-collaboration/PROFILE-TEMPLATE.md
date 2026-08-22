@@ -45,8 +45,13 @@ and it will be treated as fact by the next reader.
 ## STATUS — fill this in first, and keep it honest
 
 ```
-INTERVIEW:  not yet held | scheduled <date> | held <date>
+INTERVIEW:  not yet held | scheduled <date> confirmed by <who or which calendar> | held <date>
 ```
+
+**The `scheduled` state carries its confirmation, and the check enforces it.**
+A date that parses is not a date somebody agreed to: an invented one and a
+real calendar entry are the same string. Say where it came from, or write
+`not yet held`, which is green and claims nothing.
 
 **Day one, before the seed interview, this document is legitimately almost
 empty — and that is a state it must be able to represent.** A blank profile

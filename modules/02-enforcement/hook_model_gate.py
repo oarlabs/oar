@@ -197,6 +197,32 @@ PLACEHOLDER_SHAPES = (
 )
 
 
+# ---- THE SAME RULE, FOR RENDERED TEXT (one definition, two readers) ------
+# `is_placeholder()` above answers "is this CONFIG VALUE still an example",
+# which is a whole-value test. The other half of the same question is "did a
+# shipped example value SURVIVE INTO a rendered document", which is a substring
+# search over prose, and it needs the shapes as a pattern rather than as a
+# prefix test.
+#
+# ONE DEFINITION, because two narrower copies is exactly how this kit's oldest
+# defect class works. `tools/adoption_smoke.py` phase 9 applies it to the rules
+# file and the profile it renders in its scaffold; `tools/kit_doctor.py
+# --level1` applies it to the documents in an adopter's own tree. Both import
+# it from here.
+#
+# `Example Project` is in the list because it is the shipped `PROJECT_NAME`,
+# and PROJECT_NAME lands in the title line of every ledger, the rules file and
+# the profile - the single most likely shipped value to survive an adoption.
+# It is matched case-sensitively, as shipped, so an adopter writing "an example
+# project" in prose is not accused of anything. The doctor's --selftest reads
+# `kit.config.example` and requires every shipped value that reaches a Level-1
+# document to be caught by this pattern, so the list cannot drift away from
+# what the kit actually ships.
+RENDERED_PLACEHOLDER = re.compile(
+    r"your-(?:top-tier|mid-tier|small|lane|sweep)[a-z-]*|/abs/path/to/|"
+    r"derive-from-your-own-data|https://example\.invalid|Example Project")
+
+
 def is_placeholder(value: str) -> bool:
     """Pure, and shared verbatim by the hook, the fixture harness and the
     board. Three readers disagreeing about what "configured" means is how a
@@ -544,8 +570,8 @@ def strip_script_comments(src: str) -> str:
 # of being born. Precision matters as much as loudness: an alarm the operator
 # learns to skim is a dead alarm.
 #
-# WHAT IT NOW COVERS, and why the list grew. Three independent readers of the
-# shipped kit found the same class in one afternoon: the old pattern was
+# WHAT IT NOW COVERS, and why the list grew. Three independent persona reads
+# of the shipped kit found the same class in one afternoon: the old pattern was
 # `git\s+add\s+(-A|--all|\.)` anchored at `^` or after `;&|`, and every one of
 # these walked straight past it -
 #

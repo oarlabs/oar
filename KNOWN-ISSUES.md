@@ -1,11 +1,18 @@
 # KNOWN ISSUES — measured, not hidden
 
-This register records what independent adoption tests found: AI agent personas
-with no prior contact with the kit tried to adopt it and wrote down what
-happened. That is the kit's own escape-rate loop turned on itself, and it has
-found something **in all fourteen walks** — though the hands-on walks in 13 and
-14 were clean; their findings were in the documentation meta-layer, and the
-loop closed there by the owner's materiality ruling (see walk 14).
+This register records what the kit's adoption tests found. **Every one of them
+was performed by a large language model running a written persona, not by a
+person.** No human has walked `QUICKSTART.md` end to end and reported findings.
+Each persona was given a charter, no prior contact with the kit, and a scratch
+repository, and it wrote down what happened. That is the kit's own escape-rate
+loop turned on itself, and it has found something **in all fourteen walks** —
+though the hands-on walks in 13 and 14 were clean; their findings were in the
+documentation meta-layer, and the loop closed there by the owner's materiality
+ruling (see walk 14).
+
+The prompts behind every walk are published under `docs/walks/`, with the
+commit each ran against, what is retained and what is not, and one paragraph on
+what a reader can and cannot verify from them.
 
 Entry 15 is not a walk. It is an adversarial review of the kit's own
 streamlining report, and it found three measured hazards that every walk before
@@ -27,23 +34,188 @@ note; the table is what the numbers mean.
 |---|---|---|---|
 | 1–6 | Pre-ship adoption tests: modules walked alone and in combination, one fix pass per walk | The eight instances tabulated below, plus items 1–11 in "Confirmed fixed" | fixed |
 | 7 | **Release audit** — a read of the whole kit before shipping, not an adoption | Verdict **SHIP**, zero ship-blockers; 3 MAJOR + 4 NIT of day-one errata, including instances 6–8 of the class | fixed, except two NITs left OPEN by decision |
-| 8 | **Stranger onboarding #1** — Windows/pwsh, literal obedience, no coach | 13 (2 major, 8 minor, 3 nit) | all 13 fixed |
-| 9 | **Stranger onboarding #2** — Linux/bash conventions on a Windows host | 7 (1 major, 3 minor, 3 nit): K-1…K-7 | all 7 fixed |
-| 10 | **Stranger onboarding #3** — the impatient skimmer: headings, code blocks and checkpoints only | 9 findings + 1 end-state item: S3-F1…F9, S3-E3 | 9 fixed, 2 rejected with reason |
-| 11 | **Stranger onboarding #4** — a team-lead evaluator who read doctrine first, then walked, then simulated a second machine | 18 (7 major, 7 minor, 4 nit): F-1…F-18 | all 18 dispositioned FIX; four are honest-labeling fixes with the design recorded open |
-| 12 | **Stranger onboarding #5** — the dry-test literalist: full re-walk after the walk 8–11 errata, end-state audit | 6 (1 major, 2 minor, 3 nit): W12-1…W12-6 | all 6 fixed |
-| 13 | **Stranger onboarding #6** — the thorough adopter: full walk + end-state audit + doctrine spot-checks. **The hands-on walk was clean** — every step, checkpoint and audit property passed | 6 (0 major, 3 minor, 3 nit): KI-1, KI-2, BP-1, CA-1, M08-1, QS-1 — all meta-layer (register bookkeeping, cross-module attribution, one prose-vs-checkpoint asymmetry) | all 6 fixed |
-| 14 | **Stranger onboarding #7** — the final cap walk: full walk + audit + doctrine and module-README spot-checks. **The hands-on walk was clean again** — the second consecutive clean walk | 8 (0 major, 4 minor, 4 nit): M03-1, M02-1, M01-1, M02-2, CA-2, KI-3, KI-4, QS7-1 | 6 fixed; KI-3 and KI-4 **rejected — below the owner's materiality bar** (register self-audit; ruling 2026-08-20) |
+| 8 | **LLM-persona adoption walk #1** — Windows/pwsh, literal obedience, no coach | 13 (2 major, 8 minor, 3 nit) | all 13 fixed |
+| 9 | **LLM-persona adoption walk #2** — Linux/bash conventions on a Windows host | 7 (1 major, 3 minor, 3 nit): K-1…K-7 | all 7 fixed |
+| 10 | **LLM-persona adoption walk #3** — the impatient skimmer: headings, code blocks and checkpoints only | 9 findings + 1 end-state item: S3-F1…F9, S3-E3 | 9 fixed, 2 rejected with reason |
+| 11 | **LLM-persona adoption walk #4** — a team-lead evaluator who read doctrine first, then walked, then simulated a second machine | 18 (7 major, 7 minor, 4 nit): F-1…F-18 | all 18 dispositioned FIX; four are honest-labeling fixes with the design recorded open |
+| 12 | **LLM-persona adoption walk #5** — the dry-test literalist: full re-walk after the walk 8–11 errata, end-state audit | 6 (1 major, 2 minor, 3 nit): W12-1…W12-6 | all 6 fixed |
+| 13 | **LLM-persona adoption walk #6** — the thorough adopter: full walk + end-state audit + doctrine spot-checks. **The hands-on walk was clean** — every step, checkpoint and audit property passed | 6 (0 major, 3 minor, 3 nit): KI-1, KI-2, BP-1, CA-1, M08-1, QS-1 — all meta-layer (register bookkeeping, cross-module attribution, one prose-vs-checkpoint asymmetry) | all 6 fixed |
+| 14 | **LLM-persona adoption walk #7** — the final cap walk: full walk + audit + doctrine and module-README spot-checks. **The hands-on walk was clean again** — the second consecutive clean walk | 8 (0 major, 4 minor, 4 nit): M03-1, M02-1, M01-1, M02-2, CA-2, KI-3, KI-4, QS7-1 | 6 fixed; KI-3 and KI-4 **rejected — below the owner's materiality bar** (register self-audit; ruling 2026-08-20) |
 | 15 | **Streamlining review, pass 2** — not a walk: an adversarial read of the streamlining report the walk-14 close produced, and of the shipped files it described, against the owner's materiality bar | 3 measured hazards (SR2-1…SR2-3) — one silent-green defect in the runner, two documentation hazards that cost real work — plus the register entry this pass owed itself (SR2-4); the first version of the SR2-1 fix carried a Windows transport defect, caught by spec-side review before any commit (recorded in SR2-1's disposition); the first committed version of the phase-12 control then false-positived on hosted Windows CI (its raw backslash-r scan matched the runner's own `\runneradmin` home path), caught by CI on the first push and fixed the same day | all 4 fixed |
 
 | 16 | **Second-authority round** — not a walk: `tools/kit_render.py`, the optional mechanical substitution path, was built, and a second rendering of the same templates was required to agree with the smoke's hand-built adopter model | 1 defect in a shipped check (R16-1), found by the new check on its first run. The tool itself was then reviewed spec-side before any commit: 5 major, 8 minor, 5 nit, every major live-proven — two of them defects inside the tool's own guards (an output path could escape the target repository; an equivalent-but-reordered matcher was duplicated and mislabelled), both reporting `PASS` at the time | R16-1 fixed; all 18 review items dispositioned and fixed or rejected with reason, none of them ever committed |
-| 17 | **Adversarial persona round** — not a walk: three independent adversarial reads of the shipped kit (a controls graybeard, a team-lead evaluator, a skeptic), then a fourth read attacking those findings against the owner's materiality bar; then a spec-side review of the implementation before any of it was committed | 4 owner-ratified items (R17-1…R17-4) plus 2 riders (R17-R1, R17-R2), then **14 more from the review of the fix itself** (R17-5…R17-8 plus nine smaller): the hardening false-denied five ordinary two-line shell blocks, two disclosed residuals were labelled in the wrong direction, and the new doctor wrote `__pycache__` into the tree it diagnosed. Two of the four review blockers were the SAME silent-false-allow direction the fixes were meant to close | R17-1 **NARROWED, not closed** (durable index-based fix recorded, not built); R17-2, R17-4, R17-5's false-deny half, R17-6, R17-7, R17-8 fixed; R17-3 decided and labelled; both riders absorbed into `tools/kit_doctor.py`. Fixture count 17 → 40. After the fix passed all ten gates and both reviews, a doctor selftest assertion hard-coded the Windows case-folding answer for `path_inside` and false-failed on Linux CI — the fourth second-machine catch of the quest, and the first in the Windows-passes-Linux-fails direction; the assertion now derives the expected value from `os.path.normcase`, the same case-sensitivity class the doctor's own `protected-case` check probes | R17-3 decided and labelled; both riders absorbed; the CI case-folding assertion fixed on the first red |
+| 17 | **Adversarial persona round** — not a walk: three independent LLM-persona evaluation reads of the shipped kit (a controls graybeard, a team-lead evaluator, a skeptic), then a fourth read attacking those findings against the owner's materiality bar; then a spec-side review of the implementation before any of it was committed | 4 owner-ratified items (R17-1…R17-4) plus 2 riders (R17-R1, R17-R2), then **14 more from the review of the fix itself** (R17-5…R17-8 plus nine smaller): the hardening false-denied five ordinary two-line shell blocks, two disclosed residuals were labelled in the wrong direction, and the new doctor wrote `__pycache__` into the tree it diagnosed. Two of the four review blockers were the SAME silent-false-allow direction the fixes were meant to close | R17-1 **NARROWED, not closed** (durable index-based fix recorded, not built); R17-2, R17-4, R17-5's false-deny half, R17-6, R17-7, R17-8 fixed; R17-3 decided and labelled; both riders absorbed into `tools/kit_doctor.py`. Fixture count 17 → 40. After the fix passed all ten gates and both reviews, a doctor selftest assertion hard-coded the Windows case-folding answer for `path_inside` and false-failed on Linux CI — the fourth second-machine catch of the quest, and the first in the Windows-passes-Linux-fails direction; the assertion now derives the expected value from `os.path.normcase`, the same case-sensitivity class the doctor's own `protected-case` check probes | R17-3 decided and labelled; both riders absorbed; the CI case-folding assertion fixed on the first red. **Two attacks from this round were ruled separately and funded later, and both are now closed:** the skeptic's "no instrument for the headline metric" (see "The kit's own numbers" above, 2026-08-21) and the skeptic's first FATAL, that this register described its walks in language a reader takes to mean people while other documents recorded them as AI personas (see "The walk labels, corrected" below, 2026-08-21) |
 | 18 | **Owner-question round** — not a walk: the owner asked whether a new adopter inherits the loop-termination discipline (what stops adversarial review iterating to stupidity or forever), and the answer was no — the ENGINE ships (dispositions, oracle manufacture, escape rate, demotion) but the STOPPING RULES were practice, not doctrine | 1 finding (R18-1): no shipped statement of the bounded loop shape, the verdict brake, diminishing-severity-or-redesign, the materiality bar as an adopter instruction, or discovery-loop caps | R18-1 fixed — "WHEN THE LOOP ENDS" in the module-01 standing rules, the verdict brake in the reviewer charter (FINDINGS = approved, only REJECT buys a round), REJECTED-below-the-bar as a first-class punch-list disposition |
+| 19 | **Funded-builds round** — not a walk: the three builds funded out of rounds 15 and 17 (the Level-1 onboarding path; the escape-rate instrument whose table this register now carries; the walk-label relabel with `docs/walks/`), each run impl → spec-side review → single fix pass under the round-18 stopping rules | 30 dispositioned review findings across the three builds (10 + 10 + 10); a further 14 were REJECTED below the materiality bar with one-line reasons. Notable: the relabel build's three MAJORs shared one root cause — attribution written from memory rather than from the source, including one invented quotation — for which no covering check exists; recorded as an oracle candidate (verify a quoted string appears in its cited source), not an escape | All 30 fixed in single fix passes, none needing a second review round; the Level-1 shipped-values escape fixed by relocating the placeholder rule to a single authority and manufacturing its missing selftest oracle; the instrument's two escapes (a silently driftable ceiling; a stale module row) fixed with a bound cross-check and the row edit |
+| 20 | **Positioning-and-instrumentation round** — not a walk: three small owner-funded items (the README "Beyond code" scope statement; the decision brief's tiering-economics paragraph; the optional module-05 escape-rate sparkline), one build, one spec-side review, one fix pass | 7 dispositioned review findings (5 MINOR, 2 NIT), zero MAJOR; a further 7 REJECTED below the bar with reasons. The two live-proven check gaps: a registry reason claiming a ceiling binding its check did not deliver (the reviewer's mutation passed 90/90), and a selftest line that crashed instead of failing — both the claims-more-than-it-verifies class | All 7 fixed in one pass; the ceiling binding was made real (the mutation now fails, naming its check) rather than re-worded; the statusline selftest grew 90 → 94; every prose citation in the new sections was cross-checked against this register and held |
+| 21 | **Existing-project round** — the first measured brownfield adoption walk (closing the decision brief's never-measured caveat) plus its ruled fix round: an LLM-persona walker adopted the kit @ `990b950` into a prepared repository that really had a pytest suite, CI, populated docs, a `.claude/`-covering ignore file, a pre-existing `CLAUDE.md` and settings file, and uncommitted work; then a code lane and a doc lane fixed the ruled findings, one spec-side review ran with mutation tests on a tree copy, and one fix pass closed its punch list | 22 dispositioned items: the walk's 16 findings (6 MAJOR, 6 MINOR, 4 NIT — all six MAJORs one root cause, the empty-repository assumption) and the Level-1 dogfood's six (F1–F6). The review returned APPROVE-WITH-PUNCH-ITEMS: 1 MAJOR + 4 MINOR punch items on the round's own fixes (all five fixed in the fix pass; the MAJOR was the round's own "safer" commit line failing on the repository shape it was prescribed for), plus 3 findings REJECTED below the bar with reasons. The 5 punch items are review findings on work built this round and are not added to the item count — adding them would enlarge the denominator and lower the rate, so the worse reading is published | 20 FIXED (the existing-project branch through Steps 1/4/6/9; the render route made required over pre-existing files; the runner's printed remedy corrected; `gate_line.py` + captured pytest goldens; F1–F5 as mechanical checks; `EXISTING-PROJECT.md`; `docs/walks/WALKING-YOUR-OWN-DOCUMENTS.md`), 1 RECORD-OPEN (P3W-7, gate-schema exact-count expressiveness, fix shape stated), 1 scoped-honest (F6). Independent note: the walk report's claim that an ignored-path `git add` fails atomically was measured false by two later instruments; the shipping text states the true behaviour and discloses the correction |
 
-Walks 1–7 were run against the kit as a whole by readers with some exposure to
-it. Walks 8–14 are **stranger onboarding walks**: a fresh reader with no
-prior contact adopts the kit into an empty repository by obeying the documents.
-Entries 15, 16 and 17 are neither — see their rows.
+Walks 1–7 were run against the kit as a whole by personas with some exposure to
+it. Walks 8–14 are **LLM-persona adoption walks**: a language model given a
+persona and no prior contact adopts the kit into an empty repository by obeying
+the documents, executing every command in a real shell. Entries 15, 16 and 18
+are neither — see their rows. Entry 17 is neither, and it is a different
+instrument again: its three runs are **LLM-persona evaluation reads**, the same
+kind of persona reading the shipped repository only, with no scratch project
+and no `QUICKSTART.md` execution. The two instruments find different things —
+a read can find a claim the material contradicts, and cannot find a command
+that does not run as printed — so this register does not merge their counts.
+`docs/walks/` publishes the prompt behind every run of both kinds.
+
+---
+
+## The kit's own numbers — computed, not narrated
+
+The kit's headline claim is that the loop publishes its own escape rate and
+that trust is therefore measured rather than asserted. Until 2026-08-21 that
+claim had no instrument behind it: nothing in the kit computed the number, for
+an adopter or for the kit itself, and `RATIO_CEILING` shipped as the literal
+string `derive-from-your-own-data` in the kit's own config. Both are fixed
+here, and the escape rate is now computed **by a tool that runs inside
+certification**, not by a sentence in this document.
+
+### The escape rate
+
+**An escape is an item a human reported that an existing check should have
+caught.** A defect on a surface no check covered is a coverage gap, not an
+escape; the honest response to a coverage gap is a new check, not a worse
+number.
+
+That is the definition an adopter uses, and it says *human* because in an
+adopting project the reporter is one. **In the kit's own table below the
+reporter was almost never a human.** Rounds 8–14 were reported by LLM personas
+walking the documents, round 17 by LLM personas reading them, and the rest by
+the maintainer or by a review lane. The number the kit publishes for itself is
+therefore a self-administered measurement, and it is labelled as one here rather
+than in a footnote nobody reaches.
+
+The table below is **machine-read** by `modules/04-ledgers/escape_rate.py`.
+Its first three columns are fixed. `-` in both count cells declares a round
+uncountable and excludes it from the denominator — and the tool prints how
+many rounds that hid, on every run, so that dropping a round is a visible act
+rather than a quiet one.
+
+<!-- ESCAPE-RATE TABLE. Columns Round | Items | Escapes are read by
+     modules/04-ledgers/escape_rate.py. Notes is for the reader. Append one
+     row per entry in the timeline above, in the same commit as the entry. -->
+
+| Round | Items | Escapes | Notes |
+|---|---|---|---|
+| 1–6 | - | - | **Uncountable, declared.** The timeline aggregates these six pre-ship walks into one cell ("the eight instances tabulated below, plus items 1–11 in Confirmed fixed"), and the two lists overlap — instances 1, 3 and 4 are also Confirmed-fixed items 1, 3 and 9. No per-round item count is recoverable from the record, so none is invented. **The exclusion is not direction-neutral, and the direction flatters the published number.** Five of the eight instances the timeline names for these walks are instances of the promoted silent-green class — a check that was green over the defect — which is an escape by the definition above. Whatever the true denominator was, the escape share of these rounds was almost certainly *higher* than 21.7%, so including them would raise the headline rather than lower it. Inventing a denominator would be worse than excluding one, so the exclusion stands; what it costs the reader is stated here rather than left to be discovered. |
+| 7 | 7 | 3 | Release audit. Items = the timeline's authoritative "3 MAJOR + 4 NIT". Escapes: SB-A (`--armed` proved a settings file *named* the hook, not that the script existed — green over a harness that could not start), SB-B (`STATUSLINE_CMD`'s quotes broke the settings JSON, silently disarming every hook, while the smoke substituted without parsing), SB-C (the UNSET family did not cover placeholder-shaped values, so a rule that forbade nothing read as configured). **Disclosed ambiguity:** the walk-7 sections also present SB-A/B/C under their own headings; if those are three items *beyond* the seven, this round is 3/10 = 30.0% rather than 42.9%. The timeline row is authoritative and the worse of the two readings is published. |
+| 8 | 13 | 2 | W8-1 (`{{PROSE_VOICE}}` shipped raw because smoke phase 10 silently skipped 10 of 23 slot-using files while reporting a green count) and W8-3, which this register itself names as an escape: "that is why W8-3 escaped" — the walk staged with `git add -A` and reached `VERIFY: PASS` where a literal reader did not. |
+| 9 | 7 | 1 | K-1: Step 9's `--tracked-only` scan ran over a tree whose last commit was Step 4's, so the scan that certifies nothing personal is about to be published never saw the profile. Smoke phase 9 walked that step and passed. |
+| 10 | 10 | 3 | Items = S3-F1…F9 plus the end-state item S3-E3; 2 of the 10 were rejected with reason and are still items. Escapes: S3-F1 (a regression introduced by walk 9's own fix, which phase 9 walked past), S3-F2 (Step 6's checkpoint measured the hook, so an entirely unrendered `CLAUDE.md` passed every check in the document), S3-F8 (a gate with no oracle certified green). |
+| 11 | 18 | 2 | F-1 (a literal walk *ends* at `VERIFY: FAIL`, measured, while the smoke ended green — the third consecutive errata pass to break the same printed commit line) and F-2 (the document routed an absolute path into the committed config, manufacturing the second-tracked-file hit Step 9 exists to catch). The other 16 are documentation and unlabelled-provenance findings with no check behind them. |
+| 12 | 6 | 1 | W12-2: Step 8 was the one template step whose committed artifact no checkpoint reached, while every sibling step had one — the same silently-narrowed-coverage shape as W8-2. **Disputable:** read as a coverage gap rather than an escape, this round is 0/6. |
+| 13 | 6 | 0 | All six in the meta layer (register bookkeeping, cross-module attribution). No check existed for any of them. M08-1's first fix attempt tripped the smoke's manifest detector — a check working, which is not an escape. |
+| 14 | 8 | 0 | All eight documentation and module-README cross-descriptions; two rejected below the materiality bar. No check covered module READMEs describing each other's contracts. |
+| 15 | 4 | 2 | SR2-1 (a `JUDGE_PATHS` entry hidden by the adopting repo's `.gitignore` read permanently clean, giving a full `VERIFY: PASS` over a settings file anyone could edit to disarm every hook — the `judges` gate existed and was green) and SR2-2 (both printed `git add` lines used directory pathspecs, which the kit's own enforcement layer read as compliant). Two further defects were found *inside this round's own fix* — a Windows carriage-return corruption in the probe, and a CI false-positive on the runner's `\runneradmin` home path — and are not counted as separate items because the timeline records four. |
+| 16 | 19 | 3 | Items = R16-1 plus the 18 spec-side review findings on `kit_render.py`. Escapes: R16-1 (Step 8's own assertion stayed green over a profile that had silently lost its provenance block) and the two review majors this register records as "both reporting `PASS` at the time" — an output path that could escape the target repository, and a reordered-matcher comparison that appended a duplicate hook block. |
+| 17 | 21 | 9 | Items = 4 ratified + 2 riders + 14 from the review of the fix + the post-review CI case-folding red. Escapes: R17-1 (eight measured functional equivalents of the blanket-add ban passed silently), R17-2 (a `//` in a string literal blanked an `agent(` call — a false allow reported as 0 vs 0), R17-R1 (the hook's interpreter was outside the startability check, so a disarmed enforcement layer certified), R17-R2 (the protected-path tripwire's silent-allow directions), R17-5 (the widened pattern scanned across newlines and false-denied five ordinary blocks, plus ten further real bypasses found after three persona reads), R17-6 (two residuals disclosed as fail-safe were measured as silent false allows), R17-7 (`kit_doctor.py` wrote `__pycache__` into the tree it diagnosed while its docstring said it wrote only to stdout), one of the nine smaller items (a reviewer's mutation walked past the doctor's hand-enumerated selftest list), and the CI case-folding assertion that hard-coded the Windows answer and false-failed on Linux. **This is the kit's worst measured round and it is published as such.** |
+| 18 | 1 | 0 | R18-1: no shipped statement of the loop's stopping rules. Doctrine, not defect; nothing checked it and nothing could have. n = 1, which is noise — the denominator is printed for exactly this reason. |
+| 19 | 30 | 3 | Items = the three funded builds' dispositioned review findings (10 + 10 + 10). The 14 findings REJECTED below the materiality bar are not counted: counting them would enlarge the denominator and flatter the rate, so the worse reading is published. Escapes: the Level-1 build's shipped-values gap (all six documents titled with the shipped example value certified HEALTHY while a rule the kit already owned should have caught them), and the instrument build's two (the gate ceiling was duplicated in two unlinked places and drifted silently — found by the review of the instrument built to prevent exactly this class; and a stale module-inventory row an existing doc check should have covered). The relabel build's three MAJORs (attribution-from-memory, including one invented quotation) had no covering check and are an oracle candidate, not escapes. |
+| 20 | 7 | 0 | Items = the positioning-and-instrumentation round's dispositioned review findings (5 MINOR + 2 NIT); 7 below-bar REJECTs not counted, same worse-reading rule as round 19. Escapes: none — the reviewer's classification, passed through unaltered: both live-proven gaps (the unbound ceiling claim; the crashing selftest line) were in checks BUILT THIS ROUND, so no pre-existing check should have caught them; they are the new checks' own review findings, not escapes past the standing net. A zero round is published with its reasoning shown, per the register's own suspicion of unexplained zeros. |
+| 21 | 22 | 4 | Items = the 16 brownfield-walk findings plus dogfood F1–F6 (the round's 5 review punch items on its own new work are not counted — see the timeline row; excluding them is the worse reading). Escapes, the reviewer's classification passed through unaltered: P3W-3 (smoke phase 12 proved the force-track remedy but never compared it to the remedy the runner printed), P3W-12 (a smoke check ran the documented shell block without inspecting what it wrote), F3 (`doctor:l1-rendered`'s own selftest was green over a false-positive class it never probed), F4 (`doctor:l1-interview` accepted any parseable future date). All four are one shape — **a check that exercises an artifact without asserting the artifact's own claim about itself** — recorded as this round's oracle candidate. The other 18 findings had no covering check at all. 18.2% is a rise from round 20's zero; the honest reading is a new instrument (the first brownfield walk) reaching surfaces the standing net was never pointed at, not a decaying net. |
+
+**The published number, as the tool computes it:**
+
+```
+ESCAPE RATE UNCOUNTED: 1 round(s) declared uncountable and excluded from the denominator — 1–6
+ESCAPE RATE TREND: 42.9 -> 15.4 -> 14.3 -> 30.0 -> 11.1 -> 16.7 -> 0.0 -> 0.0 -> 50.0 -> 15.8 -> 42.9 -> 0.0 -> 10.0 -> 0.0 -> 18.2 (percent, oldest first); direction RISING
+ESCAPE RATE: 33/179 items (18.4%) over 15 rounds; latest 4/22 (18.2%); ceiling 35.0%; state MEASURED
+```
+
+The direction word swings on small tail denominators (rounds 18–20 are n = 1,
+30 and 7): a single round moves it. Read the cumulative number and the spikes,
+not the word; it is printed anyway because the tool does not editorialize.
+
+**What the number says, including the part that is not flattering.** Roughly
+one finding in five was something the kit's own checks should already have
+caught. The trend does **not** fall monotonically: it spikes at rounds 15
+(50.0%) and 17 (42.9%), and both spikes land exactly where the kit had just
+built new machinery — the runner's exclusion probe and the hook's staging
+rule. The honest reading is that this loop learns on the surfaces it has
+already been burned on and escapes freshly on the ones it has just built. The
+doctrine says a rate that does not fall means the loop is witnessing rather
+than learning; on this record the rate falls on mature surfaces and resets on
+new ones, which is a weaker claim than the doctrine's and is the one the data
+supports.
+
+**The ceiling, derived from this table.** The `--ceiling` literal in
+`verify.py`'s `escapes` gate entry is **35.0**, by the same four-step method
+`TOKEN-LEDGER.md` gives for the cost ratio. (It is an inline literal beside the
+gate's other thresholds, not a named constant and not a config key, so that
+moving it is a reviewed commit inside the judge surface.
+`modules/04-ledgers/escape_rate.py`'s `DEFAULT_CEILING` is the second copy of
+the same number, and `escape_rate.py --selftest` section F requires the two to
+agree — before that binding existed, a drifted copy published a different
+ceiling from the standalone command while the gate stayed green.)
+
+Step 1 says take the *successful* rounds: rounds 7, 15 and 17 are the three
+this register itself records as rounds where the kit was green and the green
+was wrong, so they are not in the cluster. The remaining counted rounds peak at
+**30.0%** (round 10). Step 2: 30.0 × 1.15 = 34.5, rounded to **35.0**.
+
+Step 3, the backwards sanity check: **one half of it is evidence and the other
+half is arithmetic, and both are stated.** A 35.0% ceiling fires on rounds 7,
+15 and 17 and on nothing else. The "on nothing else" half is true *by
+construction* — step 1 removed those three rounds from the cluster and step 2
+set the ceiling above the retained maximum, so no retained round could possibly
+fire. It carries no information. The half that does carry information is that
+all three excluded rounds land clearly above the line rather than in the
+30.0–34.5 gap, which is a real fact about where the threshold sits and a
+weaker one than "fires on exactly the right rounds" sounds. Step 4: n = 12
+counted rounds, one project, one maintainer's classification. Low confidence,
+and an adopter should re-derive it from their own first rounds rather than
+inherit this one.
+
+**How the classification was made, and how to dispute it.** Every escape is
+named by its id in the Notes column, and each was classified from this
+register's own text — in most cases from a sentence that already says a check
+was green over the defect. It is a maintainer's classification of a
+maintainer's record, with the disputable calls disclosed in place (round 7's
+item count, round 12's single escape, whether round 15's two in-fix defects
+are separate items). Where a reading was genuinely ambiguous the **worse**
+number was published. Anyone who disagrees with a row can change two integers
+and re-run the tool.
+
+**Known limits of this instrument.** It reads a table; it cannot audit the
+table. A round that is never appended is invisible to it, and nothing in it
+reads a clock, so a project that has stopped recording rounds looks the same
+as a project between rounds. The ledger is deliberately **not** in
+`JUDGE_PATHS` — it is the subject the gate measures, not a rule that decides
+what green means, and putting it there would make every ordinary ledger append
+invalidate certification — so an uncommitted edit to the table can move the
+published number within a single run. The number is printed on every
+certification, which is the compensating control and is not the same thing as
+a proof.
+
+### The ratio ceiling
+
+`RATIO_CEILING` in the kit's own `kit.config` is now **0.40**, derived rather
+than adopted, by the method `modules/04-ledgers/TOKEN-LEDGER.md` prescribes:
+
+1. **Cluster maximum.** The kit's published process/implementation ratios are
+   the reference build's four certified rounds, `BLUEPRINT.md` §11: 0.21–0.36.
+   Cluster maximum **0.36**.
+2. **Ten to fifteen percent above it.** 0.36 × 1.10 = 0.396; 0.36 × 1.15 =
+   0.414. Rounded to **0.40**.
+3. **Sanity-check backwards.** Half of this check passes and half is unproven,
+   and both halves are stated. It fires on no round anyone was happy with — no
+   round in 0.21–0.36 reaches it. It has never fired on a round independently
+   judged an overrun, because **no measured round has ever exceeded it**, so
+   the half of the test that would confirm the threshold sits in the right
+   place has not been run.
+4. **n and confidence.** n = 4 rounds, one reference build, one owner. A
+   **low-confidence tripwire**, not a budget, and stated as one.
+
+`kit.config.example` still ships `RATIO_CEILING = derive-from-your-own-data`,
+and that is deliberate rather than an oversight: it is the one shipped value
+QUICKSTART Step 7 tells an adopter to keep, because adopting somebody else's
+cost ceiling is exactly what the method above says not to do. The key is not
+deleted. What changed is that the kit now fills its own copy of it, with the
+arithmetic above, instead of shipping itself the instruction.
 
 ---
 
@@ -219,10 +391,10 @@ already vetoes on that token, so nothing downstream changes.
 
 ---
 
-## Walk #8 — stranger onboarding, Windows/pwsh, literal obedience
+## Walk #8 — LLM-persona adoption walk, Windows/pwsh, literal obedience
 
-The eighth walk was the first post-ship onboarding test: a fresh reader adopted
-the kit into an empty repo by obeying the documents literally, in pwsh, with no
+The eighth walk was the first post-ship adoption test: a persona adopted the
+kit into an empty repo by obeying the documents literally, in pwsh, with no
 coach. The walk completed — all nine QUICKSTART steps, `VERIFY: PASS` at the
 end. It found 13 defects. Every executable did what its documentation said; 12
 findings are documentation defects and one is a check-coverage defect.
@@ -270,7 +442,7 @@ adopted without an oracle no longer certifies green.
 
 ---
 
-## Walk #9 — stranger onboarding, Linux/bash conventions
+## Walk #9 — LLM-persona adoption walk, Linux/bash conventions
 
 The ninth walk adopted the kit with bash habits on a Windows host. It completed
 all nine steps and found 7 defects, all documentation. Its major is the walk's
@@ -295,7 +467,7 @@ All 7 were fixed in one errata pass:
 
 ---
 
-## Walk #10 — stranger onboarding, the impatient skimmer
+## Walk #10 — LLM-persona adoption walk, the impatient skimmer
 
 The tenth walk read headings, code blocks, tables and checkpoints, and paid for
 prose only when something failed. It reached the kit's full done state —
@@ -326,14 +498,14 @@ instruction into the checkpoint, with a runnable line in both shells.
 
 ---
 
-## Walk #11 — stranger onboarding, the team-lead evaluator
+## Walk #11 — LLM-persona adoption walk, the team-lead evaluator
 
 The eleventh walk was the first to read **doctrine before commands**: README →
 BLUEPRINT → CONTEXT-ARCHITECTURE → KNOWN-ISSUES, then QUICKSTART hands-on, then
 a second-machine simulation. It found **18** defects — the largest round — and
 the reason is the route: claim-checking BLUEPRINT and CONTEXT-ARCHITECTURE
 against the shipped files, auditing this document for self-consistency, and
-running the kit as a *team* would are four surfaces the first three stranger
+running the kit as a *team* would are four surfaces the first three of these
 walks never touched. Every executable behaved as documented, including the ones
 designed to fail; all 18 findings are documentation defects.
 
@@ -367,7 +539,7 @@ plus a recorded design, not a feature. Those four appear in the open list below.
 
 ---
 
-## Walk #12 — stranger onboarding, the dry-test literalist
+## Walk #12 — LLM-persona adoption walk, the dry-test literalist
 
 The twelfth walk was the first dry-test: a careful literalist re-walked the
 full document after the walk 8–11 errata, verifying every checkpoint and
@@ -395,7 +567,7 @@ they shipped.
 
 ---
 
-## Walk #13 — stranger onboarding, the thorough adopter
+## Walk #13 — LLM-persona adoption walk, the thorough adopter
 
 The thirteenth walk combined the full hands-on walk, the end-state audit, and
 doctrine spot-checks against the shipped files. **The walk itself was clean:**
@@ -416,16 +588,16 @@ date again one walk after F-6 fixed the class.
 
 ---
 
-## Walk #14 — stranger onboarding, the final cap walk
+## Walk #14 — LLM-persona adoption walk, the final cap walk
 
-The fourteenth walk closed the stranger-onboarding loop at its seven-stranger
-cap. **The hands-on walk was clean for the second consecutive time**: all nine
+The fourteenth walk closed the adoption-walk loop at its seven-walk cap. **The
+hands-on walk was clean for the second consecutive time**: all nine
 steps as printed, every checkpoint matched, and a 14-property end-state audit
 found nothing uncaught. All three deliberate reds produced their documented
 verdict words. Eight findings, none major, all documentation.
 
 The loop therefore ended **not-dry by its own rule** (two consecutive
-zero-finding strangers never occurred), and the structural finding is stated
+zero-finding walks never occurred), and the structural finding is stated
 here as the loop's outcome: *the adopter-facing walk converged to clean and
 stayed clean; the kit's residual finding generator is its documentation
 meta-layer — module READMEs cross-describing each other's contracts, and this
@@ -455,7 +627,7 @@ state that triggers them. Three did. Each is a case where the kit is green and
 the green is wrong, or where the printed instruction costs an adopter work that
 is not theirs to lose.
 
-The pattern across all three: a **stranger walking the document in an empty
+The pattern across all three: a **persona walking the document in an empty
 repository cannot meet any of them.** The empty repo has no pre-existing
 `.gitignore`, no colleague's uncommitted work, and no second machine. The
 onboarding loop converged to clean and then stopped finding these because the
@@ -510,12 +682,17 @@ reaches it, reporting green. Both are fixed, each with a negative control in
 
 ## Round #17 — the adversarial personas, and the doctor
 
-The seventeenth entry is not a walk either. Three independent adversarial reads
-of the shipped kit — a controls graybeard, a team-lead evaluator, and a
-skeptic — were run against `2c18c53`, and their findings were then attacked in
-turn by a fourth read that conceded, rebutted or rescoped each one against the
-owner's materiality bar. The owner ratified four items. This round implements
-them.
+The seventeenth entry is not a walk either. Three independent **LLM-persona
+evaluation reads** of the shipped kit — a controls graybeard, a team-lead
+evaluator, and a skeptic — were run against `fcd64b1` *[this section first said
+`2c18c53`; corrected 2026-08-21. All three prompts name `fcd64b1`, the reads
+started at 22:13 on 2026-08-20, `fcd64b1` was committed at 22:11 that evening,
+and `2c18c53` landed at 01:42 the next day.]*, and their findings were then
+attacked in turn by a fourth read that conceded, rebutted or rescoped each one
+against the owner's materiality bar. A read is not a walk: no scratch project
+was created and no `QUICKSTART.md` command was executed. The three prompts are
+published at `docs/walks/evaluation-reads.md`. The owner ratified four items.
+This round implements them.
 
 The pattern in the ratified four is worth naming, because it is not the pattern
 of the earlier walks. **Nothing here is a silent green.** Every one is a
@@ -526,7 +703,7 @@ measurements, that is the finding.
 
 | # | Finding | Disposition |
 |---|---|---|
-| R17-1 | **The blanket-add ban had eight measured functional equivalents that passed silently**, and the docstring called the rule "DENIED outright". Found independently by all three readers: `git add -Av`, `git -C <path> add -A`, `git stage -A`, `git add -u`, `git add :/`, `git add '*'`, `git commit -am`, and — the worst, because nobody types it to evade anything — **any indented occurrence**, since one leading space or tab defeated the `^` anchor. That is the normal shape of a command inside an `if` or a `for`. | **NARROWED, NOT CLOSED**, and the status word is deliberate: see R17-5, which is the second round on this same rule and found ten more. (a) The pattern covers command position with indentation, git's global options before the subcommand, the `stage` synonym, combined short-flag clusters containing `A` or `u`, `--all` / `--update`, `.`, `:/` and `*` quoted or bare, and `git commit` with an `a`-bearing flag cluster. **Eight deny fixtures** — `t`, `u`, `v`, `w`, `x`, `y`, `z`, `aa`, one per measured form — plus the control `ab`, proving the scan does not read flags out of a quoted commit message. Fixtures `r` and `s` belong to R17-2, not to this row. (b) The durable answer — judge the INDEX, not the string — is **RECORDED, NOT BUILT**, with the reason: a PreToolUse hook runs *before* the command, when `git diff --cached` still describes the world as it was, so the index judgement belongs in a git `pre-commit` hook at the moment the index is final. Until a project installs one, the compensating pair is the pattern plus the sweep list the gate prints when it denies, and `kit_doctor.py`'s dirty-paths check on demand. Neither stages anything. Both error directions are disclosed at `BLANKET_ADD`, beside point 1's, and **no completeness is claimed**. |
+| R17-1 | **The blanket-add ban had eight measured functional equivalents that passed silently**, and the docstring called the rule "DENIED outright". Found independently by all three persona reads: `git add -Av`, `git -C <path> add -A`, `git stage -A`, `git add -u`, `git add :/`, `git add '*'`, `git commit -am`, and — the worst, because nobody types it to evade anything — **any indented occurrence**, since one leading space or tab defeated the `^` anchor. That is the normal shape of a command inside an `if` or a `for`. | **NARROWED, NOT CLOSED**, and the status word is deliberate: see R17-5, which is the second round on this same rule and found ten more. (a) The pattern covers command position with indentation, git's global options before the subcommand, the `stage` synonym, combined short-flag clusters containing `A` or `u`, `--all` / `--update`, `.`, `:/` and `*` quoted or bare, and `git commit` with an `a`-bearing flag cluster. **Eight deny fixtures** — `t`, `u`, `v`, `w`, `x`, `y`, `z`, `aa`, one per measured form — plus the control `ab`, proving the scan does not read flags out of a quoted commit message. Fixtures `r` and `s` belong to R17-2, not to this row. (b) The durable answer — judge the INDEX, not the string — is **RECORDED, NOT BUILT**, with the reason: a PreToolUse hook runs *before* the command, when `git diff --cached` still describes the world as it was, so the index judgement belongs in a git `pre-commit` hook at the moment the index is final. Until a project installs one, the compensating pair is the pattern plus the sweep list the gate prints when it denies, and `kit_doctor.py`'s dirty-paths check on demand. Neither stages anything. Both error directions are disclosed at `BLANKET_ADD`, beside point 1's, and **no completeness is claimed**. |
 | R17-2 | **A `//` inside a string literal blanked the rest of its line**, taking any `agent(` call on that line with it — count 0 vs 0, which is silence. A URL is an ordinary thing to find in a workflow script, and the failure direction was a false ALLOW of an undeclared spawn. | **FIXED.** `strip_script_comments()` is now one scanner that recognises comments and string literals in source order, blanking comment text and string *contents* while preserving offsets. It has to be one pass: masking strings first would make `// don't` open a literal at the apostrophe and blank the rest of the file. Fixture `r` is the defect; fixture `s` is the control that the masking does not eat a `model:` sitting outside the string. **The first version of this fix shipped its two residuals in the WRONG DIRECTION** — the docstring called them "a loud, immediate, fixable deny" and both were measured as silent false allows, the same mechanism as the defect. Both are now closed (fixtures `ac`, `ad`) and the surviving residuals are stated as silent-allow: see R17-6. |
 | R17-3 | **The cert-green token is an unsigned self-assertion.** No HMAC, no proof the runner ran; the file is gitignored and outside `JUDGE_PATHS`, so anything that can write a file can mint one. A security professional read it as a stronger attestation than it is. | **DECIDED AND LABELLED (owner-ratified 2026-08-20; the keying analysis accepted on review 2026-08-21), with the surviving half built.** The keying question was evaluated honestly and the answer is no: the agents this token governs run shell commands as the owner, with the owner's filesystem and environment, so there is nowhere to put a key they cannot read — not an environment variable, not a file outside the repository, not the settings file. A signature would raise forgery from "write a file" to "read a file, then write a file" while making the token read as an attestation it is not, which is a *worse* label, not a better control. So: the label ships, and it ships **inside the artifact** (a `label` field in the token itself), in `cert_green()`, in README's new Security scope section, and on every `kit_doctor.py` run. The half of the item that survives the keying decision is built: **`verify.py --mint-cert-token`** writes the token from the runner's single `PASS` return, carrying sha, timestamp and gate headlines, so the ordinary way to hold a token is to have certified rather than to have asserted. It is opt-in — a run that lifts a control should be asked for, not a side effect. |
 | R17-4 | **The kit contained zero words of security scope**, repo-wide, while shipping controls that a public audience reads as security controls. | **FIXED** — README has a `Security scope` section: what the kit governs (correctness, cost, process integrity) and the four things it does not defend against (a malicious agent, prompt injection, credential exfiltration, supply chain), with the cert-green token and the hook's heuristics named specifically because both look stronger than they are. |
@@ -560,8 +737,9 @@ to be able to name them:
   the mismatch costs there.
 
 **And the tool the streamlining pass funded.** `tools/kit_doctor.py` is the
-adopter-runnable "check my adoption" command: ten checks, `HEALTHY` /
-`ATTENTION`, exit 0 / 1 / 2. The verdict word is deliberately not `PASS` —
+adopter-runnable "check my adoption" command: fifteen checks — ten in the full
+diagnosis, and five more under `--level1` for a documents-only adoption —
+`HEALTHY` / `ATTENTION`, exit 0 / 1 / 2. The verdict word is deliberately not `PASS` —
 that word belongs to the runner that runs the gates, and this tool runs none.
 It stages nothing (an earlier design offered to `git add` what its dirty-paths
 check found, and that design was killed in review), and `--selftest` holds the
@@ -570,7 +748,8 @@ own text and checked against a read-only allowlist.
 
 Two things about it are worth reading:
 
-- **Every one of its ten checks is registered**, and `expectation_lint.py` now
+- **Every one of its checks is registered** — all fifteen — and
+  `expectation_lint.py` now
   cross-checks the `doctor:` family against `kit_doctor.py` in both directions,
   exactly as it does the fixture family. That generalisation is the point: ten
   unregistered checks in one commit would have grown this register's own named
@@ -594,7 +773,7 @@ to close.** That is the finding worth keeping:
 
 | # | Finding | Disposition |
 |---|---|---|
-| R17-5 | **The widened blanket-staging pattern scanned across newlines**, because its token separator was `\s`, which matches newline. The scan ran off the end of the git command and through every following line until it met a quote or a `;&|`, so any later `-A`, `-u`, `.`, `*` or `a`-bearing flag denied the whole block. Five ordinary two-line blocks measured denying, `git commit -F msg.txt` followed by `ls -la` among them. The fix for the bypasses built the dead alarm the same file's own comment warns against. **And ten further real bypasses** were found in one session after three readers had already been through the rule: `git add ./`, `git add "-A"`, `git add --al`, `env`/`sudo`/`time`/`VAR=` prefixes, `sh -c`, a backslash continuation, `$(…)`, backticks, and `git add ':(top)'`. | **FIXED** for the false-deny class — every separator inside a command is `[ \t]`, never `\s`, and fixtures `ae`, `af` hold the line. The measured cost is that a blanket flag reached only by a backslash continuation stops matching, and that form was already a false negative, so nothing was lost. **NARROWED** for the bypasses: `./`, quoted flags, long-option prefixes, the assignment and wrapper prefix family, `$( … )` and `:(top)` are closed with a fixture each (`ag`–`am`); `git add --dry-run` is now deliberately allowed, because it stages nothing and it is the command an operator reaches for after a deny (fixture `an`). Nested shells, backslash continuations, backticks, `xargs`, aliases, runtime-built commands and post-quote flags are **NOT closed and are named** where the rule is defined. Backticks are excluded on purpose: a backtick code span in a commit message is commoner than the legacy substitution form. **No completeness is claimed anywhere**, and the durable index-based fix stays recorded. |
+| R17-5 | **The widened blanket-staging pattern scanned across newlines**, because its token separator was `\s`, which matches newline. The scan ran off the end of the git command and through every following line until it met a quote or a `;&|`, so any later `-A`, `-u`, `.`, `*` or `a`-bearing flag denied the whole block. Five ordinary two-line blocks measured denying, `git commit -F msg.txt` followed by `ls -la` among them. The fix for the bypasses built the dead alarm the same file's own comment warns against. **And ten further real bypasses** were found in one session after three persona reads had already been through the rule: `git add ./`, `git add "-A"`, `git add --al`, `env`/`sudo`/`time`/`VAR=` prefixes, `sh -c`, a backslash continuation, `$(…)`, backticks, and `git add ':(top)'`. | **FIXED** for the false-deny class — every separator inside a command is `[ \t]`, never `\s`, and fixtures `ae`, `af` hold the line. The measured cost is that a blanket flag reached only by a backslash continuation stops matching, and that form was already a false negative, so nothing was lost. **NARROWED** for the bypasses: `./`, quoted flags, long-option prefixes, the assignment and wrapper prefix family, `$( … )` and `:(top)` are closed with a fixture each (`ag`–`am`); `git add --dry-run` is now deliberately allowed, because it stages nothing and it is the command an operator reaches for after a deny (fixture `an`). Nested shells, backslash continuations, backticks, `xargs`, aliases, runtime-built commands and post-quote flags are **NOT closed and are named** where the rule is defined. Backticks are excluded on purpose: a backtick code span in a commit message is commoner than the legacy substitution form. **No completeness is claimed anywhere**, and the durable index-based fix stays recorded. |
 | R17-6 | **The string-literal fix disclosed its two residuals in the wrong direction.** The docstring called a regex literal with escaped slashes and a JS private field "a loud, immediate, fixable deny"; both were measured as **silent false allows** — over-blanking removes the `agent(` call with everything else, the count falls to 0 vs 0, and the gate says nothing. Same mechanism and same direction as the defect the fix was written for. In a kit whose thesis is that confident sentences must be measured, a disclosure that says a residual fails safe when it fails open is worse than no disclosure. | **FIXED, both of them, rather than re-labelled.** The scanner now recognises a regex literal when a `/` appears where an expression may start (and leaves division alone after an identifier, digit, `)` or `]`), and treats `#` as an ordinary character when it touches a `.` or an identifier, so `this.#id` survives while `x = 1  # note` is still a comment. Fixtures `ac` and `ad`. What genuinely survives — a `#` that is neither a comment nor a private field, a `/` in expression position after an unrecognised keyword, an `agent(` inside a template-literal interpolation, and a non-spawn `model:` — is now stated **as silent false allow**, with the one false-deny direction marked as such. |
 | R17-7 | **`kit_doctor.py` wrote into the tree it was diagnosing**, then reported its own residue back as the adopter's dirty tree. Importing the target's `verify.py` and `hook_model_gate.py` left `__pycache__/*.pyc` beside each, which the dirty-paths check duly listed. The module docstring said "the only writes this tool performs are to stdout". The rule was applied to the case probe — which flips an existing filename rather than creating one — and missed for the imports. | **FIXED** — `sys.dont_write_bytecode = True` ahead of every import, asserted in `--selftest` against the interpreter's own state rather than against the source text, and verified live: `git status --porcelain -uall` on a scratch adoption is byte-identical before and after, with no `__pycache__` anywhere. |
 | R17-8 | **The security-scope section carried one sentence a hostile reader could disprove** — "the hook's four rules are string heuristics; each one discloses both of its error directions in its own source". Point 2 discloses nothing and is not a string heuristic; point 4 disclosed one direction. Thirteen of the section's fourteen claims fact-checked clean. | **FIXED, by making it true rather than by softening it.** Point 4 gained its false-ask direction (a substring match fires on a longer path containing the configured one, and on prose mentioning it), point 1's directions were corrected under R17-6, and the sentence now says *three* rules are heuristics, names them, states that point 2 compares declared fields and is exact, and adds that no completeness is claimed. |
@@ -612,8 +791,152 @@ corrected here.
 
 ---
 
+## The walk labels, corrected
+
+The adversarial read of entry 17 opened with an attack on this document, and it
+was right. This register described its adoption tests as "independent adoption
+tests" performed by "a fresh reader" on "stranger onboarding walks", while
+`BLUEPRINT.md` and `DECISION-BRIEF.md` recorded that the evidence base was AI
+personas. Those are two different claims about the same evidence, in the same
+repository, in the document titled "measured, not hidden". The attack was ruled
+funded by the owner on 2026-08-20 and closed on 2026-08-21.
+
+What changed, and what did not:
+
+- **The label is now the same everywhere.** Every claim that a walk or an
+  evaluation was performed says who performed it: an LLM running a written
+  persona. Twelve files carry the same wording as this register —
+  `README.md`, `BLUEPRINT.md`, `DECISION-BRIEF.md`, `ROADMAP.md`, `LEVEL-1.md`,
+  `checks-registry.json`, `tools/adoption_smoke.py`,
+  `tools/expectation_lint.py`, both module-02 hook sources and its README, and
+  module 03's README. Where the word
+  "independent" survives it means either independent *of one another*, with the
+  instrument named beside it, or an independent *adopter*, which is the thing
+  the kit still does not have.
+- **The two instruments are named apart.** Walks 8–14 are LLM-persona adoption
+  walks: a scratch repository, every command executed. The three runs of entry
+  17 are LLM-persona evaluation reads: the shipped repository, read only. They
+  find different classes of defect and their counts are not merged.
+- **`docs/walks/` publishes the prompts.** Every walk in the 8–14 loop and every
+  entry-17 read has a page carrying its prompt verbatim, the commit it ran
+  against, the finding count this register carries, and a distillation of what
+  it did. **Entries 1–7 have no page**: they predate the fixed adoption charter
+  those seven share, and their prompts were not retained. The index states that
+  scope, what is retained, what is not, and — in one paragraph — what a reader
+  can and cannot verify from what is published.
+- **No finding count moved.** Relabelling the evidence does not change what the
+  evidence found, and nothing in the timeline, the escape-rate table or any
+  walk section was renumbered or rescored by this change.
+- **What is not fixed:** no human has walked the document. That is an open item
+  below and a `ROADMAP.md` entry, not something a relabel can close.
+- **One bookkeeping debt, named rather than left implicit.** Entry 17's row now
+  records two attacks from that round as closed, and round 17's item count in
+  the escape-rate table does not include them. That is correct while this round
+  is open — the published rate must not move mid-round — but it leaves the
+  register asserting a closure its own denominator cannot see. **The coordinator
+  owes the decision at stage close:** whether the two later-funded items join
+  round 17's row or open a round of their own, decided once, in the open, and
+  recorded with the arithmetic. Counting them would *lower* the published rate,
+  since neither had a check behind it, so leaving them out is the unflattering
+  direction and not a convenient one.
+
+The residual worth stating: an honest label on a self-administered study makes
+the study honest, not independent. `docs/walks/` says so in those terms.
+
+---
+
+## Round #21 — the brownfield round: an existing project, and an existing repository
+
+The twenty-first entry is two instruments, and neither is a walk into an empty
+directory. The first is a **measured adoption walk into an existing project**
+with a real pytest suite, a pre-existing `.gitignore` and uncommitted work in
+the tree. The second is the kit's own **Level-1 dogfood adoption** of the OAR
+program repository, which already had ledgers, a hand-written `kit.config`, and
+documents that write *about* the kit.
+
+The pattern across every finding below: **the install steps assume an empty
+repository, and the checks are green over what an existing one loses.** A walk
+into a scratch directory cannot meet any of them. It has no config to destroy,
+no ledgers to collide with, no records that quote the kit, and no test runner
+to wire.
+
+| # | Finding | Disposition |
+|---|---|---|
+| P3W-6 | No guidance anywhere for wiring an existing test runner, and the shape contract sits in `examples/fake_suite.py` — a file QUICKSTART tells the adopter stays behind in the kit. The string `pytest` appeared once in the whole kit, as a directory name to skip. The measured consequence: an adopter who points a gate straight at `pytest -q` gets `46 passed, 4 skipped`, a numerator with no denominator, so a collapsed collection prints `3 passed` and certifies. That is the silent-green class this kit exists to prevent, reachable by obeying the documents. The walker authored a 161-line adapter from scratch and invented every design decision in it. | **FIXED** — `modules/03-verification/gate_line.py` ships the adapter, with `GATE-LINE.md` as its page and a `--gate-spec` mode that prints the `GATES` entry built from the tool's own patterns, so payload and gate cannot drift. **Proven for pytest and for nothing else, in the tool's own words:** six suites in `examples/pytest_suites/` are run for real by `--capture-golden`, and what pytest reported is committed in `examples/pytest-golden.json` — all pass, pass with skips, failures, errors, a collapsed collection, and a deselected subset. `--selftest` replays all six, re-runs them live wherever pytest is installed, and prints `LIVE HALF NOT RUN` with the reason where it is not (this kit's CI downloads nothing, so that is the CI path). Two negative controls carry the class: a 72-point grid proving that no combination of counts with a zero collection can be green, and the assertion that pytest's own `-q` summary — every one of the six, as captured — is REFUSED by the required pattern. Registered as `selftest:gate-line` plus a `golden:` row per case, cross-checked both ways by `expectation_lint.py`, which now runs over four families. **Residual, asserted out loud in the selftest rather than left to be discovered:** a collection that shrank from 50 to 3 still emits a self-consistent `3/3`, and only `expect_min` catches it — which is why `--gate-spec` takes a `--floor` and why `GATE-LINE.md` says to measure that floor with `--collect-only` rather than guess it. Every runner other than pytest is labelled UNPROVEN by the tool, in its help, in its `--emit` output and on its page. |
+| P3W-3 | The runner's `VERIFY: ABORTED` message for a gitignored judge path printed the wrong remedy for an existing repository: *"Remove the rule that covers it."* On the measured walk that rule was `.gitignore:1:.claude/`, which also covers `.claude/sidequest.json`, `.claude/cert-green.json` and `.claude/settings.local.json` — three files the kit's own `.gitignore` says must never be committed, one of them the certification token. Obeying the printed remedy commits session state and the cert token. The correct remedy, force-tracking the single file under the intact rule, was already proven by `adoption_smoke.py` phase 12 and named in this register, and appeared in neither the message nor QUICKSTART. Cost: four minutes grepping a 107 KB file the adopter was never routed to. | **FIXED** — the abort now prints three steps in order: `git add -f <the path>` and commit it, with the note that phase 12 proves this clears the abort; `git check-ignore -v <the path>` if you want to know which rule it was; and removing the rule ONLY if it covers nothing else, with the cost named in the same sentence. Bound in two places so the message and the proof cannot drift: `verify.py --selftest` asserts that the force-track remedy appears and appears FIRST, ahead of the diagnostic and the rule removal, and that the removal clause is conditional; `adoption_smoke.py` phase 12 asserts the same ordering on the message a real repository actually produced, immediately above the control that force-tracks the file and requires the run to start. |
+| F1 | `LEVEL-1.md` step 2 prints `cp /path/to/kit/kit.config.example ./kit.config` with no brownfield branch. `cp` overwrites without asking on pwsh, bash and Git Bash, and the dogfood repository already had a hand-written config carrying `JUDGE_PATHS`, `CERT_PATHS`, `GATE_COMMAND`, `VERIFY_RUNNER` and real tier names. Running the line as written destroys all of it. The lane did not run it, which is the point: the loss is invisible afterwards, so nothing would have reported it. | **FIXED** — `doctor:l1-config-complete` reads `kit.config.example` as the registry of every key the templates interpolate and names each one this repository's config is short of. Its fixing step says APPEND at the shipped value, and says in the same red that copying the example over an existing config destroys the answers in it. Step 2 carries the one sentence the check enforces. The expectation is a genuinely different artifact from the subject, so the row needs no waiver. **Residual, stated in the finding:** it judges the PRESENCE of keys only — whether a value is an answer or a shipped example is `doctor:l1-rendered`'s question. Where no `kit.config.example` can be found the check reports UNKNOWN rather than passing. |
+| F2 | The kit's four ledger filenames are hard-coded and `LEDGERS_DIR` is the only thing an adopter can move, so on a repository that already keeps ledgers the install has three possible outcomes and `LEVEL-1.md` named none of them. The dogfood repository had `docs/LESSONS-LEARNED.md` and `docs/TOKEN_LEDGER.md`, both named in its README as the ledger set. Two of the three outcomes were green: install alongside, and overwrite. | **FIXED** — `doctor:l1-ledger-collision` compares every `*.md` in `LEDGERS_DIR` against the kit's four names on a normalised stem (case, punctuation and the `.md` suffix removed, containment counted as collision, which is what the measured spellings needed) and reports each collision with all three dispositions named: rename onto the kit's name and carry the content forward; freeze the existing file as the record up to adoption; or move `LEDGERS_DIR`. It changes nothing, and says so. Step 3 carries the same branch. |
+| F3 | `doctor:l1-rendered` could not tell a surviving placeholder from a document *about* placeholders. It fired on a judgment-ledger row whose named check was, verbatim, "doctor selftest 149 (forced-red Example Project / your-top-tier-model...)" — the strings are the row's subject, and the only remedy the document offered was to substitute them, which means editing a truthful record of what was fixed and when. **This was a red that could not be cleared by following the document**, and it was live on a real adopter's tree when the fix was written. | **FIXED** — the shipped-value scan now reads each document through `scannable_for_shipped()`, which blanks fenced code blocks, inline code spans, and any line carrying the marker `oar:quotes-example`, for the table cell where backticks would be wrong. **The exemptions apply to that scan only:** an unsubstituted `{{SLOT}}` and a surviving template header block are defects wherever they appear, fence included. **Every exemption is visible** — the finding prints how many lines each mechanism took out of the scan, on every run, so a document cannot go quietly green by fencing itself. Paired selftest checks carry the class: each exemption is asserted GREEN on a quoted string and RED on the same string unquoted, and the measured ledger row is one of the literals. **Residual, stated:** a real defect hidden inside a fenced block is exempt too. A fenced block is displayed as literal example text rather than as the document's own assertion, and the printed counts are the compensating control. |
+| F4 | `doctor:l1-interview` accepted any parseable date after `scheduled`, so a fabricated schedule read identically to a real one. The dogfood adoption produced exactly that — a lane-invented date, which the owner's ruling then removed in favour of `not yet held`. | **FIXED** — the `scheduled` state must now say where the date came from (`scheduled <date> confirmed by <who, or which calendar>`). The red names both ways out, and one of them is `not yet held`, which is green and claims nothing — so the owner-blocked adopter, the design's whole reason for a green non-held state, is still one keystroke from green. `not yet held` and `held <date>` need no confirmation: the first claims nothing, and the second is evidenced by the profile's own answers. `PROFILE-TEMPLATE.md`'s STATUS menu and `LEVEL-1.md` step 4 carry the same wording. |
+| F5 | **The anti-ratchet's own enforcement layer was prose** — the debt `FAILURE-FLOOR.md` exists to audit, carried by the floor itself. Nothing checked that the demotion review had happened, and nothing bounded the size of the text every session is required to read, although the module-01 template states "keep it SHORT" three times. The owner's question was the shortest statement of the gap: *what is checking the lessons?* | **FIXED** — two checks in the default set. `doctor:floor-staleness` reads the floor's own table and reports every rule past its demotion window, with the arithmetic printed on every run: the window comes from `DEMOTION_REVIEW_STAGES` in the config, never from the file being judged, and the stage-to-day conversion is DERIVED from the mean interval between that floor's own distinct firing dates, because no file in an adopting repository relates stages to days. Rows reading `never` or `unknown — predates recording` are reported as NOT MEASURED rather than counted either way; a row already carrying a final disposition is exempt; fewer than two distinct dates makes the window uncomputable and the check reports UNKNOWN rather than green. `doctor:binding-digest` sizes the rules file plus the newest checkpoint against **325 lines, derived by the four-step method `TOKEN-LEDGER.md` gives for the cost ratio**: (191 rendered lines of the shipped `CLAUDE.md.template`, its 36-line header block deleted as the template instructs, + the 90-line measured checkpoint norm) = 281, × 1.15 = 323.15, rounded up to the nearest 25 = 325. The arithmetic prints on every run, green included. **The first observation is bound to the file it came from:** `--selftest` measures the shipped template live and requires it to still render to 191 lines, so if the template grows, the derivation's input has moved and the selftest goes red naming both numbers. That is the same binding shape as `check:escape-ceiling-agrees`, built because that ceiling drifted silently once already. **Residual, stated on every run:** n = 2 observations, one project, LOW confidence — re-derive it from your own stages — and the check counts lines without judging whether any line earned its place. Both checks report `n/a`, not green, on a tree with no floor or no rules file: whether the documents are installed at all is `doctor:l1-documents`' question, and two reds for one fact is how a tool teaches its reader to skim. |
+
+| P3W-1 | `QUICKSTART.md` step 6 printed `cp <template> ./CLAUDE.md` unconditionally. On the measured repository that destroys a 41-line rules file carrying the fixture rule, the skip rule and the style rules — no backup, no warning, and no check anywhere in the document can tell a merged rules file from a clobbered one: an overwritten `CLAUDE.md` reaches `VERIFY: PASS`. The step's only acknowledgement of a pre-existing rules file was the Level-1 case, which is a file the kit itself put there. | **FIXED** — the `cp` is now conditional, marked in the block itself as the new-file route, and the step carries a merge instruction for the other case: render to `CLAUDE.md.kit-new` and merge, or merge from the template by hand, with the existing rules preserved **verbatim** under a marked heading and the two sets read against each other for conflicts. The step also states what no check can see, so the `git diff` before the Step 9 commit is named as the only thing that will show a clobber. The same collision is row 1 of the new `EXISTING-PROJECT.md`. |
+| P3W-2 | `QUICKSTART.md` step 4 said to *substitute the slots in the template into `.claude/settings.json`*. The template's `permissions` block contains only `ask`; the measured file carried 10 `allow` and 2 `deny` rules, one of them a control the project's own `CLAUDE.md` depended on. Substituting drops all twelve silently — a permission that no longer exists cannot fail. The step's verb throughout was *substitute and place*, and the structural merge that avoids this was offered one screen later as an optional convenience for people who dislike retyping paths. | **FIXED** — the copy block now carries the merge instruction at the point of loss, and the render section is retitled *"optional on an empty repo, required on one that already holds these files"*, stating that by-hand at Step 4 and Step 6 destroys existing files and that the tool merges the settings as JSON with `permissions.allow` and `permissions.deny` left in place. Step 1 routes an existing-project adopter to `EXISTING-PROJECT.md` before Step 1's first command. No code change: the tool already did this, and `adoption_smoke.py` phase 13 already asserted its fidelity. |
+| P3W-4 | Step 4's printed commit line, `git add tools .claude kit.config .gitignore src tests docs && git commit`, has two independent failures on a repository someone is working in. `src` is a directory pathspec, so a half-finished feature lands in a commit titled *"adopt the kit"*. `git add .claude` exits 1 when the directory is ignored, printing `The following paths are ignored by one of your .gitignore files` — and the step's troubleshooting note named only `fatal: pathspec`, missing the signature an existing repository is most likely to hit. The line is joined with `&&`, so the commit never runs. **Re-measured during the fix pass, and worse than the walk recorded:** on git 2.54 the ignored-path failure exits 1 and stages every OTHER path on the line, work in progress included, so the index is left holding unfinished work while the run still reads red. Only the missing-path failure is atomic (exit 128, index untouched). | **FIXED** — the clean-tree warning in the block is strengthened and now points at the paragraphs below it; those paragraphs give the two failure modes with the file-naming form that avoids the first (name the kit's own files, drop `src` and `tests`, one line and no backslash continuations) and the `git add -f` plus `.claude/settings.json` form that avoids the second. Path substitution stays licensed and is now stated twice. The checkpoint's troubleshooting bullet names **both** signatures with what each does to the index, and says to run `git status` and `git reset` after the non-atomic one. Step 9's commit line carries the same pointer. **Two behaviours the re-walk measured that the walk had not:** the ignored-path add is not atomic (above), and force-tracking does not stop `git add` objecting — on git 2.54, while the `.claude/` rule stands, every later add naming a path under it fails the same way, the exact already-tracked file included, so the `-f` is permanent or the path comes off the line. Both are in the step and in `EXISTING-PROJECT.md`. |
+| P3W-5 | Both required green checkpoints — Step 4's *"must print: VERIFY: PASS"* and Step 9's *"must still print: VERIFY: PASS"* — are unreachable on any repository with legitimate work in progress inside `CERT_PATHS`. The measured run: `VERIFY: FAIL (exit 1) … RED: judges`, with `THE CERTIFIED TREE is NOT COMMITTED` naming one modified file under `src/`. The runner is correct; the document never addressed the state, so an adopter with unfinished work chose unaided between committing it to manufacture a green and abandoning the final checkpoint. | **FIXED** — both checkpoints now document the state. Step 4 carries the sanctioned route as runnable commands: back up the diff outside the repository and note its sha256, stash, certify, restore — with the instruction to take **both** backups and to verify byte-identity after, and the statement that certification is a property of a tree so a tree holding unfinished work has not been certified. Step 9 repeats it as two facts to record rather than one, the red with the work on disk and the green with it stashed, and adds the discriminator: a red naming anything other than work you know about is a real finding. No code change — the runner's behaviour was right. |
+| P3W-14 | Step 1 is titled *"Create your repo"* and printed `mkdir -p … && git init` with no existing-project branch, though a later step acknowledged the empty-repo case as the special one. | **FIXED** — Step 1 opens with two routes. The existing-repository route skips the `mkdir`/`git init` pair and carries the `kit.config` collision the same walk found at Level 1: `cp` overwrites without asking on every shell this document names, so copy the example to a scratch name and append only the keys you are missing. The code block marks which lines belong to which route. |
+| P3W-15 | *"Treat the kit as read-only"* sits at Step 1 while Steps 0 and 2 require executing Python inside the kit clone, which writes `__pycache__/` beside any script it imports — a fact Step 4 states in another context. Cosmetic: the kit's own `.gitignore` covers the directory, and the walk verified no new bytecode was produced and the kit's `git status` was empty at start and finish. | **FIXED** — one paragraph at the claim: read-only means you never edit a file of the kit's, not that nothing is ever written under it; the kit's `.gitignore` covers the bytecode so its `git status` stays empty; and on a clone that is read-only at the filesystem level Python skips writing it and the same commands still run. |
+| P3W-3 *(document half)* | The code half of this finding fixed the runner's abort message. The document half remained: `QUICKSTART.md` step 4 named the gitignored-judge-path failure and the `git check-ignore -v` diagnostic and stopped before the fix, so an adopter who hit the abort had nowhere in the document to go. | **FIXED** — the step now prints `git add -f .claude/settings.json` as a runnable line, states that the ignore rule stays intact, names `adoption_smoke.py` phase 12 as the proof, and makes rule removal the last resort with the reason: a directory rule such as `.claude/` also covers session state and the certification token, one of which this same step tells the adopter to add to their ignore file. The wording matches the abort message's own order, so the two cannot teach different remedies. |
+| P3W-6 *(document half)* | The code half shipped `gate_line.py` and `GATE-LINE.md`. The document half remained: nothing routed an adopter with an existing test suite to either, and `ORACLE-WORKSHEET.md`'s REQUIRED OUTPUT LINE field still asked for a line with no shape guidance anywhere near it. | **FIXED** — Step 3 names `GATE-LINE.md` as the contract to read before writing the required line, and says what a bare `pytest -q` gate cannot detect. Step 4 item 5 carries the existing-suite route as runnable commands: copy the adapter, see the line, print the `GATES` entry with `--gate-spec`, put `tools/gate_line.py` in `JUDGE_PATHS`, size the floor with `--collect-only`, and run the adapter's own selftest **in the kit clone**, since the copy list does not bring `examples/` across. `ORACLE-WORKSHEET.md` gains a section under the worksheet stating the four properties of a judgeable line — self-consistent ratio, veto vocabulary, subset suffix, measured floor — and pointing at the page. |
+| P3W-8 | Step 9's expectation model predicted *"exactly one tracked file should hit"*, allowed `CLAUDE.md` as a documented second on two branches, and declared a third the escape — but its diagnostic prose modelled **paths only**. The token list the same step specifies includes your **name**, which hits in `docs/collaboration-profile.md` by construction (Step 8 just wrote it) and in any pre-existing package metadata. Three tracked files hit on the measured walk against a budget of one; the checkpoint was unreachable as specified. | **FIXED** — the diagnostic is scoped to path-shaped tokens, and a table names the three files that legitimately hit and why: the settings file, the profile the document just had you write, and pre-existing author metadata (`pyproject.toml`, `package.json`, `AUTHORS`, a copyright line). The budget is restated as a rule rather than a number — every hit reviewed and every hit explained, one `--exclude` per reviewed file — with the escape redefined as a file you cannot account for, and the prohibition on deleting a token restated. The checkpoint carries the same wording. |
+| P3W-9 | `kit_render.py` runs at Step 4 and renders the Step 6, 7 and 8 files immediately, but `JUDGE_PATHS` and `CERT_PATHS` are reconciled at the end of Step 4 and `KNOWLEDGE_DIR` is decided at Step 6. The measured `CLAUDE.md.kit-new` carried the pre-reconciliation `CERT_PATHS` value, already wrong when it was read. Unset keys are handled correctly; the defect is confined to keys that had a value and then changed. | **FIXED** — the render section states the consequence where it happens, names the three keys that move after that point, and gives two remedies: render the Step 6/7/8 files again at the end of Step 6, or grep the rendered files for the two values once Step 6 is done. |
+| P3W-10 | `PROFILE-TEMPLATE.md` carries the `KNOWLEDGE_DIR` source-of-truth decision inside its header comment, and `kit_render.py` strips that header. Step 8's instruction 1 exists to make the adopter read that sentence before deleting it — so on the render path the instruction has nothing to act on and the decision has already been deleted unread, the exact outcome the sentence warns against. | **FIXED** — warned at the point of loss, in the render section: the header the tool strips carries a decision Step 8 depends on, so open `PROFILE-TEMPLATE.md` in the kit and read it now, decide with the rest of the `KNOWLEDGE_DIR` decision at Step 6, and write the answer into the profile's maintenance clause at Step 8. Step 8's instruction 1 carries the same branch for a reader who arrives there on the render path. |
+| P3W-11 | `kit_doctor.py`'s `doctor:vacuous-gate` asks for a `docs/ORACLE-<gate>.md` page for **every** gate in `RUN_ORDER`, three of which ship with the kit. `QUICKSTART.md` step 3 asks for **one** page, so an adopter who follows the document exactly lands at permanent `[ATTENTION] … 3 gate(s) cannot fail as configured` over gates they did not write — and the walk watched two of those three go red, so "cannot fail" is not true of them. | **FIXED on the document side, to the shipped behaviour.** The doctor is unchanged: the reason it prints for those three is `no ORACLE-<gate>.md page`, which is a missing record rather than an inert gate. Step 3's checkpoint now says so, names the three gates, and gives three honest answers — write the pages, accept the ATTENTION and record why in `docs/FAILURE-FLOOR.md`, or read the finding rather than counting it. Step 7 carries the same note where the doctor is introduced, together with `doctor:version` and the reminder that the verdict word is HEALTHY or ATTENTION and never PASS. **Residual:** the finding's headline still reads "cannot fail as configured" for a gate whose only gap is the page. Recorded, not changed this round. |
+| P3W-12 | Step 4's printed pwsh `.gitignore` append used `Add-Content`, whose default line terminator is CRLF, and wrote five CRLF lines into an LF file. Verified with `cat -A`. Hygiene, not breakage — the rules resolve either way — but it leaves a tracked file with mixed endings on the first command an adopter runs in their own repository. | **FIXED** — the printed block now reads the terminator the file already uses and appends that one, through `ForEach-Object` with `-NoNewline` on `Add-Content`. **The first fix was wrong and the re-walk caught it:** hard-coding LF is correct on an LF working tree and creates the same mix in the other direction on a CRLF one, which is what a Windows checkout with `core.autocrlf` on actually has — measured, 15 CR against 4 LF-only appended lines. The shipped form was then measured on all three cases: LF file stays 0 CR / 6 LF, CRLF file stays 6 CR / 6 LF, no file at all gets 0 CR / 4 LF, which is what the `printf` form produces. The paragraph beneath states the residual honestly: the `printf` form carries the same hazard in the other direction on a CRLF tree, and a `.gitattributes` is the general answer. |
+| P3W-13 | No step in `QUICKSTART.md` copied the kit's `VERSION` file, and `kit_doctor` reports `[ATTENTION] doctor:version — no VERSION file` with a fix instruction of its own. A gap between the adoption document's copy lists and a shipped diagnostic's expectation. | **FIXED** — `cp /path/to/kit/VERSION ./VERSION` joins Step 4's copy block, `VERSION` joins Step 4's commit line and the file-naming form beside it, and a short paragraph says what the file is for: nothing reads it at runtime, the doctor compares it against the tools' own version, and it is how a repository running newer `tools/` against a stale stamp gets found. Refresh it when you pull kit updates. |
+| P3W-16 | After adoption the project's certification is `python tools/verify.py`, which the rendered `CLAUDE.md` names as the single command; the measured project's CI ran `pytest -q` across three interpreters and none of the floor, ceiling, subset veto, hook arming or judge surface. From Step 6 the local gate proves strictly more than CI, and CI is the control outside the blast radius. Nothing told an existing-project adopter the divergence had opened, and module 07 is deferred to *"the following week"*. | **FIXED as documentation** — the divergence is row 7 of `EXISTING-PROJECT.md`, with the walk's own disposition recorded as the recommended one: do not modify CI mid-adoption, log the gap as adoption debt in the project's `docs/FAILURE-FLOOR.md`, and close it when module 07 lands. **Not fixed as a control:** nothing checks that an adopting project's CI runs the same command as its local gate. Recorded here rather than presented as closed. |
+| P3W-7 | **RECORDED OPEN, not fixed this round.** The gate table cannot express an exact count on a secondary capture group. The schema offers one floor (`expect_min` with `min_group`) and `ceilings` that are maxima only, so "skips == exactly 4" is not statable: a ceiling of 4 catches a **new** skip and lets a **vanished** one through. A skip that quietly started passing is a change to what the suite proves, and the schema cannot assert it. Until this round the workaround was inferable only from `examples/fake_suite.py`, a file QUICKSTART tells the adopter stays behind in the kit. | **OPEN, with the fix shape and a working route.** The route exists and is now routed to: `gate_line.py --expect-skips <n>` asserts the equality **in the payload** and prints `SKIP SET CHANGED: expected 4, got 3`, which the gate's `fail_pattern` vetoes on, and `GATE-LINE.md` states the limitation in a section of its own. **The fix shape, for the round that takes it:** an `expect_exact` field beside `ceilings`, taking a (group, value, label) triple the way `ceilings` does, so the assertion lives where the other numeric assertions live and shows up in `--list`. **No schema change this round** — the gate table is the interface every adopter's runner carries, and widening it is a change to a shipped contract that deserves its own round with its own selftest cases rather than riding a documentation pass. |
+| F6 | Found while fixing F1, on the same instrument: `LEVEL-1.md` Route A tells the adopter that a `KIT RENDER: INCOMPLETE` run naming `{{PROTECTED_PATH}}` is *"the expected Level-1 result, not a failure."* That holds only when `kit.config` was copied from `kit.config.example`. On a repository whose config predates the kit — the case F1 is about — the tool renders from the config it finds and names every key the templates interpolate that the config does not define, so `INCOMPLETE` carries a longer list and is a report about the config rather than the one documented slot. An adopter told the run is expected reads past it. | **FIXED** — the claim is scoped to the copied-config path by name, and the pre-existing-config case gets its own paragraph: expect a longer list, read it, and act on it through `doctor:l1-config-complete`, which names every missing key, and step 2's rule that you append at the shipped value and never copy the example over the file. |
+
+**What this round did not fix, and where that is recorded.** One finding from
+the measured walk is **recorded open**: P3W-7, the gate schema's inability to
+express an exact count on a secondary capture group, with its fix shape in the
+row above and a working payload-side route shipped in `gate_line.py`. One is
+**fixed as documentation only**: P3W-16, the CI divergence — nothing checks
+that an adopting project's CI runs the same command as its local gate. One
+**residual** stands inside a fix: `doctor:vacuous-gate`'s headline still reads
+"cannot fail as configured" for a kit-shipped gate whose only gap is a missing
+oracle page (P3W-11).
+
+**Two pages this round added that are not findings.** `EXISTING-PROJECT.md` is
+the collision list the MAJORs above come from — one row per collision, with the
+measured behaviour and the workaround proven for it, and its provenance stated
+on the page: one LLM-persona walk, 2026-08-22, findings recorded here.
+`docs/walks/WALKING-YOUR-OWN-DOCUMENTS.md` is the walk method itself, written
+for an adopter's own documentation: preflight, the fresh-reader lane spec,
+persona variation, the `document:line` citation rule, errata landing with its
+register row in the same commit as the fixes, and the termination rules from
+module 01's "WHEN THE LOOP ENDS".
+
+**Not yet written here, and owed at round close:** this round has no timeline
+row and no escape-rate row. Both are round-close artifacts — the escape row
+needs the review's classification of which findings an existing check should
+have caught, and the register's own rule is that a timeline entry and its
+escape row land in the same commit.
+
+---
+
 ## Open — what genuinely remains
 
+- **No human has walked `QUICKSTART.md` end to end.** Every finding count in
+  this register comes from an LLM persona, and the 90–120 minute budget is a
+  sum of per-step estimates reconciled against persona walks, not a
+  human-factors measurement. Publishing the prompts (`docs/walks/`) makes the
+  method checkable and the study reproducible; it does not make it independent.
+  A human adoption walk is on `ROADMAP.md` and is not on record.
+
+- **The Level-1 checks judge document SHAPE, not content, and the path's
+  30–45 minute figure is unmeasured.** `kit_doctor.py --level1` reads whether
+  the six documents exist, are rendered, are committed and carry the two
+  answers Level 1 asks for. A ledger with a correct header and no rows passes
+  every one of them, and so does a profile whose observations are wrong. The
+  green line prints that limit on every run rather than leaving it here. One
+  smaller residual in the same area: `LEVEL-1.md`'s budget is a sum of per-step
+  estimates by the maintainer, not a walk anyone timed. (The default diagnosis
+  still reports ATTENTION against a Level-1 tree — it reads a runner and a
+  settings file that level does not install — but it no longer leaves the
+  reader there: when it finds Level-1 documents, no runner and no wired hook,
+  it prints a line naming `--level1` above the verdict.)
 - **`modules/07-ci/verify.yml.template` has never been executed with real
   slots.** Placeholders only an adopter can fill. Unproven, labelled so in its
   own README.
@@ -642,7 +965,8 @@ corrected here.
   depends on the author adding a row. Waived in the registry, in the open.
 - **Point 3 of the hook is a heuristic too, the durable fix is not built, and
   NO COMPLETENESS IS CLAIMED.** Its covered list grew twice in one week and the
-  second round found ten forms after three readers had been through the first.
+  second round found ten forms after three persona reads had been through the
+  first.
   Still open and silent: a nested shell (`sh -c 'git add -A'`), a backslash
   line continuation, backtick command substitution (excluded on purpose — a
   backtick code span in a commit message is commoner than the substitution
@@ -784,8 +1108,8 @@ prose.
 
 ---
 
-**Meta-lesson, fourteen walks in.** Every independent walk found something the
-previous layer missed, and each fix added a check that makes that class loud.
+**Meta-lesson, fourteen walks in.** Every walk found something the previous
+layer missed, and each fix added a check that makes that class loud.
 Walk 7 (release audit) found three, all one class, now a lint. Walk 8 found one
 more — a detector that skipped most of its subjects while reporting a green
 count — and its fix makes the check state its own coverage. Walk 9 found a scan

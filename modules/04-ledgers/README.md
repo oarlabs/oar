@@ -1,15 +1,17 @@
 # Module 04 — Ledgers
 
-Four documents that stop the project's memory living in one person's head.
+Four documents that stop the project's memory living in one person's head, and
+one small tool that turns the headline number in one of them into a check.
 
 ## Files
 
 | File | The question it answers |
 |---|---|
-| `JUDGMENT-LEDGER.md` | *What did the owner decide, and what would go red if we undid it?* Ruling → named check, or UNCHECKED + reason. Carries the escape log. |
+| `JUDGMENT-LEDGER.md` | *What did the owner decide, and what would go red if we undid it?* Ruling → named check, or UNCHECKED + reason. Carries the escape log and the machine-read escape-rate table. |
 | `FAILURE-FLOOR.md` | *What do we require of ourselves, and what actually enforces it?* Rule → layer + zone + last-fired + residual. Carries the demotion review. |
 | `LESSONS.md` | *What did we learn the hard way?* Numbered, status-marked, each earned somewhere specific. Ships with eleven portable seed lessons. |
 | `TOKEN-LEDGER.md` | *What did it cost, and how much of that was ceremony?* Actuals, the process/implementation ratio, the rework column, and how to derive a ceiling instead of adopting one. |
+| `escape_rate.py` | *Is the loop learning, or only witnessing?* The one executable in this module. It computes the escape rate from the table in `JUDGMENT-LEDGER.md`, prints a required output line, holds the latest round to a ceiling, and refuses to guess: a missing ledger, a missing table or a malformed row is an ABORT, never a zero. Zero dependencies, and a `--selftest` whose forced-red controls cover every refusal it makes. |
 
 ## Vocabulary: "stage", "round" and "phase", defined once
 
@@ -62,6 +64,16 @@ which.
   case, and rule identifiers in the verify runner. A renamed check silently
   orphans every row that cited it, and orphaned rows are worse than absent ones
   because they read as coverage.
+- **→ 03-verification.** The runner ships an `escapes` gate that runs
+  `escape_rate.py` over `JUDGMENT-LEDGER.md`. Two constants in `verify.py`,
+  `ESCAPE_TOOL` and `ESCAPE_LEDGER`, name them; the **ceiling** is a literal
+  in the gate entry, inside `JUDGE_PATHS`, so raising it is a reviewed commit
+  rather than a config edit. The ledger itself is deliberately **not** in
+  `JUDGE_PATHS` — it is the subject the gate measures, and judging it would
+  make every ordinary append invalidate certification. If you adopt this
+  module without module 03, the tool still runs standalone; if you adopt
+  module 03 without this one, delete the `escapes` gate as its own docstring
+  instructs.
 - **← 02-enforcement.** Every hook rule should be a row in `FAILURE-FLOOR.md`
   with its layer, zone and last-fired date. That row is where the demotion
   review finds it.
@@ -74,7 +86,9 @@ which.
 Nothing. Four markdown skeletons and their maintenance rules work as documents
 in any project, with any tooling, with no agents involved at all. This is the
 cheapest module to adopt and — measured by how much it changes what a team
-notices about itself — plausibly the highest-yield.
+notices about itself — plausibly the highest-yield. `escape_rate.py` runs
+standalone too: `python escape_rate.py --ledger <your ledger>` needs nothing
+but stock Python and prints the same number a gate would.
 
 The coupling only appears when you *also* have module 03: then check names
 become load-bearing, and the ledger stops being a diary and starts being an

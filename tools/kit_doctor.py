@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-tools/kit_doctor.py - check my adoption. One command, ten checks, no verdict
-that could be mistaken for a certification.
+tools/kit_doctor.py - check my adoption. One command, two check sets, no
+verdict that could be mistaken for a certification.
 
     python tools/kit_doctor.py                 # diagnose this repository
     python tools/kit_doctor.py --root <path>   # diagnose another one
+    python tools/kit_doctor.py --level1        # the documents-only diagnosis
     python tools/kit_doctor.py --selftest      # judge this tool's own layer
     python tools/kit_doctor.py --list          # print the check inventory
 
@@ -39,6 +40,21 @@ diagnostic that mutates the tree it is diagnosing has changed its own subject.
 The only writes this tool performs are to stdout.
 
 It also runs no gate, mints no token, and edits no config.
+
+==========================================================================
+TWO CHECK SETS, AND WHY THEY DO NOT MIX
+==========================================================================
+The ten default checks read a verify runner, a settings file and a hook. A
+tree adopted by `LEVEL-1.md` has none of those on purpose: Level 1 installs
+documents. Running the default set against it would report ATTENTION on six
+checks about files the adopter was told not to install, which is a tool
+teaching its reader to ignore it.
+
+So `--level1` runs the five `doctor:l1-*` checks instead, over the documents
+Level 1 does install. They judge SHAPE - present, rendered, committed, and
+carrying the two answers Level 1 asks for. They judge no CONTENT and run no
+gate, and the green summary says so in the same breath as the green: what it
+certifies, what it does not, and what removing the level costs.
 
 ==========================================================================
 RUNNING IT ON THE KIT'S OWN CHECKOUT
@@ -76,6 +92,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+from datetime import date
 from pathlib import Path
 
 # THE FIRST STATEMENT THAT RUNS, and it belongs ahead of every import of a
@@ -730,6 +747,824 @@ def judge_cert_token(token, covered, dirty) -> Finding:
 
 
 # ==========================================================================
+# THE ANTI-RATCHET PAIR - checks 11 and 12, and what they are for
+# ==========================================================================
+# The kit's standing rules say a floor grows monotonically until people route
+# around it, and that a routed-around floor enforces nothing while costing
+# everyone attention. Two rules exist to stop that: the demotion review, which
+# disposes of quiet rules at every phase gate, and "keep the rules file short",
+# which the module-01 template states three times. The enforcement layer for
+# both was PROSE - the exact debt `FAILURE-FLOOR.md` exists to audit - and the
+# owner's question was the shortest possible statement of the gap: what is
+# checking the lessons?
+#
+# These two answer it, and neither judges CONTENT. One reads dates out of the
+# floor's own table; the other counts lines. A ledger of excellent rules that
+# nobody has fired in a year and a rules file of noise both pass every other
+# check in this tool.
+FLOOR_ROW = re.compile(r"^\|(?!\s*[-:]+\s*\|)(.+)\|\s*$", re.M)
+FLOOR_DATE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
+# The demotion review's disposition vocabulary, from the module-04 template.
+# A rule already carrying a final disposition is not overdue for one.
+FLOOR_FINAL_STATUS = ("ACCEPTED",)
+
+
+def parse_floor_rows(text: str) -> list:
+    """[{rule, layer, zone, status, last_fired}] from the floor's markdown
+    table. Pure.
+
+    Deliberately tolerant about columns and strict about the one that matters:
+    a row is only judged when it has at least five cells and the fifth is
+    where the template puts `Last fired`. The template's own EXAMPLE rows are
+    skipped by the angle-bracket prompt in their first cell - they are
+    instructions, not rules this project holds."""
+    out = []
+    for m in FLOOR_ROW.finditer(text or ""):
+        cells = [c.strip() for c in m.group(1).split("|")]
+        if len(cells) < 5:
+            continue
+        rule = cells[0]
+        if not rule or rule.lower() == "rule" or rule.startswith("<"):
+            continue
+        out.append({"rule": rule, "layer": cells[1], "zone": cells[2],
+                    "status": cells[3], "last_fired": cells[4]})
+    return out
+
+
+def floor_staleness(rows: list, window_stages: int, today) -> dict:
+    """The demotion review's arithmetic, as a pure function. `today` is passed
+    in - the caller reads the clock, this does not.
+
+    THE WINDOW IS DERIVED FROM THIS PROJECT'S OWN DATES, not inherited. The
+    configured window is a number of STAGES and the table records DAYS, and no
+    file in an adopting repository relates the two - so the interval between
+    this floor's own distinct firing dates is the conversion, and it is the
+    only measurement available that is about this project rather than about
+    somebody else's. Fewer than two distinct dates makes it uncomputable, and
+    the report says so rather than substituting a guess."""
+    dated, never, unusable, exempt = [], [], [], []
+    for r in rows:
+        raw = r["last_fired"]
+        status = r["status"].replace("*", "").strip().upper()
+        if any(status == s for s in FLOOR_FINAL_STATUS):
+            exempt.append(r["rule"])
+            continue
+        m = FLOOR_DATE.search(raw)
+        if m:
+            dated.append((r["rule"], date(int(m.group(1)), int(m.group(2)),
+                                          int(m.group(3)))))
+        elif raw.lower().startswith("never"):
+            never.append(r["rule"])
+        else:
+            # `unknown - predates recording` is a sanctioned value, and an
+            # angle-bracket prompt is an unfilled template row. Neither can be
+            # measured, and the template says guessing a date here destroys
+            # the only input the review has - so neither is guessed at.
+            unusable.append((r["rule"], raw))
+    distinct = sorted({d for _, d in dated})
+    if len(distinct) < 2:
+        return {"rows": len(rows), "dated": dated, "never": never,
+                "unusable": unusable, "exempt": exempt, "window_days": None,
+                "interval": None, "stale": [], "distinct": len(distinct)}
+    span = (distinct[-1] - distinct[0]).days
+    interval = span / (len(distinct) - 1)
+    window = int(round(window_stages * interval))
+    stale = sorted(((rule, (today - d).days) for rule, d in dated
+                    if (today - d).days > window),
+                   key=lambda t: -t[1])
+    return {"rows": len(rows), "dated": dated, "never": never,
+            "unusable": unusable, "exempt": exempt, "window_days": window,
+            "interval": interval, "stale": stale, "distinct": len(distinct)}
+
+
+def judge_floor_staleness(rep: dict, window_stages: int, source) -> Finding:
+    """Every run prints the arithmetic, green or red. A threshold nobody can
+    reconstruct is a threshold nobody will argue with, and an anti-ratchet
+    check that cannot be argued with is the ratchet."""
+    if source is None:
+        # n/a, NOT a red. Whether the floor is installed at all is
+        # `doctor:l1-documents`' question and it asks it by name; this check
+        # ages a floor that exists. A second check reporting the same absence
+        # is a second red for one fact, and a tool that reds twice for one
+        # reason is a tool people learn to skim.
+        return Finding(
+            NA, "no FAILURE-FLOOR.md in this tree",
+            "      Module 04 is not installed here, so there is no floor to "
+            "age. This is n/a, not green: nothing here knows whether any rule "
+            "in this project is quiet. `doctor:l1-documents` is the check "
+            "that asks whether the ledgers are installed at all.")
+    if not rep["rows"]:
+        return Finding(
+            ATTENTION, "the failure floor has no rules in it",
+            f"      Read {source}, found no table rows. A floor with no rows "
+            f"passes every check by having nothing to check.",
+            "Write down the rules this project actually holds, with the layer "
+            "that enforces each - `modules/04-ledgers/README.md`.")
+    arithmetic = (
+        f"      ARITHMETIC: {rep['distinct']} distinct firing date(s) in "
+        f"{source}"
+        + ("" if rep["window_days"] is None else
+           f"; mean interval between them {rep['interval']:.1f} days; window "
+           f"= DEMOTION_REVIEW_STAGES ({window_stages}) x that interval = "
+           f"{rep['window_days']} days"))
+    unmeasured = ""
+    if rep["unusable"]:
+        unmeasured += (f"\n      NOT MEASURED ({len(rep['unusable'])} row(s) "
+                       f"with no usable date): "
+                       + ", ".join(f"{r} ({v!r})"
+                                   for r, v in rep["unusable"][:5]))
+    if rep["never"]:
+        unmeasured += (f"\n      NOT MEASURED ({len(rep['never'])} row(s) that "
+                       f"have never fired): " + ", ".join(rep["never"][:5])
+                       + ". A rule that has never fired cannot be dated, so "
+                       "its quiet period is not computable here - it is still "
+                       "the demotion review's business.")
+    if rep["exempt"]:
+        unmeasured += (f"\n      NOT JUDGED ({len(rep['exempt'])} row(s) "
+                       f"already carrying a final disposition): "
+                       + ", ".join(rep["exempt"][:5]))
+    if rep["window_days"] is None:
+        return Finding(
+            OK, f"{rep['rows']} floor rule(s) read; staleness NOT COMPUTABLE",
+            f"{arithmetic}\n"
+            f"      Two distinct firing dates are the minimum this project "
+            f"needs before its own review interval can be derived, and there "
+            f"{'is' if rep['distinct'] == 1 else 'are'} {rep['distinct']}. "
+            f"This is UNKNOWN, not clean.{unmeasured}")
+    if rep["stale"]:
+        shown = "\n".join(f"      {rule}: last fired {days} days ago"
+                          for rule, days in rep["stale"][:8])
+        more = ("" if len(rep["stale"]) <= 8 else
+                f"\n      ...and {len(rep['stale']) - 8} more")
+        return Finding(
+            ATTENTION, f"{len(rep['stale'])} floor rule(s) are overdue for a "
+                       f"demotion disposition",
+            f"{shown}{more}\n{arithmetic}{unmeasured}",
+            "At this phase gate, give each one RETIRE, DEMOTE a layer, or "
+            "RE-AFFIRM with the reason it is quiet - a tripwire is quiet "
+            "because nothing crossed it, and that is what re-affirm is for. "
+            "Then update its Last fired or its Status. Zero demotions across "
+            "a whole phase is itself a finding.")
+    return Finding(
+        OK, f"no floor rule is past its demotion window",
+        f"{arithmetic}\n      Every dated rule fired inside the window, so "
+        f"nothing is waiting on a disposition. This says the review is not "
+        f"OVERDUE; it does not say the review happened.{unmeasured}")
+
+
+# ---- check 12: the binding digest, and the anti-ratchet on its size ------
+# THE CEILING, DERIVED. The rules file is the one text a harness loads into
+# every window; the checkpoint is the one carrier between sessions. Together
+# they are what a session reads before it does anything, and their cost is
+# paid on every session rather than once. The module-01 template states the
+# rule three times ("keep it SHORT", "delete every rule you cannot yet
+# enforce", "each line traceable to something that went wrong") and nothing
+# measured it.
+#
+# The four-step derivation is the one `TOKEN-LEDGER.md` gives for the cost
+# ratio and `KNOWN-ISSUES.md` uses for the escape-rate ceiling.
+#
+# STEP 1 - the observations, measured rather than estimated. The kit's shipped
+# rules template renders to 191 lines (227 in the file, minus the 36-line
+# header block the template tells the adopter to delete). The checkpoint's
+# shape contract carries a MEASURED norm of about 90 lines, published in
+# CONTEXT-ARCHITECTURE section 3, BLUEPRINT section 7 and the rules template
+# itself. The shipped binding digest is therefore 191 + 90 = 281 lines.
+# STEP 2 - 281 x 1.15 = 323.15, rounded up to the nearest 25: 325.
+# STEP 3 - the backwards sanity check, and one half of it is evidence while
+# the other is arithmetic. The half that carries no information: at 325 the
+# kit's own shipped pair passes, which is true by construction because step 2
+# set the ceiling above it. The half that does: the shipped pair sits 44 lines
+# (13.5%) below the line rather than at it, so ordinary project-specific
+# additions fit, while a rules file that has merely DOUBLED from the shipped
+# template (382 lines) breaches it on its own with no checkpoint at all. That
+# is where this threshold actually sits.
+# STEP 4 - n = 2 observations, one project, one maintainer's measurement. LOW
+# confidence, and lower than the escape-rate ceiling's. Re-derive it from your
+# own first three stages; a ceiling inherited from somebody else's project is
+# the mistake `TOKEN-LEDGER.md` exists to prevent.
+#
+# THE FIRST OBSERVATION IS BOUND TO THE FILE IT CAME FROM. `--selftest`
+# measures `modules/01-governance/CLAUDE.md.template` and requires it to still
+# be 191 rendered lines; if the template grows, the derivation's input has
+# moved and the selftest goes red naming both numbers, rather than the ceiling
+# silently ceasing to mean what this comment says it means.
+DIGEST_SHIPPED_RULES_LINES = 191
+DIGEST_CHECKPOINT_NORM_LINES = 90
+DIGEST_CEILING_LINES = 325
+
+
+def rendered_template_lines(text: str) -> int:
+    """The line count of a template AFTER the adopter deletes its header
+    block, which every template's last header line instructs. Pure."""
+    lines = (text or "").splitlines()
+    if lines and lines[0].lstrip().startswith("<!--"):
+        for i, line in enumerate(lines):
+            if "-->" in line:
+                return len(lines) - (i + 1)
+    return len(lines)
+
+
+def judge_binding_digest(parts: list, ceiling: int) -> Finding:
+    """`parts` is [(label, line_count)] - the rules file, and the newest
+    checkpoint when there is one.
+
+    WHAT THIS DOES NOT MEASURE: whether any of those lines is worth its place.
+    A digest of 300 excellent lines and a digest of 300 lines of noise are the
+    same number here. The rule this promotes is about COST, which is
+    countable; the rule about value is the one line 4 of the template's HOW TO
+    USE IT block states, and it stays prose."""
+    if not parts:
+        # n/a for the same reason as the floor's absence above: this check
+        # SIZES a digest, and whether one exists is module 01's question.
+        return Finding(
+            NA, "no rules file and no checkpoint in this tree",
+            "      There is no text here that every session is guaranteed to "
+            "read, so there is nothing to size. This is n/a, not green - a "
+            "project with no binding digest has not passed this check, it has "
+            "sidestepped it. Module 01 installs the rules file; the first "
+            "checkpoint is written at a stage close.")
+    total = sum(n for _, n in parts)
+    breakdown = " + ".join(f"{lab} {n}" for lab, n in parts)
+    arithmetic = (
+        f"      ARITHMETIC: {breakdown} = {total} lines, against a ceiling of "
+        f"{ceiling} derived from the kit's own shipped pair "
+        f"({DIGEST_SHIPPED_RULES_LINES} rendered template lines + "
+        f"{DIGEST_CHECKPOINT_NORM_LINES} measured checkpoint norm = "
+        f"{DIGEST_SHIPPED_RULES_LINES + DIGEST_CHECKPOINT_NORM_LINES}, x1.15, "
+        f"rounded up to the nearest 25). n = 2 observations: LOW confidence, "
+        f"and this is a number to re-derive from your own stages.")
+    if total > ceiling:
+        return Finding(
+            ATTENTION, f"the binding digest is {total} lines, over the "
+                       f"{ceiling}-line ceiling",
+            f"{arithmetic}\n"
+            f"      This text is re-read at the top of every session and "
+            f"competes for attention with the work. A rules file people learn "
+            f"to skim enforces nothing while costing everyone the tokens.",
+            "Delete rules you cannot yet enforce or do not yet believe; move "
+            "a rule you are not ready to bind into the failure floor as a "
+            "proposal; move resume-critical detail out of the rules file and "
+            "into the checkpoint. Or raise the ceiling - deliberately, in a "
+            "reviewed commit, with your own arithmetic beside it.")
+    return Finding(
+        OK, f"the binding digest is {total} lines, under {ceiling}",
+        f"{arithmetic}\n      Counted, not judged: this says the digest is "
+        f"affordable, not that any line in it has earned its place.")
+
+
+# ==========================================================================
+# THE LEVEL-1 LAYER - seven checks over documents, and no gate anywhere
+# ==========================================================================
+# `LEVEL-1.md` is the kit's documents-only entry: four ledgers, a collaboration
+# profile, the governance rules as prose, and no `.claude/settings.json`, no
+# hook and no verify runner. Nothing in the default diagnosis above applies to
+# that tree - it reads a runner that is not there and a settings file that was
+# never written - so `--level1` runs a separate set that reads only what Level 1
+# installs.
+#
+# WHAT THESE CHECKS ARE, EXACTLY. They judge the SHAPE of documents: present at
+# the paths this repository names, rendered (no surviving `{{SLOT}}`, no
+# template header block, no shipped placeholder path), committed to git, and
+# carrying the two answers Level 1 asks for - the KNOWLEDGE_DIR decision and
+# the seed interview's status. They judge no CONTENT: a ledger with a correct
+# header and no rows passes every one of them. That limit is printed on every
+# green run rather than left to this comment, because a reader who believes a
+# green line means more than it does is the failure this whole kit exists to
+# prevent.
+#
+# THE VERDICT WORD IS STILL NOT `PASS`. `verify.py` runs gates; this runs none.
+# Level 1 reports HEALTHY over documents, and the summary states what it does
+# not certify and what removing it costs.
+L1_LEDGERS = ("JUDGMENT-LEDGER.md", "FAILURE-FLOOR.md", "LESSONS.md",
+              "TOKEN-LEDGER.md")
+L1_PROFILE = "collaboration-profile.md"
+L1_RULES = "CLAUDE.md"
+
+# The template header blocks. A document still carrying one is a document
+# nobody read to the end: each block's last line tells the adopter to delete it.
+L1_HEADER_MARKERS = ("SKELETON - copy to", "Delete this block on adoption",
+                     "DELETE THIS COMMENT BLOCK", "TEMPLATE - the living",
+                     "Delete this comment on adoption")
+
+# Shipped values that survived into a rendered document. THE PATTERN IS NOT
+# DEFINED HERE: it is `RENDERED_PLACEHOLDER` in the shipped
+# `hook_model_gate.py`, imported by `placeholder_rule()` and passed in, because
+# `tools/adoption_smoke.py` phase 9 asks the same question about the same class
+# of file and two narrower copies of one rule is this kit's oldest defect
+# class. The first version of this check carried a one-element list of its own
+# and reported HEALTHY over six documents titled `Example Project`.
+
+# THE ONE EXEMPTION, BY NAME. QUICKSTART Step 7 allows exactly one shipped
+# value to survive adoption: RATIO_CEILING, which ships as
+# `derive-from-your-own-data` and lands in TOKEN-LEDGER.md. The kit's advice is
+# to derive that number from your own first stages rather than adopt someone
+# else's, so flagging it would be telling the adopter to violate the document
+# they are following. Held as a constant so --selftest can assert the exemption
+# instead of trusting that nobody added the string to the list above.
+L1_ALLOWED_SHIPPED = ("RATIO_CEILING", "derive-from-your-own-data")
+
+L1_SLOT = re.compile(r"\{\{[A-Z0-9_]+\}\}")
+
+# QUOTED TEXT IS NOT AN UNFILLED SLOT. A document that WRITES ABOUT the kit -
+# a judgment ledger recording that a check was forced red over `Example
+# Project`, a lessons entry quoting a shipped tier name - carries those strings
+# as its subject, not as a fill-in nobody made. The first version of this check
+# could not tell the two apart, and the repository it fired on hardest was the
+# kit's own program repo: a red that could only be cleared by editing a
+# truthful record of what was fixed and when.
+#
+# Three exemptions, all VISIBLE - the check reports how many lines each one
+# took out of the scan, on every run, so a document cannot go quietly green by
+# fencing itself.
+#   * fenced code blocks (``` or ~~~) - example output is example output;
+#   * inline code spans (`like this`) - the ordinary way prose quotes a value;
+#   * any line carrying the marker below, for a table cell or a sentence where
+#     backticks would be wrong.
+# THE EXEMPTIONS APPLY TO THE SHIPPED-VALUE SCAN ONLY. An unsubstituted
+# `{{SLOT}}` and a surviving template header block are defects wherever they
+# appear, including inside a fence: a document quoting a slot is quoting
+# something the reader can also see was never filled in.
+L1_QUOTE_MARKER = "oar:quotes-example"
+L1_FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+L1_CODE_SPAN = re.compile(r"`[^`\n]*`")
+
+# The profile's STATUS block: `INTERVIEW:  not yet held | scheduled <date>
+# confirmed by <who/where> | held <date>`. The shipped line is a MENU, and the
+# three states are the three answers. An owner-blocked interview - the junior's
+# normal end state, because a junior is never the owner - is `not yet held` or
+# a CONFIRMED `scheduled <date>`, and both are green here.
+#
+# WHY `scheduled` CARRIES A CONFIRMATION AND THE OTHER TWO DO NOT. A date is
+# the one field on this line that a model or a hurried adopter can supply from
+# nothing: "scheduled 2026-08-22" parses, reads as diligence, and is
+# indistinguishable from a real calendar entry. That is exactly what happened
+# on this kit's own dogfood adoption - a lane invented the date, and the
+# coordinator's ruling was to remove it and record `not yet held`. So the
+# scheduled state has to say where the date came from. `not yet held` needs no
+# confirmation because it claims nothing, and `held <date>` is a claim about
+# the past that the profile's own answers evidence.
+L1_INTERVIEW = re.compile(r"^\s*INTERVIEW:\s*(.+?)\s*$", re.M)
+L1_INTERVIEW_STATES = re.compile(
+    r"^(not yet held|scheduled\s+\S.*|held\s+\S.*)$", re.I)
+# `confirmed <something>` / `confirmed by <someone>`, anywhere after the date.
+L1_INTERVIEW_CONFIRMED = re.compile(r"\bconfirmed\b\s*(by\b)?\s*\S+", re.I)
+
+
+def scannable_for_shipped(text: str):
+    """(the text the shipped-value scan may read, exemption counts). Pure.
+
+    Quoted regions are blanked rather than deleted so that nothing shifts:
+    this function's only job is to stop the shipped-value pattern matching
+    text a document is QUOTING. See L1_QUOTE_MARKER above for why.
+
+    The residual, and it is real: a defect hidden inside a fenced block is
+    exempt too. A fenced block is displayed as literal example text rather
+    than as the document's own assertion, which is why the exemption is
+    defensible - and the counts are printed on every run so that a document
+    which fenced half of itself is visible rather than merely green."""
+    out, counts = [], {"fenced": 0, "spans": 0, "marked": 0}
+    in_fence = False
+    for line in (text or "").splitlines():
+        if L1_FENCE.match(line):
+            in_fence = not in_fence
+            counts["fenced"] += 1
+            out.append("")
+            continue
+        if in_fence:
+            counts["fenced"] += 1
+            out.append("")
+            continue
+        if L1_QUOTE_MARKER in line:
+            counts["marked"] += 1
+            out.append("")
+            continue
+        n = len(L1_CODE_SPAN.findall(line))
+        if n:
+            counts["spans"] += n
+            line = L1_CODE_SPAN.sub("", line)
+        out.append(line)
+    return "\n".join(out), counts
+
+
+def l1_render_problems(rel: str, text: str, shipped_pattern=None) -> list:
+    """Every rendering defect in one Level-1 document. Pure: text and the rule
+    in, problems out, so --selftest reconstructs each defect from a literal
+    rather than from a file it also wrote.
+
+    Three defect kinds, all measured on real adoptions: a slot nobody
+    substituted, a header block nobody deleted, and a shipped example value
+    that was copied through instead of being replaced.
+
+    `shipped_pattern` is the kit's `RENDERED_PLACEHOLDER`, or None when this
+    tool is running outside a kit checkout and could not import it. None means
+    the third scan does not run; it never means a narrower one silently does.
+
+    THE ONE EXEMPTION IS APPLIED HERE, BY NAME. The shared pattern matches
+    `derive-from-your-own-data`, and QUICKSTART Step 7 tells the adopter to
+    keep exactly that value in TOKEN-LEDGER.md until they have three stages of
+    their own numbers. Flagging it would be telling the reader to violate the
+    document they are following.
+
+    THE QUOTING EXEMPTIONS are applied to the shipped-value scan only, by
+    `scannable_for_shipped()`. The slot and header scans below read the whole
+    document."""
+    out = []
+    for slot in sorted(set(L1_SLOT.findall(text))):
+        out.append(f"{rel}: {slot} was never substituted")
+    for marker in L1_HEADER_MARKERS:
+        if marker in text:
+            out.append(f"{rel}: the template header block is still there "
+                       f"({marker!r})")
+    if shipped_pattern is not None:
+        scannable, _ = scannable_for_shipped(text)
+        hits = [h for h in dict.fromkeys(shipped_pattern.findall(scannable))
+                if h != L1_ALLOWED_SHIPPED[1]]
+        for hit in hits:
+            out.append(f"{rel}: the shipped example value {hit!r} is in the "
+                       f"rendered document - the fill-in behind it was never "
+                       f"made")
+    return out
+
+
+def level1_hint(has_runner: bool, has_hook: bool, l1_docs: list) -> str:
+    """The wrong-mode pointer, as a pure function of three facts the default
+    diagnosis has already established. Empty string when the tree is not a
+    Level-1 adoption.
+
+    WHY IT EXISTS. The default set reads a verify runner, a settings file and a
+    hook. A Level-1 tree has none of them by design, so an adopter who runs the
+    obvious command gets red lines about files they were told not to install -
+    which is a tool teaching its reader to ignore it. The three facts are
+    already computed by the checks above; nothing new is probed."""
+    if has_runner or has_hook or not l1_docs:
+        return ""
+    return (f"{len(l1_docs)} of the documents `LEVEL-1.md` installs are here "
+            f"({', '.join(l1_docs)}), and this tree has no verify runner and "
+            f"no wired hook. The checks above are the Level-2/3 set, reporting "
+            f"on files that level deliberately does not install. Run "
+            f"`--level1` for the checks that apply to this tree.")
+
+
+def judge_l1_documents(required: list, optional: list) -> Finding:
+    """`required` and `optional` are [(label, path_or_None)] - the path when the
+    document was found, None when it was not."""
+    missing = [lab for lab, p in required if p is None]
+    absent_opt = [lab for lab, p in optional if p is None]
+    found = [lab for lab, p in required + optional if p is not None]
+    tail = ("" if not absent_opt else
+            f"\n      NOT TAKEN (optional at this level): "
+            f"{', '.join(absent_opt)}. Level 1 recommends the governance "
+            f"rules as prose; it does not require them.")
+    if missing:
+        return Finding(
+            ATTENTION, f"{len(missing)} Level-1 document(s) missing",
+            f"      Missing: {', '.join(missing)}\n"
+            f"      Found: {', '.join(found) or 'nothing'}{tail}",
+            "Install them - `LEVEL-1.md` steps 3 and 4 - or point the doctor "
+            "at the repository that has them with `--root <path>`.")
+    return Finding(
+        OK, f"{len(found)} Level-1 document(s) present",
+        "      " + "\n      ".join(found) + tail)
+
+
+def exemption_line(exempted) -> str:
+    """The quoting exemptions, printed. Pure, and it prints NOTHING when no
+    exemption fired, so an ordinary adoption's green line is unchanged.
+
+    A silent exemption is an exemption nobody can audit: the whole reason this
+    check may skip a region is that documents legitimately quote the kit, and
+    the compensating control for 'legitimately' is that the reader is told how
+    much was skipped and by which mechanism."""
+    if not exempted:
+        return ""
+    parts = [(f"{exempted.get('fenced', 0)} line(s) inside fenced blocks"
+              if exempted.get("fenced") else ""),
+             (f"{exempted.get('spans', 0)} inline code span(s)"
+              if exempted.get("spans") else ""),
+             (f"{exempted.get('marked', 0)} line(s) marked "
+              f"`{L1_QUOTE_MARKER}`" if exempted.get("marked") else "")]
+    parts = [p for p in parts if p]
+    if not parts:
+        return ""
+    return ("\n      QUOTED TEXT NOT SCANNED for shipped example values: "
+            + ", ".join(parts) + ". A document may quote the kit; this is how "
+            "much of it was taken out of that one scan. Slots and template "
+            "headers were still scanned everywhere.")
+
+
+def judge_l1_rendered(problems: list, n_scanned: int,
+                      shipped_scanned: bool = True,
+                      exempted=None) -> Finding:
+    """`shipped_scanned` is False when the shared shipped-value rule could not
+    be imported. The finding then says so on its own line: a green that covers
+    two of three defect kinds must not read like a green that covers three.
+
+    `exempted` is the quoting-exemption tally from `scannable_for_shipped()`,
+    reported on every run for the same reason."""
+    narrowed = ("" if shipped_scanned else
+                "\n      SCAN NARROWED: `hook_model_gate.py` was not found "
+                "beside this tool, so shipped example values (`Example "
+                "Project`, the `your-...` tier names, `/abs/path/to/...`) "
+                "were NOT scanned for. Run this tool from a kit checkout to "
+                "get the full scan.")
+    narrowed += exemption_line(exempted)
+    if problems:
+        shown = "\n".join(f"      {p}" for p in problems[:12])
+        more = ("" if len(problems) <= 12 else
+                f"\n      ...and {len(problems) - 12} more")
+        return Finding(
+            ATTENTION, f"{len(problems)} rendering defect(s) in "
+                       f"{n_scanned} document(s)",
+            f"{shown}{more}{narrowed}",
+            f"Substitute the slot or the shipped example value, or delete the "
+            f"header block the template tells you to delete - `LEVEL-1.md` "
+            f"step 3. If the document is QUOTING the kit rather than carrying "
+            f"an unfilled slot - a ledger row recording what a check was "
+            f"forced red over, say - put the value in backticks or a fenced "
+            f"block, or add `{L1_QUOTE_MARKER}` to that line; the check then "
+            f"reports how many lines it skipped instead of failing over a "
+            f"truthful record.")
+    return Finding(
+        OK, f"{n_scanned} document(s) fully rendered",
+        f"      No surviving slot, no template header block, and no shipped "
+        f"example value - the `your-...` tier names, `/abs/path/to/...`, "
+        f"`Example Project` and the rest of the families the kit's shared "
+        f"rule carries. One shipped value is allowed through by name: "
+        f"{L1_ALLOWED_SHIPPED[0]} as `{L1_ALLOWED_SHIPPED[1]}`, which "
+        f"QUICKSTART Step 7 tells you to keep until you have three stages of "
+        f"your own numbers.{narrowed}")
+
+
+def judge_l1_committed(git_ok: bool, untracked: list, dirty: list) -> Finding:
+    """git_ok is False when the command failed or the tree is not a repository.
+    A failed command's silence is not a clean tree - the same trap the judges
+    gate was built around."""
+    if not git_ok:
+        return Finding(
+            ATTENTION, "git could not be asked about these documents",
+            "      A failed git command returns empty output, which is "
+            "indistinguishable from a clean tree. Nothing here is known.",
+            "Run the doctor inside the work tree, or `--root <repository>`; "
+            "`git init` if this is not a repository yet.")
+    if untracked:
+        return Finding(
+            ATTENTION, f"{len(untracked)} Level-1 document(s) not committed",
+            "      Untracked: " + ", ".join(untracked) + "\n"
+            "      An untracked document is not adopted: it is not on any "
+            "diff, no reviewer sees it change, and it disappears with the "
+            "working copy.",
+            "Commit them - `LEVEL-1.md` step 6 names the files.")
+    if dirty:
+        return Finding(
+            ATTENTION, f"{len(dirty)} Level-1 document(s) have uncommitted "
+                       f"changes",
+            "      Dirty: " + ", ".join(dirty),
+            "Commit the change, or revert it - `LEVEL-1.md` step 6.")
+    return Finding(OK, "every Level-1 document is committed",
+                   "      Tracked by git and identical to the committed "
+                   "version, so what this check read is what a reader of the "
+                   "repository gets.")
+
+
+def judge_l1_knowledge_dir(raw, shipped_placeholder: bool, exists) -> Finding:
+    """`raw` is the KNOWLEDGE_DIR value as configured, or None when the key is
+    absent. `exists` is whether the directory it names is there, or None when
+    the question does not arise.
+
+    NONE IS A DECISION HERE, and it is the one place in this kit where that
+    word is not simply UNSET. `kit.config.example` says so: set KNOWLEDGE_DIR
+    to NONE when you have no knowledge base outside the repository, and
+    substitute a repo path at the two sites that interpolate the slot. The
+    shared `is_placeholder()` rule reads NONE as unset - correct for every
+    other key - so this check asks the NONE question first and by name."""
+    if raw is None or not str(raw).strip():
+        return Finding(
+            ATTENTION, "the KNOWLEDGE_DIR decision is not recorded",
+            "      Level 1 asks for two decisions and this is the first: "
+            "where durable knowledge lives outside this repository. The "
+            "templates interpolate it unconditionally, so an unmade decision "
+            "becomes a source-of-truth sentence pointing at nothing.",
+            "Set KNOWLEDGE_DIR in `kit.config` (a repo path such as `docs`) "
+            "or in `kit.config.local` (an absolute path) - `LEVEL-1.md` "
+            "step 1.")
+    val = str(raw).strip()
+    if val.upper() == "NONE":
+        return Finding(
+            OK, "KNOWLEDGE_DIR = NONE - decided",
+            "      No knowledge base outside the repository, so the repo "
+            "copies ARE source of truth rather than mirrors. The two "
+            "documents that interpolate the slot must name a repo path "
+            "(`docs`), not the literal word NONE; `doctor:l1-rendered` is "
+            "what would catch the placeholder if they did not.")
+    if shipped_placeholder:
+        return Finding(
+            ATTENTION, f"KNOWLEDGE_DIR is still the shipped value {val!r}",
+            "      That is the value the kit ships, not an answer. Every "
+            "document rendered from it points at a directory nobody has.",
+            "Replace it with your own path, or with NONE if you have no such "
+            "place - `LEVEL-1.md` step 1.")
+    if exists is False:
+        return Finding(
+            ATTENTION, f"KNOWLEDGE_DIR names {val!r}, which is not there",
+            "      The decision is recorded and the directory is missing, so "
+            "every source-of-truth reference resolves to nothing.",
+            "Create the directory, or point the key at one that exists - "
+            "`LEVEL-1.md` step 1.")
+    return Finding(OK, f"KNOWLEDGE_DIR = {val}",
+                   "      Recorded, and the directory is there.")
+
+
+def judge_l1_interview(line) -> Finding:
+    """`line` is the value after `INTERVIEW:` in the profile, or None when the
+    profile carries no such line.
+
+    AN OWNER-BLOCKED INTERVIEW IS GREEN, and that is a deliberate design
+    decision rather than leniency. The person adopting the kit is often not the
+    person whose judgment binds - a junior never is - and a check that goes red
+    until someone else's calendar opens teaches its reader to ignore it. What
+    is red is the UNANSWERED state: the shipped menu still sitting there, so
+    nobody ever said which of the three is true.
+
+    AN UNCONFIRMED SCHEDULE IS NOT GREEN, and that is not a retreat from the
+    paragraph above. A date is the one field here that can be produced from
+    nothing and still parse, so `scheduled 2026-08-22` reads exactly like a
+    real calendar entry and exactly like an invention - which is what this
+    kit's own dogfood adoption produced, a lane-invented date the coordinator
+    then had to remove. The scheduled state therefore has to say where the
+    date came from. The owner-blocked adopter is still green in one keystroke:
+    `not yet held` claims nothing and needs no confirmation."""
+    if line is None:
+        return Finding(
+            ATTENTION, "the profile records no interview status",
+            "      `PROFILE-TEMPLATE.md` ships an `INTERVIEW:` line in its "
+            "STATUS block. Without it a reader cannot tell a profile built "
+            "from answers from one built from assumptions.",
+            "Add the line back and state which of the three states is true - "
+            "`LEVEL-1.md` step 4.")
+    val = str(line).strip()
+    if "|" in val or "<date>" in val:
+        return Finding(
+            ATTENTION, f"the interview status is still the shipped menu: "
+                       f"{val!r}",
+            "      The menu lists the three states; it is not an answer to "
+            "which one holds.",
+            "Replace the line with one state: `not yet held`, `scheduled "
+            "<a real date>`, or `held <a real date>` - `LEVEL-1.md` step 4.")
+    if not L1_INTERVIEW_STATES.match(val):
+        return Finding(
+            ATTENTION, f"the interview status {val!r} is not one of the three "
+                       f"states",
+            "      The three the template defines are `not yet held`, "
+            "`scheduled <date>` and `held <date>`. A fourth wording is not "
+            "readable by anyone but its author.",
+            "Rewrite it as one of the three - `LEVEL-1.md` step 4.")
+    if val.lower().startswith("held"):
+        return Finding(OK, f"seed interview {val}",
+                       "      The profile's answers came from the owner.")
+    if (val.lower().startswith("scheduled")
+            and not L1_INTERVIEW_CONFIRMED.search(val)):
+        return Finding(
+            ATTENTION, f"the scheduled interview is UNCONFIRMED: {val!r}",
+            "      A date that parses is not a date somebody agreed to. This "
+            "line says an interview is booked, and nothing in it says who "
+            "booked it or where the date came from - so an invented date and "
+            "a real calendar entry read identically here, and the profile "
+            "then carries a schedule the owner has never seen.",
+            "Either say where the date came from - `scheduled <date> "
+            "confirmed by <who, or which calendar>` - or, if it was never "
+            "agreed, write `not yet held`, which is green and claims nothing "
+            "- `LEVEL-1.md` step 4.")
+    return Finding(
+        OK, f"seed interview: {val} - recorded honestly",
+        "      A green end state, and it does not mean the profile is "
+        "finished. Until the interview is held, every default in "
+        "`DEFAULT-CONTRACT.md` is in force UNCONFIRMED and the betrayal line "
+        "is unknown - the single riskiest gap on that page. Whoever owns the "
+        "judgment has to answer five questions; the adopter usually is not "
+        "that person.")
+
+
+# ---- the brownfield pair: an existing config, and existing ledgers --------
+# Both of these exist because the documents' install steps assume an EMPTY
+# repository and the kit's own dogfood adoption was not one. Step 2 prints
+# `cp kit.config.example ./kit.config`, which destroys a hand-written config;
+# step 3 installs four ledgers at fixed names beside whatever ledgers the
+# repository already had. Neither loss is visible afterwards, so neither is
+# a sentence's job.
+def judge_l1_config_complete(missing: list, n_registered: int,
+                             source) -> Finding:
+    """`missing` is the keys `kit.config.example` registers that this
+    repository's config (both halves) does not carry. `source` is where the
+    example was read from, or None when it could not be found.
+
+    THE POINT IS NOT TIDINESS. A key the config never carried renders as an
+    unfilled slot in whatever document interpolates it, and the obvious
+    remedy - re-copy the example over the config - is the one that destroys
+    the answers already in the file. So the missing keys are named, and the
+    destructive remedy is named as destructive, in the same red."""
+    if source is None:
+        return Finding(
+            ATTENTION, "the shipped config registry could not be read",
+            "      `kit.config.example` is the list of every key the "
+            "templates interpolate, and this tool could not find it. Nothing "
+            "here knows whether this repository's config is complete: this "
+            "is UNKNOWN, not clean.",
+            "Run this tool from a kit checkout, or point `--root` at a tree "
+            "beside one.")
+    if missing:
+        shown = ", ".join(missing[:14])
+        more = "" if len(missing) <= 14 else f" ...and {len(missing) - 14} more"
+        return Finding(
+            ATTENTION, f"{len(missing)} config key(s) the templates use are "
+                       f"not in this repository's config",
+            f"      Missing: {shown}{more}\n"
+            f"      Read from {source} ({n_registered} keys registered). "
+            f"Every template interpolates these unconditionally, so a key "
+            f"that is absent here becomes an unfilled slot in a rendered "
+            f"document - or, worse, a rendered sentence pointing at nothing.",
+            "APPEND the missing keys to your `kit.config` at their shipped "
+            "values. Do NOT copy `kit.config.example` over an existing "
+            "`kit.config`: `cp` overwrites without asking on every shell the "
+            "documents name, and it destroys the answers already in that "
+            "file - `LEVEL-1.md` step 2.")
+    return Finding(
+        OK, f"the config carries every key the templates use "
+            f"({n_registered} registered)",
+        f"      Checked against {source}. This says the keys are PRESENT; "
+        f"whether their values are answers rather than shipped examples is "
+        f"`doctor:l1-rendered`'s question, on the documents they render into.")
+
+
+def normalised_ledger_stem(name: str) -> str:
+    """A ledger filename reduced to what a reader would call it. Pure.
+
+    `TOKEN_LEDGER.md`, `TOKEN-LEDGER.md` and `token ledger.md` are one name
+    wearing three spellings, and a check that compares filenames literally
+    sees three different files."""
+    stem = re.sub(r"\.md$", "", (name or "").strip(), flags=re.I)
+    return re.sub(r"[^A-Z0-9]", "", stem.upper())
+
+
+def l1_ledger_collisions(present: list) -> list:
+    """[(the file that was already there, the kit ledger it collides with)].
+    Pure: filenames in, collisions out.
+
+    A COLLISION IS A CONTAINMENT, not just an equality. The measured case was
+    `LESSONS-LEARNED.md` beside the kit's `LESSONS.md` and `TOKEN_LEDGER.md`
+    beside `TOKEN-LEDGER.md`: two documents answering one question, one of
+    them the repository's real history and the other the one the kit's checks
+    read. The kit's stems are all seven characters or longer, so containment
+    does not fire on incidental short words."""
+    out = []
+    for name in present:
+        if name in L1_LEDGERS:
+            continue                      # the kit's own file, at its own name
+        stem = normalised_ledger_stem(name)
+        if not stem:
+            continue
+        for kit_name in L1_LEDGERS:
+            kit_stem = normalised_ledger_stem(kit_name)
+            if stem == kit_stem or kit_stem in stem or stem in kit_stem:
+                out.append((name, kit_name))
+                break
+    return out
+
+
+def judge_l1_ledger_collision(collisions: list, where: str) -> Finding:
+    """The kit's ledger filenames are fixed - `kit_doctor` hard-codes them and
+    `LEDGERS_DIR` is the only thing an adopter can move - so on a repository
+    that already keeps ledgers, installing them means one of three outcomes.
+    The documents name none of them, and the checks green on two: install
+    alongside, and overwrite. Only the reader can tell those apart afterwards,
+    and only if somebody tells the reader they happened."""
+    if not collisions:
+        return Finding(
+            OK, "no ledger name collides with a pre-existing one",
+            f"      Every kit ledger in {where} is at the kit's name and "
+            f"nothing else in that directory answers the same question under "
+            f"a different spelling.")
+    shown = "\n".join(f"      {a}  collides with the kit's  {b}"
+                      for a, b in collisions[:8])
+    more = ("" if len(collisions) <= 8 else
+            f"\n      ...and {len(collisions) - 8} more")
+    return Finding(
+        ATTENTION, f"{len(collisions)} pre-existing ledger(s) collide with the "
+                   f"kit's names",
+        f"{shown}{more}\n"
+        f"      Two documents answering one question is not a stable end "
+        f"state: the kit's checks read the kit's name, and your history is in "
+        f"the other file. Nothing here has been changed or lost - this is a "
+        f"decision that was never put to anyone.",
+        "Pick one and record it: RENAME the existing ledger onto the kit's "
+        "name and carry its content forward; or FREEZE it as the record up to "
+        "adoption and say so at the top of both files, with the kit's file "
+        "the forward one; or move `LEDGERS_DIR` so the two sets do not share "
+        "a directory. Whichever you pick, the repository's own README needs "
+        "the same ruling - `LEVEL-1.md` step 3.")
+
+
+# ==========================================================================
 # THE CHECK TABLE
 # Every id here has a row in checks-registry.json, and `expectation_lint.py`
 # cross-checks the two lists BOTH WAYS. That cross-check is not bookkeeping:
@@ -752,7 +1587,33 @@ CHECKS = [
     ("doctor:protected-case", "what the protected-path tripwire costs on this "
                               "filesystem"),
     ("doctor:cert-token", "what the cert-green token is, and what it is not"),
+    ("doctor:floor-staleness", "no failure-floor rule is past its demotion "
+                               "window (the anti-ratchet, with its "
+                               "arithmetic)"),
+    ("doctor:binding-digest", "the text every session must read is under a "
+                              "derived line ceiling"),
+    # ---- the --level1 set. These seven run INSTEAD of the twelve above, over
+    # a tree that has documents and no runner, no hook and no settings file.
+    ("doctor:l1-documents", "every document Level 1 installs is where this "
+                            "repository names it"),
+    ("doctor:l1-config-complete", "this repository's kit.config carries every "
+                                  "key the templates interpolate"),
+    ("doctor:l1-ledger-collision", "no pre-existing ledger answers the same "
+                                   "question as a kit ledger under another "
+                                   "name"),
+    ("doctor:l1-rendered", "no surviving slot, template header or shipped "
+                           "placeholder in those documents"),
+    ("doctor:l1-committed", "those documents are tracked by git and have no "
+                            "uncommitted change"),
+    ("doctor:l1-knowledge-dir", "the KNOWLEDGE_DIR decision is recorded, and "
+                                "names somewhere that exists"),
+    ("doctor:l1-interview", "the profile states the seed interview's status "
+                            "(owner-blocked is a green state)"),
 ]
+# The ids that belong to `--level1`. Derived from the family prefix rather than
+# hand-listed, so an eighth Level-1 check cannot be added to the table and left
+# out of the run.
+L1_CHECKS = [c for c, _ in CHECKS if c.startswith("doctor:l1-")]
 
 
 # ==========================================================================
@@ -927,6 +1788,26 @@ def hook_commands(settings: Path) -> list:
             if cmd:
                 out.append(cmd)
     return out
+
+
+def print_findings(findings: list) -> int:
+    """Print one findings list in check-table order and return the number
+    needing attention. Shared by the full diagnosis and `--level1`, so the two
+    modes cannot drift into printing a red line differently."""
+    order = {cid: i for i, (cid, _) in enumerate(CHECKS)}
+    findings.sort(key=lambda kv: order.get(kv[0], 99))
+    n_att = 0
+    for cid, f in findings:
+        colour = {OK: GREEN, ATTENTION: RED, NA: CYAN, INFO: YELLOW}[f.state]
+        print(f"  {colour}[{f.state:^9}]{RESET} {cid:<28} {f.headline}")
+        if f.detail:
+            for ln in f.detail.splitlines():
+                print(f"      {ln}" if not ln.startswith("  ") else ln)
+        if f.state == ATTENTION:
+            n_att += 1
+            print(f"      {BOLD}FIX:{RESET} {f.fix}")
+        print()
+    return n_att
 
 
 def run(root: Path) -> int:
@@ -1104,20 +1985,70 @@ def run(root: Path) -> int:
                 covered = None
     add("doctor:cert-token", judge_cert_token(token, covered, dirty))
 
+    # ---- 11. the anti-ratchet: is any floor rule overdue for a review? ----
+    # The clock is READ HERE and passed in, so the judging layer stays pure and
+    # --selftest can put any date it likes in front of it.
+    floor_path = root / ledgers / "FAILURE-FLOOR.md"
+    floor_rows: list = []
+    floor_src = None
+    if floor_path.is_file():
+        floor_src = f"{ledgers}/FAILURE-FLOOR.md"
+        try:
+            floor_rows = parse_floor_rows(
+                floor_path.read_text(encoding="utf-8", errors="replace"))
+        except OSError:
+            floor_rows = []
+    try:
+        window_stages = int((cfg_get("DEMOTION_REVIEW_STAGES") or "3").strip())
+    except ValueError:
+        window_stages = 3
+    add("doctor:floor-staleness", judge_floor_staleness(
+        floor_staleness(floor_rows, window_stages, date.today()),
+        window_stages, floor_src))
+
+    # ---- 12. the anti-ratchet: how big is the text every session reads? ---
+    digest_parts = []
+    rules_file = root / L1_RULES
+    if rules_file.is_file():
+        try:
+            digest_parts.append(
+                (L1_RULES,
+                 len(rules_file.read_text(encoding="utf-8",
+                                          errors="replace").splitlines())))
+        except OSError:
+            pass
+    ck_glob = cfg_get("CHECKPOINT_GLOB")
+    if ck_glob:
+        # The NEWEST checkpoint is the one the rules file tells every session
+        # to read; the older ones are superseded and nobody loads them.
+        found = sorted((p for p in root.glob(ck_glob) if p.is_file()),
+                       key=lambda p: p.stat().st_mtime, reverse=True)
+        if found:
+            try:
+                digest_parts.append(
+                    (os.path.relpath(str(found[0]), str(root))
+                     .replace("\\", "/"),
+                     len(found[0].read_text(encoding="utf-8",
+                                            errors="replace").splitlines())))
+            except OSError:
+                pass
+    add("doctor:binding-digest",
+        judge_binding_digest(digest_parts, DIGEST_CEILING_LINES))
+
     # ---- report ----------------------------------------------------------
-    order = {cid: i for i, (cid, _) in enumerate(CHECKS)}
-    findings.sort(key=lambda kv: order.get(kv[0], 99))
-    n_att = 0
-    for cid, f in findings:
-        colour = {OK: GREEN, ATTENTION: RED, NA: CYAN, INFO: YELLOW}[f.state]
-        print(f"  {colour}[{f.state:^9}]{RESET} {cid:<28} {f.headline}")
-        if f.detail:
-            for ln in f.detail.splitlines():
-                print(f"      {ln}" if not ln.startswith("  ") else ln)
-        if f.state == ATTENTION:
-            n_att += 1
-            print(f"      {BOLD}FIX:{RESET} {f.fix}")
-        print()
+    n_att = print_findings(findings)
+
+    # THE WRONG-MODE POINTER. A Level-1 adopter runs the obvious command and
+    # gets five red lines about a runner, a settings file and a hook they were
+    # explicitly told not to install - a tool teaching its reader to ignore it.
+    # The signal costs nothing: no runner imported, no hook wired, and the
+    # documents Level 1 does install are sitting there.
+    l1_docs = [f"{ledgers}/{n}" for n in L1_LEDGERS
+               if (root / ledgers / n).is_file()]
+    hint = level1_hint(bool(RUNNER_MOD), bool(hook_commands(settings)),
+                       l1_docs)
+    if hint:
+        print(f"{YELLOW}  THIS LOOKS LIKE A LEVEL-1 ADOPTION{RESET} — {hint}\n")
 
     verdict = "ATTENTION" if n_att else "HEALTHY"
     code = 1 if n_att else 0
@@ -1126,6 +2057,272 @@ def run(root: Path) -> int:
             f"{n_att} needing attention" + RESET)
     print("  This is a DIAGNOSIS, not a certification. `PASS` belongs to your "
           "verify runner, which runs the gates; this tool runs none.")
+    return code
+
+
+def placeholder_rule(*bases):
+    """(is_placeholder, rendered_pattern, where_they_came_from). The kit's two
+    forms of one rule - "is this CONFIG VALUE still an example"
+    (`is_placeholder`), and "did a shipped example value survive INTO a
+    rendered document" (`RENDERED_PLACEHOLDER`) - imported from
+    `hook_model_gate.py` wherever one of `bases` has a copy.
+
+    IMPORTED, NOT RE-IMPLEMENTED. Three readers of that rule disagreeing about
+    what "configured" means is the arrangement that produced the original
+    defect, and the first version of this tool reproduced it by a new road: it
+    scanned rendered documents against a one-element list of its own while the
+    kit already carried the families. A Level-1 tree has no hook copy, so the
+    kit checkout this tool runs from is the usual source.
+
+    WHEN NEITHER IS FOUND, this tool has been copied out of a kit checkout.
+    `is_placeholder` degrades to a deliberately narrower literal - it decides
+    one config key, and narrower there is louder. The rendered pattern degrades
+    to None rather than to a second opinion, and the check that consumes it
+    then SAYS its scan was narrowed instead of printing a green that means less
+    than it looks."""
+    for base in bases:
+        for rel in ("modules/02-enforcement/hook_model_gate.py",
+                    "tools/hook_model_gate.py"):
+            p = Path(base) / rel
+            if p.is_file():
+                mod, _ = import_runner(p)
+                fn = getattr(mod, "is_placeholder", None) if mod else None
+                pat = getattr(mod, "RENDERED_PLACEHOLDER", None) if mod else None
+                if callable(fn):
+                    return fn, pat, str(p)
+
+    def fallback(v):
+        low = (v or "").strip().lower()
+        return any(low.startswith(s) for s in
+                   ("/abs/path", "c:/abs/path", "/path/to/", "your-", "<"))
+    return fallback, None, "built-in fallback (no hook_model_gate.py found)"
+
+
+def run_level1(root: Path) -> int:
+    """The documents-only diagnosis. Five checks, no runner, no settings file,
+    no gate - and a summary that states its own limits."""
+    findings: list = []
+
+    cfg_path, cfg_notes = find_config(root, HERE.parent)
+    cfg: dict = {}
+    if cfg_path:
+        read_pairs(cfg_path, cfg)
+        read_pairs(cfg_path.with_name("kit.config.local"), cfg)
+    is_ph, shipped_pat, ph_src = placeholder_rule(root, HERE.parent)
+
+    ledgers = (cfg.get("LEDGERS_DIR") or "").strip() or "docs"
+    know_raw = cfg.get("KNOWLEDGE_DIR")
+    know_val = (know_raw or "").strip()
+    know_is_none = know_val.upper() == "NONE"
+    know_is_ph = bool(know_val) and not know_is_none and is_ph(know_val)
+
+    def resolve(value: str) -> Path:
+        """A configured directory as a path. Repo-relative unless it is
+        already absolute - the same reading `kit.config.example` documents."""
+        p = Path(value)
+        return p if p.is_absolute() else (root / value)
+
+    def disp(p) -> str:
+        """A path as a reader of THIS repository would name it: repo-relative
+        with forward slashes inside the tree, absolute outside it. A profile
+        living in a knowledge base is genuinely elsewhere and is printed that
+        way rather than as a relative path that resolves to nothing."""
+        p = Path(p)
+        if not path_inside(p, root):
+            return str(p)
+        return os.path.relpath(str(p), str(root)).replace("\\", "/")
+
+    know_dir = (resolve(know_val)
+                if know_val and not know_is_none and not know_is_ph else None)
+    know_exists = None if know_dir is None else know_dir.is_dir()
+
+    print(f"{BOLD}kit doctor — Level 1{RESET}: the documents, in {root}")
+    print(f"  config : {cfg_path or 'NONE FOUND in the tree being diagnosed'}")
+    print(f"  ledgers: {ledgers}/  (LEDGERS_DIR)")
+    print(f"  placeholder rule read from: {ph_src}")
+    for note in cfg_notes:
+        print(f"  {YELLOW}CONFIG NOTE:{RESET} {note}")
+    print()
+
+    # ---- which documents, and where ------------------------------------
+    required = [(rel, (root / rel) if (root / rel).is_file() else None)
+                for rel in (f"{ledgers}/{name}" for name in L1_LEDGERS)]
+
+    # The profile: source of truth is the KNOWLEDGE_DIR copy when there is
+    # one, and the repo copy otherwise. Both are looked for, the first hit is
+    # the one the content checks read, and a second copy is reported as the
+    # mirror it is - QUICKSTART Step 8 says which is which.
+    prof_candidates = (([know_dir / L1_PROFILE] if know_dir else [])
+                       + [root / ledgers / L1_PROFILE,
+                          root / "docs" / L1_PROFILE])
+    # Deduplicated through `same_path()` rather than string equality: on the
+    # ordinary configuration (LEDGERS_DIR = docs) two of these candidates are
+    # one file spelled two ways, and the helper resolves symlinks and folds
+    # case the way the host filesystem does instead of assuming either.
+    prof_paths: list = []
+    for p in prof_candidates:
+        if p.is_file() and not any(same_path(p, q) for q in prof_paths):
+            prof_paths.append(p)
+    required.append(
+        (disp(prof_paths[0]) + "  (the collaboration profile)" if prof_paths
+         else f"{ledgers}/{L1_PROFILE}  (the collaboration profile)",
+         prof_paths[0] if prof_paths else None))
+    rules_path = root / L1_RULES
+    optional = [(L1_RULES + " (module 01 as prose)",
+                 rules_path if rules_path.is_file() else None)]
+
+    def add(cid: str, f: Finding):
+        findings.append((cid, f))
+
+    add("doctor:l1-documents", judge_l1_documents(required, optional))
+
+    # ---- is the config COMPLETE? -----------------------------------------
+    # The registry of every key the templates interpolate is `kit.config.
+    # example`, in the kit checkout. Read as a key list, not as values: what
+    # this asks is whether the adopter's config carries the keys at all.
+    example = None
+    for base in (root, HERE.parent):
+        cand = Path(base) / "kit.config.example"
+        if cand.is_file():
+            example = cand
+            break
+    if example is None:
+        add("doctor:l1-config-complete",
+            judge_l1_config_complete([], 0, None))
+    else:
+        registered: dict = {}
+        read_pairs(example, registered)
+        missing = [k for k in registered if k not in cfg]
+        add("doctor:l1-config-complete", judge_l1_config_complete(
+            sorted(missing), len(registered), disp(example)))
+
+    # ---- does a pre-existing ledger already answer the same question? ----
+    ledger_dir = root / ledgers
+    present = sorted(p.name for p in ledger_dir.glob("*.md")
+                     if p.is_file()) if ledger_dir.is_dir() else []
+    add("doctor:l1-ledger-collision",
+        judge_l1_ledger_collision(l1_ledger_collisions(present),
+                                  f"{ledgers}/"))
+
+    # ---- rendered? -------------------------------------------------------
+    scanned = [p for _, p in required + optional if p is not None]
+    if len(prof_paths) > 1:
+        scanned += prof_paths[1:]
+    problems = []
+    exempted = {"fenced": 0, "spans": 0, "marked": 0}
+    for p in scanned:
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError as e:
+            problems.append(f"{disp(p)}: unreadable ({e.strerror})")
+            continue
+        problems += l1_render_problems(disp(p), text, shipped_pat)
+        _, counts = scannable_for_shipped(text)
+        for k in exempted:
+            exempted[k] += counts[k]
+    add("doctor:l1-rendered", judge_l1_rendered(problems, len(scanned),
+                                                shipped_pat is not None,
+                                                exempted))
+
+    # ---- committed? ------------------------------------------------------
+    # Only the copies INSIDE this repository can be judged by this repository's
+    # git. A profile living in a knowledge base outside the tree is named in the
+    # detail rather than silently counted as clean.
+    inside = [p for p in scanned if path_inside(p, root)]
+    outside = [p for p in scanned if not path_inside(p, root)]
+    rels = [os.path.relpath(str(p), str(root)).replace("\\", "/")
+            for p in inside]
+    _, in_tree = git_out(root, "rev-parse", "--is-inside-work-tree")
+    untracked, dirty = [], []
+    git_ok = bool(in_tree) and bool(rels)
+    if git_ok:
+        porcelain, ok = git_out(root, "status", "--porcelain", "--", *rels)
+        git_ok = ok
+        if ok:
+            for line in porcelain.splitlines():
+                if len(line) < 4:
+                    continue
+                code, name = line[:2], line[3:].strip().strip('"')
+                (untracked if code == "??" else dirty).append(name)
+    f_commit = judge_l1_committed(git_ok, untracked, dirty)
+    if outside and f_commit.state == OK:
+        f_commit = Finding(
+            f_commit.state, f_commit.headline,
+            f_commit.detail + "\n      NOT JUDGED BY THIS REPOSITORY: "
+            + ", ".join(str(p) for p in outside)
+            + " - outside the work tree, so this repository's git says "
+              "nothing about it.")
+    add("doctor:l1-committed", f_commit)
+
+    # ---- the two decisions ----------------------------------------------
+    add("doctor:l1-knowledge-dir",
+        judge_l1_knowledge_dir(know_raw, know_is_ph, know_exists))
+
+    line = None
+    if prof_paths:
+        try:
+            m = L1_INTERVIEW.search(
+                prof_paths[0].read_text(encoding="utf-8", errors="replace"))
+            line = m.group(1) if m else None
+        except OSError:
+            line = None
+    add("doctor:l1-interview", judge_l1_interview(line))
+
+    # ---- report ----------------------------------------------------------
+    n_att = print_findings(findings)
+    verdict = "ATTENTION" if n_att else "HEALTHY"
+    code = 1 if n_att else 0
+    print((RED if n_att else GREEN)
+          + f"LEVEL 1: {verdict} (exit {code}) — {len(findings)} document "
+            f"checks, {n_att} needing attention" + RESET)
+    if n_att:
+        print("  Nothing is certified while a line above is red. Each one "
+              "names the step that fixes it.")
+        return code
+
+    # THE GREEN LINE, and it says what it is not. An adopter who reads a green
+    # line as "the kit is working here" has been misled by their own tool: at
+    # Level 1 nothing runs, nothing is enforced, and no agent is checked
+    # against anything. Both halves are printed every time.
+    # The commit clause is scoped to what git was actually asked about. A
+    # profile living in a knowledge base outside the repository is read and
+    # rendering-checked, and this repository's git says nothing about it - so
+    # the summary counts it in the scan and out of the commit claim, rather
+    # than sweeping it into a blanket "committed to git".
+    commit_clause = ("are committed to git" if not outside else
+                     f"the {len(rels)} of them inside this repository are "
+                     f"committed to git")
+    print(f"  {BOLD}CERTIFIES{RESET} — and only this: the "
+          f"{len(scanned)} document(s) listed above exist where this "
+          f"repository names them, carry no unsubstituted {{{{SLOT}}}}, no "
+          f"template header block and no shipped example value, "
+          f"{commit_clause}, and record the KNOWLEDGE_DIR decision and the "
+          f"seed interview's status.")
+    if outside:
+        print(f"    NOT IN THAT COMMIT CLAIM: "
+              f"{', '.join(disp(p) for p in outside)} — read and "
+              f"rendering-checked, but outside this work tree, so its commit "
+              f"state was not judged by anything here.")
+    print(f"  {BOLD}DOES NOT CERTIFY{RESET}: any behaviour. No gate ran — "
+          f"Level 1 installs none. Nothing enforces these rules, no agent is "
+          f"checked against them, no hook fires, and the CONTENT of these "
+          f"documents is not judged: a ledger with a correct header and no "
+          f"rows passes every check above. `PASS` belongs to `verify.py`, "
+          f"which Level 2 installs (`QUICKSTART.md`).")
+    # The config files count. They are not documents and no check above reads
+    # them as one, but the adopter added them and a removal cost that omits
+    # them is a removal cost that is wrong.
+    cfg_extra = [r for r in ("kit.config", "kit.config.local")
+                 if (root / r).is_file()]
+    print(f"  {BOLD}REMOVAL COST{RESET}: {len(rels) + len(cfg_extra)} file(s) "
+          f"in this repository — {', '.join(rels + cfg_extra)}"
+          + (f" — plus {len(outside)} outside it" if outside else "")
+          + ". No settings file, no hook and no harness wiring were "
+            "installed, so there is nothing merged into `.claude/` to unpick. "
+            "Delete the files and the level is gone — EXCEPT where you merged "
+            "a document into one you already had (`CLAUDE.md` and "
+            "`.gitignore` are the usual two), which is a revert rather than a "
+            "delete.")
     return code
 
 
@@ -1577,6 +2774,512 @@ def selftest() -> int:
           sorted(p.name for p in _d.iterdir()), ["probe_module.py"])
     shutil.rmtree(_d, ignore_errors=True)
 
+    print(f"\n{BOLD}=== I4. the anti-ratchet pair — what is checking the "
+          f"lessons ==={RESET}")
+    # Both of these promote a rule whose only enforcement layer was PROSE -
+    # the debt FAILURE-FLOOR.md exists to audit, carried by the floor itself.
+    # The clock is injected in every check below, so these run the real
+    # judging layer against dates the test chose.
+    _floor = (
+        "| Rule | Layer | Zone | Status | Last fired | Covered / residual |\n"
+        "|---|---|---|---|---|---|\n"
+        "| <the rule, one line> | HOOK | B | **STRUCTURAL** | <date> | x |\n"
+        "| no blanket add | HOOK (PreToolUse) | B | **STRUCTURAL** | "
+        "2026-01-01 | Covered: staging. |\n"
+        "| tiering declared | HOOK | B | **STRUCTURAL** | 2026-01-11 | x |\n"
+        "| review is spec-side | PROSE | B | **AMBER** | 2026-01-21 | x |\n"
+        "| a human at the gate | HUMAN | A | **ACCEPTED** | 2020-01-01 | x |\n"
+        "| the quiet one | PROSE | B | **AMBER** | never | x |\n"
+        "| the undated one | PROSE | B | **AMBER** | unknown - predates "
+        "recording | x |\n")
+    _rows = parse_floor_rows(_floor)
+    check("the floor's table parses into rules, and the TEMPLATE's example "
+          "row is not one of them",
+          [r["rule"] for r in _rows],
+          ["no blanket add", "tiering declared", "review is spec-side",
+           "a human at the gate", "the quiet one", "the undated one"])
+    _rep = floor_staleness(_rows, 3, date(2026, 1, 31))
+    check("the window is DERIVED from this project's own dates: three "
+          "distinct firings 10 days apart, x3 stages = 30 days",
+          (_rep["distinct"], round(_rep["interval"], 1), _rep["window_days"]),
+          (3, 10.0, 30))
+    check("...and EXACTLY at the window nothing is stale (the boundary, "
+          "stated: the oldest rule is 30 days old against a 30-day window)",
+          _rep["stale"], [])
+    check("...while one day later it is",
+          [r for r, _ in floor_staleness(_rows, 3, date(2026, 2, 1))["stale"]],
+          ["no blanket add"])
+    _late = floor_staleness(_rows, 3, date(2026, 3, 1))
+    check("NC: 39 days after the oldest firing, the rule that has not fired "
+          "since is OVERDUE and is named with its age",
+          _late["stale"], [("no blanket add", 59), ("tiering declared", 49),
+                           ("review is spec-side", 39)])
+    check("...and the finding says so, with the arithmetic on the same line",
+          all(s in judge_floor_staleness(_late, 3, "docs/FAILURE-FLOOR.md")
+              .detail
+              for s in ("ARITHMETIC", "mean interval", "10.0 days",
+                        "= 30 days")), True)
+    check("...and its fixing step names all three dispositions",
+          all(s in judge_floor_staleness(_late, 3, "docs/FAILURE-FLOOR.md")
+              .fix for s in ("RETIRE", "DEMOTE", "RE-AFFIRM")), True)
+    check("a row already carrying a FINAL disposition is exempt, not stale",
+          ("a human at the gate" in _late["exempt"],
+           any(r == "a human at the gate" for r, _ in _late["stale"])),
+          (True, False))
+    check("`never` and `unknown - predates recording` are NOT MEASURED, "
+          "counted apart, and never guessed at",
+          (_rep["never"], [r for r, _ in _rep["unusable"]]),
+          (["the quiet one"], ["the undated one"]))
+    check("...and the finding SAYS both, so its green does not read as "
+          "covering them",
+          all(s in judge_floor_staleness(_rep, 3, "docs/FAILURE-FLOOR.md")
+              .detail
+              for s in ("NOT MEASURED", "never fired", "no usable date")),
+          True)
+    _thin = floor_staleness(parse_floor_rows(
+        "| Rule | L | Z | S | Last fired | R |\n|---|---|---|---|---|---|\n"
+        "| only one | PROSE | B | AMBER | 2026-01-01 | x |\n"), 3,
+        date(2030, 1, 1))
+    check("NC: one distinct date cannot derive an interval, so staleness is "
+          "NOT COMPUTABLE and is reported as UNKNOWN rather than green-by-"
+          "arithmetic",
+          (_thin["window_days"], _thin["stale"],
+           "NOT COMPUTABLE" in judge_floor_staleness(
+               _thin, 3, "docs/FAILURE-FLOOR.md").headline),
+          (None, [], True))
+    check("NC: a floor with no rows at all is ATTENTION - a floor with "
+          "nothing in it passes by having nothing to check",
+          judge_floor_staleness(floor_staleness([], 3, date(2026, 1, 1)), 3,
+                                "docs/FAILURE-FLOOR.md").state, ATTENTION)
+    check("no floor file at all is n/a, NOT a red - whether the ledgers are "
+          "installed is doctor:l1-documents' question, and two reds for one "
+          "fact is how a tool teaches its reader to skim",
+          judge_floor_staleness(floor_staleness([], 3, date(2026, 1, 1)), 3,
+                                None).state, NA)
+    check("...and the n/a says out loud that it is not a green",
+          "n/a, not green" in judge_floor_staleness(
+              floor_staleness([], 3, date(2026, 1, 1)), 3, None).detail, True)
+    check("CROSS-CHECK: the SHIPPED floor template contributes ZERO judged "
+          "rules - its table rows are prompts, and a reader that counted "
+          "them would report staleness about instructions",
+          len(parse_floor_rows((HERE.parent / "modules" / "04-ledgers" /
+                                "FAILURE-FLOOR.md")
+                               .read_text(encoding="utf-8"))), 0)
+    check("...and the reader is not simply blind: the same file with its "
+          "prompts filled in DOES parse",
+          len(parse_floor_rows(
+              (HERE.parent / "modules" / "04-ledgers" / "FAILURE-FLOOR.md")
+              .read_text(encoding="utf-8")
+              .replace("<the rule, one line>", "a real rule")
+              .replace("<a rule you have not structuralised>", "another")
+              .replace("<a rule a human enforces>", "a third"))), 3)
+
+    # THE CEILING'S FIRST OBSERVATION, BOUND TO THE FILE IT WAS MEASURED
+    # FROM. The derivation in the comment above DIGEST_CEILING_LINES starts
+    # from the shipped rules template at 191 rendered lines. If that template
+    # grows, the input has moved and the ceiling stops meaning what the
+    # comment says - so this reads the file rather than trusting the number.
+    _tmpl = (HERE.parent / "modules" / "01-governance" / "CLAUDE.md.template")
+    check("the ceiling's first observation is the SHIPPED template, measured "
+          "now, not a number somebody typed once",
+          rendered_template_lines(_tmpl.read_text(encoding="utf-8")),
+          DIGEST_SHIPPED_RULES_LINES)
+    check("...and the header block really is stripped (the raw file is "
+          "longer than the rendered count)",
+          len(_tmpl.read_text(encoding="utf-8").splitlines())
+          > DIGEST_SHIPPED_RULES_LINES, True)
+    check("...and the ceiling is the derivation's arithmetic, not a "
+          "free-standing number: (191 + 90) x 1.15, rounded up to 25",
+          DIGEST_CEILING_LINES,
+          25 * -(-int((DIGEST_SHIPPED_RULES_LINES
+                       + DIGEST_CHECKPOINT_NORM_LINES) * 1.15) // 25))
+    check("a digest under the ceiling is OK",
+          judge_binding_digest([("CLAUDE.md", 190), ("docs/CP.md", 90)],
+                               DIGEST_CEILING_LINES).state, OK)
+    check("NC: one line over the ceiling is ATTENTION - the boundary, stated",
+          (judge_binding_digest([("CLAUDE.md", DIGEST_CEILING_LINES)],
+                                DIGEST_CEILING_LINES).state,
+           judge_binding_digest([("CLAUDE.md", DIGEST_CEILING_LINES + 1)],
+                                DIGEST_CEILING_LINES).state),
+          (OK, ATTENTION))
+    check("NC: a rules file that has merely DOUBLED from the shipped "
+          "template breaches on its own, with no checkpoint at all - this is "
+          "where the threshold actually sits",
+          judge_binding_digest(
+              [("CLAUDE.md", DIGEST_SHIPPED_RULES_LINES * 2)],
+              DIGEST_CEILING_LINES).state, ATTENTION)
+    check("the arithmetic is printed on EVERY run, green included",
+          [("ARITHMETIC" in judge_binding_digest(
+              [("CLAUDE.md", n)], DIGEST_CEILING_LINES).detail)
+           for n in (10, 999)], [True, True])
+    check("...and it shows the composition, so a reader can see which half "
+          "grew",
+          "CLAUDE.md 200 + docs/CP.md 100 = 300" in judge_binding_digest(
+              [("CLAUDE.md", 200), ("docs/CP.md", 100)],
+              DIGEST_CEILING_LINES).detail, True)
+    check("...and the green says what it did NOT judge",
+          "not that any line in it has earned its place" in
+          judge_binding_digest([("CLAUDE.md", 10)],
+                               DIGEST_CEILING_LINES).detail, True)
+    check("no rules file and no checkpoint is n/a, not a green zero",
+          judge_binding_digest([], DIGEST_CEILING_LINES).state, NA)
+    check("...and it says a project with no binding digest sidestepped this "
+          "check rather than passing it",
+          "sidestepped" in judge_binding_digest([],
+                                                DIGEST_CEILING_LINES).detail,
+          True)
+
+    print(f"\n{BOLD}=== I3. the Level-1 layer — documents, and nothing "
+          f"more ==={RESET}")
+    # Every defect here was reconstructed from a literal, so these run the real
+    # judges rather than probing files the selftest also wrote. The shipped
+    # rule is the REAL one, imported the way the tool imports it at runtime.
+    _rule, _pat, _rule_src = placeholder_rule(HERE.parent)
+    check("the shared rendered-value rule was imported, not re-implemented "
+          "(a None here means every shipped-value assertion below is vacuous)",
+          _pat is not None, True)
+    clean_ledger = ("# Acme — Token Ledger\n\n| stage | tokens |\n"
+                    "|---|---|\n| R1 | 12k |\n")
+    check("a rendered document has no rendering problem",
+          l1_render_problems("docs/TOKEN-LEDGER.md", clean_ledger, _pat), [])
+    check("NC: a slot nobody substituted is caught, by name",
+          l1_render_problems("docs/LESSONS.md", "# {{PROJECT_NAME}} — Lessons",
+                             _pat),
+          ["docs/LESSONS.md: {{PROJECT_NAME}} was never substituted"])
+    check("NC: the ledgers' SKELETON header is caught",
+          [p.split(":")[0] for p in l1_render_problems(
+              "docs/FAILURE-FLOOR.md",
+              "<!--\nSKELETON - copy to docs/FAILURE-FLOOR.md.\n-->\n# Floor",
+              _pat)],
+          ["docs/FAILURE-FLOOR.md"])
+    check("NC: the profile's own header block is caught (a different marker "
+          "word from the ledgers', which is why both are listed)",
+          len(l1_render_problems(
+              "docs/collaboration-profile.md",
+              "<!--\nTEMPLATE - the living collaboration profile.\n"
+              "Delete this comment on adoption.\n-->\n", _pat)), 2)
+    check("NC: the rules file's header block is caught",
+          len(l1_render_problems(
+              "CLAUDE.md", "DELETE THIS COMMENT BLOCK when you adopt.",
+              _pat)), 1)
+    check("NC: a shipped placeholder PATH that reached a rendered document is "
+          "caught",
+          l1_render_problems("CLAUDE.md",
+                             "profile: /abs/path/to/your/knowledge-base/x.md",
+                             _pat),
+          ["CLAUDE.md: the shipped example value '/abs/path/to/' is in the "
+           "rendered document - the fill-in behind it was never made"])
+    # THE ESCAPE THIS FIX PASS CLOSES. Six documents titled `Example Project`
+    # and four `your-top-tier-model` strings in the rules file passed as
+    # HEALTHY, because this check carried a one-element list of its own while
+    # the kit already enumerated the families. Both forced red here.
+    check("NC: the shipped PROJECT_NAME reaching a document title is caught",
+          l1_render_problems("docs/LESSONS.md",
+                             "# Example Project — Lessons Learned\n", _pat),
+          ["docs/LESSONS.md: the shipped example value 'Example Project' is "
+           "in the rendered document - the fill-in behind it was never made"])
+    check("NC: a shipped tier name copied into the rules file is caught",
+          [p.split(" is in ")[0] for p in l1_render_problems(
+              "CLAUDE.md", "lanes run on your-top-tier-model.\n", _pat)],
+          ["CLAUDE.md: the shipped example value 'your-top-tier-model'"])
+    check("THE ONE EXEMPTION HOLDS: RATIO_CEILING's shipped value is NOT a "
+          "problem — QUICKSTART Step 7 tells the adopter to keep it, and the "
+          "shared pattern DOES match it, so this exemption is load-bearing",
+          (bool(_pat.search(L1_ALLOWED_SHIPPED[1])),
+           l1_render_problems("docs/TOKEN-LEDGER.md",
+                              f"ceiling: {L1_ALLOWED_SHIPPED[1]}\n", _pat)),
+          (True, []))
+    check("...and with no shared rule available the shipped-value scan is "
+          "SKIPPED, not silently narrowed",
+          l1_render_problems("docs/LESSONS.md",
+                             "# Example Project — Lessons\n", None), [])
+    check("...and the finding then SAYS the scan was narrowed",
+          "SCAN NARROWED" in judge_l1_rendered([], 6, False).detail, True)
+    check("...while the full scan's green line does not say that",
+          "SCAN NARROWED" in judge_l1_rendered([], 6, True).detail, False)
+
+    # ---- F3: a document QUOTING the kit is not a document missing a
+    # fill-in. The measured instance is a judgment-ledger row recording that
+    # a check was forced red over `Example Project` - a truthful record the
+    # only documented remedy told the adopter to falsify. Every exemption
+    # below is paired with a TRUE-POSITIVE control on the same string, so a
+    # quoting exemption cannot be read as the scan going quiet.
+    _quoted_row = ("| 1 (fix) | F1 fixed | doctor selftest 149 (forced-red "
+                   "`Example Project` / `your-top-tier-model`) |\n")
+    check("F3: a shipped value inside INLINE CODE SPANS is not a defect - "
+          "the ordinary way prose quotes a value",
+          l1_render_problems("docs/JUDGMENT-LEDGER.md", _quoted_row, _pat), [])
+    check("F3 TRUE-POSITIVE CONTROL: the SAME strings unquoted still red",
+          len(l1_render_problems(
+              "docs/JUDGMENT-LEDGER.md",
+              _quoted_row.replace("`", ""), _pat)), 2)
+    _fenced = ("Example output:\n\n```\n# Example Project — Lessons\n```\n\n"
+               "and that is what a fresh render looks like.\n")
+    check("F3: a shipped value inside a FENCED BLOCK is not a defect",
+          l1_render_problems("docs/LESSONS.md", _fenced, _pat), [])
+    check("F3 TRUE-POSITIVE CONTROL: the same block with the fences removed "
+          "reds",
+          len(l1_render_problems("docs/LESSONS.md",
+                                 _fenced.replace("```\n", ""), _pat)), 1)
+    _marked = ("| the rule | HOOK | B | STRUCTURAL | 2026-08-21 | forced red "
+               "over Example Project |  <!-- oar:quotes-example -->\n")
+    check("F3: a line carrying the opt-out marker is not scanned - for the "
+          "table cell where backticks would be wrong",
+          l1_render_problems("docs/FAILURE-FLOOR.md", _marked, _pat), [])
+    check("F3 TRUE-POSITIVE CONTROL: the same line without the marker reds",
+          len(l1_render_problems("docs/FAILURE-FLOOR.md",
+                                 _marked.split("<!--")[0] + "\n", _pat)), 1)
+    check("F3: the exemptions are SHIPPED-VALUE ONLY - a slot inside a fence "
+          "is still a slot",
+          l1_render_problems("CLAUDE.md", "```\n{{PROJECT_NAME}}\n```\n",
+                             _pat),
+          ["CLAUDE.md: {{PROJECT_NAME}} was never substituted"])
+    check("...and a template header block inside a fence is still a header "
+          "block",
+          len(l1_render_problems("CLAUDE.md",
+                                 "```\nDELETE THIS COMMENT BLOCK\n```\n",
+                                 _pat)), 1)
+    check("F3: an unterminated fence does not swallow the rest of the "
+          "document silently - it is counted and reported",
+          scannable_for_shipped("```\nx\ny\n")[1]["fenced"], 3)
+    check("F3: the exemption tally is COUNTED, per mechanism",
+          scannable_for_shipped(
+              "a `b` c\n<!-- oar:quotes-example -->\n```\nd\n```\n")[1],
+          {"fenced": 3, "spans": 1, "marked": 1})
+    check("F3: ...and REPORTED on the finding, so a document cannot go "
+          "quietly green by fencing itself",
+          all(s in judge_l1_rendered(
+                  [], 6, True, {"fenced": 3, "spans": 1, "marked": 1}).detail
+              for s in ("QUOTED TEXT NOT SCANNED", "3 line(s) inside fenced",
+                        "1 inline code span", "oar:quotes-example")), True)
+    check("...and an ordinary adoption with no exemption says nothing extra",
+          "QUOTED TEXT NOT SCANNED" in judge_l1_rendered(
+              [], 6, True, {"fenced": 0, "spans": 0, "marked": 0}).detail,
+          False)
+    check("...and the red's fixing step offers the exemption rather than "
+          "leaving the adopter to falsify a record",
+          all(s in judge_l1_rendered(["docs/x.md: bad"], 6).fix
+              for s in ("backticks", L1_QUOTE_MARKER)), True)
+
+    # ---- F1: the config the documents tell a brownfield adopter to
+    # overwrite. The check names the missing keys AND names the destructive
+    # remedy as destructive, because the destructive remedy is the obvious one.
+    check("F1: a config missing keys the templates interpolate is ATTENTION",
+          judge_l1_config_complete(["DEMOTION_REVIEW_STAGES",
+                                    "RATIO_CEILING"], 40,
+                                   "kit.config.example").state, ATTENTION)
+    check("...and it NAMES them",
+          "DEMOTION_REVIEW_STAGES" in judge_l1_config_complete(
+              ["DEMOTION_REVIEW_STAGES"], 40, "kit.config.example").detail,
+          True)
+    check("...and the fixing step says APPEND, and says the copy DESTROYS",
+          all(s in judge_l1_config_complete(
+                  ["X"], 40, "kit.config.example").fix
+              for s in ("APPEND", "Do NOT copy", "destroys")), True)
+    check("...a complete config is OK",
+          judge_l1_config_complete([], 40, "kit.config.example").state, OK)
+    check("NC: with no shipped registry to read, this is UNKNOWN and says so "
+          "- not a green",
+          (judge_l1_config_complete([], 0, None).state,
+           "UNKNOWN" in judge_l1_config_complete([], 0, None).detail),
+          (ATTENTION, True))
+    # THE VACUITY GUARD. This check compares against a real file, so the
+    # oracle is only worth anything if that file really is a key registry.
+    _example_keys: dict = {}
+    read_pairs(HERE.parent / "kit.config.example", _example_keys)
+    check("CROSS-CHECK: the shipped kit.config.example really is a key "
+          "registry (an empty read here would make this check vacuous)",
+          len(_example_keys) > 20, True)
+    check("...and it registers the two keys the kit's own dogfood adoption "
+          "found missing from a pre-existing config",
+          sorted(k for k in ("DEMOTION_REVIEW_STAGES", "RATIO_CEILING")
+                 if k in _example_keys),
+          ["DEMOTION_REVIEW_STAGES", "RATIO_CEILING"])
+
+    # ---- F2: the ledger names are fixed, and a brownfield repository
+    # already has ledgers. Measured on the kit's own program repo:
+    # LESSONS-LEARNED.md beside LESSONS.md, TOKEN_LEDGER.md beside
+    # TOKEN-LEDGER.md - two documents answering one question, and every
+    # check green.
+    check("F2: an underscore spelling of a kit ledger name collides",
+          l1_ledger_collisions(["TOKEN_LEDGER.md"]),
+          [("TOKEN_LEDGER.md", "TOKEN-LEDGER.md")])
+    check("F2: ...and a longer name containing a kit stem collides",
+          l1_ledger_collisions(["LESSONS-LEARNED.md"]),
+          [("LESSONS-LEARNED.md", "LESSONS.md")])
+    check("F2 CONTROL: the kit's own files at the kit's own names do NOT "
+          "collide",
+          l1_ledger_collisions(list(L1_LEDGERS)), [])
+    check("F2 CONTROL: an unrelated document does not collide",
+          l1_ledger_collisions(["README.md", "ARCHITECTURE.md",
+                                "SESSIONS.md"]), [])
+    check("F2: the finding names all three ways out and none of them is "
+          "'delete it'",
+          all(s in judge_l1_ledger_collision(
+                  [("TOKEN_LEDGER.md", "TOKEN-LEDGER.md")], "docs/").fix
+              for s in ("RENAME", "FREEZE", "LEDGERS_DIR")), True)
+    check("...and it says nothing was changed, because nothing was",
+          "Nothing here has been changed or lost" in
+          judge_l1_ledger_collision([("a.md", "LESSONS.md")], "docs/").detail,
+          True)
+    check("F2: no collision is OK", judge_l1_ledger_collision([], "docs/")
+          .state, OK)
+
+    _p = Path("docs/JUDGMENT-LEDGER.md")
+    check("all documents present is OK",
+          judge_l1_documents([("docs/LESSONS.md", _p)], [("CLAUDE.md", None)])
+          .state, OK)
+    check("...and the optional one being absent is stated, not counted as a "
+          "defect",
+          "NOT TAKEN" in judge_l1_documents([("docs/LESSONS.md", _p)],
+                                            [("CLAUDE.md", None)]).detail, True)
+    check("NC: a missing required document is ATTENTION and is named",
+          [judge_l1_documents([("docs/LESSONS.md", None)], []).state,
+           "docs/LESSONS.md" in
+           judge_l1_documents([("docs/LESSONS.md", None)], []).detail],
+          [ATTENTION, True])
+    check("no rendering problem is OK; one is ATTENTION",
+          [judge_l1_rendered([], 6).state,
+           judge_l1_rendered(["docs/x.md: {{A}} was never substituted"],
+                             6).state], [OK, ATTENTION])
+    check("committed and clean is OK",
+          judge_l1_committed(True, [], []).state, OK)
+    check("NC: an UNTRACKED document is ATTENTION — an untracked document is "
+          "not adopted",
+          judge_l1_committed(True, ["docs/LESSONS.md"], []).state, ATTENTION)
+    check("NC: a tracked document with uncommitted changes is ATTENTION",
+          judge_l1_committed(True, [], ["docs/LESSONS.md"]).state, ATTENTION)
+    check("NC: git failing is ATTENTION, not silence read as clean",
+          judge_l1_committed(False, [], []).state, ATTENTION)
+    check("KNOWLEDGE_DIR: NONE is a DECISION here, not an unset value",
+          judge_l1_knowledge_dir("NONE", False, None).state, OK)
+    check("...and a real directory that exists is OK",
+          judge_l1_knowledge_dir("docs", False, True).state, OK)
+    check("NC: no key at all is ATTENTION",
+          judge_l1_knowledge_dir(None, False, None).state, ATTENTION)
+    check("NC: the shipped placeholder value is ATTENTION",
+          judge_l1_knowledge_dir("/abs/path/to/your/knowledge-base", True,
+                                 None).state, ATTENTION)
+    check("NC: a recorded directory that is not there is ATTENTION",
+          judge_l1_knowledge_dir("/vault", False, False).state, ATTENTION)
+    check("the interview's three states are all GREEN, owner-blocked "
+          "included",
+          [judge_l1_interview(v).state for v in
+           ("not yet held", "scheduled 2026-09-04 confirmed by the owner",
+            "held 2026-08-21")],
+          [OK, OK, OK])
+    check("...and an owner-blocked one still SAYS the defaults are "
+          "unconfirmed",
+          "UNCONFIRMED" in judge_l1_interview("not yet held").detail, True)
+    # F4. A DATE THAT PARSES IS NOT A DATE SOMEBODY AGREED TO. This kit's own
+    # dogfood adoption produced an invented one, and it read exactly like a
+    # real calendar entry - the owner's ruling was to delete it and record
+    # `not yet held`. The state stays green; the unattributed date does not.
+    check("NC: a scheduled date with NO confirmation is ATTENTION - an "
+          "invented schedule reads identically to a real one",
+          judge_l1_interview("scheduled 2026-09-04").state, ATTENTION)
+    check("...and the red names both ways out",
+          all(s in judge_l1_interview("scheduled 2026-09-04").fix
+              for s in ("confirmed by", "not yet held")), True)
+    check("...while `confirmed by <someone>` clears it",
+          judge_l1_interview("scheduled 2026-09-04 confirmed by Dana in "
+                             "the team calendar").state, OK)
+    check("...and so does a bare `confirmed <source>` without the `by`",
+          judge_l1_interview("scheduled 2026-09-04 - confirmed "
+                             "calendar-invite").state, OK)
+    check("THE CONTROL: the word `confirmed` with nothing after it is not a "
+          "source",
+          judge_l1_interview("scheduled 2026-09-04 confirmed").state,
+          ATTENTION)
+    check("...and `not yet held` is still green with no confirmation asked "
+          "of it (the owner-blocked adopter is one keystroke from green)",
+          judge_l1_interview("not yet held").state, OK)
+    check("...and a HELD date needs no confirmation either - the profile's "
+          "own answers are its evidence",
+          judge_l1_interview("held 2026-08-21").state, OK)
+    check("NC: the shipped MENU is not an answer",
+          judge_l1_interview("not yet held | scheduled <date> | held <date>")
+          .state, ATTENTION)
+    check("NC: `scheduled <date>` with the placeholder left in is not an "
+          "answer either",
+          judge_l1_interview("scheduled <date>").state, ATTENTION)
+    check("NC: a fourth wording is ATTENTION",
+          judge_l1_interview("we'll see").state, ATTENTION)
+    check("NC: no INTERVIEW line at all is ATTENTION",
+          judge_l1_interview(None).state, ATTENTION)
+
+    # The wrong-mode pointer: a Level-1 tree running the default set.
+    check("a Level-1 tree (documents, no runner, no hook) gets the --level1 "
+          "pointer", "--level1" in level1_hint(False, False,
+                                               ["docs/LESSONS.md"]), True)
+    check("...and a Level-2 tree does not (a runner is present)",
+          level1_hint(True, False, ["docs/LESSONS.md"]), "")
+    check("...nor does one whose hook is wired",
+          level1_hint(False, True, ["docs/LESSONS.md"]), "")
+    check("...nor an empty repository with no Level-1 documents in it",
+          level1_hint(False, False, []), "")
+
+    # THE CROSS-CHECKS. Every constant above is a literal in this file, and a
+    # literal describing another file drifts when that file changes. These read
+    # the shipped templates and hold the literals to them - available whenever
+    # this tool sits in a kit checkout, and reported as unavailable rather than
+    # skipped in silence when it has been copied out on its own.
+    _kit = HERE.parent
+    if (_kit / "modules" / "04-ledgers").is_dir():
+        check("CROSS-CHECK: L1_LEDGERS names exactly the ledger skeletons "
+              "module 04 ships",
+              sorted(p.name for p in
+                     (_kit / "modules" / "04-ledgers").glob("*.md")
+                     if p.name != "README.md"), sorted(L1_LEDGERS))
+        _prof = (_kit / "modules" / "08-collaboration"
+                 / "PROFILE-TEMPLATE.md").read_text(encoding="utf-8")
+        _m = L1_INTERVIEW.search(_prof)
+        check("CROSS-CHECK: the INTERVIEW pattern finds the status line in the "
+              "SHIPPED profile template, and reads it as the unanswered menu",
+              (bool(_m), judge_l1_interview(_m.group(1) if _m else None).state),
+              (True, ATTENTION))
+        check("CROSS-CHECK: the shipped profile template trips the rendering "
+              "check (it is a template; a copy of it is not an adoption)",
+              len(l1_render_problems("PROFILE-TEMPLATE.md", _prof, _pat)) > 0,
+              True)
+        # THE MANUFACTURED ORACLE. The escape this fix pass closes was not one
+        # missing string, it was the absence of anything holding the scan to
+        # what the kit SHIPS. So: read `kit.config.example`, take the values it
+        # ships for the keys that get substituted into a Level-1 document, and
+        # require the shared rule to catch every one of them in document text.
+        # Change the shipped PROJECT_NAME to `Sample Project` without teaching
+        # the rule about it and this goes red here, in the kit, rather than in
+        # an adopter's tree.
+        _ex = (_kit / "kit.config.example").read_text(encoding="utf-8")
+        _shipped = {}
+        for _k in ("PROJECT_NAME", "ORCHESTRATOR_TIER", "LANE_TIER",
+                   "SWEEP_TIER", "FORBIDDEN_SPAWN_TIER", "KNOWLEDGE_DIR",
+                   "RATIO_CEILING"):
+            _m2 = re.search(rf"(?m)^{_k}\s*=\s*(\S.*?)\s*$", _ex)
+            if _m2:
+                _shipped[_k] = _m2.group(1)
+        check("CROSS-CHECK: the seven keys this oracle reads are all present "
+              "in kit.config.example (a missing key would make it vacuous)",
+              len(_shipped), 7)
+        check("THE ORACLE: every shipped example value that lands in a "
+              "Level-1 document is caught by the shared rule, in document "
+              "text — the escape that reported HEALTHY over six documents "
+              "titled `Example Project`",
+              sorted(k for k, v in _shipped.items()
+                     if k != "RATIO_CEILING"
+                     and not l1_render_problems("doc.md", f"x {v} y", _pat)),
+              [])
+        check("...and RATIO_CEILING's shipped value is the ONE the rule "
+              "matches and this check deliberately lets through",
+              (bool(_pat.search(_shipped["RATIO_CEILING"])),
+               l1_render_problems("doc.md",
+                                  f"x {_shipped['RATIO_CEILING']} y", _pat)),
+              (True, []))
+    else:
+        check("the module cross-checks are UNAVAILABLE here (this tool has "
+              "been copied out of a kit checkout) - stated, not skipped in "
+              "silence", (_kit / "modules").is_dir(), False)
+
     print(f"\n{BOLD}=== J. the registry contract ==={RESET}")
     check("every check in CHECKS carries the doctor: family prefix",
           [c for c, _ in CHECKS if not c.startswith("doctor:")], [])
@@ -1600,6 +3303,10 @@ def main() -> int:
         description="Diagnose a kit adoption. Diagnoses; does not certify.",
         epilog="exit 0 HEALTHY · 1 ATTENTION · 2 ABORT")
     ap.add_argument("--root", default="", help="the repository to diagnose")
+    ap.add_argument("--level1", action="store_true",
+                    help="the documents-only diagnosis: the five "
+                         "`doctor:l1-*` checks, for a tree adopted by "
+                         "LEVEL-1.md (no runner, no hook, no settings file)")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--list", action="store_true",
                     help="print the check inventory and exit")
@@ -1608,9 +3315,12 @@ def main() -> int:
     if a.selftest:
         return selftest()
     if a.list:
-        print(f"kit_doctor {KIT_VERSION} — {len(CHECKS)} checks")
+        print(f"kit_doctor {KIT_VERSION} — {len(CHECKS)} checks "
+              f"({len(CHECKS) - len(L1_CHECKS)} in the full diagnosis, "
+              f"{len(L1_CHECKS)} in --level1)")
         for cid, doc in CHECKS:
-            print(f"  {cid:<28} {doc}")
+            mode = "L1 " if cid in L1_CHECKS else "   "
+            print(f"  {mode}{cid:<28} {doc}")
         return 0
 
     start = Path(a.root).resolve() if a.root else Path.cwd().resolve()
@@ -1620,7 +3330,7 @@ def main() -> int:
               f"tool will not report HEALTHY about a tree it never found; "
               f"pass --root <your repository>.{RESET}", file=sys.stderr)
         return 2
-    return run(root)
+    return run_level1(root) if a.level1 else run(root)
 
 
 if __name__ == "__main__":

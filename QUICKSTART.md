@@ -22,9 +22,41 @@ compress — plus **the Step 8 seed interview**: fifteen minutes tonight if you
 are the project's owner, or a scheduled slot on the owner's calendar if that
 is someone else. The per-step figures sum to that range, and **Step 4 is most
 of it** (45–60 minutes on a first adoption: a JSON template substituted by
-hand, four constants and a gate table edited inside the runner, a selftest case
+hand, six constants and a gate table edited inside the runner, a selftest case
 written, and two config keys reconciled). Someone who has adopted the kit
 before will beat these numbers; the estimates are for the first time.
+
+**This document is the Level-2 path.** If you have not decided to adopt yet,
+`LEVEL-1.md` is a shorter, reversible entry: the documents only, 30–45 minutes,
+no settings file and no hook, ending in a check that states what it does and
+does not certify. Nothing there is redone here.
+
+**Adopting into a repository that already exists?** Read `EXISTING-PROJECT.md`
+before Step 1. Every step below is written for a repository whose only
+uncommitted content is the kit's own, and that page is the measured list of
+where an existing project departs from that assumption — an existing
+`CLAUDE.md` or `.claude/settings.json`, an ignore rule over `.claude/`, work in
+progress inside `CERT_PATHS`, a test suite you already trust, CI that ends up
+proving less than the local gate. Each row names the step it lands at, what was
+measured, and the workaround that was proven. The branches are also inline in
+the steps; the page is the list in one place.
+
+**Coming from `LEVEL-1.md`?** Four steps are partly done already, and none of
+them is repeated work:
+
+- **Step 1** — you have `kit.config`. This step asks for keys Level 1 left as
+  shipped; fill those and move on.
+- **Step 6** — `CLAUDE.md` is installed and rendered. What Level 1 skipped is
+  the second half of this step: putting the scanner on the judge surface and
+  proving the hook. Read the step for that half. If you deleted the
+  protected-path rules at Level 1, they stay deleted unless you now configure
+  the tripwire.
+- **Step 7** — the four ledgers are installed and rendered. Read the step for
+  what Level 1 had no use for: `REPORTS_DIR`, and the first `FAILURE-FLOOR.md`
+  row naming the hook you are about to install.
+- **Step 8** — the profile is installed. If its `INTERVIEW:` line still says
+  `not yet held` or `scheduled`, that is unfinished business rather than a
+  blocker here.
 
 ## Shell — measured, not asserted
 
@@ -122,7 +154,39 @@ can be obeyed in order.
 the kit as read-only: it may literally be a read-only clone, and its
 `kit.config` is a worked example its own selftests depend on.
 
+**Read-only means you never edit a file of the kit's; it does not mean nothing
+is ever written under it.** Steps 0 and 2 run Python from inside the kit clone,
+and Python writes `__pycache__/` beside any script it imports — the same fact
+Step 4 states about your own tree. The kit's `.gitignore` covers that
+directory, so the kit's `git status` stays empty and no tracked file changes.
+On a clone that is read-only at the filesystem level Python skips writing the
+bytecode and the same commands still run.
+
+**Two routes from here, and the second one is the one this document has
+historically assumed away.**
+
+- **A new project** — run the whole block below.
+- **An existing repository** — skip the first two lines and `cd` to your
+  repository instead. `git init` in a repository that already has one is not
+  what you want to be finding out about later. Then run the two `cp` lines,
+  with one check first: **if `kit.config` or `kit.config.local` already exists,
+  do not run the `cp` for it.** `cp` overwrites without asking in pwsh, bash
+  and Git Bash, and it destroys the answers already in that file. Copy the
+  example to a scratch name instead, compare the two, and append only the keys
+  you are missing, at their shipped value.
+
+**The existing-project route has a page of its own.** `EXISTING-PROJECT.md` is
+one row per collision this kit has measured on a repository that was already
+running — an existing `CLAUDE.md`, an existing `.claude/settings.json`, an
+ignore rule covering `.claude/`, uncommitted work in the tree, a test suite you
+already trust, and CI that ends up weaker than the local gate. Each row carries
+the behaviour that was measured and the workaround that was proven. Read it now
+if any of those describes your repository: every one of them lands in Step 4,
+Step 6 or Step 9, and the page says what to do at each.
+
 ```bash
+# the first two lines are the NEW-PROJECT route; on an existing repository,
+# `cd` there instead and start at the copies
 mkdir -p /path/to/your-project && cd /path/to/your-project
 git init                       # git from minute one - the judges gate needs it
 
@@ -309,6 +373,16 @@ write the required line, you have just discovered that you do not yet know what
 the check measures. That discovery is the point, and it is why this step is
 measured in hours.
 
+**The line has a shape, and getting it wrong is how a green gate certifies
+nothing.** `modules/03-verification/GATE-LINE.md` is the contract: a
+self-consistent ratio rather than a bare count, a distinct failure line the
+gate's `fail_pattern` can veto on, and a subset-honesty suffix. Read it before
+you write the line down, and read it first if **the thing your project must not
+break is a test suite you already have** — pointing a gate straight at
+`pytest -q` produces a numerator with no denominator, which is a gate that
+cannot tell a healthy three-test suite from a suite that has stopped
+collecting. Step 4 item 5 wires the adapter that fixes that.
+
 **If Step 1 left you with an empty repo**, create the subject before you write
 the worksheet: one source file the gate will judge and one test file that
 exercises it. `src/` and `tests/` is enough, and it is the layout Step 4's
@@ -324,6 +398,22 @@ happens.
 **Checkpoint:** one filled worksheet page, saved in your repo, containing a line
 of text that does not exist yet, a number, and a negative control.
 
+**One page is what this step asks for, and it is not what `kit_doctor.py` asks
+for.** The doctor's default run holds `doctor:vacuous-gate` over **every** gate
+in `RUN_ORDER`, and three of those gates ship with the kit: `judges`, `hooks`
+and `escapes`. A tree that has followed this document exactly therefore ends at
+`[ATTENTION] doctor:vacuous-gate — 3 gate(s) cannot fail as configured`, each
+one for the reason `no ORACLE-<gate>.md page`. **That is the shipped behaviour,
+not a defect in your adoption.** The three gates can fail — the dead-man clause
+reds `hooks`, and this document has you watch `judges` go red twice — so what
+the finding names for them is a missing record, not an inert gate. You have
+three honest answers: write the three pages when you want the check green
+(each is a short page — you did not author those gates, so what they catch is
+in `modules/03-verification/README.md` and module 02's), accept the ATTENTION
+and record why in `docs/FAILURE-FLOOR.md`, or run the doctor with the finding
+read rather than counted. The doctor is optional and outside this document's
+flow either way; see Step 7.
+
 ---
 
 ## Step 4 — Stand up the certification runner, wiring and all (45–60 min your first time)
@@ -335,10 +425,29 @@ printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n' >> .git
 ```
 
 ```powershell
-# ⚠ pwsh: no printf
+# ⚠ pwsh: no printf, and Add-Content's own line terminator is CRLF - so this
+# form reads the terminator the file already uses and keeps it
+$raw = if (Test-Path .gitignore) { Get-Content .gitignore -Raw } else { '' }
+$eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
 '__pycache__/','*.pyc','kit.config.local','.claude/sidequest.json' |
-    Add-Content .gitignore
+    ForEach-Object { "$_$eol" } | Add-Content .gitignore -NoNewline
 ```
+
+**Why that pwsh block is three lines instead of one.** `Add-Content` ends
+every item with the platform's terminator, which on Windows is CRLF. Appended
+to an LF `.gitignore` — what you have if the repository has ever been checked
+out on Linux or macOS, or with `core.autocrlf` off — the one-line form leaves a
+tracked file with mixed endings. The rules still resolve, so nothing reddens;
+it is hygiene, and it is cheaper not to create than to normalise afterwards.
+The block above appends whichever terminator the file already uses, and falls
+back to LF when there is no file yet, which is what the `printf` form produces.
+Both forms assume the file already ends in a newline.
+
+**The `printf` form has the same hazard in the other direction** on a checkout
+where `core.autocrlf` is on and the working tree is CRLF: it appends LF lines
+to a CRLF file. The general answer to all of this is a `.gitattributes`, which
+the Windows note at the top of this document covers, and it is cheapest on day
+one.
 
 Python writes `__pycache__/` next to any script it imports; inside `JUDGE_PATHS`
 or `CERT_PATHS` that is an uncommitted tree and a correct red you will spend
@@ -353,6 +462,29 @@ gate would read clean over the file that decides whether the hooks run at all;
 `verify.py` refuses to start on that (`VERIFY: ABORTED`, naming the path and the
 `git check-ignore -v` line that finds the rule).
 
+**The fix is to force-track that one file, not to delete the rule:**
+
+```bash
+git add -f .claude/settings.json      # substitute the path the abort named
+```
+
+The ignore rule stays exactly as it is, and the runner starts. This is the
+remedy the abort message itself now prints first, and `adoption_smoke.py`
+phase 12 proves it: it plants the rule, watches the run abort, force-tracks the
+file under the intact rule, and requires the run to start and judge green.
+
+**Deleting the rule is the last resort, and on an existing repository it is
+usually the wrong move.** `.gitignore` entries like `.claude/` are directory
+rules, so the same line also covers `.claude/sidequest.json`,
+`.claude/cert-green.json` and `.claude/settings.local.json` — session state and
+a certification token, all three of which the kit's own `.gitignore` names as
+files that must never be committed, and one of which this very step tells you
+to add to your ignore file a few lines above. Remove the rule only after
+`git check-ignore -v <the path>` has shown you it covers nothing else. **Run
+that diagnostic before the `git add -f`, not after:** once a path is tracked it
+is no longer subject to the ignore rules, so `check-ignore` prints nothing and
+you can no longer see which rule it was.
+
 Now copy the runner **and the enforcement files, and write the harness settings
 — all before the first run**:
 
@@ -363,15 +495,51 @@ cp /path/to/kit/modules/03-verification/verify.py         tools/verify.py
 cp /path/to/kit/modules/02-enforcement/hook_model_gate.py tools/
 cp /path/to/kit/modules/02-enforcement/hook_fixtures.py   tools/
 cp /path/to/kit/tools/statusline.py                       tools/   # module 05
+cp /path/to/kit/modules/04-ledgers/escape_rate.py         tools/   # module 04
+mkdir -p docs
+cp /path/to/kit/modules/04-ledgers/JUDGMENT-LEDGER.md     docs/    # module 04
+cp /path/to/kit/VERSION                                   ./VERSION
 # then substitute the slots in the kit's
 #   modules/02-enforcement/settings.json.template
 # into .claude/settings.json
 ```
 
+**`VERSION` is one line and it is the only record of which kit release this
+adoption came from.** Nothing reads it at runtime; `kit_doctor.py` reports
+`[ATTENTION] doctor:version — no VERSION file` when it is absent, and compares
+it against the tools' own version when it is there, which is how you find out
+that a newer `tools/` was copied into a repo whose stamp was never refreshed.
+Refresh it whenever you pull kit updates into `tools/`.
+
+**If `.claude/settings.json` already exists, do not substitute the template
+into it — merge instead, and the mechanical route below is the one to take.**
+The template's `permissions` block contains only `ask`. Yours may contain
+`allow` and `deny` rules that other controls in your repository depend on, and
+placing the substituted template at that path drops every one of them silently:
+nothing goes red, because a permission that no longer exists cannot fail. The
+verb throughout the paragraphs above is *substitute and place*, and that verb
+is correct on an empty repository only. What you need on this one is a
+structural merge of two JSON documents — the kit's three hook blocks and its
+`statusLine` added to your file, your `permissions` left alone. `kit_render.py`
+performs exactly that merge and writes the result to `.claude/settings.json.kit-new`
+rather than over your file; see **"Substituting mechanically"** below, which is
+optional on an empty repository and required here.
+
 **This ordering is load-bearing.** `verify.py` ships a `hooks` gate that names
-`tools/hook_fixtures.py` and `.claude/settings.json`, and the startup assertion
-refuses to run without them — create the settings file later and Steps 4 and 5
-abort. Doing it here is what leaves Step 6 as a pure proof step.
+`tools/hook_fixtures.py` and `.claude/settings.json`, and an `escapes` gate
+that names `tools/escape_rate.py` and `docs/JUDGMENT-LEDGER.md`. The startup
+assertion refuses to run over a path that is not in the tree — create any of
+them later and Steps 4 and 5 abort. Doing it here is what leaves Step 6 as a
+pure proof step.
+
+**The judgment ledger is the one Step 7 file that arrives early**, and only
+because the runner reads it. Step 7 is still where you substitute its slots
+and start using it; Step 4 only has to make it exist. Until your first round
+lands a row, the gate prints `state NO-ROUNDS-RECORDED` on every run — the
+true state of a new project, published rather than dressed up as a zero.
+**If you are not adopting module 04**, delete the `escapes` entry from
+`GATES`, delete `"escapes"` from `RUN_ORDER`, drop the `ESCAPE_TOOL` and
+`ESCAPE_LEDGER` constants, and skip both module-04 lines above.
 
 The template carries four slots. Two you fill unconditionally:
 `{{PYTHON_BIN}}` is the interpreter name you type at a prompt (`python`, or
@@ -421,15 +589,32 @@ expect, and Step 9's table assumes it is gone.
 json.load(open('.claude/settings.json'))"`. Substitution is the step that can
 produce invalid JSON, and its failure mode is silence.
 
-### Optional: having read all that, you can substitute mechanically instead
+### Substituting mechanically — optional on an empty repo, required on one that already holds these files
 
 You have just read the substitution this step asks for, which is the point: the
 templates are documents you have to argue with before they bind anything, and
-that is why by-hand is this document's route. What by-hand is bad at is getting
-the same string into the same places without a typo. If you would rather not
-retype one absolute path into three matcher blocks, `tools/kit_render.py` in
-the kit clone performs exactly the substitutions above, plus the ones at Steps
-6, 7 and 8 — `CLAUDE.md`, the four ledgers, and the collaboration profile.
+that is why by-hand is this document's route **on an empty repository**. What
+by-hand is bad at is getting the same string into the same places without a
+typo. If you would rather not retype one absolute path into three matcher
+blocks, `tools/kit_render.py` in the kit clone performs exactly the
+substitutions above, plus the ones at Steps 6, 7 and 8 — `CLAUDE.md`, the four
+ledgers, and the collaboration profile.
+
+**On a repository that already holds any of the seven files this tool writes,
+it is not a convenience — it is the only non-destructive route, and this
+document requires it there.** By-hand at Step 4 means placing a substituted
+template at `.claude/settings.json`; by-hand at Step 6 is a `cp` onto
+`CLAUDE.md`. Both destroy an existing file of the same name, with no backup and
+no warning. This tool never writes over your files: every render lands at
+`<name>.kit-new` beside the real one, with a diff printed against whatever is
+there already, and moving it into place is your act. For the settings file it
+does more than not-overwrite — it merges the two as JSON, adding the kit's hook
+blocks and `statusLine` while leaving your `permissions.allow` and
+`permissions.deny` where they are, and reporting each key it changed. That is
+work you would otherwise do by hand, correctly, in a file that silently disarms
+every hook if it stops parsing. Take the by-hand route's *reading* — the
+paragraphs above are the argument with the templates — and let the tool do the
+typing.
 
 ```bash
 python /path/to/kit/tools/kit_render.py --selftest   # prove it works first
@@ -456,6 +641,32 @@ the guidance headers the tool strips are the ones you have just read here, so
 open the templates the first time anyway. It renders the Step 6, 7 and 8 files
 now, before you reach those steps; the collaboration profile in particular is
 filled from a conversation at Step 8, and a rendered template looks finished.
+
+**Two consequences of rendering early, both measured, and both cheap to handle
+if you know about them now.**
+
+- **The values it bakes in are the values your config holds at this minute, and
+  two of them are still being decided.** `JUDGE_PATHS` and `CERT_PATHS` are
+  reconciled at the end of *this* step, and `KNOWLEDGE_DIR` is decided at Step
+  6. A file rendered before those edits carries the earlier answer — a
+  `CERT_PATHS` list in the rendered `CLAUDE.md` that was already wrong by the
+  time anyone read it, on the walk that found this. Unset keys are handled
+  correctly: the tool names an unfilled slot rather than guessing. The defect is
+  only in keys that already had a value and then changed. **Either render the
+  Step 6/7/8 files again at the end of Step 6** — the tool is idempotent, and
+  a fresh `.kit-new` beside your file diffs against what you moved into place —
+  **or grep the rendered files for the two `CERT_PATHS`/`KNOWLEDGE_DIR` values
+  once Step 6 is done.**
+- **One decision is inside a header block the tool strips.**
+  `PROFILE-TEMPLATE.md` carries the `KNOWLEDGE_DIR` source-of-truth decision —
+  which copy of the collaboration profile is authoritative — in its header
+  comment, and Step 8 instruction 1 exists to make you read that sentence
+  before it goes. On this route the header is already gone by the time you
+  reach Step 8, so the instruction has nothing to act on and the decision was
+  deleted unread, which is the exact outcome that sentence warns against. **Open
+  `modules/08-collaboration/PROFILE-TEMPLATE.md` in the kit now and read its
+  header block**, then decide at Step 6 with the rest of the `KNOWLEDGE_DIR`
+  decision and write the answer into the profile's maintenance clause at Step 8.
 
 **ONE MACHINE PER SETTINGS FILE — read this before the commit below if more
 than one person will use this repo.** The `.claude/settings.json` you have just
@@ -487,7 +698,7 @@ and budget the design.
 `HOOK_SETTINGS` constants. `--skip hooks` also works, but a permanently skipped
 gate means every run reports PARTIAL and the project can never certify.
 
-Then, in your copy of `verify.py` — **four constants and one gate list are the
+Then, in your copy of `verify.py` — **six constants and one gate list are the
 entire adoption surface:**
 
 1. **`JUDGE_PATHS`** — what decides *what green means*. Name the actual judge
@@ -505,12 +716,61 @@ entire adoption surface:**
    nobody keeps the token honest.
 3. **`HOOK_FIXTURES`** and **`HOOK_SETTINGS`** — `tools/hook_fixtures.py` and
    `.claude/settings.json`.
-4. Replace `example_unit` with the gate from your Step-3 worksheet, delete the
+4. **`ESCAPE_TOOL`** and **`ESCAPE_LEDGER`** — `tools/escape_rate.py` and
+   `docs/JUDGMENT-LEDGER.md`, both copied above. They ship pointing at the
+   kit's own copies, the way `JUDGE_PATHS` does, so repoint them or the
+   startup assertion aborts naming a file you do not have. The **ceiling** for
+   that gate is a literal in the gate entry itself, beside the other floors,
+   and it is deliberately not a config key: it decides what green means, so
+   raising it should be a reviewed commit. Ship-value 35.0 is the kit's own
+   derived number — re-derive yours from your own first rounds by the method
+   in `docs/TOKEN-LEDGER.md`, and until then read it as a placeholder rather
+   than a target.
+
+   **When you change it, change it in two places.** The tool carries the same
+   number as `DEFAULT_CEILING`, which is what a hand run of
+   `python tools/escape_rate.py` uses, and `python tools/escape_rate.py
+   --selftest` requires the two to agree. Move one and that selftest goes red
+   naming both values — deliberately, because the alternative is a gate and a
+   hand run publishing different ceilings and neither of them complaining.
+5. Replace `example_unit` with the gate from your Step-3 worksheet, delete the
    `example_lint` gate entry, and **add a check to `selftest()`** feeding your
    gate the *well-formed line that would be catastrophic* — the zero count, the
    shrunken count, the subset run.
 
-Item 4 is not politeness: selftest **section I** asserts that every gate in
+**If that gate is a test suite you already have, do not write the payload
+yourself.** A gate pointed straight at a real runner is the one adoption
+mistake this kit cannot catch for you: `python -m pytest -q` prints
+`46 passed, 4 skipped`, a numerator with no denominator, and a suite that has
+stopped collecting prints `3 passed`, which has the same shape as a healthy
+three-test suite. That gate certifies a collapsed collection. The kit ships the
+adapter:
+
+```bash
+cp /path/to/kit/modules/03-verification/gate_line.py tools/
+python tools/gate_line.py --pytest --expect-skips <your skip count>   # see the line
+python tools/gate_line.py --gate-spec --floor <your floor> --max-skips <your skip count>
+```
+
+`--gate-spec` prints the `GATES` entry to paste in place of `example_unit`,
+built from the adapter's own patterns so the payload and the gate table cannot
+drift apart. **Put `tools/gate_line.py` in `JUDGE_PATHS`** with the rest of item
+1: it decides what green means, so an uncommitted change to it has to invalidate
+certification the same way an uncommitted `kit.config` does. Read
+`modules/03-verification/GATE-LINE.md` before you set the floor — it is a
+collapse detector sized above your largest single test module, counted with
+`--collect-only` rather than estimated — and read its last two sections for
+what is proven: **pytest, against six committed golden fixtures; every other
+runner is UNPROVEN and the tool says so on every run.** For an unproven runner
+`--emit` will still shape a correct line from counts you supply, and the shape
+contract on that page is what you are matching. Run
+`python /path/to/kit/modules/03-verification/gate_line.py --selftest` **in the
+kit clone**, where the fixture suites live; the copy list here does not bring
+`examples/` into your repo, and from your side the selftest reports the missing
+fixtures rather than passing over them. Your own `selftest()` check from item 5
+is still the one that covers your gate.
+
+Item 5 is not politeness: selftest **section I** asserts that every gate in
 `RUN_ORDER` is named by a check that **actually ran**, so a replacement gate
 with no selftest goes loudly red rather than silently uncovered. Deleting the
 example gates breaks nothing — sections A/B are guarded and section F resolves a
@@ -529,7 +789,7 @@ disagrees means the hook and the runner hold different opinions about what has
 been certified, and neither of them will say so.
 
 ```bash
-# this block requires the four constants and the gate-table edits above
+# this block requires the six constants and the gate-table edits above
 python tools/verify.py --list
 python tools/verify.py --selftest        # must print: VERIFY SELFTEST: PASS
 python tools/verify.py                   # expect RED - see below
@@ -537,19 +797,74 @@ python tools/verify.py                   # expect RED - see below
 # path makes git refuse the whole add, and then nothing is staged at all
 # AND RUN `git status` FIRST: most of these are DIRECTORY pathspecs. On a tree
 # that holds anyone's unrelated uncommitted work - a colleague's, or your own -
-# they stage it into this commit too. Stash or exclude what is not the kit's.
-git add tools .claude kit.config .gitignore src tests docs && git commit -m "adopt the kit"
+# they stage it into this commit too. Stash it, or name FILES instead of these
+# directories. On an existing repository, read the paragraphs below FIRST.
+git add tools .claude kit.config .gitignore VERSION src tests docs && git commit -m "adopt the kit"
 python tools/verify.py                   # must print: VERIFY: PASS
 ```
 
 **Substitute your own paths in that commit line.** It names `src`, `tests` and
 `docs` because that is the layout this document assumes — `docs` is where Step 3
-put the oracle worksheet. `git add` is **atomic**: a single path that does not
-exist yet makes it refuse the whole add with
+put the oracle worksheet and where the copy list above put
+`JUDGMENT-LEDGER.md`. `git add` is **atomic for a path that does not exist
+yet**: such a path makes it refuse the whole add with
 `fatal: pathspec 'docs' did not match any files`, stage nothing, and skip the
-commit entirely, so the run after it repeats the pre-commit red. Drop the paths
+commit entirely, so the run after it repeats the pre-commit red. (The
+ignored-path failure in mode 2 below is **not** atomic — the distinction is
+the whole point of that mode.) Drop the paths
 you do not have rather than creating empty directories to satisfy the line, and
 add the path your gate payload lives under if it is somewhere else.
+
+**On a repository anyone is already working in, that line as printed is the
+most dangerous command in this document, and it has two independent failure
+modes.** Both were measured on one adoption, and both are avoided by editing
+the line before you run it.
+
+1. **`src` and `tests` are directory pathspecs, and they take everything under
+   them.** A half-finished feature in `src/` lands in a commit titled *"adopt
+   the kit"*, mixed in with eleven kit files, where nobody will look for it
+   again. **The safer form on an existing repository is to name the kit's own
+   files and drop the source directories entirely** — nothing under `src/` or
+   `tests/` is being installed by this step, and the only reason those two are
+   on the line is that on an empty repository they hold the gate payload Step 3
+   created:
+
+   ```bash
+   git add tools/verify.py tools/hook_model_gate.py tools/hook_fixtures.py tools/statusline.py tools/escape_rate.py kit.config .gitignore VERSION docs
+   ```
+
+   (One line, no backslash continuations — a `\` at the end of a line is a
+   pwsh parse error, which is why every long command in this document is
+   single-line. `.claude/settings.json` is deliberately absent from it: the
+   `git add -f` earlier in this step already staged that file, and naming it
+   again without `-f` exits 1 with the ignored-paths signature from failure
+   mode 2 below.)
+
+   Add the file your gate payload actually lives in, wherever that is. If you
+   would rather keep the printed line, `git stash push -- src tests` first,
+   commit, then `git stash pop` — and take a backup of the diff before you do,
+   because a stash you cannot find is the same as work you deleted.
+2. **`git add .claude` fails when that directory is ignored, and this failure
+   is not atomic.** The signature is `The following paths are ignored by one of
+   your .gitignore files: .claude` — **not** `fatal: pathspec` — and the exit
+   code is 1. Measured on git 2.54: **every other path on the line is staged
+   anyway**, work in progress included, and only the commit is skipped, because
+   `&&` sees the non-zero exit. So the run after it repeats the pre-commit red
+   and looks like the commit simply did not help, while the index is quietly
+   holding your unfinished work ready for the next `git commit` anyone types.
+   The missing-path failure the paragraph above describes behaves differently —
+   `fatal: pathspec … did not match any files`, exit 128, index untouched —
+   which is why the two are worth telling apart. **Run `git status` after any
+   failed add**, and `git reset` if the index is holding something you did not
+   mean to stage. Fix the cause the way this step's `.gitignore` paragraph says
+   — `git add -f .claude/settings.json` — and then **keep the `-f`, or drop the
+   path from the line entirely.** Measured on git 2.54: while the `.claude/`
+   rule stands, *any* add naming a path under it fails the same way, the
+   directory and the exact already-tracked file alike, even when that file is
+   committed and unchanged. Force-tracking makes the file tracked; it does not
+   make `git add` stop objecting. Once it is committed, the simplest line is
+   one that does not name it at all — `git status` will tell you if it ever
+   needs re-staging, and `git add -f` is the way to do that.
 
 **Checkpoints — read the VERDICT WORD, never `$?` alone.** This kit judges runs
 by their output line rather than by exit codes, and its own documentation has to
@@ -566,11 +881,53 @@ which are opposite kinds of news):
   skipped Step 3**: go back and fill one worksheet page before you certify a
   gate whose oracle nobody wrote.
 - After committing, the run prints **`VERIFY: PASS`** — provided the commit
-  staged **every** new file, your Step-3 gate payload included. **If you see the
-  previous run's `VERIFY: FAIL … RED: judges` line again, the commit did not
-  run.** The two states print the same string, so the run cannot tell them
-  apart: check `git log` for the commit, and scroll up for a `fatal: pathspec`
-  line from `git add`.
+  staged **every** new file, your Step-3 gate payload included, **and nothing
+  else inside `CERT_PATHS` is uncommitted.** **If you see the previous run's
+  `VERIFY: FAIL … RED: judges` line again, the commit did not run.** The two
+  states print the same string, so the run cannot tell them apart: check
+  `git log` for the commit, and scroll up for the line `git add` printed.
+  **There are two failure signatures, not one, and they do different things to
+  your index** — `fatal: pathspec '<path>' did not match any files` when a
+  named path does not exist, which exits 128 and stages nothing; and `The
+  following paths are ignored by one of your .gitignore files: <path>` when the
+  path exists but an ignore rule covers it, which is what an existing
+  repository with a `.claude/` rule gets, exits 1, and **stages every other
+  path on the line anyway**. Both make `&&` skip the commit. After the second
+  one, run `git status` and `git reset` before you do anything else.
+- **If the commit ran and `RED: judges` names a file that is legitimately
+  unfinished, you have hit the work-in-progress case, and it is normal.** See
+  the note below.
+
+**Certification is a property of a tree, and a tree with unfinished work in it
+does not certify.** If `CERT_PATHS` names `src` and you have a half-written
+feature in `src/`, this checkpoint reads
+`VERIFY: FAIL (exit 1) — … — RED: judges` with `THE CERTIFIED TREE is NOT
+COMMITTED` naming your own file. **The runner is right and your repository is
+not broken.** This document's checkpoints are written for a tree whose only
+uncommitted content is the kit's, which is true of a new project and false of
+almost every existing one.
+
+The sanctioned route is **back up, stash, certify, restore** — never commit
+unfinished work to manufacture a green:
+
+```bash
+git diff > /path/outside/this/repo/wip.patch   # backup 1, and note its sha256
+git stash push -m "wip: certifying"            # backup 2
+python tools/verify.py                         # the certifying run
+git stash pop
+```
+
+Take both backups. A stash is a real object and `git stash pop` restores it,
+but "I stashed it" is a claim you want a second copy behind, and comparing the
+file's sha256 before and after is how you know the restore was byte-identical
+rather than nearly so. One reading before you panic at a mismatch: on Windows
+with `core.autocrlf=true` (the Git-for-Windows default), a stash cycle can
+renormalise line endings, so the sha differs while the work is intact — check
+`git diff` before concluding anything was lost, and see the Windows note near
+the top of this document; a `.gitattributes` prevents the renormalisation. **Record both states, not only the flattering one:** the
+green is what the tree certifies as, and the red with your work on disk is what
+the tree is most of the time. Neither is the wrong answer, and a project that
+reports only the first has learned to stash before it looks.
 
 Note the commit line stages **named paths**, not everything. You installed a
 gate one screen ago that denies blanket adds; this document will not teach you
@@ -617,12 +974,42 @@ what stops it being one forgotten revert away from becoming permanent.
 ## Step 6 — Standing rules, and prove the hook (8 min)
 
 ```bash
+# the first line is the NEW-FILE route. If you ALREADY HAVE a CLAUDE.md, do
+# not run it - read the merge instruction below instead.
 cp /path/to/kit/modules/01-governance/CLAUDE.md.template ./CLAUDE.md
 cp /path/to/kit/tools/deident_scan.py                    tools/
 ```
 
 (The hook, the fixture harness and `.claude/settings.json` are already in place
 from Step 4. `deident_scan.py` comes along now so Step 9 runs from your repo.)
+
+**If this repository already has a `CLAUDE.md`, that first line destroys it.**
+`cp` overwrites without asking, with no backup and no warning, and what it
+overwrites is the file your agents have been reading — often the only written
+record of rules somebody added one incident at a time. There is no version of
+this step where you run it as printed. Two routes:
+
+- **Render, then merge by hand.** `python /path/to/kit/tools/kit_render.py
+  --target .` writes `CLAUDE.md.kit-new` beside your file and prints a diff
+  against it; nothing is overwritten. Then build the merged file: **kit rules as
+  the base, your existing rules preserved verbatim under a marked heading of
+  their own**, and the three edits this step asks for applied to the result.
+- **Merge from the template directly**, if you would rather not run the tool:
+  open `modules/01-governance/CLAUDE.md.template`, copy its body under your
+  existing rules or your rules under it, and substitute the slots as below.
+
+Preserve your rules **verbatim** either way, and put them under a heading that
+says whose they are. Two things follow from that: nobody later has to guess
+which rules the kit brought and which the project earned, and a rule you wrote
+because something went wrong survives an adoption that was supposed to be
+additive. **Then read your own rules against the kit's** — where the two say
+the same thing, keep one; where they conflict, that is a decision to make now
+and write down, not a duplicate to leave standing.
+
+**The kit ships no merge tool for this file** and none of its checks can tell a
+merged rules file from a clobbered one: an overwritten `CLAUDE.md` passes every
+check in this document, up to and including `VERIFY: PASS`. The `git diff` you
+run before the Step 9 commit is the only thing that will show you.
 
 **Now that the file exists, put it on the judge surface.** Add
 `tools/deident_scan.py` to `JUDGE_PATHS` in **both** places Step 4 had you keep
@@ -655,6 +1042,11 @@ people learn to skim, and a skimmed rules file is worse than a short one.
 > with a `SLOTS:` line listing the tokens it uses. That line is an *inventory*,
 > not content — a blind find-and-replace turns it into an unreadable list of
 > your own paths. Delete the whole header block once you have used it.
+
+**Coming from `LEVEL-1.md`?** `CLAUDE.md` is already installed and rendered and
+the `KNOWLEDGE_DIR` decision below is already made and recorded; read the rest
+of this step for the half Level 1 has no use for — the scanner's `JUDGE_PATHS`
+entry above, and the hook proof at the checkpoint.
 
 **`KNOWLEDGE_DIR` is a decision, not a fill-in — make it here.** It names where
 durable knowledge lives **outside** the repo: the notes system, wiki or vault
@@ -759,7 +1151,10 @@ Select-String -Path CLAUDE.md -Pattern '\{\{|DELETE THIS COMMENT BLOCK'
   rules file are different artefacts, and an unrendered rules file passes every
   other check in this document, up to and including `VERIFY: PASS` and a clean
   de-identification scan. This is the one document re-read at the top of every
-  session; nothing downstream inspects it.
+  session, and nothing downstream in this document inspects it. (One tool
+  outside this flow does: `kit_doctor.py --level1` names a surviving slot or
+  header block in `CLAUDE.md` — see Step 7. It is optional here, and it runs no
+  gate.)
 
 Three separate claims, and you need all three: fixtures prove what the hook
 *decides*; `--armed` proves it is **wired at every enforcement point to a
@@ -779,7 +1174,8 @@ harness honours the settings file at all; for that, watch one real call.
 
 ```bash
 mkdir -p docs/reports
-cp /path/to/kit/modules/04-ledgers/JUDGMENT-LEDGER.md docs/
+# JUDGMENT-LEDGER.md is already in docs/ - Step 4 copied it, because the
+# runner's escapes gate reads it. These are the other three.
 cp /path/to/kit/modules/04-ledgers/FAILURE-FLOOR.md   docs/
 cp /path/to/kit/modules/04-ledgers/LESSONS.md         docs/
 cp /path/to/kit/modules/04-ledgers/TOKEN-LEDGER.md    docs/
@@ -797,8 +1193,10 @@ directory-listing table for the new leaf the first time — that is success, not
 an error — and reports `already exists` on any re-run. Expected and harmless;
 see the Shell section.)
 
-Four files, **named explicitly**. Do not glob that directory — it also contains
-its own `README.md`, and the glob will silently overwrite `docs/README.md`.
+**Four ledgers in `docs/` when this step is done** — the three copied here and
+the judgment ledger Step 4 landed. **Named explicitly**, all of them: do not
+glob that directory — it also contains its own `README.md`, and the glob will
+silently overwrite `docs/README.md`.
 
 **Then substitute their slots and delete their header blocks.** All four ship
 as skeletons: a `SKELETON - ... Delete this block on adoption` comment opening
@@ -839,17 +1237,43 @@ belong in that file at done, because it registers keys for modules you have not
 adopted yet. Step 1's "which shipped values legitimately survive" list is the
 answer there.
 
-**No shipped tool checks your tree for them.** `adoption_smoke.py` phase 9 does
+**One shipped tool checks your tree for them, and it is not part of this
+document's flow.** `python /path/to/kit/tools/kit_doctor.py --root . --level1`
+reads the four ledgers, the profile and `CLAUDE.md` in *your* repository and
+names three of the things this checkpoint asks about: a surviving slot, a
+template header block, and a shipped example value of the families the kit's
+shared rule carries — `your-…`, `/abs/path/to/…`, `Example Project`,
+`https://example.invalid` — with `RATIO_CEILING` exempted by name. **It does
+not read the `<paste …>` or `NONE` families**, so it is narrower than the
+clause above rather than equivalent to it. It is the Level-1 path's check
+(`LEVEL-1.md`), it runs no gate, and it writes nothing. Use it here if you want
+most of the checkpoint mechanised; the `grep`/`Select-String` line below
+remains the one this document requires.
+
+**The same tool without `--level1` runs a different set — twelve checks over a
+Level-2 tree** — and two of them are worth knowing about before they surprise
+you. `doctor:vacuous-gate` asks for a `docs/ORACLE-<gate>.md` page for **every**
+gate, the three the kit ships included, so a tree that followed this document
+exactly reports ATTENTION on `judges`, `hooks` and `escapes`; Step 3 says what
+your three honest answers are. `doctor:version` reads the `VERSION` file Step 4
+copied and compares it against the tools' own version, which is how a repo
+running newer `tools/` against a stale stamp gets found. The verdict word is
+`HEALTHY` or `ATTENTION`, never `PASS`: the doctor diagnoses, and
+`python tools/verify.py` is still the only thing that certifies.
+
+**No tool in this document's own flow checks your tree for them.**
+`adoption_smoke.py` phase 9 does
 assert that a rendered rules file and a rendered collaboration profile carry no
 unfilled slot and no shipped placeholder value — but it renders those copies
 into a throwaway scaffold of its own and never reads your repository. (If you
-took Step 4's optional render path, `kit_render.py` names every slot it could
+took Step 4's render path, `kit_render.py` names every slot it could
 not fill in the seven files *it* wrote, and treats a shipped placeholder value
 as unfilled — with the one exception named just above, `RATIO_CEILING`, which
 it substitutes as shipped. It says nothing about a file you rendered by hand.)
-The check
-that covers *your* tree is the
-`grep`/`Select-String` line in Step 6's checkpoint. Point it at `docs/*.md`,
+The check this document
+*requires* over *your* tree is the
+`grep`/`Select-String` line in Step 6's checkpoint (the `--level1` run above is
+optional, and narrower). Point it at `docs/*.md`,
 with `SKELETON` in place of `DELETE THIS COMMENT BLOCK` — that is the word the
 ledger headers use — and it covers this step's checkpoint too. It does **not**
 cover the profile Step 8 creates: that template's header uses a different word,
@@ -871,6 +1295,12 @@ appears in that output either way.
   to yourself; it is the constraint you will otherwise discover by violating
   it.
 
+**Coming from `LEVEL-1.md`?** The profile is already installed and rendered,
+and its `INTERVIEW:` line already states which of the three states holds. If it
+says `held`, this step is done. If it says `scheduled` or `not yet held`, that
+is unfinished business with the owner, not a blocker for the rest of this
+document.
+
 Open `modules/08-collaboration/SEED-INTERVIEW.md`, ask the five questions,
 capture verbatim, then fill in your own copy of the profile template:
 
@@ -887,7 +1317,11 @@ document gets, in this order:**
    answers to one question. The slot sits in the template's header comment, in
    the sentence that tells you which copy is source of truth — substitute
    first, so you read that sentence as an instruction about *your* tree rather
-   than deleting the decision unread.
+   than deleting the decision unread. **If you took Step 4's render route, that
+   header is already gone** — the tool strips it, so there is no slot here to
+   substitute and the decision it carries was removed before you arrived. Open
+   `modules/08-collaboration/PROFILE-TEMPLATE.md` in the kit, read the header
+   block, and carry out instruction 3 below with what it says.
 2. **Delete the template's header block** once you have acted on it: the
    `<!-- … -->` comment that opens `TEMPLATE - the living collaboration
    profile` and ends `Delete this comment on adoption`. Its marker words are
@@ -938,6 +1372,10 @@ Select-String -Path docs/collaboration-profile.md -Pattern '\{\{|Delete this com
 
 **First, commit what Steps 6, 7 and 8 created.** The scan below runs
 `--tracked-only`, and the last commit this document asked for was Step 4's.
+(Coming from `LEVEL-1.md`, the documents are already tracked from that path's
+own commit. `git add` on an unchanged tracked path is a no-op, so the line
+below is still the right line to run — what it picks up is this document's
+edits to them.)
 Everything since — `CLAUDE.md`, the four ledgers, the scanner itself, and above
 all `docs/collaboration-profile.md`, the file you have just filled with a
 person's verbatim words — is untracked, and untracked means unscanned. A green
@@ -946,8 +1384,8 @@ scan over a tree that does.
 
 ```bash
 # RUN `git status` FIRST: `docs` is a DIRECTORY pathspec. On a tree that holds
-# unrelated uncommitted work it stages that work into this commit too. Stash or
-# exclude what is not the kit's.
+# unrelated uncommitted work it stages that work into this commit too. Stash it,
+# or name the files - the same edit Step 4's commit line needed.
 git add CLAUDE.md tools/deident_scan.py tools/verify.py docs kit.config && git commit -m "standing rules, ledgers, profile"
 ```
 
@@ -1033,12 +1471,36 @@ a walk on a path containing the token twice reported eight. The number is
 arithmetic about your directory layout, not a property of the scan, and no
 value of it is wrong by itself.
 
-The diagnostic that *is* worth acting on: **if a second tracked file hits, an
-absolute path has escaped into the committed half** — find it before you
-exclude anything. Nothing else should hit, because `PROJECT_ROOT`,
-`PROTECTED_PATH`, `STATUSLINE_CMD` — and `KNOWLEDGE_DIR` too, if Step 6 left you
-on the absolute-path branch — all live in the gitignored `kit.config.local`,
-which `--tracked-only` excludes.
+The diagnostic that *is* worth acting on: **if a second tracked file hits with
+a PATH, an absolute path has escaped into the committed half** — find it before
+you exclude anything. Nothing else should hit *with a path*, because
+`PROJECT_ROOT`, `PROTECTED_PATH`, `STATUSLINE_CMD` — and `KNOWLEDGE_DIR` too, if
+Step 6 left you on the absolute-path branch — all live in the gitignored
+`kit.config.local`, which `--tracked-only` excludes.
+
+**Your token list is not only paths, and the rest of it hits in different
+places.** The instruction above says to list your name, your username, machine
+path fragments and your employer, and only the middle two are path-shaped. A
+**name** hits wherever your name legitimately appears in a tracked file, and
+this document guarantees at least one such file:
+
+| File | Why it hits | Verdict |
+|---|---|---|
+| `.claude/settings.json` | username inside the absolute paths | expected, documented above |
+| `docs/collaboration-profile.md` | **your name** — Step 8 just had you write it, in the one artefact holding a person's verbatim words | expected by construction |
+| pre-existing package metadata — `pyproject.toml`, `package.json`, `AUTHORS`, a copyright line | author name and often an email, committed deliberately long before this adoption | expected on an existing project |
+
+So the budget is not a fixed number. **The rule is that every hit is reviewed
+and every hit is explained**, and the honest remediation is `--exclude` per
+reviewed file — the flag repeats, and the file list, not the count, is what you
+read. On a new project following this document exactly, the recommended branch
+lands at one exclusion and the tripwire-ON branch at two, which is what the
+paragraphs above describe. On an existing project, add one per file whose hit
+is your own already-published authorship. **What is still the escape** is a file
+you cannot account for: a tracked file carrying a path fragment you did not put
+there deliberately, or a name in a file that has no business holding one. And
+what remains forbidden on every branch is deleting a token from the list to
+make the number fall.
 
 **`CLAUDE.md` is the one documented second file, on two branches.** It
 interpolates `{{PROTECTED_PATH}}` into its protected-path section, so with the
@@ -1066,9 +1528,11 @@ parse error**. Double quotes rather than single so the same line works in
 both.) `--exclude` repeats, so on the tripwire-ON branch add
 `--exclude "CLAUDE.md"` to the same line.
 
-**Checkpoint:** `DEIDENT SCAN: 0 hits - exit 0`, reached by *excluding one
-reviewed file* — two on the tripwire-ON branch — not by deleting a token, and
-over a tracked scope that includes everything Steps 6 to 8 produced. (This exact sequence — the commit, the widened
+**Checkpoint:** `DEIDENT SCAN: 0 hits - exit 0`, reached by *excluding reviewed
+files* — one on the recommended branch, two on the tripwire-ON branch, plus one
+per pre-existing file whose hit you accounted for in the table above — not by
+deleting a token, and over a tracked scope that includes everything Steps 6 to 8
+produced. (This exact sequence — the commit, the widened
 scope, the real hit, the `--tracked-only` narrowing, and the exclusion reaching
 zero — is asserted by `adoption_smoke.py` phase 9, so the advice cannot silently
 stop working.)
@@ -1093,6 +1557,25 @@ of this step is what keeps the `judges` gate green over all of it. A
 This is the state the document is finished in: `VERIFY: PASS` and
 `DEIDENT SCAN: 0 hits`.
 
+**On a repository with unfinished work inside `CERT_PATHS`, this run is red and
+that is the correct answer.** It is the same case as Step 4's checkpoint: the
+runner prints `THE CERTIFIED TREE is NOT COMMITTED` and names your own
+in-progress file. Certification is a property of a tree, so a tree that
+contains work nobody has finished has not been certified — the alternative
+would be a green that means nothing. **Do not commit unfinished work to reach
+this line.** Use the stash cycle from Step 4, with both backups taken first,
+and read the result as two facts rather than one:
+
+- **with your work on disk:** `VERIFY: FAIL … RED: judges`, naming only your
+  own uncommitted file — the everyday state of a repository under active work,
+  and evidence that the gate sees what it claims to see;
+- **with your work stashed:** `VERIFY: PASS` — the state the tree certifies as,
+  and the one to quote when someone asks whether the adoption is finished.
+
+Both are true, and the document is finished when you have seen both. If the red
+names anything **other** than work you know about, that is a real finding: stage
+the file it names and re-run.
+
 ---
 
 ## Then, in the following week
@@ -1102,7 +1585,7 @@ This is the state the document is finished in: `VERIFY: PASS` and
 | Add CI (module 07) | The **first control your agents cannot edit**. Read `BRANCH-PROTECTION.md` and record honestly whether you have a gate or a tripwire. |
 | Add the status board (module 05) | Agent tiers become visible while a mistake is still happening rather than at the invoice. `tools/statusline.py` is the portable one. |
 | Add the sidequest skill (module 06) | The first real interruption is the one that loses your pending-decisions queue. |
-| Publish your first **escape rate** | Items a human found that an existing check should have caught. If it does not fall across rounds, the loop is witnessing, not learning. |
+| Publish your first **escape rate** | Items a human found that an existing check should have caught. Append the round to the escape-rate table in `docs/JUDGMENT-LEDGER.md`; `python tools/escape_rate.py` computes it, and the runner's `escapes` gate has been publishing `state NO-ROUNDS-RECORDED` on every certification until you do. If it does not fall across rounds, the loop is witnessing, not learning. |
 | Turn on the protected-path tripwire | Once you have something — a deployed build, a client export, production config — that must not move without a nod. |
 | Re-run `python tools/verify.py --selftest` after every change to the runner | This is the check that covers *your* runner, and the only one that does. Wire it into CI alongside the run itself. |
 | Re-run `python tools/adoption_smoke.py` **from the kit clone** after you pull a kit update | No step copies that script into your repo, so it does not run from there, and its paths are relative to the kit. Plain, it re-walks this document against the kit's own runner and tells you the documented path still works. `--runner <absolute path to your tools/verify.py>` points it at your copy instead — but only while that copy still carries the shipped `example_unit` and `example_lint` gates, because the scaffold adapts the runner by renaming them. Step 4 deletes them, so on a finished adoption `--runner` aborts with `could not repoint the unit gate`. That is a limit of the flag, not a fault in your runner. |
@@ -1120,6 +1603,10 @@ mechanical rather than editorial:
   ships a `hooks` gate naming `.claude/settings.json` and the startup assertion
   refuses to run over paths that are not there. Create it later and Steps 4 and
   5 abort. This ordering is load-bearing and is walked by the smoke.
+- **Step 4 also lands `docs/JUDGMENT-LEDGER.md`**, ahead of its three siblings,
+  for exactly the same reason: the runner's `escapes` gate names it. It is the
+  one Step 7 artefact that has to exist before the first certification run, and
+  the smoke asserts it is still there when Step 7 arrives.
 - **Step 5 immediately after Step 4**, because the cheapest moment to prove a
   gate can go red is the moment it first goes green.
 - **Steps 6 to 8 after the machinery**, because the rules file, the ledgers and
@@ -1135,6 +1622,7 @@ nothing first, promote a rule to a hook only after it has failed once, and add
 CI last because its value depends on everything else already existing. That is
 advice about which months to spend. The nine steps above are an ordering by
 *dependency* — what must exist before the next command can run — which is why
-the runner and the enforcement files land at Step 4 and the ledgers at Step 7.
+the runner, the enforcement files and the one ledger the runner reads land at
+Step 4, and the other three ledgers at Step 7.
 Take the levels as the adoption plan; take the steps as the sequence for the
 session you are in now.

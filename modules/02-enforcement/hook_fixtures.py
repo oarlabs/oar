@@ -363,8 +363,8 @@ def fixtures() -> list[tuple]:
          None),
 
         # ---- THE MEASURED BYPASSES -------------------------------------
-        # Three independent readers of the shipped kit found the same class in
-        # one afternoon: the ban was a regex anchored at `^` or after `;&|`,
+        # Three independent persona reads of the shipped kit found the same
+        # class in one afternoon: the ban was a regex anchored at `^` or after `;&|`,
         # matching only `-A`, `--all` and `.`. Every fixture below walked past
         # it and left the run green. One fixture per measured form, because a
         # single fixture covering several would not say WHICH one regressed.
@@ -441,8 +441,8 @@ def fixtures() -> list[tuple]:
                "blanket add WOULD take; denying it blocks the remedy", None),
 
         # ---- THE SECOND ROUND OF MEASURED BYPASSES ---------------------
-        # Found by one reviewer in one session AFTER three readers had already
-        # been through this rule. Each is a distinct alternation branch, so one
+        # Found by one reviewer in one session AFTER three persona reads had
+        # already been through this rule. Each is a distinct alternation branch, so one
         # fixture each: a shared fixture would not say which branch regressed.
         ("ag", "Bash: `git add \"-A\"` (the quoted flag)", {"deny"},
          {"tool_name": "Bash", "tool_input": {"command": "git add \"-A\""}},

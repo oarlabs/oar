@@ -291,6 +291,21 @@ STATUS_BOARD_LINE_FILE = /abs/path/to/statusboard.txt
 # them. Used only to render "who is flying". Set to NONE to drop the segment.
 AGENT_TRANSCRIPT_DIR = NONE
 
+# The escape-rate segment: OPT-IN, and NONE by default.
+#
+# Name the ledger that carries your escape-rate table - the same file module
+# 03's `escapes` gate reads - and the board renders the rate `escape_rate.py`
+# computes from it, plus one tick per round scaled against the ceiling. Leave
+# it NONE and the segment does not exist: no marker, no file read, not even the
+# import of the tool. Module 05's README explains why this one is offered
+# rather than switched on, and what the board shows when the ledger aborts.
+#
+# Repo-relative resolves against PROJECT_ROOT, not the working directory. The
+# board needs `escape_rate.py` beside it in `tools/`, or the kit's own
+# `modules/04-ledgers/` layout; if it finds neither, the segment says
+# UNAVAILABLE rather than disappearing.
+STATUS_ESCAPE_LEDGER = NONE
+
 
 # --------------------------------------------------------------------------
 # 6. CI

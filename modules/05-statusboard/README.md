@@ -121,6 +121,7 @@ before you have configured anything:
 | `STATUS_CLEAR_MARK_PCT` | `75` | where the clear mark sits |
 | `STATUS_BOARD_LINE_FILE` | `NONE` | optional hand-maintained stage line |
 | `AGENT_TRANSCRIPT_DIR` | `NONE` | harness-specific; `NONE` drops the live-agent segment |
+| `STATUS_ESCAPE_LEDGER` | `NONE` | opt-in escape-rate segment; see below |
 | `PROJECT_ROOT` | *(empty)* | see below |
 
 ### `PROJECT_ROOT` must be absolute — or the board says so out loud
@@ -134,6 +135,75 @@ So the portable board resolves the root as: absolute `PROJECT_ROOT` → nearest
 `.git` ancestor → give up **and print a visible amber warning segment**. It
 never simply drops the banner. Set an absolute `PROJECT_ROOT` in
 `kit.config.local` and the question never arises.
+
+### The escape-rate segment — opt-in, and off until you name a ledger
+
+**The portable Python board only.** `statusline.ps1.template` does not carry
+this segment. The "one contract" both implementations satisfy is `CONTRACT.md`,
+the `sidequest.json` file contract, which is untouched and unaffected either
+way — but a reader should not have to work that out, so it is stated here and
+in the root README's module row.
+
+Set `STATUS_ESCAPE_LEDGER` to the ledger carrying your escape-rate table — the
+same file module 03's `escapes` gate reads — and the board grows one segment:
+
+```
+esc 19.3% █▄▄▇▃▄▁▁█▄█▁▃ +1 uncounted RISING
+```
+
+The percentage is the overall rate. Each tick is one counted round, oldest
+first, **scaled against the ceiling**: a round at or over the ceiling is a full
+tick, and the last sixteen rounds are drawn. Scaling to the ceiling rather than
+to the highest round in the series is deliberate — series-relative scaling makes
+1%, 2%, 1% look like a mountain range and makes every project's picture look
+equally dramatic, while the ceiling is the line the number is actually judged
+against.
+
+**This module's own advice is "resist adding segments", and it still stands.**
+That is why this one is off by default. An adopter who never names a ledger
+pays nothing: no segment, no marker, no file read, not even the import of the
+tool. The argument for offering it at all is that the escape rate is the one
+project number whose *trend* is the signal — a rate that stops falling means
+the loop is witnessing rather than learning — and a trend nobody looks at
+between certifications is a trend nobody acts on.
+
+**The numbers are not computed here.** The board imports
+`modules/04-ledgers/escape_rate.py` and calls it. A ledger parser living in the
+status board would be a second reader of one table, drifting from the tool the
+gate runs, and the two would publish different numbers from the same file with
+both runs green. The board looks for the tool beside itself in `tools/` first,
+then in the kit's `modules/04-ledgers/` layout.
+
+| Situation | Segment |
+|---|---|
+| `STATUS_ESCAPE_LEDGER` unset | **Nothing at all.** The one state that asserts nothing, so it is the one state allowed to be silent. |
+| Configured, `escape_rate.py` not found | `esc UNAVAILABLE (escape_rate.py not found)` on amber — the wiring is wrong, not the project. |
+| Ledger missing, unreadable, or malformed | `esc LEDGER ABORT: <the tool's own sentence>` on the loud red field. **Never dropped** — an aborting instrument that renders as no segment reads as a good score. |
+| No rounds recorded yet | `esc NO-ROUNDS-RECORDED` — the tool's state word, verbatim. **Never `esc 0.0%`**, which is the same flattering lie the tool's exit-code contract exists to prevent. |
+| Measured | the rate, the sparkline, `+N uncounted` when rounds were excluded from the denominator, and `RISING` (amber) or `OVER` (red) when either applies. |
+
+**Cost, measured rather than assumed.** On the kit's own 1071-line ledger,
+averaged over 20 renders: **5.8 ms one-off to import the tool, 1.4 ms per
+render to read and parse**. A whole render is about 54 ms with the segment on
+against about 45 ms with it off — the difference is the segment, on a render
+dominated by the `git` subprocess. With the key unset nothing is read and the
+tool is never imported.
+
+**There is no cache**, and adding one would not help: the harness starts a
+fresh process per render, so an in-memory cache would never hit, and a cache
+*file* would break a load-bearing property of this module — the board reads
+state and writes none.
+
+**The tick characters are derived, not hard-coded.** A pipe gets the block
+ramp: `main()` reconfigures the stream to UTF-8 before writing, and the reader
+decodes it. A *console* is asked whether its own code page can carry the blocks,
+and gets an eight-step ASCII ramp (`_.:-=+*#`) when it cannot. The operating
+system is not consulted, because it is the wrong question in both directions —
+a Windows terminal set to UTF-8 draws the blocks, and a POSIX host under
+`LANG=C` does not. Residual, stated: a console that misreports its code page is
+not visible from inside the process, and the board's other segments draw block
+and box characters unconditionally — that predates this segment and is
+unchanged by it.
 
 ## What the board is for
 
@@ -186,11 +256,15 @@ prints each banner so you can see it.
 ## The one design rule
 
 **Every segment is guarded.** A missing field, an unreadable file, an absent git
-repo: the segment disappears and the board still renders. Two deliberate
-exceptions, both for the same reason — silence would assert something false:
+repo: the segment disappears and the board still renders. The exceptions are the
+segments where silence would assert something false:
 
 - a corrupt sidequest flag renders a loud `SIDEQUEST (state file unreadable)`;
-- an unresolvable `PROJECT_ROOT` renders a loud warning segment.
+- an unresolvable `PROJECT_ROOT` renders a loud warning segment;
+- a missing or misnamed context key renders `ctx ?`;
+- a configured escape-rate ledger that cannot be read or parsed renders the
+  abort. With no ledger configured the segment does not exist, which is the one
+  state that asserts nothing.
 
 ## File contract with other modules
 
@@ -203,6 +277,10 @@ exceptions, both for the same reason — silence would assert something false:
   certification becomes impossible until the quest closes. Add the ignore rule
   at the same moment you adopt either module. `CONTRACT.md` states the same
   coupling from the other side.
+- **→ 04-ledgers, and only when you opt in.** Setting `STATUS_ESCAPE_LEDGER`
+  makes the board import `escape_rate.py` and render its numbers. The board
+  never parses the ledger itself; if the tool is not present the segment says
+  `UNAVAILABLE`. Leave the key `NONE` and the two modules do not touch.
 - **← 02-enforcement.** Its `settings.json.template` carries a `statusLine`
   block for convenience. If you skipped module 02, use the inlined JSON above —
   you do not need that template.
@@ -213,7 +291,8 @@ exceptions, both for the same reason — silence would assert something false:
 
 Nothing. Without module 06 the sidequest banner never appears (or you write the
 flag by hand). Without module 02 you paste the `statusLine` JSON above yourself.
-The board reads state; it never writes any.
+Without module 04 you leave `STATUS_ESCAPE_LEDGER` at `NONE` and that segment
+never exists. The board reads state; it never writes any.
 
 ## Adaptation notes
 

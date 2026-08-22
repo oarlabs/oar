@@ -10,6 +10,10 @@ the checks that command runs when nothing comes free.
 | `verify.py` | The certification runner **skeleton**. Runs as shipped. Gate table with required-line judging, `expect_min` floors, ceilings, component-line assertions, the four-verdict exit contract, a `judges` (judge-paths-clean) gate, a `hooks` gate that certifies the enforcement layer, repo-root discovery plus a **startup assertion**, the `--nc` negative-control facility, and a `--selftest` that judges the judges. |
 | `examples/fake_suite.py` | Example gate payload — a toy test suite. Shows the required-line shape, the failure shape, and the subset-honesty suffix. Replace it. |
 | `examples/fake_lint.py` | Example gate payload — a toy linter. Shows a component line, a ratified-warning ceiling, and a FAIL count inside the required line. Replace it. |
+| `gate_line.py` | The suite adapter. Turns a real test runner's output into the one required line this runner judges, and refuses to be green over a collapsed collection. **Proven for pytest** against six golden fixtures captured from real runs; every other runner is labelled UNPROVEN by the tool itself. |
+| `GATE-LINE.md` | The page for the above: the trap, the line, the veto vocabulary, how to size the floor, and what is not proven. |
+| `examples/pytest_suites/` | The six fixture suites `gate_line.py --capture-golden` runs for real — all pass, pass with skips, failures, errors, a collapsed collection, a deselected subset. |
+| `examples/pytest-golden.json` | What pytest actually reported for those six, captured and committed. `gate_line.py --selftest` replays it. |
 | `ORACLE-WORKSHEET.md` | How to manufacture a check when no oracle comes free: five shapes, a per-check worksheet, five laws, the continuity gate, and the escape rate. |
 
 ## Adopt it — the commands, in a working order
@@ -25,15 +29,20 @@ mkdir -p .claude
 cp /path/to/kit/modules/03-verification/verify.py         tools/verify.py
 cp /path/to/kit/modules/02-enforcement/hook_model_gate.py tools/   # module 02 only
 cp /path/to/kit/modules/02-enforcement/hook_fixtures.py   tools/   # module 02 only
+cp /path/to/kit/modules/04-ledgers/escape_rate.py         tools/   # module 04 only
+mkdir -p docs
+cp /path/to/kit/modules/04-ledgers/JUDGMENT-LEDGER.md     docs/    # module 04 only
 cp /path/to/kit/kit.config.example                        kit.config
 # substitute the kit's modules/02-enforcement/settings.json.template
 # into .claude/settings.json           (module 02 only)
 python tools/verify.py --list
 ```
 
-**No module 02?** Then skip the two `hook_*` copies and the settings file, and
-do Step 0 of *Adapting it* below first — the shipped `RUN_ORDER` names a gate
-that needs them, and the startup assertion will refuse to start without them.
+**No module 02, or no module 04?** Then do Step 0 of *Adapting it* below
+first — the shipped `RUN_ORDER` names one gate that needs module 02's files
+and one that needs module 04's, and the startup assertion will refuse to start
+without them. Without module 02, skip the two `hook_*` copies and the settings
+file; without module 04, skip `escape_rate.py` and the judgment ledger.
 
 `git init` is listed because it is genuinely load-bearing rather than assumed:
 outside a work tree `git status` exits 128 with empty output, which is
@@ -169,8 +178,8 @@ day you have one real gate in it.
 `git status` outside a work tree exits 128 with *empty stdout*, and an empty
 porcelain is exactly how "clean" is spelled — a runner that reads only stdout
 will print `VERIFY: PASS (exit 0) — judges clean` over a directory git has
-never seen. (An early version of this runner did exactly that; an independent
-adopter found it, and nothing in the kit's own suite could have.) The runner
+never seen. (An early version of this runner did exactly that; an
+adoption walk found it, and nothing in the kit's own suite could have.) The runner
 now guards against it three times over:
 
 - the startup assertion **refuses to run** (exit 2) when a git-dependent gate is
@@ -191,21 +200,35 @@ and the third catches "git broke just now".
 
 ## Adapting it
 
-**Step 0 — did you adopt module 02?**
+**Step 0 — did you adopt modules 02 and 04?**
 
-If **no**: delete the `hooks` entry from `GATES`, delete `"hooks"` from
-`RUN_ORDER`, and delete the `HOOK_FIXTURES` and `HOOK_SETTINGS` constants. That
-gate names files that ship with the enforcement module, and the startup
-assertion will correctly refuse to start without them — loud and honest, but
-blocking, and the checklist below used to walk you straight into it.
+Two shipped gates name files that belong to another module, and the startup
+assertion will correctly refuse to start over files you do not have — loud and
+honest, but blocking, and the checklist below used to walk you straight into it.
 
-`--skip hooks` also works but is the worse answer: a permanently skipped gate in
-`RUN_ORDER` means every run reports PARTIAL (exit 3) and **the project can never
-certify**. Delete it properly.
+If you did **not** adopt **module 02**: delete the `hooks` entry from `GATES`,
+delete `"hooks"` from `RUN_ORDER`, and delete the `HOOK_FIXTURES` and
+`HOOK_SETTINGS` constants. If you **did**: point those two constants at your
+copies and keep the gate. Certification then includes "the enforcement layer is
+armed and alive", which is the half everyone forgets.
 
-If **yes**: point `HOOK_FIXTURES` and `HOOK_SETTINGS` at your copies and keep
-the gate. Certification then includes "the enforcement layer is armed and
-alive", which is the half everyone forgets.
+If you did **not** adopt **module 04**: delete the `escapes` entry from
+`GATES`, delete `"escapes"` from `RUN_ORDER`, and delete the `ESCAPE_TOOL` and
+`ESCAPE_LEDGER` constants. If you **did**: point those two at
+`tools/escape_rate.py` and your judgment ledger, and keep the gate.
+Certification then publishes your **escape rate** — the share of findings an
+existing check should have caught — on every run, and holds the latest round to
+the ceiling written into the gate entry beside the other floors. Until your
+first round lands a row it prints `state NO-ROUNDS-RECORDED`, which is the true
+state of a new project rather than a zero. **If you change that ceiling, change
+`DEFAULT_CEILING` in `escape_rate.py` to match** — the tool's `--selftest`
+binds the two and goes red naming both. A gate and a hand run publishing
+different ceilings while both stay green is the two-authorities defect this kit
+keeps finding in itself, and it was measured here before it was closed.
+
+`--skip <gate>` also works but is the worse answer in both cases: a permanently
+skipped gate in `RUN_ORDER` means every run reports PARTIAL (exit 3) and **the
+project can never certify**. Delete it properly.
 
 1. Delete both example gates and their `examples/` payloads. Nothing in
    `--selftest` breaks — sections A/B are guarded and section F resolves a live

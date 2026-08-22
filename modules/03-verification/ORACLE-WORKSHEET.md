@@ -149,7 +149,9 @@ SHAPE                 golden | differential | record-replay | metamorphic |
 
 REQUIRED OUTPUT LINE  <the exact line a run prints when green - the line the
                       gate greps for. Write it now; if you cannot, you do not
-                      yet know what this check measures.>
+                      yet know what this check measures. It has a SHAPE, and
+                      the shape is what makes it judgeable: see the note under
+                      this worksheet.>
 
 THE FLOOR             <the minimum count the line must carry, and WHY that
                       number. "0 of 0 passed" is a well-formed success line.>
@@ -174,6 +176,33 @@ RISK                   reports a defect that falls in it, will this check be
                        COUNT never closes that; only asking "what surface is
                        this measuring?" does.>
 ```
+
+### The required output line has a shape, and it is written down
+
+The two fields above that a first-time author gets wrong are the line and the
+floor, and both have a contract: **`GATE-LINE.md`, in this directory.** Read it
+before you fill in `REQUIRED OUTPUT LINE`. In short:
+
+- **A self-consistent ratio, not a bare count.** `46 passed` is a numerator
+  with no denominator. A suite that has stopped collecting prints `3 passed`,
+  which is the same shape as a healthy three-test suite, so a gate that greps
+  for a bare count certifies a collapsed collection. Print both numbers, so the
+  gate's `require` pattern can assert *all of them* with a backreference
+  (`(\d+)/\1`) rather than *some of them*.
+- **A distinct failure line the `fail_pattern` can veto on**, in its own
+  vocabulary — the payload says out loud that something failed, errored, was
+  deselected or did not collect, rather than leaving the gate to infer it.
+- **A subset-honesty suffix.** A run that judged part of the subject must say
+  so in the line, or a narrowed run reads as a full green.
+- **A floor you measured.** `expect_min` is a collapse detector, not a coverage
+  target: size it above your largest single unit of the subject — the largest
+  test module, counted rather than estimated — so that losing any one unit reds
+  the gate.
+
+`GATE-LINE.md` also ships `gate_line.py`, which produces that line for a pytest
+suite and prints the `GATES` entry to go with it. **pytest is the only runner
+it is proven for**, and it says so on every run; for anything else the page is
+the contract you are implementing by hand.
 
 ---
 

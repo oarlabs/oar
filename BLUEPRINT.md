@@ -384,6 +384,14 @@ accordingly — this is a field-tested playbook with receipts, not a proven univ
   Honest caveat: those checks were authored from those findings; the measure is
   conversion completeness, and the predictive instrument is the trend from the next
   round on.
+- **The kit's own escape rate, computed rather than narrated:** 26 of 120 items
+  (21.7%) across 12 counted review rounds, with one round declared uncountable and
+  excluded by name. It does **not** fall monotonically: it spikes to 50.0% and 42.9% at
+  the two rounds where the kit had just built new machinery. Method, per-round table,
+  the disputable classification calls and the ceiling's derivation are in
+  `KNOWN-ISSUES.md` ("The kit's own numbers"); `modules/04-ledgers/escape_rate.py`
+  recomputes it from that table and CI recomputes it on both hosts on every push. This
+  is the kit turning its own headline instrument on itself, unflattering half included.
 - **Spec-side review, first use:** 3 blockers + 6 majors found pre-commit in a
   certification tool the implementer had honestly self-reported — including the classes
   "a partial run can be quoted as a pass" and "every count can shrink to zero and stay
@@ -410,5 +418,9 @@ accordingly — this is a field-tested playbook with receipts, not a proven univ
 
 **Known limits:** n=2 projects, one owner, one AI family; collaboration-layer evidence
 is n=1; portability demonstrated only by this kit's tested bootstrap in a scratch
-project, not yet by an independent adopter. The first independent adoption is the
+project, not yet by an independent adopter. **The adoption evidence is synthetic:**
+the seven walks behind this kit's own finding counts were performed by LLM personas,
+not by people, and no human has walked `QUICKSTART.md` end to end. The prompts are
+published under `docs/walks/` so the method can be read and re-run — that makes the
+study reproducible, not independent. The first independent adoption is the
 experiment; instrument it.

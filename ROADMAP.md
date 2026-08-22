@@ -7,13 +7,25 @@ kit is early, single-maintainer, and labeled that way throughout.
 ## Ready now
 
 - **Single-owner adoption**, Levels 1–3 as `README.md` describes them. This is
-  the configuration the reference build ran in and the adoption walks measured.
+  the configuration the reference build ran in and the LLM-persona adoption
+  walks measured.
 - The **verification layer** (module 03): one command, one exit code, negative
   controls, a dead-man clause, a self-test that judges the judges.
 - The **enforcement layer** (module 02) for one seat.
 - The **doctrine and ledger layers** (modules 01, 04, 08), which transfer to
   any stack, including projects with no AI at all.
 - `tools/kit_doctor.py`, `tools/kit_render.py`, CI on Linux and Windows.
+- The **escape-rate instrument** (`modules/04-ledgers/escape_rate.py`): the
+  headline metric computed from the judgment ledger's table, published as a
+  required output line, and enforced by the runner's `escapes` gate against a
+  derived ceiling. The kit's own number is published in `KNOWN-ISSUES.md`
+  ("The kit's own numbers") and recomputed on both CI hosts on every push. The
+  status board (module 05) renders the same instrument's number and a per-round
+  sparkline as an opt-in segment; it imports the tool rather than parsing the
+  ledger, so there is one authority for the number and not two.
+- The **Level-1 entry path** (`LEVEL-1.md`): documents only, reversible, no
+  settings file, ending in `kit_doctor.py --level1`. Its 30–45 minute figure is
+  a sum of per-step estimates and has not been measured on a real adoption.
 
 ## In active design — the team story
 
@@ -33,13 +45,16 @@ means this design landing.
 - A **measured existing-project adoption walk**. Today the existing-project
   integration cost is an estimate (3.5–5 hours); one measured walk replaces it
   with data.
-- A **published escape-rate number** for the kit's own review history,
-  computed by tooling rather than narrated.
-- A **human adoption walk** on record. All current adoption evidence is AI
-  agent personas, labeled as such; the protocol transfers to a human walk
+- A **human adoption walk** on record. All current adoption evidence comes from
+  LLM-persona adoption walks, labeled as such throughout and with their prompts
+  published under `docs/walks/`; the protocol transfers to a human walk
   unchanged.
-- **De-identified ledgers** (`judgments`, `escapes`, `tokens`) so a reader can
-  recompute the headline numbers, published with a dedicated review.
+- **De-identified ledgers** for `judgments` and `tokens`, so a reader can
+  recompute the remaining headline numbers, published with a dedicated review.
+  The `escapes` third of this is done and shipped — see Ready now. What is
+  still missing there is an *independent* classification: the kit's escape
+  table is the maintainer's reading of the maintainer's own register, with
+  each disputable call disclosed in place.
 
 ## Deliberately not shipped
 

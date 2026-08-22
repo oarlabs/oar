@@ -22,17 +22,25 @@ cannot have one of its six executables refuse to start on Linux.
 
 THE RULE THIS FILE IS BUILT ON
 ==============================
-**Every segment is guarded, with exactly one deliberate exception.** A missing
-field, an unreadable file, an absent git repo: the segment disappears and the
-board still renders. A status line that throws is a status line that gets
-removed within the day, and then you have no board at all.
+**Every segment is guarded, with deliberate exceptions.** A missing field, an
+unreadable file, an absent git repo: the segment disappears and the board still
+renders. A status line that throws is a status line that gets removed within
+the day, and then you have no board at all.
 
-The exception is the sidequest banner. A corrupt or unreadable flag file
-renders a LOUD "state file unreadable" banner, never silence - because silence
-there asserts "you are back on the main line", which would be a lie in exactly
-the situation where you most need the truth. The same reasoning applies to a
-`PROJECT_ROOT` this file cannot resolve: it says so on the board instead of
-dropping the banner and letting an open side quest go invisible.
+The exceptions are the segments whose SILENCE WOULD ASSERT SOMETHING FALSE, and
+there are four:
+
+  * the sidequest banner - a corrupt or unreadable flag file renders a LOUD
+    "state file unreadable" banner, because silence there asserts "you are back
+    on the main line";
+  * a `PROJECT_ROOT` this file cannot resolve - it says so on the board instead
+    of dropping the banner and letting an open side quest go invisible;
+  * the context bar - a missing or misnamed context key renders `ctx ?`, since
+    an absent bar reads as "plenty of room left";
+  * the escape-rate segment ONCE A LEDGER IS CONFIGURED - a missing tool, an
+    unreadable ledger or a malformed table is rendered, never dropped. With no
+    ledger configured the segment does not exist at all, which is the one state
+    that asserts nothing.
 
 CONFIG
 ======
@@ -54,6 +62,22 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 
+# THE CONSOLE'S OWN ANSWER, CAPTURED BEFORE main() OVERRIDES IT. `main()`
+# reconfigures stdout to utf-8/replace so that a pipe always receives valid
+# UTF-8; after that call `sys.stdout.encoding` says "utf-8" on every host and
+# has stopped being evidence about the terminal. This value is read at import,
+# which is before the override, so it is the interpreter's own reading of the
+# platform - and it is what the sparkline's tick set is derived from.
+STDOUT_ENCODING = getattr(sys.stdout, "encoding", "") or ""
+try:
+    # ...and whether anybody's CODE PAGE is in the way at all. A pipe carries
+    # whatever bytes are written to it and the reader decodes them - which is
+    # the harness case, and the harness reads UTF-8. Only a console has a code
+    # page that can refuse a glyph.
+    STDOUT_IS_CONSOLE = bool(sys.stdout.isatty())
+except Exception:
+    STDOUT_IS_CONSOLE = False
+
 # ---- IN-MODULE DEFAULTS. The board must render before anything is set up. --
 DEFAULTS = {
     "SIDEQUEST_FLAG": ".claude/sidequest.json",
@@ -62,10 +86,33 @@ DEFAULTS = {
     "STATUS_CLEAR_MARK_PCT": "75",
     "STATUS_BOARD_LINE_FILE": "NONE",
     "AGENT_TRANSCRIPT_DIR": "NONE",
+    "STATUS_ESCAPE_LEDGER": "NONE",
     "PROJECT_ROOT": "",
 }
 
 ESC = "\033"
+
+# ---- the escape-rate segment ---------------------------------------------
+# OPT-IN: `STATUS_ESCAPE_LEDGER` is NONE by default, and with it unset the
+# segment does not exist at all. Module 05's own README says "resist adding
+# segments", and that rule is right: every segment competes with the two facts
+# the board exists for. This one is offered rather than imposed, and an adopter
+# who never names a ledger pays nothing - not a marker, not a file read, not
+# even the import of the tool.
+SPARK_BLOCKS = "▁▂▃▄▅▆▇█"
+# The ASCII ramp, for a console whose encoding cannot carry the blocks. Eight
+# ticks, ascending ink, so the shape survives the substitution.
+SPARK_ASCII = "_.:-=+*#"
+# Most recent rounds drawn. Older ones are MARKED (a leading ellipsis), never
+# silently dropped - a shortened sparkline that looks like the whole history
+# is the same lie as a missing segment.
+SPARK_MAX = 16
+# Where the escape-rate tool lives, in order: beside this file (an adopter
+# copies the tools it uses into `tools/`), then the kit's own module layout.
+# The same two-candidate search `escape_rate.py` itself uses to find the verify
+# runner. Not configurable on purpose: one more path slot buys nothing an
+# adopter cannot get by putting the tool where the other tools are.
+ESCAPE_TOOL_CANDIDATES = ("escape_rate.py", "../modules/04-ledgers/escape_rate.py")
 
 
 def seg(style: str, text: str) -> str:
@@ -240,6 +287,155 @@ def context_bar(pct, tokens, cells: int, mark_pct: int) -> str:
     return out
 
 
+def tick_ramp(encoding: str) -> str:
+    """The tick set this stream can actually print. DERIVED, never hard-coded.
+
+    A block-drawing sparkline on a console running cp1252 or cp437 renders as a
+    row of `?`, which reads as data. The platform answer is therefore taken
+    FROM the platform - the stream's own encoding is asked whether it can carry
+    the blocks - rather than from a guess about which operating system tends to
+    have which console. `sys.platform == "win32"` would be wrong in both
+    directions: a Windows terminal set to UTF-8 draws the blocks fine, and a
+    POSIX host with LANG=C does not.
+
+    Pure: it takes the encoding NAME, so the fallback is testable without a
+    console. The name the board feeds it is `STDOUT_ENCODING`, captured at
+    import - BEFORE `main()` forces the stream to utf-8 - because after that
+    call every host reports "utf-8" and the question has no answer left.
+
+    THE RESIDUAL, STATED: this is the strongest signal available inside the
+    process, and it is not proof. A console lying about its code page, or one
+    reconfigured after the board starts, is not visible from here. It is also
+    narrower than the whole board: the other segments draw block and box
+    characters unconditionally, which predates this segment and is unchanged
+    by it. What this buys is that the one segment carrying a METRIC never
+    renders its number as a row of question marks."""
+    try:
+        SPARK_BLOCKS.encode(encoding or "ascii")
+    except (LookupError, UnicodeEncodeError, TypeError, ValueError):
+        return SPARK_ASCII
+    return SPARK_BLOCKS
+
+
+def ramp_for_stream(encoding: str, is_console: bool) -> str:
+    """The tick set for THIS stream. Pure, and the whole platform decision.
+
+    Two different questions, and conflating them gets one of them wrong:
+
+      * **A pipe** - the harness case - carries the bytes `main()` writes, and
+        `main()` reconfigures the stream to UTF-8 before writing any. The
+        reader decodes them. No code page is involved, so the blocks are safe
+        and dropping to ASCII there would degrade every board that never had a
+        problem.
+      * **A console** has a code page of its own, and a block character it
+        cannot represent is displayed as a question mark or a wrong glyph. That
+        is the LESSONS-64 case, and there the ASCII ramp is the true rendering.
+
+    Note which fact is NOT consulted: the operating system. `sys.platform ==
+    "win32"` is wrong in both directions - a Windows terminal set to UTF-8
+    draws the blocks, and a POSIX host under LANG=C does not."""
+    return tick_ramp(encoding) if is_console else SPARK_BLOCKS
+
+
+def ellipsis(ramp: str) -> str:
+    """The truncation mark, from the same decision that chose the ramp."""
+    return "…" if ramp == SPARK_BLOCKS else "..."
+
+
+def spark(rates, ceiling, ramp: str, cap: int = SPARK_MAX) -> tuple:
+    """(ticks, hidden_count) - the rounds as a sparkline, oldest first.
+
+    THE SCALE IS THE CEILING, not the highest round in the series. Scaling to
+    the series maximum makes 1%, 2%, 1% look like a mountain range and makes
+    every series look equally dramatic; scaling to the ceiling answers the
+    question the ceiling is there to ask - how close was each round to the
+    line - and keeps the picture comparable between one run and the next. A
+    round at or over the ceiling is a FULL tick; the exact number is in the
+    ledger, and the headline percentage is printed beside the sparkline.
+
+    A round of exactly zero gets the lowest tick; a round above zero never
+    does, however small. Those are different facts and the board must not
+    render them the same."""
+    try:
+        top = float(ceiling)
+    except (TypeError, ValueError):
+        top = 0.0
+    if top <= 0:
+        top = 100.0
+    seq = list(rates or [])
+    shown = seq[-cap:] if cap and len(seq) > cap else seq
+    out = ""
+    for v in shown:
+        try:
+            f = float(v)
+        except (TypeError, ValueError):
+            f = 0.0
+        if f <= 0:
+            idx = 0
+        else:
+            idx = max(1, min(len(ramp) - 1, int(f / top * len(ramp))))
+        out += ramp[idx]
+    return out, len(seq) - len(shown)
+
+
+def escape_text(kind: str, detail, ramp: str) -> tuple:
+    """(text, style) for the escape-rate segment, or None for 'no segment'.
+
+    NONE IS THE UNCONFIGURED CASE AND NOTHING ELSE. Once a ledger is named,
+    every outcome is a rendering: a tool that could not be found, a ledger that
+    aborted, a project with no rounds yet, a measured rate. The board never
+    drops a configured segment, for the same reason it never drops the context
+    bar - an absent number reads as a good one.
+
+    THE NUMBERS ARE NOT COMPUTED HERE. `detail` is the report dict from
+    `escape_rate.py`; this function formats it. A second ledger parser living
+    in the status board is precisely the two-authorities defect that tool's own
+    docstring calls this kit's oldest failure class."""
+    loud = "97;101;1"        # white on red
+    amber = "30;103;1"       # black on amber
+    if kind == "off":
+        return None
+    if kind == "unavailable":
+        # Configured, but the instrument is not here. Amber rather than red:
+        # nothing is wrong with the project, something is wrong with the
+        # wiring - and either way it is not silence.
+        return (" esc UNAVAILABLE (escape_rate.py not found) ", amber)
+    if kind == "abort":
+        d = " ".join(str(detail or "").split())
+        if len(d) > 60:
+            d = d[:59] + ellipsis(ramp)
+        return (f" esc LEDGER ABORT: {d} ", loud)
+
+    rep = detail if isinstance(detail, dict) else {}
+    state = str(rep.get("state") or "?")
+    if state != "MEASURED":
+        # THE STATE WORD, VERBATIM FROM THE TOOL, and never a zero. `esc 0.0%`
+        # for a project that has recorded no rounds is a flattering lie; the
+        # tool's own exit-code contract makes the same distinction and this
+        # segment carries it through unchanged.
+        return (f"esc {state}", "90")
+
+    ticks, hidden = spark([r.get("pct") for r in rep.get("per_round") or []],
+                          rep.get("ceiling_pct"), ramp)
+    if hidden:
+        ticks = ellipsis(ramp) + ticks
+    txt = f"esc {float(rep.get('rate_pct') or 0.0):.1f}% {ticks}"
+    unc = rep.get("rounds_uncounted") or 0
+    if unc:
+        # The tool prints this on every run, including the zero, because a
+        # field that only appears when it is interesting is a field whose
+        # absence nobody notices. On one line there is no room for the zero
+        # case, so the board prints it only when rounds actually left the
+        # denominator - which is the half that would otherwise overstate the
+        # coverage behind the number.
+        txt += f" +{unc} uncounted"
+    if rep.get("over_ceiling"):
+        return (txt + " OVER", "91;1")
+    if rep.get("trend") == "RISING":
+        return (txt + " RISING", "93")
+    return (txt, "90")
+
+
 def duration(ms) -> str:
     try:
         total = int(ms) // 1000
@@ -314,6 +510,83 @@ def live_agents(cfg: dict, session_id: str) -> list:
         return []
 
 
+def load_escape_tool(here: Path = HERE):
+    """`escape_rate.py` as a module, or None. The board's ONLY source of
+    escape-rate numbers.
+
+    Imported rather than run as a subprocess: a subprocess costs a whole
+    interpreter start on every render, and the board renders on every message.
+    Measured on the kit's own 1071-line ledger, 20 renders: import 5.8 ms
+    one-off, read and parse 1.4 ms per render. See module 05's README for why
+    there is no cache."""
+    import importlib.util
+    for cand in ESCAPE_TOOL_CANDIDATES:
+        p = here / cand
+        try:
+            if not p.is_file():
+                continue
+        except OSError:
+            continue
+        saved = sys.dont_write_bytecode
+        try:
+            # THE BOARD WRITES NO FILES. That is a load-bearing property of
+            # this module - it reads state and never produces any - and an
+            # ordinary import would drop a __pycache__ directory beside the
+            # tool on the first render.
+            sys.dont_write_bytecode = True
+            spec = importlib.util.spec_from_file_location(
+                "_oar_escape_rate", str(p))
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            # THE SURFACE THE BOARD USES, checked before it is used. An older
+            # copy of the tool sitting in an adopter's `tools/` imports
+            # perfectly and then fails on the first attribute; UNAVAILABLE is
+            # the honest reading of that, and it is a rendering rather than a
+            # traceback swallowed by the last-ditch guard.
+            if all(hasattr(mod, a) for a in
+                   ("read_ledger", "parse_rounds", "report", "DEFAULT_CEILING")):
+                return mod
+            return None
+        except Exception:
+            return None
+        finally:
+            sys.dont_write_bytecode = saved
+    return None
+
+
+def escape_state(cfg: dict, root: Path, tool=None) -> tuple:
+    """(kind, detail) - the board's read of the escape rate.
+
+    Every failure is a KIND that renders, never a dropped segment. `tool` is
+    injectable so the selftest can drive this without a search."""
+    led = cfg_get(cfg, "STATUS_ESCAPE_LEDGER")
+    if not led:
+        return "off", None
+    mod = tool if tool is not None else load_escape_tool()
+    if mod is None:
+        return "unavailable", None
+    p = Path(led)
+    if not p.is_absolute():
+        # Against the RESOLVED root, not the cwd. The harness does not promise
+        # a working directory, and a repo-relative ledger resolved against a
+        # foreign cwd is a silently missing file.
+        p = root / p
+    try:
+        text = mod.read_ledger(p)
+    except FileNotFoundError:
+        return "abort", f"no ledger at {p.as_posix()}"
+    except OSError as e:
+        return "abort", f"{p.as_posix()} could not be read: {e}"
+    try:
+        return "ok", mod.report(mod.parse_rounds(text), mod.DEFAULT_CEILING)
+    except Exception as e:
+        # Broad on purpose, and it does NOT swallow: a malformed ledger raises
+        # the tool's LedgerError and anything else means the tool's shape has
+        # moved under the board. Both end up on the board in red, which is the
+        # outcome this whole segment exists to guarantee.
+        return "abort", str(e) or e.__class__.__name__
+
+
 def _d(payload: dict, key: str) -> dict:
     """A sub-object, or an empty one. Harness payloads are somebody else's
     JSON: a field that is a string today can be a dict tomorrow and null the
@@ -322,7 +595,9 @@ def _d(payload: dict, key: str) -> dict:
     return v if isinstance(v, dict) else {}
 
 
-def render(payload: dict, cfg: dict, today: date) -> str:
+def render(payload: dict, cfg: dict, today: date, ramp: str = None) -> str:
+    if ramp is None:
+        ramp = ramp_for_stream(STDOUT_ENCODING, STDOUT_IS_CONSOLE)
     parts, extra = [], []
     root, root_problem = resolve_root(
         cfg.get("PROJECT_ROOT", ""), Path.cwd().resolve(),
@@ -393,6 +668,10 @@ def render(payload: dict, cfg: dict, today: date) -> str:
     gs = git_segment(root)
     if gs:
         parts.append(gs)
+
+    esc = escape_text(*escape_state(cfg, root), ramp=ramp)
+    if esc:
+        parts.append(seg(esc[1], esc[0]))
 
     board = cfg_get(cfg, "STATUS_BOARD_LINE_FILE")
     if board:
@@ -516,6 +795,286 @@ def selftest() -> int:
                                      "total_lines_added": "many"}},
                            dict(DEFAULTS), today), True)
     check("duration survives nonsense", duration("banana"), "")
+
+    print("\n=== the escape-rate segment: the ramp, DERIVED from the stream ===")
+    # FORCED RED for the encoding choice. A hard-coded block ramp renders as a
+    # row of `?` on a cp1252 console, which reads as data, and no check that
+    # only ever runs on a UTF-8 host would see it. The derivation is a pure
+    # function of the encoding NAME, so both answers are testable here.
+    check("a UTF-8 stream gets the block ramp", tick_ramp("utf-8"),
+          SPARK_BLOCKS)
+    check("FORCED RED: a cp1252 console CANNOT carry the blocks, so it gets "
+          "the ASCII ramp", tick_ramp("cp1252"), SPARK_ASCII)
+    check("...and neither can cp437", tick_ramp("cp437"), SPARK_ASCII)
+    check("...nor plain ascii", tick_ramp("ascii"), SPARK_ASCII)
+    check("an encoding name Python does not know falls back rather than "
+          "raising", tick_ramp("not-an-encoding"), SPARK_ASCII)
+    check("no encoding at all falls back too", tick_ramp(""), SPARK_ASCII)
+    check("CONTROL: the two ramps are different strings of the same length, "
+          "so the fallback is a substitution and not a shorter picture",
+          (SPARK_BLOCKS != SPARK_ASCII, len(SPARK_BLOCKS), len(SPARK_ASCII)),
+          (True, 8, 8))
+    check("the truncation mark follows the same decision",
+          (ellipsis(SPARK_BLOCKS), ellipsis(SPARK_ASCII)), ("…", "..."))
+    check("the board derives from a captured encoding, and captures it at "
+          "IMPORT - after main()'s reconfigure every host reports utf-8 and "
+          "the question has no answer left",
+          (isinstance(STDOUT_ENCODING, str),
+           isinstance(STDOUT_IS_CONSOLE, bool)), (True, True))
+    check("a PIPE gets the blocks whatever the locale says - main() writes "
+          "UTF-8 to it and the reader decodes; no code page is involved",
+          ramp_for_stream("cp1252", False), SPARK_BLOCKS)
+    check("FORCED RED: a CONSOLE on cp1252 gets ASCII - that is the one place "
+          "a code page can refuse the glyph",
+          ramp_for_stream("cp1252", True), SPARK_ASCII)
+    check("...and a console on UTF-8 keeps the blocks, so the fallback is not "
+          "a blanket punishment of one operating system",
+          ramp_for_stream("utf-8", True), SPARK_BLOCKS)
+
+    print("\n=== the sparkline: scaled to the CEILING ===")
+    check("one tick per round", len(spark([1, 2, 3, 4], 35.0, SPARK_BLOCKS)[0]),
+          4)
+    check("a round of exactly zero gets the lowest tick",
+          spark([0], 35.0, SPARK_BLOCKS)[0], SPARK_BLOCKS[0])
+    check("FORCED RED: a round ABOVE zero never gets the zero tick, however "
+          "small - 'no escapes' and 'almost none' are different facts",
+          spark([0.1], 35.0, SPARK_BLOCKS)[0] == SPARK_BLOCKS[0], False)
+    check("...it gets the tick above it", spark([0.1], 35.0, SPARK_BLOCKS)[0],
+          SPARK_BLOCKS[1])
+    check("a round AT the ceiling is a full tick",
+          spark([35.0], 35.0, SPARK_BLOCKS)[0], SPARK_BLOCKS[-1])
+    check("a round OVER the ceiling is clamped, not an index error",
+          spark([90.0], 35.0, SPARK_BLOCKS)[0], SPARK_BLOCKS[-1])
+    check("the band below the ceiling is not full",
+          spark([30.0], 35.0, SPARK_BLOCKS)[0] == SPARK_BLOCKS[-1], False)
+    check("STATED, not hidden: the top tick is the last EIGHTH of the scale, "
+          "a band and not a point - 34.0 against a 35.0 ceiling reads full",
+          spark([34.0], 35.0, SPARK_BLOCKS)[0], SPARK_BLOCKS[-1])
+    check("the scale is the CEILING, not the series maximum: the same round "
+          "renders differently under a different ceiling",
+          (spark([20.0], 35.0, SPARK_BLOCKS)[0],
+           spark([20.0], 80.0, SPARK_BLOCKS)[0]),
+          (SPARK_BLOCKS[4], SPARK_BLOCKS[2]))
+    check("a nonsense ceiling falls back to a 0-100 scale rather than "
+          "dividing by zero", spark([50.0], 0, SPARK_BLOCKS)[0],
+          SPARK_BLOCKS[4])
+    check("a nonsense rate is not a crash", spark(["lots"], 35.0,
+                                                  SPARK_BLOCKS)[0],
+          SPARK_BLOCKS[0])
+    check("the ASCII ramp draws the same shape",
+          spark([0, 35.0], 35.0, SPARK_ASCII)[0],
+          SPARK_ASCII[0] + SPARK_ASCII[-1])
+    check("a series inside the cap hides nothing",
+          spark([1] * SPARK_MAX, 35.0, SPARK_BLOCKS)[1], 0)
+    check("FORCED RED: a longer series is TRUNCATED and the hidden rounds are "
+          "COUNTED, not silently dropped",
+          spark([1] * (SPARK_MAX + 5), 35.0, SPARK_BLOCKS)[1], 5)
+    check("...and the visible part is the MOST RECENT rounds",
+          spark([0] * 5 + [35.0] * SPARK_MAX, 35.0, SPARK_BLOCKS)[0],
+          SPARK_BLOCKS[-1] * SPARK_MAX)
+
+    print("\n=== the escape-rate segment: the degrade states ===")
+    check("UNCONFIGURED is the ONE state that renders nothing at all",
+          escape_text("off", None, SPARK_BLOCKS), None)
+    check("...and it is the default, so an adopter who never names a ledger "
+          "gets no segment and no marker",
+          escape_state(dict(DEFAULTS), Path("/nowhere"))[0], "off")
+    check("...which is visible on a real board",
+          "esc " in render({}, dict(DEFAULTS), today), False)
+    # EVERY STATE BELOW IS CHECKED FOR 'not None' BEFORE IT IS UNPACKED. A
+    # mutation that made one of them drop its segment silently is exactly the
+    # defect these checks exist to catch, and it must be reported as a FAIL -
+    # not as a traceback that never reaches the verdict line.
+    unavail = escape_text("unavailable", None, SPARK_BLOCKS)
+    check("FORCED RED: a CONFIGURED ledger with no tool is NOT the 'no "
+          "segment' answer", unavail is None, False)
+    unavail = unavail or ("", "")
+    check("...it says UNAVAILABLE out loud", "UNAVAILABLE" in unavail[0], True)
+    check("...on an amber field, not in silence", unavail[1], "30;103;1")
+    ab = escape_text("abort", "no ledger at docs/JUDGMENT-LEDGER.md",
+                     SPARK_BLOCKS)
+    check("FORCED RED: an ABORT is never the 'no segment' answer either - a "
+          "silently dropped instrument reads as a good score", ab is None,
+          False)
+    ab = ab or ("", "")
+    check("a ledger ABORT is LOUD and names the reason",
+          ("ABORT" in ab[0] and "docs/JUDGMENT-LEDGER.md" in ab[0], ab[1]),
+          (True, "97;101;1"))
+    long_ab = escape_text("abort", "x" * 200, SPARK_BLOCKS) or ("", "")
+    check("a very long abort reason is truncated with the ramp's own mark",
+          long_ab[0].endswith("… "), True)
+    none_yet = {"state": "NO-ROUNDS-RECORDED", "rate_pct": 0.0,
+                "per_round": [], "ceiling_pct": 35.0, "rounds_uncounted": 0}
+    txt = (escape_text("ok", none_yet, SPARK_BLOCKS) or ("", ""))[0]
+    check("NO ROUNDS RECORDED shows the tool's STATE WORD", txt,
+          "esc NO-ROUNDS-RECORDED")
+    check("FORCED RED: ...and never a zero, which would read as a good score",
+          "0.0%" in txt, False)
+
+    print("\n=== the escape-rate segment: a measured rate ===")
+    measured = {"state": "MEASURED", "rate_pct": 19.3, "ceiling_pct": 35.0,
+                "rounds_uncounted": 1, "trend": "FALLING",
+                "over_ceiling": False,
+                "per_round": [{"pct": 42.9}, {"pct": 0.0}, {"pct": 10.0}]}
+    txt, style = escape_text("ok", measured, SPARK_BLOCKS) or ("", "")
+    check("the headline is the rate the tool computed", txt.startswith(
+        "esc 19.3% "), True)
+    # PADDED, for the rule stated thirty lines above: a state that renders a
+    # shorter string than expected must be reported as a FAIL, not as an
+    # IndexError that kills the run before the verdict line. Spec-side review
+    # planted exactly that (the MEASURED state word renamed) and got a
+    # traceback with no verdict line - the kit judges by required output lines,
+    # and a selftest that produces none in its failing state is judging nothing.
+    check("...followed by one tick per counted round",
+          (txt.split(" ") + ["", "", ""])[2],
+          SPARK_BLOCKS[-1] + SPARK_BLOCKS[0] + SPARK_BLOCKS[2])
+    check("rounds excluded from the denominator are named on the board - the "
+          "board must not overstate the coverage behind the number",
+          "+1 uncounted" in txt, True)
+    check("...and are absent when there are none",
+          "uncounted" in escape_text("ok", dict(measured, rounds_uncounted=0),
+                                     SPARK_BLOCKS)[0], False)
+    rising = escape_text("ok", dict(measured, trend="RISING"),
+                         SPARK_BLOCKS) or ("", "")
+    check("a RISING escape rate is called out in amber - the doctrine's own "
+          "signal to stop looping and fix the check",
+          ("RISING" in rising[0], rising[1]), (True, "93"))
+    over = escape_text("ok", dict(measured, over_ceiling=True),
+                       SPARK_BLOCKS) or ("", "")
+    check("a latest round OVER the ceiling is red and says so",
+          ("OVER" in over[0], over[1]), (True, "91;1"))
+    # THE PRECEDENCE, and it is load-bearing in the worst case the segment
+    # exists for. A rate that is BOTH over the ceiling and rising is the one
+    # combination that must not be softened: `over_ceiling` is tested first, so
+    # it renders red OVER, not amber RISING. Per-field checks cannot see this -
+    # spec-side review swapped the two branches and passed 90/90, which is a
+    # red alarm silently downgraded to amber.
+    both = escape_text("ok", dict(measured, over_ceiling=True,
+                                  trend="RISING"), SPARK_BLOCKS) or ("", "")
+    check("FORCED RED: a round that is BOTH over the ceiling and rising "
+          "renders RED and says OVER - the alarm is never downgraded to amber",
+          ("OVER" in both[0], both[1]), (True, "91;1"))
+    check("...and the amber style is not what that case returns",
+          both[1] == "93", False)
+    check("FORCED RED: an ordinary falling rate is NOT dressed as an alarm",
+          (style, "OVER" in txt, "RISING" in txt), ("90", False, False))
+
+    print("\n=== the escape-rate segment: ONE authority for the numbers ===")
+    # THE DECLARED FILESYSTEM SECTION, named rather than smuggled in. Every
+    # check above this line is a pure function of its arguments; these read the
+    # escape-rate tool and a temporary ledger, because the defect they close is
+    # a disagreement BETWEEN TWO FILES - a status board that grows its own
+    # ledger parser and drifts from the tool the gate runs. No pure function of
+    # this file can see that.
+    import tempfile
+    tool = load_escape_tool()
+    if tool is None:
+        # STATED, NOT SKIPPED IN SILENCE.
+        check("escape_rate.py is NOT reachable from here, so the authority "
+              "cross-check is UNAVAILABLE - said out loud, not passed in "
+              "silence (looked in: " + ", ".join(ESCAPE_TOOL_CANDIDATES) + ")",
+              True, True)
+    else:
+        TBL = ("| Round | Items | Escapes |\n|---|---|---|\n"
+               "| r1 | 4 | 1 |\n| r2 | 16 | 4 |\n")
+        rep = tool.report(tool.parse_rounds(TBL), tool.DEFAULT_CEILING)
+        board = escape_text("ok", rep, SPARK_BLOCKS)[0]
+        check("THE BINDING: the percentage on the board is the one "
+              "escape_rate.py computed, character for character",
+              f"{rep['rate_pct']:.1f}%" in board, True)
+        # PRECONDITION, AND LABELLED AS ONE. This line only proves that
+        # report() surfaces the ceiling it was handed, so `ceiling_pct` is the
+        # field the board reads - the test built `rep` by passing
+        # DEFAULT_CEILING in itself. Spec-side review measured exactly what it
+        # is worth: replacing the ceiling with a literal INSIDE escape_state
+        # passed 90/90 against this check. The real binding is in the
+        # live-ledger section below, where the report comes from escape_state.
+        check("PRECONDITION (not the binding): report() surfaces the ceiling "
+              "it was handed, so `ceiling_pct` is the field the board reads",
+              rep["ceiling_pct"], tool.DEFAULT_CEILING)
+        check("...and the state word is the tool's spelling",
+              escape_text("ok", tool.report([], tool.DEFAULT_CEILING),
+                          SPARK_BLOCKS)[0],
+              "esc " + tool.report([], tool.DEFAULT_CEILING)["state"])
+        check("FORCED RED: change the tool's number and the board's changes "
+              "with it - this segment reads a report, it does not carry a "
+              "constant",
+              f"{rep['rate_pct']:.1f}%" in escape_text(
+                  "ok", dict(rep, rate_pct=99.9), SPARK_BLOCKS)[0], False)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            cfg = dict(DEFAULTS, STATUS_ESCAPE_LEDGER="LEDGER.md")
+            check("FORCED RED: a configured ledger that is NOT THERE aborts "
+                  "visibly - it does not quietly become 'no segment'",
+                  escape_state(cfg, root, tool)[0], "abort")
+            (root / "LEDGER.md").write_text("# no table here\n",
+                                            encoding="utf-8")
+            kind, detail = escape_state(cfg, root, tool)
+            check("FORCED RED: a ledger with no escape-rate table aborts with "
+                  "the TOOL's sentence", (kind, "good score" in str(detail)),
+                  ("abort", True))
+            (root / "LEDGER.md").write_text(TBL, encoding="utf-8")
+            kind, detail = escape_state(cfg, root, tool)
+            # `detail` is read through .get so that a mutation which makes
+            # this path abort is reported as a FAIL and not as a traceback
+            # that never reaches the verdict line.
+            d = detail if isinstance(detail, dict) else {}
+            check("a well-formed ledger is read and reported",
+                  (kind, d.get("rate_pct"), d.get("state")),
+                  ("ok", 25.0, "MEASURED"))
+            # THE CEILING BINDING, on the report the BOARD actually produced.
+            # `d` came out of escape_state, so this reads the ceiling that
+            # escape_state passed to report() - which is the thing the registry
+            # row claims is bound and the precondition above cannot see. Put a
+            # literal in escape_state and this goes red naming both numbers.
+            # KNOWN-ISSUES round 19 records the drifting-ceiling class as one
+            # of this kit's own escapes; it does not get to happen twice.
+            check("THE CEILING BINDING: the ceiling the board scales against "
+                  "is the TOOL's DEFAULT_CEILING, read through escape_state "
+                  "and not a literal in this file",
+                  d.get("ceiling_pct"), tool.DEFAULT_CEILING)
+            check("FORCED RED: ...and a SECOND authority for the ceiling is "
+                  "what that check refuses - a board scaling against its own "
+                  "number disagrees with the gate about the same ledger",
+                  tool.report(tool.parse_rounds(TBL),
+                              40.0)["ceiling_pct"] == tool.DEFAULT_CEILING,
+                  False)
+            check("...and the segment appears on a real board",
+                  "esc 25.0%" in _visible(render(
+                      {}, dict(cfg, PROJECT_ROOT=str(root)), today,
+                      SPARK_BLOCKS)), True)
+            check("a REPO-RELATIVE ledger resolves against the resolved root, "
+                  "not the working directory - a foreign cwd must not make a "
+                  "configured segment vanish",
+                  escape_state(cfg, Path(td) / "elsewhere", tool)[0], "abort")
+            check("an ABSOLUTE ledger path is used as given",
+                  escape_state(dict(DEFAULTS, STATUS_ESCAPE_LEDGER=str(
+                      root / "LEDGER.md")), Path("/nowhere"), tool)[0], "ok")
+            # THE BOM CASE, from the same second-machine sweep that put
+            # utf-8-sig in the tool. A Windows editor writes one; plain utf-8
+            # would make the header row stop looking like a table row and the
+            # SAME ledger would abort on one host and parse on the other.
+            (root / "LEDGER.md").write_bytes(
+                b"\xef\xbb\xbf" + TBL.encode("utf-8"))
+            check("a ledger written with a BOM parses - the board reads it "
+                  "through the tool's own reader, so it inherits that rule",
+                  escape_state(cfg, root, tool)[0], "ok")
+            # THE STALE-COPY CONTROL. An older escape_rate.py in an adopter's
+            # `tools/` imports perfectly and then fails on the first attribute
+            # the board calls. Both directions are planted here, so the
+            # surface check is a real assertion and not a comment.
+            (root / "escape_rate.py").write_text("X = 1\n", encoding="utf-8")
+            check("FORCED RED: a tool found but MISSING one of the four names "
+                  "the board calls is None, so the segment says UNAVAILABLE "
+                  "instead of raising on the first attribute",
+                  load_escape_tool(root), None)
+            (root / "escape_rate.py").write_text(
+                "def read_ledger(p): pass\ndef parse_rounds(t): pass\n"
+                "def report(r, c): pass\nDEFAULT_CEILING = 35.0\n",
+                encoding="utf-8")
+            check("CONTROL: ...and a tool that DOES carry all four is "
+                  "accepted, so the check above is not passing for the wrong "
+                  "reason", load_escape_tool(root) is None, False)
 
     print()
     print(f"STATUSLINE SELFTEST: {'PASS' if ok else 'FAIL'} — {n} checks")

@@ -11,6 +11,9 @@ collaboration contract with the human owner. It was distilled from a
 multi-month, multi-agent reference build; each mechanism exists because a
 specific failure made it necessary.
 
+**OAR is rails, not a runtime** — it does not schedule, route, or execute
+agents, and it composes with the frameworks that do.
+
 ---
 
 ## Start here
@@ -20,11 +23,26 @@ page: what the kit is and is not, what certifies at each level, what it costs,
 what is not shipped, the exit cost, and the limitations most likely to matter
 to you. Three minutes.
 
-Adopting: read **`QUICKSTART.md`** and work through it in order. Every step
-ends in output you can run and see; if a step produces no visible output, it is
-not finished.
+**Adopting the documents first?** **`LEVEL-1.md`** is the 30–45 minute
+entry: four ledgers, a collaboration profile, the standing rules as prose, no
+settings file, no hook, and a check that reads what you installed and states
+what it does and does not certify. It installs no code into your repository and
+it is reversible.
 
-Budget:
+Adopting the whole thing: read **`QUICKSTART.md`** and work through it in
+order. Every step ends in output you can run and see; if a step produces no
+visible output, it is not finished.
+
+**Adopting into a repository that already exists?** Read
+**`EXISTING-PROJECT.md`** alongside it. `QUICKSTART.md` is written for a
+repository whose only uncommitted content is the kit's own, and that page is
+the measured list of where an existing project departs from that assumption —
+an existing `CLAUDE.md` or `.claude/settings.json`, an ignore rule over
+`.claude/`, work in progress inside the certified paths, a test suite you
+already trust, CI that ends up proving less than the local gate — each with the
+behaviour that was measured and the workaround that was proven.
+
+Budget for that walk:
 
 - **90 minutes to two hours** of hands-on work (Step 4, the certification
   runner and its wiring, is 45–60 minutes of that on a first adoption),
@@ -33,6 +51,11 @@ Budget:
 - **the seed interview** (Step 8): fifteen minutes done the same day if you
   are the project's owner; a scheduled slot on the owner's calendar if that
   is someone else.
+
+Those figures are a sum of per-step estimates, reconciled against walks
+performed by LLM personas rather than by people. No human has walked this
+document end to end. `docs/walks/` publishes the prompts behind every one of
+those walks and states what they do and do not establish.
 
 > **Debian/Ubuntu:** these hosts ship `python3` with no `python` shim unless
 > `python-is-python3` is installed. Substitute `python3` in every command;
@@ -44,8 +67,9 @@ full treatment of BLUEPRINT §7 — memory, state and the context window: which
 layers hold what, where the boundaries fall, and how the pieces wire together.
 Neither is needed to work through `QUICKSTART.md`; both are worth reading
 before you decide how much of the kit your project should take.
-`KNOWN-ISSUES.md` says what independent adoption tests found and what state
-each finding is in.
+`KNOWN-ISSUES.md` says what the kit's adoption tests found and what state each
+finding is in — every one of them run by an LLM persona, with the prompts
+published under `docs/walks/`.
 
 ---
 
@@ -67,6 +91,34 @@ works — the runner judges required output lines and floors from any stack,
 and modules 01, 03, 04, 07 and 08 assume nothing about how agents are run.
 Module 02's hooks are the one harness-specific layer, and Portability below
 says exactly what porting them costs.
+
+---
+
+## Beyond code
+
+The kit assumes nothing about code. It assumes a process whose record can live
+in files under git, with checks that can be run and seen to fail — that is the
+entire bar. A process that clears it can run on these rails; a process whose
+record is a conversation, or whose checks have no red state, cannot, and
+adopting the kit will not change that. Three places where the bar has actually
+been cleared, all of them inside this program rather than imagined for it:
+
+- **This kit's own program** — documentation and tooling, built under the full
+  discipline, and the loop found real defects in rounds that shipped no code:
+  `KNOWN-ISSUES.md` round 14 (eight documentation and cross-module-description
+  findings) and round 19's prose-only build (three majors, all attribution from
+  memory, one an invented quotation).
+- **Control validation** — every control names its test and the test has been
+  seen to fail, which is what `FAILURE-FLOOR.md` (rule → layer → last fired) and
+  `JUDGMENT-LEDGER.md` (ruling → named check, or UNCHECKED) already record. No
+  audit has consumed them; the claim is about the shape of the record, not about
+  an engagement.
+- **The operating collaboration itself** — session forks, owner rulings and the
+  collaboration profile run as versioned, gated records in the program this kit
+  came out of; what ships here is the machinery, in modules 06, 04 and 08.
+
+**This is not a claim that the kit works for anything.** Where the record is
+not files, or the checks cannot be seen red, the rails have nothing to hold.
 
 ---
 
@@ -139,7 +191,7 @@ your cert-green token is and is not.
 
 **Ready today for a single owner, or a team with one owner who holds the
 certification.** That is the configuration the reference build ran in and the
-one the adoption walks measured.
+one the LLM-persona adoption walks measured.
 
 **Multi-seat team adoption is in active design** — the one gap between the
 current state and full team use. The kit is written throughout for one
@@ -150,9 +202,11 @@ current design focus. `ROADMAP.md` tracks it, and `KNOWN-ISSUES.md` under
 that design landing; it is coming, not here.
 
 One person maintains the kit, working with AI agents, best-effort, no SLA —
-see Maintenance below. The evidence base is one reference build, walked by AI
-agent personas (honestly labeled as such in `KNOWN-ISSUES.md`); a human
-adoption walk is planned and not yet on record.
+see Maintenance below. The evidence base is one reference build plus seven
+**LLM-persona adoption walks** — a language model given a persona and a scratch
+repository, not a person. `KNOWN-ISSUES.md` records what each walk found and
+`docs/walks/` publishes the prompt behind it. A human adoption walk is planned
+and not yet on record.
 
 ---
 
@@ -162,9 +216,9 @@ adoption walk is planned and not yet on record.
 |---|---|---|
 | **01-governance** | The standing-rules document (tiering, HALT authority, hygiene, stage-close checklist, oracle manufacture, promotion/demotion) and four charter templates: implementer, spec-side reviewer, scout, synthesis writer. | Prose — yes |
 | **02-enforcement** | A PreToolUse gate (model tiers, blanket-add ban, optional protected-path tripwire with *cert-green pre-authorization* — a token the coordinator mints at a fully certified run, which lets writes into the protected path through without prompting for as long as the certified tree is unchanged, and lapses the moment it is not), the harness wiring, and a fixture harness with a dead-man clause that runs as shipped. | **Yes — executable** |
-| **03-verification** | A certification-runner skeleton: required-line judging, numeric floors, the PASS/FAIL/INSTRUMENTED/PARTIAL exit contract, a built-in negative-control facility, a judge-paths-clean gate, a `hooks` gate that certifies the enforcement layer, a startup assertion that refuses to run when the paths it judges are missing, and a `--selftest` that judges the judges. Includes `ORACLE-WORKSHEET.md`: how to manufacture a check when none comes free. | **Yes — executable** |
-| **04-ledgers** | Four skeletons: judgment ledger (ruling → check), failure floor (rule → layer + zone + last-fired), lessons (numbered, status-marked, eleven portable seeds), token ledger (actuals + process/implementation ratio + rework). | Documents — yes |
-| **05-statusboard** | A status line showing live agents and their model tiers, a terrain-colored context bar with a clear mark, and a sidequest banner with a staleness amber. Two implementations of one contract: portable Python (`tools/statusline.py`; `--selftest` renders all four banner states) and a pwsh variant. Includes the flag-file contract. | **Yes — executable** |
+| **03-verification** | A certification-runner skeleton: required-line judging, numeric floors, the PASS/FAIL/INSTRUMENTED/PARTIAL exit contract, a built-in negative-control facility, a judge-paths-clean gate, a `hooks` gate that certifies the enforcement layer, an `escapes` gate that publishes your escape rate against a ceiling, a startup assertion that refuses to run when the paths it judges are missing, and a `--selftest` that judges the judges. Includes `ORACLE-WORKSHEET.md`: how to manufacture a check when none comes free. | **Yes — executable** |
+| **04-ledgers** | Four skeletons: judgment ledger (ruling → check, plus the machine-read escape-rate table), failure floor (rule → layer + zone + last-fired), lessons (numbered, status-marked, eleven portable seeds), token ledger (actuals + process/implementation ratio + rework). Plus `escape_rate.py`, the instrument for the headline metric: it computes the escape rate from the judgment ledger's table, prints a required output line, and is what module 03's `escapes` gate runs. | Documents — yes; the tool is executable and optional |
+| **05-statusboard** | A status line showing live agents and their model tiers, a terrain-colored context bar with a clear mark, a sidequest banner with a staleness amber, and an opt-in escape-rate segment that renders module 04's number and a per-round sparkline (the Python board only — the pwsh variant does not carry that segment). Two implementations of one contract: portable Python (`tools/statusline.py`; `--selftest` renders all four banner states) and a pwsh variant. Includes the flag-file contract. | **Yes — executable** |
 | **06-sidequest** | A bounded-detour skill: snapshot first, flag lifecycle, explicit close, durable record. | Prose — yes |
 | **07-ci** | A CI workflow that pins and checksum-verifies its toolchain, selftests the judges first, and asserts an exact exit code. Includes `BRANCH-PROTECTION.md`, which distinguishes tripwire from gate. | After slot substitution |
 | **08-collaboration** | Eight evidenced defaults, a five-question seed interview, and a living-profile scaffold written from evidence rather than self-description. | Documents — yes |
@@ -177,14 +231,20 @@ the module alone.
 
 ## Three adoption levels
 
-### Level 1 — documents only (an afternoon)
+### Level 1 — documents only (30–45 minutes) — the path is `LEVEL-1.md`
 
-Take **04-ledgers** and **08-collaboration**. Run the seed interview. Start
-the four ledgers empty. Add **01-governance** as prose if you have agents.
+Take **04-ledgers** and **08-collaboration**. Run the seed interview, or
+schedule it when the owner is someone else. Start the four ledgers empty. Add
+**01-governance** as prose if you have agents.
 
-No tooling, no harness assumptions, no code. This level changes what your
-project records about itself, which is most of the value. Start here unless
-you have a specific reason not to.
+`LEVEL-1.md` walks it step by step and ends in a check you can run:
+`kit_doctor.py --level1` reads the documents you installed and prints what it
+certifies, what it does **not** certify, and what removing the level costs.
+
+No harness assumptions, and **no code installed into your repository** — the
+two tools that path uses run from the kit clone against your repo. This level
+changes what your project records about itself, which is most of the value, and
+it is the reversible one. Start here unless you have a specific reason not to.
 
 ### Level 2 — partial (a day)
 
@@ -262,7 +322,7 @@ freely, and keep what earns its place.
 
 ## Adoption-test status
 
-Independent partial-adoption tests have been run against three modules.
+Partial-adoption tests have been run against three modules by LLM personas.
 `KNOWN-ISSUES.md` is the authority; this table is a summary of it.
 
 | Walked alone | Result as shipped | Now |
@@ -274,6 +334,8 @@ Independent partial-adoption tests have been run against three modules.
 The pattern in both failures: the contracts held; the adoption instructions
 did not. "Separately adoptable" is a claim about documentation as much as
 about code, and only someone else's hands can check the documentation half.
+The hands that checked it here belonged to an LLM persona following a written
+charter, which is a weaker instrument than a person and is labelled as one.
 The unqualified claim returns when a re-test passes, not when the fixes land.
 
 ---
@@ -285,7 +347,12 @@ oar/
   README.md              you are here
   DECISION-BRIEF.md      one page for a decider: what certifies, what it costs,
                            what is not shipped, exit cost, the honest caveats
+  LEVEL-1.md             the documents-only entry: 30-45 minutes, reversible,
+                           ending in `kit_doctor.py --level1`
   QUICKSTART.md          the first session, ordered, testable at every step
+  EXISTING-PROJECT.md    read beside QUICKSTART on a repository that already
+                           exists: one row per measured collision, with the
+                           workaround proven for it
   BLUEPRINT.md           the doctrine (authored separately)
   CONTEXT-ARCHITECTURE.md   the full treatment of BLUEPRINT §7: memory, state,
                              and the window — layers, boundaries, wiring
@@ -304,13 +371,22 @@ oar/
                              Writes only <name>.kit-new; by hand stays the
                              documented path
   tools/statusline.py    the portable status board (module 05's contract)
-  tools/kit_doctor.py    "check my adoption" — ten diagnostic checks over YOUR
-                             tree: judged paths that exist, are not hidden by
-                             an ignore rule and agree with the hook's config;
+  tools/kit_doctor.py    "check my adoption" — twelve diagnostic checks over
+                             YOUR tree: judged paths that exist, are not hidden
+                             by an ignore rule and agree with the hook's config;
                              gates that cannot fail; what a blanket commit
                              would sweep up; whether the hook's interpreter
                              starts; what the tripwire and the cert token are
-                             and are not. Verdict is HEALTHY / ATTENTION, never
+                             and are not; whether any failure-floor rule is
+                             overdue for a demotion disposition; and how big
+                             the text every session must read has grown.
+                             `--level1` runs seven different ones instead, for
+                             a documents-only adoption: the documents are
+                             present, rendered, committed, carry the two
+                             decisions that level asks for, and neither the
+                             config nor the ledger names collide with what an
+                             existing repository already had.
+                             Verdict is HEALTHY / ATTENTION, never
                              PASS — it diagnoses, it does not certify, and it
                              stages nothing
   tools/expectation_lint.py  fails when a check reads its expectation from
@@ -318,7 +394,10 @@ oar/
   checks-registry.json   every check's subject and expectation source, with
                          each surviving self-reference waived explicitly
   .github/workflows/kit-ci.yml   the core, on Linux and Windows, every push
-  KNOWN-ISSUES.md        what independent adoption tests found, and its state
+  KNOWN-ISSUES.md        what the LLM-persona adoption walks found, and its state
+  docs/walks/            the prompt behind every walk and evaluation read, plus
+                           WALKING-YOUR-OWN-DOCUMENTS.md: the method, written
+                           for your documentation rather than the kit's
   ROADMAP.md             ready now, in design, planned, and not shipped
   VERSION                the release stamp tools/kit_doctor.py reads
   LICENSE                Apache-2.0

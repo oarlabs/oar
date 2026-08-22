@@ -19,22 +19,24 @@ so a fresh adopter can watch a real PASS, a real FAIL, a real PARTIAL and a
 real INSTRUMENTED run within a minute of cloning. **Replace both gates with
 your own.**
 
-`judges` is not an example - KEEP IT. `hooks` is not an example either, but it
-names files that live in the ENFORCEMENT module: if you adopted module 03 on
-its own, DELETE the `hooks` entry from GATES and from RUN_ORDER and drop the
-HOOK_FIXTURES / HOOK_SETTINGS constants, or the startup assertion will
-correctly refuse to start over files you do not have. (`--skip hooks` works
-too, but leaving a permanently-skipped gate in RUN_ORDER means every run
-reports PARTIAL and can never certify.)
+`judges` is not an example - KEEP IT. `hooks` and `escapes` are not examples
+either, but each names files that live in ANOTHER module: `hooks` needs module
+02 and `escapes` needs module 04. If you adopted module 03 on its own, DELETE
+the entry from GATES and from RUN_ORDER and drop its constants
+(HOOK_FIXTURES / HOOK_SETTINGS, ESCAPE_TOOL / ESCAPE_LEDGER), or the startup
+assertion will correctly refuse to start over files you do not have.
+(`--skip <gate>` works too, but leaving a permanently-skipped gate in
+RUN_ORDER means every run reports PARTIAL and can never certify.)
 
 Deleting the example gates is EXPECTED and does not break `--selftest`: the
 checks that are about them are guarded, and section I then asserts that every
 gate in RUN_ORDER is exercised by at least one check, so a replacement gate
 with no selftest goes loudly red instead of silently uncovered.
 
-SLOTS. Four constants below the config block are the whole adoption surface:
-JUDGE_PATHS, CERT_PATHS, HOOK_FIXTURES, HOOK_SETTINGS - all repo-relative,
-all asserted to exist before any gate runs. Related kit.config keys:
+SLOTS. Six constants below the config block are the whole adoption surface:
+JUDGE_PATHS, CERT_PATHS, HOOK_FIXTURES, HOOK_SETTINGS, ESCAPE_TOOL,
+ESCAPE_LEDGER - all repo-relative, all asserted to exist before any gate runs.
+Related kit.config keys:
 {{PROJECT_ROOT}} {{JUDGE_PATHS}} {{CERT_PATHS}} {{TOOLCHAIN_PIN}}
 {{VERIFY_OUT_DIR}} {{GATE_COMMAND}}
 
@@ -229,7 +231,7 @@ REPO, REPO_HOW = find_repo_root(
 
 # ---- SLOTS ---------------------------------------------------------------
 # ALL PATHS BELOW ARE REPO-RELATIVE, resolved against the root discovered
-# above. When you copy this runner into <repo>/tools/, these four constants
+# above. When you copy this runner into <repo>/tools/, these six constants
 # are the ONLY things you must change - and if you forget, the startup
 # assertion aborts naming exactly what is missing rather than certifying air.
 
@@ -280,6 +282,24 @@ CERT_PATHS = ["modules/03-verification/examples"]
 # these become "tools/hook_fixtures.py" and your harness's settings file.
 HOOK_FIXTURES = "modules/02-enforcement/hook_fixtures.py"
 HOOK_SETTINGS = ".claude/settings.json"
+
+# The ledgers module, for the `escapes` gate. Both of these ship with the
+# KIT's own values, exactly the way JUDGE_PATHS and HOOK_FIXTURES do: in an
+# adopting repo they become "tools/escape_rate.py" and
+# "docs/JUDGMENT-LEDGER.md" (your LEDGERS_DIR, your judgment ledger). The kit
+# is not an adoption, and its own escape-rate table lives in KNOWN-ISSUES.md.
+#
+# THE LEDGER IS DELIBERATELY NOT IN JUDGE_PATHS. That list holds what decides
+# *what green means*; the ledger is the SUBJECT this gate measures. Put it in
+# the judge surface and every ordinary ledger append invalidates
+# certification, which is how a gate gets routed around. The thing that does
+# decide green here - the ceiling in the gate table below - is in THIS file,
+# which IS in JUDGE_PATHS, so lowering it is a reviewed commit. The residual
+# is stated in KNOWN-ISSUES: an uncommitted edit to the table can move the
+# published number inside a single run, and the compensating control is that
+# the number is printed on every certification, not that it is proven.
+ESCAPE_TOOL = "modules/04-ledgers/escape_rate.py"
+ESCAPE_LEDGER = "KNOWN-ISSUES.md"
 # --------------------------------------------------------------------------
 
 RESET, RED, GREEN, YELLOW, CYAN, BOLD = (
@@ -362,6 +382,56 @@ GATES = {
         doc="the enforcement gate is armed, alive, and decides correctly",
     ),
 
+    # ---- MODULE 04 ONLY. No ledgers module? DELETE THIS WHOLE ENTRY and
+    #      its RUN_ORDER slot and the two ESCAPE_* constants. It names a tool
+    #      and a ledger that ship with module 04, and the startup assertion
+    #      will (correctly) refuse to start without them. ----------------
+    # THE HEADLINE METRIC, INSTRUMENTED. The kit's claim is that the loop
+    # publishes its own escape rate - an escape being an item a human reported
+    # that an existing check should have caught. A claim with no instrument is
+    # a slogan, so the number is computed from the ledger's table on every
+    # certification and the latest round is held to a ceiling.
+    #
+    # THE CEILING IS INLINE, LIKE THE FLOORS ABOVE, AND FOR THE SAME REASON:
+    # it lives inside the judge surface so that raising it is a reviewed
+    # commit rather than a config edit nobody sees. 35.0 is DERIVED from the
+    # kit's own twelve counted rounds, not adopted - the arithmetic is in
+    # KNOWN-ISSUES.md, "The kit's own numbers". Re-derive it from your own
+    # first rounds by the method in modules/04-ledgers/TOKEN-LEDGER.md; a
+    # ceiling inherited from somebody else's project is the mistake that
+    # document exists to prevent.
+    #
+    # THERE IS NO `expect_min` HERE, and the omission is deliberate. A floor
+    # asks "did enough happen?", and for a metric where LOW IS GOOD the
+    # equivalent question is "is there any data at all?" - which cannot be a
+    # red, because a project on its first day genuinely has no rounds and a
+    # gate that is red until the first round is a gate people learn to skip.
+    # The `state` field carries it instead: it is MANDATORY in the pattern
+    # below, so `NO-ROUNDS-RECORDED` is published on every certification and a
+    # future tool that stopped distinguishing it from a measured zero fails
+    # this gate rather than quietly reporting a flattering number.
+    "escapes": dict(
+        cmd=[sys.executable, ESCAPE_TOOL, "--ledger", ESCAPE_LEDGER,
+             "--ceiling", "35.0"],
+        timeout=120,
+        require=r"ESCAPE RATE:\s*(\d+)/(\d+)\s+items\s+\((\d+\.\d)%\)\s+over\s+"
+                r"(\d+)\s+rounds;\s+latest\s+(\d+)/(\d+)\s+\((\d+\.\d)%\);\s+"
+                r"ceiling\s+(\d+\.\d)%;\s+state\s+(MEASURED|NO-ROUNDS-RECORDED)",
+        fail_pattern=r"OVER CEILING|ESCAPE LEDGER ABORT",
+        # Both component lines are REQUIRED, so neither can vanish quietly.
+        # The uncounted line is how a dropped round becomes visible; the trend
+        # line is the sequence the doctrine actually asks you to read.
+        require_also=[
+            (r"ESCAPE RATE UNCOUNTED:\s*\d+\s+round\(s\)",
+             "the uncounted-rounds line"),
+            (r"ESCAPE RATE TREND:", "the trend line"),
+        ],
+        head=lambda m: (f"{m.group(1)}/{m.group(2)} ({m.group(3)}%)"
+                        if m.group(9) == "MEASURED" else "no rounds recorded"),
+        doc="the loop publishes its own escape rate and the latest round is "
+            "under the ceiling",
+    ),
+
     # ---- REPLACE BOTH OF THESE ----------------------------------------
     "example_unit": dict(
         cmd=[sys.executable, "modules/03-verification/examples/fake_suite.py"],
@@ -398,7 +468,7 @@ GIT_DEPENDENT_GATES = {"judges"}
 # RUN ORDER, and it is deliberate: cheap structural gates first (a red judge
 # means the expensive gates would be certifying the wrong tree anyway), then
 # fast checks, then slow ones, then anything that needs a screen or a device.
-RUN_ORDER = ["judges", "hooks", "example_unit", "example_lint"]
+RUN_ORDER = ["judges", "hooks", "escapes", "example_unit", "example_lint"]
 
 NC_KEYS = {"require", "fail_pattern", "expect_min"}
 
@@ -691,9 +761,15 @@ def startup_problems(repo, judge_paths, cert_paths, gates, run_order,
                 f"and is not tracked, so `git status --porcelain -- {p}` "
                 f"prints nothing whatever the file says and the "
                 f"{', '.join(git_gates)} gate(s) would read clean over it "
-                f"forever. Remove the rule that covers it (`git check-ignore "
-                f"-v {p}` names the rule and the file it came from), then "
-                f"commit the path.")
+                f"forever. FIX, IN THIS ORDER: (1) `git add -f {p}` and "
+                f"commit it - force-tracking this one file leaves the ignore "
+                f"rule intact, and `adoption_smoke.py` phase 12 proves it "
+                f"clears this abort; (2) if you want to know which rule it "
+                f"was, run `git check-ignore -v {p}` BEFORE step (1) - a "
+                f"tracked path reports nothing; (3) remove that rule ONLY if it covers nothing "
+                f"else - on an existing repository a directory rule such as "
+                f"`.claude/` usually also covers session state and the "
+                f"certification token, and removing it commits both.")
     return out
 
 
@@ -987,6 +1063,61 @@ def selftest() -> int:
                         "their replacements are covered. ==="))
 
 
+    # ---- the `escapes` gate ------------------------------------------
+    # GUARDED the same way A/B are: module 04 is separately adoptable, and a
+    # bare GATES["escapes"] would crash the whole bench for anyone who did
+    # what the docstring tells them to do. Section I still asserts coverage.
+    #
+    # THE EXPECTATION HERE IS AN INLINE LITERAL, HAND-WRITTEN, and it is a
+    # SECOND transcription of a contract whose first transcription lives in
+    # escape_rate.py's own selftest. That duplication is deliberate: two
+    # independent hand-written copies of one line format cannot drift
+    # together, and if they drift apart the live gate goes red in CI. Reading
+    # the expectation out of the tool would be the self-reference class this
+    # kit's `expectation_lint.py` exists to surface.
+    if "escapes" in GATES:
+        print(c(BOLD, "\n=== B2. the `escapes` gate: the headline metric ==="))
+        esc_ok = ("ESCAPE RATE UNCOUNTED: 1 round(s) declared uncountable\n"
+                  "ESCAPE RATE TREND: 42.9 -> 15.4; direction FALLING\n"
+                  "ESCAPE RATE: 26/120 items (21.7%) over 12 rounds; latest "
+                  "0/1 (0.0%); ceiling 35.0%; state MEASURED\n")
+        esc_new = ("ESCAPE RATE UNCOUNTED: 0 round(s) declared uncountable\n"
+                   "ESCAPE RATE TREND: (none); direction INSUFFICIENT-DATA\n"
+                   "ESCAPE RATE: 0/0 items (0.0%) over 0 rounds; latest 0/0 "
+                   "(0.0%); ceiling 35.0%; state NO-ROUNDS-RECORDED\n")
+        check("escapes: a measured run passes",
+              judge_gate(GATES["escapes"], esc_ok)[0], True)
+        check("escapes: the headline is the published rate",
+              judge_gate(GATES["escapes"], esc_ok)[1], "26/120 (21.7%)")
+        check("escapes: a day-one project with NO ROUNDS still passes - a "
+              "gate that is red until the first round is a gate people skip",
+              judge_gate(GATES["escapes"], esc_new)[0], True)
+        check("...and its headline SAYS so rather than reading as a score",
+              judge_gate(GATES["escapes"], esc_new)[1], "no rounds recorded")
+        check("escapes NC: a breach is vetoed even with the required line "
+              "present",
+              judge_gate(GATES["escapes"], esc_ok + "ESCAPE RATE: OVER "
+                         "CEILING — latest round r19 5/8 (62.5%)\n")[0], False)
+        check("escapes NC: an ABORT is vetoed - a missing ledger must never "
+              "read as a good score",
+              judge_gate(GATES["escapes"],
+                         "ESCAPE LEDGER ABORT: no ledger at docs/x.md\n")[0],
+              False)
+        check("escapes NC: DROPPING the state word fails the pattern",
+              judge_gate(GATES["escapes"],
+                         esc_ok.split("; state")[0] + "\n")[0], False)
+        check("escapes NC: losing the uncounted line fails, so a quietly "
+              "dropped round cannot go unpublished",
+              judge_gate(GATES["escapes"], "\n".join(
+                  l for l in esc_ok.splitlines()
+                  if "UNCOUNTED" not in l))[0], False)
+        check("escapes NC: losing the trend line fails too",
+              judge_gate(GATES["escapes"], "\n".join(
+                  l for l in esc_ok.splitlines()
+                  if "TREND" not in l))[0], False)
+        check("escapes NC: an ABSENT required line fails",
+              judge_gate(GATES["escapes"], "all good here!\n")[0], False)
+
     print(c(BOLD, "\n=== C. the dirty-tree judge (the `judges` gate) ==="))
     check("a clean porcelain parses to nothing", parse_porcelain(""), [])
     check("porcelain parses status and path",
@@ -1225,6 +1356,26 @@ def selftest() -> int:
                                     ["judges"], lambda x: True, lambda: True,
                                     ignores_settings)[0]
               for s in (".claude/settings.json", "EXCLUDED")), True)
+    # THE REMEDY IT PRINTS. P3W-3: the first version of this message told the
+    # reader to remove the ignore rule, which on an existing repository is
+    # usually a directory rule (`.claude/`) that also covers session state and
+    # the certification token - so obeying the message commits both. The
+    # surgical remedy is force-tracking the one judged file under the intact
+    # rule, and it is the remedy `adoption_smoke.py` phase 12 already proves.
+    # These checks bind the message to that order: the fix that works first,
+    # the diagnostic second, the rule removal last and conditional.
+    _excl_msg = startup_problems("/r", [".claude/settings.json"], [], {},
+                                 ["judges"], lambda x: True, lambda: True,
+                                 ignores_settings)[0]
+    check("...and it prints the SURGICAL remedy - force-track this one file",
+          "git add -f .claude/settings.json" in _excl_msg, True)
+    check("...FIRST, ahead of the diagnostic and the rule removal",
+          (_excl_msg.index("git add -f")
+           < _excl_msg.index("git check-ignore")
+           < _excl_msg.index("remove that rule")), True)
+    check("...and removing the rule is conditional, with the cost named",
+          all(s in _excl_msg for s in ("ONLY if it covers nothing else",
+                                       "certification token")), True)
     check("THE CONTROL: a tracked judge path starts the run",
           startup_problems("/r", [".claude/settings.json"], [], {}, ["judges"],
                            lambda x: True, lambda: True, excluding()), [])
@@ -1453,8 +1604,19 @@ def main() -> int:
             f"    found via : {REPO_HOW}\n"
             + "".join(f"    PROBLEM   : {p}\n" for p in problems)
             + "  Fix: set "
-            + ("JUDGE_PATHS / CERT_PATHS / HOOK_FIXTURES / HOOK_SETTINGS"
-               if "hooks" in gates else "JUDGE_PATHS / CERT_PATHS")
+            # THE REMEDY NAMES THE CONSTANTS THAT ARE ACTUALLY IN PLAY. It used
+            # to carry a hard-coded four-name list gated on `hooks`, so an
+            # abort caused BY THE ESCAPES GATE named four constants that have
+            # nothing to do with it - and contradicted this file's own header,
+            # which says six constants are the adoption surface. Built from the
+            # selected gates instead, so a gate added later without its
+            # constants here is a visible omission rather than a wrong message.
+            + " / ".join(
+                ["JUDGE_PATHS", "CERT_PATHS"]
+                + (["HOOK_FIXTURES", "HOOK_SETTINGS"] if "hooks" in gates
+                   else [])
+                + (["ESCAPE_TOOL", "ESCAPE_LEDGER"] if "escapes" in gates
+                   else []))
             + " at the top of this file to paths relative to THAT root "
               "(QUICKSTART Step 4), or --skip the gate that names a file you "
               "do not have.")

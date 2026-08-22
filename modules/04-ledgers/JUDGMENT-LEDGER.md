@@ -75,8 +75,41 @@ uses. A renamed check silently orphans every row that cited it.
 |---|---|---|---|---|
 | <r> | <item> | `<check>` | <the honest gap: wrong surface, floor too low, check ran but not on this path> | <the new/repaired check> |
 
-**Escape rate this round: N of M items.** Publish it every round. If it does
-not fall across rounds, the loop is witnessing, not learning.
+## Escape rate — the published number
+
+**This table is machine-read.** `escape_rate.py` computes the rate from it,
+the verify runner's `escapes` gate judges the result, and the number is
+printed on every certification. Its first three columns are fixed; `Notes` is
+for you. Append one row per round, in the same commit as that round's checks,
+and never edit an old row to make a number look better — a metric you can
+improve by editing history is not a metric.
+
+An **escape** is an item a human reported that an existing check should have
+caught. A defect on a surface no check covered is a *coverage gap*, not an
+escape: the honest response to a coverage gap is a new check, not a worse
+number. `Items` is every finding the round dispositioned, including the ones
+rejected below the materiality bar — a finding you decided not to fix is
+still a finding somebody had to make.
+
+`-` in **both** count cells declares a round uncountable: the record exists
+but per-round counts cannot be recovered from it. The tool excludes it from
+the denominator and prints how many rounds that hid, every run, so dropping a
+round is a visible act. `-` in one cell only is an error, not a shortcut.
+
+| Round | Items | Escapes | Notes |
+|---|---|---|---|
+
+**Start it empty.** Until the first row lands, the gate prints
+`state NO-ROUNDS-RECORDED` on every certification — the true state of a new
+project, published rather than dressed up as a zero. If it does not fall
+across rounds, the loop is witnessing, not learning.
+
+Run it yourself at any time:
+
+```bash
+python tools/escape_rate.py --ledger docs/JUDGMENT-LEDGER.md
+python tools/escape_rate.py --ledger docs/JUDGMENT-LEDGER.md --json
+```
 
 ## Where the checks live
 

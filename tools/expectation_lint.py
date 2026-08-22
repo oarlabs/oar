@@ -16,7 +16,7 @@ tools/expectation_lint.py - the self-reference lint.
 ==========================================================================
 WHY THIS EXISTS - and why it is a LINT rather than another paragraph
 ==========================================================================
-Six independent adoption walks found eight defects, and after the fourth it
+Six LLM-persona adoption walks found eight defects, and after the fourth it
 was obvious they were one defect wearing different hats:
 
   1. the judges gate read only git's stdout, so "no repository" read as clean
@@ -156,6 +156,22 @@ def lint(entries: list):
 FIXTURE_ID = re.compile(r'^\s*\("([a-z]{1,3})",\s', re.M)
 # The doctor's check table. Same idea, different family: `("doctor:version",`.
 DOCTOR_ID = re.compile(r'^\s*\("(doctor:[a-z0-9-]+)",\s', re.M)
+# The escape-rate tool's NEGATIVE CONTROLS, a third family. Its ids are the
+# `NC(vii)` labels its selftest prints. A new tool arriving with a set of
+# unregistered checks grows this kit's own named blind spot by that many in
+# one commit - the argument that made the doctor the second family. The
+# controls are the part of that tool most at risk from a later tidy-up: they
+# are the only reason its green means anything, and a suite that has never
+# been red proves nothing. Registered as `escape:nc-vii`.
+ESCAPE_ID = re.compile(r'\bNC\(([ivx]+)\)', re.M)
+# A FOURTH family: the gate-line adapter's GOLDEN FIXTURES, whose ids are the
+# `GOLDEN(all-pass)` labels its selftest prints - one per captured pytest run.
+# Same argument as the escape controls, one degree stronger: these are the only
+# expectations in that tool that did not come from its author. They are what
+# pytest actually reported, so a case quietly dropped from the selftest takes a
+# real captured outcome out of the net while the check count still looks
+# healthy. Registered as `golden:all-pass`.
+GOLDEN_ID = re.compile(r'\bGOLDEN\(([a-z0-9-]+)\)')
 
 
 def coverage_gaps(fixtures_src: str, entries: list,
@@ -166,11 +182,13 @@ def coverage_gaps(fixtures_src: str, entries: list,
     judge what is written in it, so the failure mode it cannot see is an entry
     that is simply absent. For a family whose ids are recoverable from the
     source, absence IS detectable, and this is that cross-check. It runs over
-    two families now: the hook fixtures and the doctor's checks. The doctor was
-    the reason to generalise it - a diagnostic tool with ten unregistered
-    checks would have grown the kit's named blind spot by ten in one commit.
+    three families now: the hook fixtures, the doctor's checks, and the
+    escape-rate tool's negative controls. The doctor was the reason to
+    generalise it - a diagnostic tool with ten unregistered checks would have
+    grown the kit's named blind spot by ten in one commit - and the escape-rate
+    tool is the same argument a second time.
 
-    Everything outside those two families still relies on the author adding a
+    Everything outside those three families still relies on the author adding a
     row - stated in KNOWN-ISSUES as a residual rather than papered over."""
     in_src = set(pattern.findall(fixtures_src or ""))
     prefix = family + ":"
@@ -181,7 +199,24 @@ def coverage_gaps(fixtures_src: str, entries: list,
         # The doctor's ids already carry the family, so recovered id and
         # registry id are the same string.
         in_src = {i[len("doctor:"):] for i in in_src}
+    if family == "escape":
+        # The recovered id is a roman numeral from an `NC(vii)` label; the
+        # registry spells it `escape:nc-vii`.
+        in_src = {"nc-" + i for i in in_src}
     return sorted(in_src - registered), sorted(registered - in_src)
+
+
+# The families the cross-check runs over, and the file each is recovered from.
+# Held as data rather than as a loop body so that `--selftest` can assert the
+# set is what the docstring and the waiver reason claim it is - a fifth family
+# added to the loop and left out of the prose is the same silent narrowing this
+# lint exists to catch.
+FAMILIES = (
+    ("modules/02-enforcement/hook_fixtures.py", FIXTURE_ID, "fixture"),
+    ("tools/kit_doctor.py", DOCTOR_ID, "doctor"),
+    ("modules/04-ledgers/escape_rate.py", ESCAPE_ID, "escape"),
+    ("modules/03-verification/gate_line.py", GOLDEN_ID, "golden"),
+)
 
 
 # ==========================================================================
@@ -300,6 +335,44 @@ def selftest() -> int:
                                    "expectation_from": "inline"}],
                         DOCTOR_ID, "doctor"), ([], []))
 
+    # The THIRD family: the escape-rate tool's negative controls. They are the
+    # only reason that tool's green means anything, and a later tidy-up that
+    # deletes one is exactly the silent narrowing this lint exists to catch.
+    esc_src = '        check("NC(vii) a HALF-declared uncountable row ABORTS",\n'
+    check("an escape-rate negative control in the source but not the "
+          "registry is reported",
+          coverage_gaps(esc_src, [], ESCAPE_ID, "escape")[0], ["nc-vii"])
+    check("...and a registered control with no code behind it is too",
+          coverage_gaps("", [{"id": "escape:nc-xx", "subject": "s",
+                              "expectation_from": "inline"}],
+                        ESCAPE_ID, "escape")[1], ["nc-xx"])
+    # The FOURTH family: the gate-line adapter's golden fixtures. Each one is
+    # a real captured pytest outcome, so dropping a case from the selftest
+    # removes an expectation nobody in this kit wrote.
+    gold_src = ('        check(f"GOLDEN({cid}) the pure layer rebuilds the '
+                'captured lines exactly",\n')
+    check("a golden fixture case in the source but not the registry is "
+          "reported",
+          coverage_gaps('  check("GOLDEN(collapsed-collection) x",\n', [],
+                        GOLDEN_ID, "golden")[0], ["collapsed-collection"])
+    check("...and a registered golden case with no code behind it is too",
+          coverage_gaps("", [{"id": "golden:gone", "subject": "s",
+                              "expectation_from": "inline"}],
+                        GOLDEN_ID, "golden")[1], ["gone"])
+    check("...and an f-string label is still recovered (the selftest builds "
+          "them from the case id)",
+          coverage_gaps(gold_src.replace("{cid}", "subset"), [],
+                        GOLDEN_ID, "golden")[0], ["subset"])
+    check("the cross-check runs over FOUR families, and the list is the one "
+          "the waiver reason names",
+          [f for _, _, f in FAMILIES],
+          ["fixture", "doctor", "escape", "golden"])
+
+    check("...and a registered control that IS in the source is clean",
+          coverage_gaps(esc_src, [{"id": "escape:nc-vii", "subject": "s",
+                                   "expectation_from": "inline"}],
+                        ESCAPE_ID, "escape"), ([], []))
+
     print()
     print((GREEN if ok_all else RED)
           + f"EXPECTATION-LINT SELFTEST: {'PASS' if ok_all else 'FAIL'} "
@@ -331,10 +404,8 @@ def main() -> int:
 
     problems, waivers = lint(entries)
 
-    for src_path, pattern, family in (
-            (KIT / "modules" / "02-enforcement" / "hook_fixtures.py",
-             FIXTURE_ID, "fixture"),
-            (KIT / "tools" / "kit_doctor.py", DOCTOR_ID, "doctor")):
+    for rel, pattern, family in FAMILIES:
+        src_path = KIT / rel
         if not src_path.is_file():
             continue
         try:

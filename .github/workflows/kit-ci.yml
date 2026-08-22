@@ -6,8 +6,13 @@
 # copy into YOUR project, and it pins and downloads a toolchain. This one is
 # the kit proving a claim about itself, and the claim is narrow and testable:
 #
-#     the four executable pieces of this kit run on Linux and on Windows,
+#     every executable piece of this kit runs on Linux and on Windows,
 #     on stock Python, with nothing downloaded.
+#
+# (That sentence used to carry a count. A hand-maintained count in prose goes
+# stale every time a tool lands - this file's own recorded lesson, KI-2 - so
+# the claim is now over the set rather than over a number. The steps below
+# are the enumeration.)
 #
 # DEAD SIMPLE ON PURPOSE. No toolchain fetch, no checksum pin, no cache, no
 # matrix of Python versions. Every one of those would be a way for this job to
@@ -65,6 +70,17 @@ jobs:
       - name: verify selftest (the judges, judged)
         run: python modules/03-verification/verify.py --selftest
 
+      # -- 2a. the suite adapter. NOTHING IS INSTALLED FOR THIS STEP, and
+      #        that is the point: without pytest here, the selftest replays
+      #        the committed golden fixtures (real pytest output, captured on
+      #        a developer host) against the pure layer and prints LIVE HALF
+      #        NOT RUN with the reason. What this step proves on CI is that
+      #        the shape contract, the collapse rule and the negative controls
+      #        hold on both hosts; what it deliberately does not prove is that
+      #        this runner's pytest still reports what the fixtures recorded.
+      - name: gate-line selftest (golden fixtures + the collapse rule)
+        run: python modules/03-verification/gate_line.py --selftest
+
       # -- 2b. the status board, all four banner states --------------------
       - name: statusline selftest
         run: python tools/statusline.py --selftest
@@ -87,6 +103,50 @@ jobs:
       #         runner and a Windows runner answer differently.
       - name: kit-doctor selftest
         run: python tools/kit_doctor.py --selftest
+
+      # -- 2b4. THE KIT'S OWN HEADLINE NUMBER. The kit claims the loop
+      #         publishes its own escape rate; this is the step where that
+      #         stops being a sentence. The selftest proves the judging layer
+      #         including its twelve forced-red controls, and the second
+      #         command computes the number over KNOWN-ISSUES.md - the kit's
+      #         own escape-rate table - on BOTH hosts, so a Windows-only or
+      #         Linux-only reading defect is a red here rather than a wrong
+      #         number in a published document.
+      - name: escape-rate selftest (its negative controls, and the ceiling cross-check)
+        run: python modules/04-ledgers/escape_rate.py --selftest
+
+      # NO --ceiling HERE, ON PURPOSE. The ceiling had three operative
+      # spellings - this one, the gate command in verify.py, and the tool's
+      # own DEFAULT_CEILING - and nothing related any two of them, so drift
+      # between them was silent in every direction. This step now takes
+      # DEFAULT_CEILING, which the selftest above binds to the gate's literal:
+      # two authorities instead of three, and the remaining two cannot drift
+      # apart without going red.
+      - name: the kit's own escape rate, computed not narrated
+        run: python modules/04-ledgers/escape_rate.py --ledger KNOWN-ISSUES.md
+
+      # -- 2b5. ...and the forced-red half, in the runner. A tool that has
+      #         never refused is a tool nobody has tested. This step INVERTS
+      #         the exit code: it passes only when a missing ledger ABORTS.
+      - name: escape-rate ABORT case (must go RED on a missing ledger)
+        shell: python
+        run: |
+          import subprocess, sys
+          p = subprocess.run([sys.executable,
+                              "modules/04-ledgers/escape_rate.py",
+                              "--ledger", "no/such/ledger.md"],
+                             capture_output=True, text=True)
+          print(p.stdout[-2000:])
+          if p.returncode != 2:
+              print("::error::a missing ledger did NOT abort (exit "
+                    f"{p.returncode}). An uncomputed metric must never "
+                    "report a number.")
+              sys.exit(1)
+          if "ESCAPE LEDGER ABORT" not in p.stdout:
+              print("::error::it went red, but without the ABORT token the "
+                    "verify gate vetoes on. Check what actually failed.")
+              sys.exit(1)
+          print(f"missing ledger aborted as required (exit {p.returncode})")
 
       # -- 2c. the fixture harness's OWN pure layer. It shipped a
       #        ship-blocker (a substring test on a regex field) that reported

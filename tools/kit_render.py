@@ -58,7 +58,7 @@ impression.
 
 It does not copy the executable files - `verify.py`, `hook_model_gate.py`,
 `hook_fixtures.py`, `statusline.py`, `deident_scan.py`. Those carry no slots;
-they are copied and then EDITED, which is Step 4's four constants and the
+they are copied and then EDITED, which is Step 4's six constants and the
 thinking that goes with them.
 
 ==========================================================================
@@ -770,7 +770,7 @@ def render(kit: Path, target: Path, overrides: dict | None = None,
         dest = root / dest_rel
         out = dest.with_name(dest.name + ".kit-new")
         # GUARD 1 again, per output path. Belt and braces: a LEDGERS_DIR of
-        # `../oar-kit/modules` is a configuration nobody would write on
+        # `../oar/modules` is a configuration nobody would write on
         # purpose and exactly the kind this has to survive.
         if path_inside(out, kit):
             return r.aborted(
@@ -879,7 +879,7 @@ def do_list(kit: Path) -> int:
     print("\n  The executable files QUICKSTART copies - verify.py, "
           "hook_model_gate.py,\n  hook_fixtures.py, statusline.py, "
           "deident_scan.py - carry no slots and are\n  not rendered: they are "
-          "copied, then EDITED (Step 4's four constants).")
+          "copied, then EDITED (Step 4's six constants).")
     return 0
 
 
