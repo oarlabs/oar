@@ -20,7 +20,43 @@ not a security boundary** — it governs correctness and cost, not a hostile
 agent. Every mechanism exists because a specific failure on the reference build
 made it necessary.
 
+**Do not buy the composition; buy the conduct.** Every mechanism here has an
+older name (`BLUEPRINT.md` §12) and several have live competitors
+(`COMPARISON.md`), so the proposition that nobody has assembled this before is a
+claim with a short half-life and is not the one to weigh. The one that survives a prior-art audit
+is narrower: this kit applies its own headline instrument to itself and
+publishes the unflattering number with its denominators — including the rounds
+where the number rose, 50.0% and 42.9%, named and kept in. An audit on
+2026-08-22 found no other artifact publishing a self-applied miss rate that is
+allowed to go up. Coverage scores point one way; a miss rate points the other.
+Judge the kit on whether that discipline is one you want applied to your own
+work.
+
+**If you have sat in a GRC or PMO review, you already have a name for this
+gap.** Watermelon reporting: green on the outside, red on the inside — cut the
+dashboard open and it was lying. "Your agent stack can tell you what the agents
+did; it cannot tell you whether the green was real" is that effect restated for
+AI. Three shipped mechanisms are aimed straight at it. **Forced red** — every
+check has been seen to fail on purpose, because a green never seen red is a hope
+with a checkmark; module 03 ships the negative-control facility and the hooks
+gate carries a dead-man clause. **The state-word contract** — instruments print
+their state rather than a number that implies one, so `NO-ROUNDS-RECORDED` never
+renders as `0.0%` and a skipped gate reports PARTIAL rather than PASS; the most
+dangerous watermelon is an absence, not a lie. **The escape rate** — the
+interior, counted: the share of findings an existing check should have caught,
+computed from the judgment ledger by `escape_rate.py`, printed on every
+certifying run and held to a ceiling. None of this stops a determined liar, and
+this kit is not a security boundary. It makes the honest states cheaper than the
+dishonest ones and the silent ones mechanically hard.
+
 ## What certifies per level, and what it costs
+
+**Prerequisites, at every level:** git, Python 3.10 or newer (standard library
+only — nothing to install), and a shell (`pwsh`, `bash` or Git Bash). Modules
+02, 05 and 06 additionally assume a Claude Code-style harness; the doctrine is
+portable, that wiring is not. pytest and GitHub Actions are optional and only
+where a step already says so. `README.md`, "Prerequisites", is the full
+statement, including what has and has not been measured about version floors.
 
 | Level | What you install | What certifies | Cost |
 |---|---|---|---|

@@ -156,8 +156,30 @@ finds and changes nothing.
 
 **Five of the six are required; `CLAUDE.md` is the sixth.** Take it if you run
 agents — it is module 01 as prose, and it is what the ledgers are rules *for*.
-Step 5's check treats it as optional and says so on a green run when it is not
-there.
+Step 5's check treats it as optional and distinguishes three states, because on
+a repository that already had a rules file *present* and *adopted* are
+different facts:
+
+- **Not there.** Reported as not taken, and green.
+- **There, and carrying module 01's prose.** Counted as the sixth document, and
+  the removal cost names it — as a revert, if you merged it into a file you
+  already had.
+- **There, and reading as your own file.** Not counted, named in the finding,
+  and the removal cost **never** names it. The check decides this by counting
+  module 01's own **fingerprints** — eight strings that carry no substitution
+  slot and so survive rendering unchanged; seven are section headings and the
+  eighth is a rule sentence — and two or more of them mean the file carries
+  the kit's prose, however it got there.
+
+  **What that count can and cannot tell you, because the output says only
+  what it can support.** It is a count, not a provenance: the check cannot
+  establish who wrote the file, whether it was touched, or whether this
+  adoption installed it. The residual therefore runs both ways, and **both
+  branches print the two numbers the decision used** — an adoption that
+  reworded nearly every kit heading reads as your own file, and a file of
+  yours that happens to carry two of them reads as adopted. Where you know
+  which it is and the check cannot, say so in your report; the not-adopted
+  line says the same thing on every run.
 
 The profile's filename is fixed — the rules file names it — but its **location
 follows step 1**. When `KNOWLEDGE_DIR` is a real directory outside the
@@ -179,14 +201,68 @@ It writes `<name>.kit-new` beside each destination and moves nothing. Read each
 one, then move the six above into place yourself.
 
 **It renders seven files, and Level 1 uses six.** The seventh is
-`.claude/settings.json`, the harness wiring — delete that `.kit-new` file. The
-run ends `KIT RENDER: INCOMPLETE` and names `{{PROTECTED_PATH}}` as unfilled in
-`CLAUDE.md`: that slot belongs to the module-02 tripwire, which Level 1 does not
-install. **That is the expected Level-1 result on a `kit.config` copied from
-`kit.config.example` — one unfilled slot, and not a failure.** The template
-marks both sites that use it *delete if unused* — one bullet in the hygiene
-list and the section headed "The protected-path tripwire" — so delete them, the
-way the template tells you to.
+`.claude/settings.json`, the harness wiring — delete that `.kit-new` file.
+
+The run ends `KIT RENDER: INCOMPLETE`, names every unfilled slot above that
+line, and **that is the expected Level-1 result, not a failure.** How many it
+names depends on step 1's `KNOWLEDGE_DIR` answer.
+
+Three branches, because step 1 offers three answers and the number differs
+between them:
+
+| Step 1's answer | The summary line | What is unfilled |
+|---|---|---|
+| the value `kit.config.example` ships (`/abs/path/to/your/knowledge-base`) — you have not answered step 1 yet | `KIT RENDER: INCOMPLETE — 7 files written, 6 unfilled slot(s) in 1 file(s), each named above` | the four tier names, `{{PROTECTED_PATH}}`, and `{{KNOWLEDGE_DIR}}` |
+| the literal `NONE` (step 1's third answer) | the same line, also **6** | the same six: `NONE` is one of the render tool's placeholder words, so that slot reads as UNSET |
+| a real directory, or the repo path `docs` (step 1's first two answers) | `KIT RENDER: INCOMPLETE — 7 files written, 5 unfilled slot(s) in 1 file(s), each named above` | the four tier names and `{{PROTECTED_PATH}}` |
+
+Every slot named is in `CLAUDE.md.kit-new`, whichever branch you are on. What
+to do with each:
+
+- **The four tier names** — `{{FORBIDDEN_SPAWN_TIER}}`, `{{LANE_TIER}}`,
+  `{{ORCHESTRATOR_TIER}}`, `{{SWEEP_TIER}}`.
+  `kit.config.example` ships them in the `your-…`
+  shape (`kit.config.example`:131, :134, :137 and :148), and the render tool
+  treats a shipped placeholder value as UNSET by the same rule the hook and
+  the fixture harness use — `tools/kit_render.py`, `is_placeholder()`, with
+  `RATIO_CEILING` the one exempt key by name. So a config copied from the
+  example leaves all four unfilled. If you run agents, that is step 2's
+  decision arriving late: fill them in `kit.config` and re-render. If you do
+  not, `CLAUDE.md` is the conditional sixth document — the paragraph above
+  that begins *Five of the six are required* — and the tiering prose it
+  carries is a rule you cannot yet enforce, so it goes with it. Record that
+  deletion.
+- **`{{PROTECTED_PATH}}`.** That slot belongs to the module-02 tripwire, which
+  Level 1 does not install. The template marks both sites that use it *delete
+  if unused* — one bullet in the hygiene list and the section headed "The
+  protected-path tripwire" — so delete them, the way the template tells you
+  to.
+- **`{{KNOWLEDGE_DIR}}`, on the first two branches of the table only.** This
+  one is step 1's decision, not a slot to delete: the documents that
+  interpolate it say where durable knowledge lives, and a rules file shipping
+  the literal `{{KNOWLEDGE_DIR}}` tells a reader nothing. **Answer step 1 in
+  `kit.config` and re-render** — with the repo path `docs` if you have no
+  such place, and with `docs` substituted at the two sites if your answer is
+  `NONE`, which is what step 1 already instructs. Do not move
+  `CLAUDE.md.kit-new` into place with this slot unsubstituted: step 5's
+  `doctor:l1-rendered` reads the file you moved and an unsubstituted slot in
+  it is a red you will have to clear anyway.
+
+**Which of these redden step 5, and which do not.** `doctor:l1-rendered`
+reads the documents you moved into place, so a slot you deleted with its
+section, or filled before re-rendering, is not there to find — that covers
+the tier names and `{{PROTECTED_PATH}}`. `{{KNOWLEDGE_DIR}}` behaves
+differently, and differently again on each of its two branches:
+
+- **Carried through unanswered** (the shipped value). `doctor:l1-rendered`
+  goes red on the surviving slot, and `doctor:l1-knowledge-dir` goes red a
+  second time on the shipped value itself.
+- **Carried through as `NONE`.** `doctor:l1-knowledge-dir` is **green** —
+  `NONE` is a recorded decision, and this is the one key in the kit where
+  that word is an answer rather than an absence — so `doctor:l1-rendered` is
+  the only thing between you and a document telling your reader that durable
+  knowledge lives in a directory called NONE. Substitute the repo path
+  `docs` at the two sites, which is what step 1 already tells you to do.
 
 **If this repository already had a `kit.config`, expect a longer list, and read
 it rather than skipping past it.** The tool renders from the config it finds,
@@ -232,6 +308,12 @@ answer changes something structural about how the work runs, and each is cheap
 to ask and expensive to discover by collision. Capture the answers **verbatim**
 in your copy of the profile; the phrasing carries information the summary loses.
 
+**Optional second route.** `modules/08-collaboration/DEFAULTS.md` ships one
+program's calibration, de-identified and labelled as that one program's values
+rather than best practice, as a pre-filled starting state, and turns this step
+into a walk down it — keep, override or delete each value — ending in the same
+profile; the five questions above stay the shipped default path.
+
 **You are the owner:** answer the five questions yourself, in writing, today,
 and set the profile's status line to `INTERVIEW:  held <date>`.
 
@@ -264,7 +346,7 @@ Seven checks run, and each red line names the step that fixes it:
 
 | Check | What it reads |
 |---|---|
-| `doctor:l1-documents` | the five required documents are where your config says they are, and whether you took `CLAUDE.md` |
+| `doctor:l1-documents` | the five required documents are where your config says they are, and whether the `CLAUDE.md` in your tree is module 01 as prose or a rules file of your own |
 | `doctor:l1-config-complete` | your `kit.config` carries every key the templates interpolate — and the red says to APPEND the missing ones, never to copy the example over your file |
 | `doctor:l1-ledger-collision` | nothing already in `LEDGERS_DIR` answers the same question as a kit ledger under a different spelling |
 | `doctor:l1-rendered` | no unsubstituted slot, no template header block, no shipped example value (`RATIO_CEILING` exempted by name; text you have quoted in backticks, in a fenced block, or on a line marked `oar:quotes-example` is not scanned, and the run says how much it skipped) |
@@ -279,7 +361,9 @@ A green run ends in three lines, and the second is the one to read:
 - **DOES NOT CERTIFY** — any behaviour. No gate ran. Nothing enforces these
   rules, no agent is checked against them, no hook fires, and the *content* is
   not judged: a ledger with a correct header and no rows passes every check.
-- **REMOVAL COST** — the files this level added, by name.
+- **REMOVAL COST** — the files this level added, by name. A rules file that
+  reads as your own is not among them, and the line above it says so with the
+  numbers it read.
 
 `PASS` is not the verdict word, and that is deliberate. `PASS` belongs to
 `verify.py`, which runs a project's gates and returns one exit code. Level 1
@@ -315,7 +399,14 @@ python /path/to/kit/tools/deident_scan.py --root . --tokens <a-path-outside-this
 ```
 
 `--tokens` takes a plain text file, **one token per line**: your name, your
-username, machine path fragments, your employer. Read the `tokens : N` line the
+username, machine path fragments, your employer. **It lives outside this
+repository on purpose** — a list of the exact strings you do not want published,
+kept inside the tree, is one force-add away from being published. If an AI agent
+is running this step for you, it may only write that file at a path **you named
+for the token list specifically**: `ONBOARD.md` §8's capability-grant clause is
+the rule it follows, a path you gave it for something else — its report, for
+instance — is not a grant for this, and with no token-list path named it records
+the scan NOT RUN rather than inventing a location. Read the `tokens : N` line the
 run prints and check `N` accounts for what you meant to hunt for — a file in
 any other shape still parses, and reports `0 hits` over a search that never
 really happened. If your profile lives outside the repository, scan it where it
@@ -340,8 +431,9 @@ Stated here so the green line is not read as more than it is:
 ## Removing it (2 min)
 
 Level 1 is the genuinely reversible commitment, and the check prints the file
-list on every green run — every document it found, plus `kit.config`. Delete
-what that line names and the level is gone.
+list on every green run — every document this level installed, plus
+`kit.config`. Delete what that line names and the level is gone. It does not
+name a rules file that was already yours.
 
 Two exceptions, and they are reverts rather than deletes:
 

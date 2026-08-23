@@ -81,12 +81,43 @@ quiet one. Half a declaration (`-` in one cell, a number in the other) is an
 ABORT.
 
 ==========================================================================
+THE SMALL ROUND, AND THE DERIVED DENOMINATOR FLOOR (round 27)
+==========================================================================
+A two-item round with one escape is 50.0%, and no two-item round with ANY
+escape can pass a 35% ceiling: below n = ceil(100/ceiling) the gate measures
+arithmetic, not learning. So the per-round ceiling ARMS ONLY at
+n >= ceil(100/ceiling) - 3 at the shipped 35.0%. The floor is DERIVED from
+the ceiling by `min_countable()`, never configured; a knob would invite
+tuning it until the gate stops finding things.
+
+Below the floor the round still enters the cumulative numbers unchanged, its
+rate is still computed and printed, and the required line carries `state
+SMALL-N` - a state word, not a silence, so a run of small rounds cannot
+dodge the ceiling quietly.
+
+THE ACCEPTED RESIDUAL, STATED: the floor makes the per-round gate
+PARTITION-SENSITIVE. The same evidence split into sub-floor rounds exits 0
+where one round of it exits 1, and no check fires on a SUSTAINED run of
+sub-floor rounds - the cumulative rate, the trend line and the SMALL-N line
+are the compensating disclosure, and their only reader is a person. The
+dodge is not new in kind (splitting into 3-item rounds already diluted the
+per-round number before this change); the floor widens it to n >= 1 and
+this paragraph is where that is accepted rather than discovered. The word is deliberately NOT "MEASURED-SMALL-N":
+a gate pattern that alternates on MEASURED would prefix-match that quietly,
+and the whole point of the state word is that an un-updated pattern goes
+red. Owner ruling 2026-08-23 (round 27), over the two alternatives on
+record: an UNCOUNTABLE reading hides a real number, and accepting the red
+makes a red CI mean nothing.
+
+==========================================================================
 THE EXIT-CODE CONTRACT
 ==========================================================================
     0  the number was computed; the latest counted round is at or under the
-       ceiling - OR there are no rounds recorded yet, which is a true fact
-       about a new project and is printed as its own state word.
-    1  OVER CEILING - the latest counted round exceeds the ceiling.
+       ceiling - OR under the denominator floor (state SMALL-N) - OR there
+       are no rounds recorded yet, which is a true fact about a new project
+       and is printed as its own state word.
+    1  OVER CEILING - the latest counted round exceeds the ceiling, at or
+       above the denominator floor.
     2  ABORT - no ledger, no table, two tables, or a malformed row.
 
 WHY "no rounds recorded" IS EXIT 0 AND NOT RED. A project on its first day
@@ -123,6 +154,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -387,6 +419,28 @@ def trend(rates: list) -> str:
     return "FLAT"
 
 
+def min_countable(ceiling: float) -> int:
+    """The per-round gate's denominator floor, DERIVED from the ceiling.
+
+    The smallest n at which one escape can sit at or under the ceiling, in
+    exact arithmetic: 1/n <= ceiling/100, so n >= 100/ceiling, so the floor
+    is ceil(100/ceiling) - 3 at the shipped 35.0%. Below it every round with
+    any escape is over the ceiling by construction, so the gate would be
+    measuring arithmetic rather than learning (owner ruling 2026-08-23,
+    round 27). STATED IMPRECISION: the gate compares pct()'s value, which
+    rounds to one decimal, and at rounding-boundary ceilings (33.3, where
+    1/3 rounds down onto the ceiling) this exact-arithmetic floor is one
+    higher than the rounded rate strictly needs. Measured over every ceiling
+    0.1-100.0: the error is always in the ungating direction - a round is
+    never gated that could not pass - and the shipped 35.0 is exact. Derived, not configured: a configurable floor is a knob, and
+    a knob on a gate gets turned until the gate stops finding things. A
+    ceiling at or below zero arms the gate for every round."""
+    c = round(float(ceiling), 1)
+    if c <= 0.0:
+        return 1
+    return math.ceil(100.0 / c)
+
+
 def report(rounds: list, ceiling: float) -> dict:
     """Every published number, computed once, in one place."""
     cnt = counted(rounds)
@@ -395,8 +449,16 @@ def report(rounds: list, ceiling: float) -> dict:
     rates = [pct(r[2], r[1]) for r in cnt]
     latest_label, latest_items, latest_escapes = (
         cnt[-1] if cnt else ("none", 0, 0))
+    min_n = min_countable(ceiling)
+    # A small CLEAN round is SMALL-N too: at n under the floor the gate could
+    # not have fired either way, and a green that claims a ceiling it could
+    # not have failed is the flattering read this tool exists to prevent.
+    small_n = bool(cnt and latest_items < min_n)
     return {
-        "state": "MEASURED" if cnt else "NO-ROUNDS-RECORDED",
+        "state": ("SMALL-N" if small_n
+                  else "MEASURED" if cnt else "NO-ROUNDS-RECORDED"),
+        "min_countable_n": min_n,
+        "small_n": small_n,
         "items": items,
         "escapes": escapes,
         "rate_pct": pct(escapes, items),
@@ -411,7 +473,8 @@ def report(rounds: list, ceiling: float) -> dict:
                        "pct": p} for r, p in zip(cnt, rates)],
         "trend": trend(rates),
         "ceiling_pct": round(float(ceiling), 1),
-        "over_ceiling": bool(cnt and rates[-1] > round(float(ceiling), 1)),
+        "over_ceiling": bool(cnt and not small_n
+                             and rates[-1] > round(float(ceiling), 1)),
     }
 
 
@@ -441,6 +504,19 @@ def trend_line(rep: dict) -> str:
     seq = " -> ".join(f"{r['pct']:.1f}" for r in rep["per_round"]) or "(none)"
     return (f"ESCAPE RATE TREND: {seq} (percent, oldest first); "
             f"direction {rep['trend']}")
+
+
+def small_n_line(rep: dict) -> str:
+    """Printed on every SMALL-N run. The floor and its derivation are stated
+    in the line itself, so the reader is never asked to trust an unexplained
+    green over a 50% round."""
+    return (f"ESCAPE RATE SMALL-N: latest round {rep['latest_label']} has "
+            f"{rep['latest_items']} item(s), under the gate's denominator "
+            f"floor of {rep['min_countable_n']} (ceil(100/"
+            f"{rep['ceiling_pct']:.1f}), the smallest n at which one escape "
+            f"can sit under the {rep['ceiling_pct']:.1f}% ceiling). The "
+            f"per-round gate is not armed; the round's rate is printed above "
+            f"and the cumulative rate and trend still bind.")
 
 
 def ceiling_line(rep: dict) -> str:
@@ -637,6 +713,34 @@ def selftest() -> int:
                  35.0)["over_ceiling"], False)
     check("no rounds at all cannot breach a ceiling",
           report(parse_rounds(TBL), 35.0)["over_ceiling"], False)
+    # NC(xv) - THE DENOMINATOR FLOOR, derived from the ceiling. Round 27's
+    # own escape row was the live case: 1 escape in a 2-item round is 50.0%
+    # against a 35.0% ceiling, and no 2-item round with any escape can pass.
+    check("NC(xv) the floor is DERIVED from the ceiling - ceil(100/ceiling), "
+          "the smallest n at which one escape can pass",
+          (min_countable(35.0), min_countable(50.0), min_countable(25.0),
+           min_countable(33.3)),
+          (3, 2, 4, 4))
+    check("NC(xv) ...and a ceiling at or below zero arms the gate for every "
+          "round instead of dividing by it",
+          (min_countable(0.0), min_countable(-5.0)), (1, 1))
+    sm = report(parse_rounds(TBL + "| r26 | 12 | 1 |\n| r27 | 2 | 1 |\n"),
+                35.0)
+    check("NC(xv) a round under the floor does NOT arm the per-round gate - "
+          "50.0% at n=2 is arithmetic, not learning",
+          (sm["small_n"], sm["over_ceiling"], sm["state"]),
+          (True, False, "SMALL-N"))
+    check("NC(xv) ...its numbers still enter the cumulative rate unchanged - "
+          "the floor shelters the gate, never the denominator",
+          (sm["items"], sm["escapes"], sm["rate_pct"]), (14, 2, 14.3))
+    check("NC(xv) ...a round AT the floor is gated (the floor is a boundary, "
+          "not a shelter)",
+          report(parse_rounds(TBL + "| r1 | 3 | 2 |\n"), 35.0)["over_ceiling"],
+          True)
+    check("NC(xv) ...and a small CLEAN round is SMALL-N too - its green must "
+          "not claim a ceiling it could not have failed",
+          report(parse_rounds(TBL + "| r1 | 2 | 0 |\n"), 35.0)["state"],
+          "SMALL-N")
 
     print(f"\n{BOLD}=== E. the required line - the gate judges this and "
           f"nothing else ==={RESET}")
@@ -659,11 +763,25 @@ def selftest() -> int:
     GATE_PATTERN = (
         r"ESCAPE RATE:\s*(\d+)/(\d+)\s+items\s+\((\d+\.\d)%\)\s+over\s+"
         r"(\d+)\s+rounds;\s+latest\s+(\d+)/(\d+)\s+\((\d+\.\d)%\);\s+"
-        r"ceiling\s+(\d+\.\d)%;\s+state\s+(MEASURED|NO-ROUNDS-RECORDED)")
+        r"ceiling\s+(\d+\.\d)%;\s+state\s+(MEASURED|SMALL-N|"
+        r"NO-ROUNDS-RECORDED)")
     check("the measured line matches the gate's pattern",
           bool(re.search(GATE_PATTERN, required_line(rep))), True)
     check("...and so does the no-rounds line",
           bool(re.search(GATE_PATTERN, required_line(empty))), True)
+    small = report(parse_rounds(TBL + "| r27 | 2 | 1 |\n"), 35.0)
+    check("...and so does a SMALL-N line",
+          bool(re.search(GATE_PATTERN, required_line(small))), True)
+    check("NC(xv) the PRE-round-27 pattern REFUSES a SMALL-N line - the "
+          "state word is not a superstring of MEASURED, so a runner whose "
+          "transcription was not updated goes red instead of prefix-matching "
+          "the new state quietly",
+          bool(re.search(GATE_PATTERN.replace("MEASURED|SMALL-N|", "MEASURED|"),
+                         required_line(small))), False)
+    check("the SMALL-N line names the floor, its derivation and the ceiling",
+          ("floor of 3" in small_n_line(small)
+           and "ceil(100/35.0)" in small_n_line(small)
+           and "35.0% ceiling" in small_n_line(small)), True)
     check("NC(xii) a line that DROPPED the state word fails the pattern - the "
           "distinction cannot be lost quietly",
           bool(re.search(GATE_PATTERN,
@@ -735,6 +853,41 @@ def selftest() -> int:
           "belonging to some other gate is not read by mistake",
           gate_ceiling('    "other": dict(cmd=["--ceiling", "12.5"])\n'), None)
 
+    # THE STATE-WORD BINDING (round 27's review). Same rationale as the
+    # ceiling binding above: the un-updated-transcription red only fires on
+    # the first run whose ledger actually PRODUCES the new state, so a
+    # future state word added to report() and omitted from the runner's
+    # require= would ship green until it happened live. Bound here instead:
+    # every state report() can emit must appear in BOTH transcriptions.
+    def alternation(src: str):
+        """The state alternation in a gate-pattern transcription, as a set;
+        None when no pattern is present. Adjacent string literals are joined
+        first, because the runner's require= wraps mid-alternation."""
+        compact = re.sub(r'"\s*\n\s*r?"', "", src)
+        m = re.search(r"state\\s\+\(([A-Z|\-]+)\)", compact)
+        return set(m.group(1).split("|")) if m else None
+
+    emitted = {report(parse_rounds(t), 35.0)["state"] for t in
+               (TBL + "| r1 | 8 | 1 |\n", TBL + "| r1 | 2 | 1 |\n", TBL)}
+    tool_alt = alternation(GATE_PATTERN)
+    check("NC(xvi) every state report() can emit is in the tool's own "
+          "gate-pattern alternation",
+          (tool_alt is not None and emitted <= tool_alt, len(emitted)),
+          (True, 3))
+    if _runner is not None:
+        check("NC(xvi) THE BINDING: the runner's transcription carries the "
+              f"same alternation ({_runner.name}) - a state word added to "
+              "one file and not the other is this red, before any ledger "
+              "produces it live", alternation(_src), tool_alt)
+    else:
+        check("NC(xvi) the runner is NOT reachable from here, so the "
+              "state-alternation binding is UNAVAILABLE - said out loud, "
+              "not passed in silence", True, True)
+    check("NC(xvi) a transcription missing a state word is recovered as a "
+          "DIFFERENT set, which is what makes the binding an assertion",
+          alternation(r"state\s+(MEASURED|NO-ROUNDS-RECORDED)") == tool_alt,
+          False)
+
     print()
     print((GREEN if ok_all else RED)
           + f"ESCAPE RATE SELFTEST: {'PASS' if ok_all else 'FAIL'} "
@@ -793,6 +946,8 @@ def main() -> int:
         print(YELLOW + "ESCAPE RATE: no rounds recorded in this ledger yet. "
               "This is the true state of a new project and it is printed on "
               "every run; it is not a score." + RESET, file=out)
+    if rep["state"] == "SMALL-N":
+        print(YELLOW + small_n_line(rep) + RESET, file=out)
     if rep["over_ceiling"]:
         print(RED + ceiling_line(rep) + RESET, file=out)
         print(required_line(rep), file=out)

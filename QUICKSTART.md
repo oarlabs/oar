@@ -112,9 +112,14 @@ Forward slashes work everywhere, including Windows.
 
 ## Step 0 — Prove the tooling works before you configure anything (3 min)
 
-Run these **inside the kit clone**, before you go near your own project.
+Run these **inside the kit clone**, before you go near your own project. The
+first two lines are the kit's only hard dependencies: git and Python. No
+minimum git version has been derived — everything this document says about git
+behaviour was measured on **git 2.54** and says so where it is claimed.
+`README.md`, "Prerequisites", carries the full statement.
 
 ```bash
+git --version                           # any recent git; measured on 2.54
 python --version                        # 3.10 or newer
 python tools/deident_scan.py --selftest      # DEIDENT SELFTEST: PASS
 python tools/statusline.py --selftest       # STATUSLINE SELFTEST: PASS
@@ -126,9 +131,9 @@ python modules/02-enforcement/hook_fixtures.py --selftest  # HOOK-FIXTURE SELFTE
 python modules/02-enforcement/hook_fixtures.py --strict --armed .claude/settings.json
 ```
 
-**Checkpoint:** all nine lines exit 0 — a version check, **five selftests**,
-one lint over the kit's own check registry, the adoption smoke, and the live
-fixture run, which ends
+**Checkpoint:** all ten lines exit 0 — **two version checks**, **five
+selftests**, one lint over the kit's own check registry, the adoption smoke,
+and the live fixture run, which ends
 `HOOK FIXTURES: 38/38 passed, 0 skipped, 2 n/a`. The two `n/a` are the
 protected-path fixtures: `n/a` rather than `skipped` because the kit ships that
 tripwire **off**, which is the same advice Step 1 gives you.
@@ -1300,6 +1305,13 @@ and its `INTERVIEW:` line already states which of the three states holds. If it
 says `held`, this step is done. If it says `scheduled` or `not yet held`, that
 is unfinished business with the owner, not a blocker for the rest of this
 document.
+
+**Optional second route.** `modules/08-collaboration/DEFAULTS.md` ships one
+program's calibration, de-identified and labelled as that one program's values
+rather than best practice, as a pre-filled starting state, and turns this step
+into a walk down it — keep, override or delete each value — ending in the same
+profile; the blank-page route below is the shipped default path and nothing on
+that page changes it.
 
 Open `modules/08-collaboration/SEED-INTERVIEW.md`, ask the five questions,
 capture verbatim, then fill in your own copy of the profile template:

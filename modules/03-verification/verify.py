@@ -414,9 +414,16 @@ GATES = {
         cmd=[sys.executable, ESCAPE_TOOL, "--ledger", ESCAPE_LEDGER,
              "--ceiling", "35.0"],
         timeout=120,
+        # SMALL-N (round 27): the per-round ceiling arms only at
+        # n >= ceil(100/ceiling); a smaller latest round publishes `state
+        # SMALL-N` instead of red - the state word carries the honesty, the
+        # same way NO-ROUNDS-RECORDED does. The derivation lives with
+        # `min_countable()` in the tool; this transcription must list the
+        # word or a SMALL-N certification goes red here, by design.
         require=r"ESCAPE RATE:\s*(\d+)/(\d+)\s+items\s+\((\d+\.\d)%\)\s+over\s+"
                 r"(\d+)\s+rounds;\s+latest\s+(\d+)/(\d+)\s+\((\d+\.\d)%\);\s+"
-                r"ceiling\s+(\d+\.\d)%;\s+state\s+(MEASURED|NO-ROUNDS-RECORDED)",
+                r"ceiling\s+(\d+\.\d)%;\s+state\s+(MEASURED|SMALL-N|"
+                r"NO-ROUNDS-RECORDED)",
         fail_pattern=r"OVER CEILING|ESCAPE LEDGER ABORT",
         # Both component lines are REQUIRED, so neither can vanish quietly.
         # The uncounted line is how a dropped round becomes visible; the trend
@@ -426,10 +433,14 @@ GATES = {
              "the uncounted-rounds line"),
             (r"ESCAPE RATE TREND:", "the trend line"),
         ],
-        head=lambda m: (f"{m.group(1)}/{m.group(2)} ({m.group(3)}%)"
-                        if m.group(9) == "MEASURED" else "no rounds recorded"),
+        head=lambda m: ("no rounds recorded"
+                        if m.group(9) == "NO-ROUNDS-RECORDED"
+                        else f"{m.group(1)}/{m.group(2)} ({m.group(3)}%)"
+                        + (", latest round small-n"
+                           if m.group(9) == "SMALL-N" else "")),
         doc="the loop publishes its own escape rate and the latest round is "
-            "under the ceiling",
+            "under the ceiling - or under the gate's derived denominator "
+            "floor (state SMALL-N), where the ceiling was not tested",
     ),
 
     # ---- REPLACE BOTH OF THESE ----------------------------------------

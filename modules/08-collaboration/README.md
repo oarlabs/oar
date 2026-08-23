@@ -11,6 +11,7 @@ wanted.
 | `DEFAULT-CONTRACT.md` | Eight evidenced defaults to run until told otherwise, each with its own "override when" clause. About a page. |
 | `SEED-INTERVIEW.md` | Five questions, fifteen minutes, once. Decision style, checkpoint shape, acceptance test, pushback licence, and **the betrayal line**. |
 | `PROFILE-TEMPLATE.md` | The living profile scaffold: promotion-on-second-sighting, evidence-per-claim, an overrides table, a blind-spots section, a revision log, and a maintenance contract addressed to the AI. |
+| `DEFAULTS.md` | **Optional.** One program's calibration, de-identified to its shape and labelled as one program's values rather than best practice, as a pre-filled starting state — plus the realignment ask, which walks an owner down it keep/override/delete and ends in the same profile. The blank-page route above stays the default path. |
 
 ## The three ideas
 
@@ -59,9 +60,9 @@ check — which makes it the cheapest first oracle in the whole project.
 
 ## What breaks if you adopt this module alone
 
-Nothing, and it is the module most worth adopting alone. Three documents, no
-tooling, no harness assumptions, useful with any AI system or none — the seed
-interview works verbatim between two humans.
+Nothing, and it is the module most worth adopting alone. Four documents, one of
+them optional, no tooling, no harness assumptions, useful with any AI system or
+none — the seed interview works verbatim between two humans.
 
 If you only ever take one module from this kit, the honest recommendation is
 this one, then 04.
@@ -77,7 +78,13 @@ this one, then 04.
 - **Working solo?** You are the owner: answer the five questions yourself, in
   writing, and hold the profile to the same rules — verbatim answers, cited
   evidence, promotion on second sighting. No calendar needed; the interview
-  costs fifteen minutes the day you adopt.
+  costs fifteen minutes the day you adopt. **If you take the optional
+  `DEFAULTS.md` route, write your own answer to question 5 — the betrayal line —
+  before you read that page's Part 1.** Being both walker and owner removes the
+  one protection the ordering gave you: four written candidates read before your
+  own answer turn the question into a recognition test, and afterwards the
+  result is indistinguishable from an answer you actually gave. That page states
+  the same rule above its Part 1.
 - **Feel-words are the payload of question 3.** Every one you decompose into a
   regression-tested number is one the human never has to notice twice. Track
   that conversion rate; it is a better health metric than most.

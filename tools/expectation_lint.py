@@ -172,6 +172,23 @@ ESCAPE_ID = re.compile(r'\bNC\(([ivx]+)\)', re.M)
 # real captured outcome out of the net while the check count still looks
 # healthy. Registered as `golden:all-pass`.
 GOLDEN_ID = re.compile(r'\bGOLDEN\(([a-z0-9-]+)\)')
+# A FIFTH family: the citation lint's NEGATIVE CONTROLS, whose ids are the
+# `CITE(wrapped-quote)` labels its selftest prints. Same argument as the escape
+# controls and the golden fixtures - a tool arriving in one commit with a set of
+# unregistered checks grows this kit's named blind spot by that many at once.
+# One degree stronger again: two of those controls are the only thing keeping
+# that tool from MANUFACTURING findings (a quotation that wraps across a line
+# must still be found), so a control quietly dropped there turns the checker
+# into the defect it was built to catch. Registered as `citation:wrapped-quote`.
+CITATION_ID = re.compile(r'\bCITE\(([a-z0-9-]+)\)')
+# A SIXTH family: the count lint's NEGATIVE CONTROLS, whose ids are the
+# `COUNT(stale-cross-doc)` labels its selftest prints. Same argument again, and
+# the same one-degree-stronger clause the citation family carries: three of
+# those controls are the only thing keeping that tool from MANUFACTURING
+# findings against counts that are correct (a wrapped command counts once; a
+# number inside a paragraph is not a count of the block below it). Registered
+# as `count:wrapped-command`.
+COUNT_ID = re.compile(r'\bCOUNT\(([a-z0-9-]+)\)')
 
 
 def coverage_gaps(fixtures_src: str, entries: list,
@@ -181,15 +198,18 @@ def coverage_gaps(fixtures_src: str, entries: list,
     THE LINT'S OWN BLIND SPOT, closed as far as it can be: a registry can only
     judge what is written in it, so the failure mode it cannot see is an entry
     that is simply absent. For a family whose ids are recoverable from the
-    source, absence IS detectable, and this is that cross-check. It runs over
-    three families now: the hook fixtures, the doctor's checks, and the
-    escape-rate tool's negative controls. The doctor was the reason to
-    generalise it - a diagnostic tool with ten unregistered checks would have
-    grown the kit's named blind spot by ten in one commit - and the escape-rate
-    tool is the same argument a second time.
+    source, absence IS detectable, and this is that cross-check. The families
+    it runs over are FAMILIES below (six of them) - that tuple is the
+    authority, and
+    `--selftest` asserts the prose agrees with it rather than restating a count
+    here that would go stale (it already had: this paragraph said "three" while
+    the tuple held four). The doctor was the reason to generalise it - a
+    diagnostic tool with ten unregistered checks would have grown the kit's
+    named blind spot by ten in one commit - and the escape-rate tool, the
+    gate-line adapter and the citation lint are the same argument again.
 
-    Everything outside those three families still relies on the author adding a
-    row - stated in KNOWN-ISSUES as a residual rather than papered over."""
+    Everything outside those families still relies on the author adding a row -
+    stated in KNOWN-ISSUES as a residual rather than papered over."""
     in_src = set(pattern.findall(fixtures_src or ""))
     prefix = family + ":"
     registered = {e.get("id", "")[len(prefix):]
@@ -216,6 +236,8 @@ FAMILIES = (
     ("tools/kit_doctor.py", DOCTOR_ID, "doctor"),
     ("modules/04-ledgers/escape_rate.py", ESCAPE_ID, "escape"),
     ("modules/03-verification/gate_line.py", GOLDEN_ID, "golden"),
+    ("tools/citation_lint.py", CITATION_ID, "citation"),
+    ("tools/count_lint.py", COUNT_ID, "count"),
 )
 
 
@@ -363,10 +385,28 @@ def selftest() -> int:
           "them from the case id)",
           coverage_gaps(gold_src.replace("{cid}", "subset"), [],
                         GOLDEN_ID, "golden")[0], ["subset"])
-    check("the cross-check runs over FOUR families, and the list is the one "
+    check("CITE-family: an unregistered citation control is reported",
+          coverage_gaps('    check("CITE(wrapped-quote): x",\n', [],
+                        CITATION_ID, "citation")[0], ["wrapped-quote"])
+    check("...and a registered citation control with no code behind it is too",
+          coverage_gaps("", [{"id": "citation:gone", "subject": "s",
+                              "expectation_from": "inline"}],
+                        CITATION_ID, "citation")[1], ["gone"])
+    # The SIXTH family: the count lint's negative controls. Three of them are
+    # the only thing keeping that tool from manufacturing findings against
+    # counts that are right, which is the same argument the citation family
+    # made and the reason both are cross-checked rather than trusted.
+    check("COUNT-family: an unregistered count control is reported",
+          coverage_gaps('    check("COUNT(wrapped-command): x",\n', [],
+                        COUNT_ID, "count")[0], ["wrapped-command"])
+    check("...and a registered count control with no code behind it is too",
+          coverage_gaps("", [{"id": "count:gone", "subject": "s",
+                              "expectation_from": "inline"}],
+                        COUNT_ID, "count")[1], ["gone"])
+    check("the cross-check runs over SIX families, and the list is the one "
           "the waiver reason names",
           [f for _, _, f in FAMILIES],
-          ["fixture", "doctor", "escape", "golden"])
+          ["fixture", "doctor", "escape", "golden", "citation", "count"])
 
     check("...and a registered control that IS in the source is clean",
           coverage_gaps(esc_src, [{"id": "escape:nc-vii", "subject": "s",

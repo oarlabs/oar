@@ -80,6 +80,12 @@ owner INSPECTS the frozen build (their copy; agents never touch it)
       witnessing, not learning.
 ```
 
+**Escape rate is a borrowed instrument, and saying so costs nothing.** It is the
+standard QA measure of defects that reached the user because the process that should
+have caught them did not. What is added here is the denominator: it is computed from
+the judgment ledger, published per round, and held to a ceiling by a gate rather than
+reported on a dashboard. §12 carries the citation.
+
 Non-negotiables inside the loop, each of which earned its place by preventing a named
 failure class on the reference build:
 
@@ -177,7 +183,11 @@ reference builds):
    safety. Precision of the guardrail is its own quality bar.
 5. **Negative controls, always.** A check is proven by making it go red. A gate never
    seen red is unproven. (Corollary from the reference build: a *self-referential* test
-   can pass by matching its own source — assemble needles at runtime.)
+   can pass by matching its own source — assemble needles at runtime.) This is mutation
+   testing's premise applied to gates rather than to unit tests: DeMillo, Lipton and
+   Sayward established in 1978 that a test suite is evaluated by whether an injected
+   fault makes it fail, and a gate that has never been made to fail is unevaluated by
+   the same argument. §12 carries the citation.
 6. **Loud failure over silent drop, at every layer including plumbing.** A correct
    answer must not die to a missing brace; a salvaged answer is flagged, never laundered.
    "The check did not run" and "the check passed" must never look the same — partial
@@ -195,6 +205,11 @@ reference builds):
    itself to that (see the evidence appendix).
 
 ## 6. Cost discipline, with denominators
+
+The shape is the SRE error budget — a ceiling declared in advance, actuals measured
+against it, and a consequence when it is spent — applied to process spend instead of
+unreliability. The ratio is what makes overspending on ceremony as legible as
+overspending on tokens. §12 carries the citation.
 
 - A ledger row per stage with actual spend vs forecast. The budget never silently cuts
   scope; scope is the owner's ruling.
@@ -424,3 +439,38 @@ not by people, and no human has walked `QUICKSTART.md` end to end. The prompts a
 published under `docs/walks/` so the method can be read and re-run — that makes the
 study reproducible, not independent. The first independent adoption is the
 experiment; instrument it.
+
+## 12. Lineage
+
+Every mechanism in this document was re-derived from a failure on the reference build,
+and almost every one of them has an older name. Both facts are true and the second is
+not a subtraction: a practice that two independent derivations arrive at is better
+evidenced than one only this project found. This section names the ancestors, so a
+reader who already knows them does not have to decide whether the omission was
+ignorance or concealment.
+
+**How to read the source column.** A source marked *fetched* was retrieved and read
+during the prior-art audit that produced this section. A source marked *search-result*
+had its URL and title returned by a live search, with the description one remove from
+the page itself. A row marked *no named artifact found* is a practice the audit could
+describe but could not attribute to a specific published source, and it says so rather
+than inventing one. The audit ran on 2026-08-22.
+
+| Mechanism (this document) | Named ancestor | Source | What this kit adds |
+|---|---|---|---|
+| Negative controls: a gate never seen red is unproven (§5, law 5) | Mutation testing. DeMillo, Lipton and Sayward, "Hints on Test Data Selection: Help for the Practicing Programmer", *IEEE Computer* 11(4), 1978, established that a test suite is evaluated by whether an injected fault makes it fail | search-result: `https://www.scirp.org/reference/referencespapers?referenceid=953139` | The argument is applied to governance gates rather than to unit tests, made a shipped requirement over *every* check rather than a sampling technique, and paired with a dead-man clause that scores a silent gate as zero rather than as partial |
+| Escape rate (§2, §11) | Defect escape rate, a standard QA and delivery metric: the share of defects that reached the user because the process that should have caught them did not, with published benchmark bands | search-result: `https://dzone.com/articles/how-to-measure-defect-escape-rate-to-keep-bugs-out`, `https://plandek.com/blog/escaped-defects` | The denominator. It is computed from the judgment ledger rather than a bug tracker, published per round, held to a declared ceiling, and printed as a required line on a certifying run instead of shown on a dashboard |
+| Ratio ceiling with published actuals (§6) | The SRE error budget: a ceiling declared in advance, actuals measured against it, and a consequence when it is spent | fetched: `https://sre.google/sre-book/embracing-risk/` | Process spend substituted for unreliability. The ceremony ratio is what makes overspending on process as legible as overspending on tokens; the audit found no prior instrument measuring process spend over implementation spend |
+| Verifiers onboard from the spec side (§4) | Independent verification and validation, where the reviewing party is organisationally separate from the developing one | search-result: `https://csrc.nist.gov/glossary/term/independent_verification_and_validation` | The agent-specific form is negative — it specifies what the reviewer must **not** be shown, namely the implementer's own account of the work — plus the implementer's mandatory "consciously left out" section as a claim the reviewer cross-checks |
+| Judgment ledger (§1, module 04) | The requirements traceability matrix (requirement → test case, with sign-off and audit trail); and NIST OSCAL, its machine-readable form, where an assessment finding traces to the control statement it tests | search-result: `https://www.perforce.com/resources/alm/requirements-traceability-matrix`, `https://csrc.nist.gov/projects/open-security-controls-assessment-language` | The left column is the owner's ruling in their own words rather than a written requirement, and UNCHECKED is a first-class recorded state with a reason instead of a coverage gap read off an empty cell |
+| Blameless ownership, structural fixes (§8) | SRE postmortem culture, where the postmortem assumes everyone acted reasonably on the information they had and the remedy is a change to the system rather than to a person | search-result: `https://sre.google/sre-book/postmortem-culture/` | Applied to an agent loop, where the "person" is usually a lane that no longer exists, so the structural fix is the only remedy available |
+| Certification is a property of a tree, proven by a cold clone (§3) | Software supply-chain provenance: only a build from a cold clone attests what was actually committed. SLSA and in-toto are the current form of the argument | search-result: `https://slsa.dev/spec/v1.0/distributing-provenance`, `https://slsa.dev/blog/2023/05/in-toto-and-slsa` | The kit attests governance conduct rather than artifacts, and explicitly declines to build a second attestation system inside itself — see `README.md`, "Security scope" |
+| Loop termination: the one-round default (§2, and module 01's WHEN THE LOOP ENDS) | Review-round practice, which reports diminishing returns after the first or second round and recommends approving with comments when the findings are all nits | search-result: `https://mtlynch.io/human-code-reviews-2/`, `https://zylos.ai/research/2026-03-01-multi-model-ai-code-review-convergence/` | Two rules the audit did not find stated elsewhere: each round's worst finding must be less severe than the last or the loop is a redesign signal, and a discovery loop may close AT CAP and NOT-DRY provided it records that it did |
+| Promotion **and** demotion, with last-fired dates (§3) | Retiring controls that have stopped firing is ordinary practice in control rationalisation and in detection engineering | no named artifact found — the audit searched for one and reports the negative result | Forcing the disposition on a schedule, and treating a phase with zero demotions as a finding rather than as a clean run |
+| Andon cord (§4) | The Toyota Production System, where any worker on the line may stop it | **unverified.** The audit did not reach a primary source for jidoka or the andon cord this session; the attribution is recorded as commonly held rather than as checked | Halts are counted and published, the authority runs to the *lowest* agent at any depth, and a phase with zero halts is read as a broken cord |
+
+**What the ancestry audit does not change.** Naming an ancestor is not conceding the
+mechanism was copied — each of these was re-derived from a specific failure, and the
+register records which. It is conceding that the re-derivation is not the interesting
+part. `COMPARISON.md` carries the same discipline against live competitors rather than
+against ancestors, and states which of this kit's claims survive it.

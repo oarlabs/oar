@@ -44,13 +44,20 @@ It also runs no gate, mints no token, and edits no config.
 ==========================================================================
 TWO CHECK SETS, AND WHY THEY DO NOT MIX
 ==========================================================================
-The ten default checks read a verify runner, a settings file and a hook. A
+The {N_FULL} default checks read a verify runner, a settings file and a hook. A
 tree adopted by `LEVEL-1.md` has none of those on purpose: Level 1 installs
 documents. Running the default set against it would report ATTENTION on six
-checks about files the adopter was told not to install, which is a tool
-teaching its reader to ignore it.
+checks, most of them about files the adopter was told not to install, which is
+a tool teaching its reader to ignore it.
 
-So `--level1` runs the five `doctor:l1-*` checks instead, over the documents
+(The two counts in this section are NOT typed here. They are substituted from
+`len(CHECKS)` and `len(L1_CHECKS)` immediately after those lists are defined,
+because the typed versions drifted: this docstring said "ten" and "five" while
+the lists held 12 and 7, and nothing related the prose to the code. The six is
+measured rather than derived - run the full set against a Level-1 tree - and it
+is the one number in this file a reader still has to check by hand.)
+
+So `--level1` runs the {N_L1} `doctor:l1-*` checks instead, over the documents
 Level 1 does install. They judge SHAPE - present, rendered, committed, and
 carrying the two answers Level 1 asks for. They judge no CONTENT and run no
 gate, and the green summary says so in the same breath as the green: what it
@@ -925,19 +932,37 @@ def judge_floor_staleness(rep: dict, window_stages: int, source) -> Finding:
 # ratio and `KNOWN-ISSUES.md` uses for the escape-rate ceiling.
 #
 # STEP 1 - the observations, measured rather than estimated. The kit's shipped
-# rules template renders to 191 lines (227 in the file, minus the 36-line
+# rules template renders to 224 lines (260 in the file, minus the 36-line
 # header block the template tells the adopter to delete). The checkpoint's
 # shape contract carries a MEASURED norm of about 90 lines, published in
 # CONTEXT-ARCHITECTURE section 3, BLUEPRINT section 7 and the rules template
-# itself. The shipped binding digest is therefore 191 + 90 = 281 lines.
-# STEP 2 - 281 x 1.15 = 323.15, rounded up to the nearest 25: 325.
+# itself. The shipped binding digest is therefore 224 + 90 = 314 lines.
+# STEP 2 - 314 x 1.15 = 361.1, rounded up to the nearest 25: 375.
+# RE-DERIVED FOUR TIMES NOW - TWICE IN ROUND 24, AGAIN IN ROUND 25, AGAIN IN
+# ROUND 26 - WHICH IS THE BINDING WORKING rather than a number being chased.
+# The history, because each re-derivation is evidence the guard fires:
+#   round 24  the declined-oracle clause (WHEN THE LOOP ENDS, rule 7) grew the
+#             template 191 -> 206 rendered lines, and that clause's own fix
+#             pass grew it again to 209. Ceiling landed on 350 both times.
+#   round 25  rule 8 itself, the self-coverage rule, tripped the guard on
+#             arrival exactly as its own text predicts: 209 -> 219, ceiling
+#             re-derived 350 -> 375.
+#   round 26  rule 8's measured-instance citation was rewritten to name its
+#             source and the real check id: 219 -> 224. Ceiling re-derived and
+#             UNCHANGED at 375, because (224 + 90) x 1.15 = 361.1 still rounds
+#             up into the same 25-line bucket.
+# Measured, not assumed: run with a stale constant the selftest fails naming
+# both numbers (`got 224, want 219` the last time), which is exactly what the
+# binding below promises. The ceiling is re-derived from each new measurement
+# rather than the assertion relaxed, and it is allowed to stay where it is
+# when the arithmetic puts it there.
 # STEP 3 - the backwards sanity check, and one half of it is evidence while
-# the other is arithmetic. The half that carries no information: at 325 the
+# the other is arithmetic. The half that carries no information: at 375 the
 # kit's own shipped pair passes, which is true by construction because step 2
-# set the ceiling above it. The half that does: the shipped pair sits 44 lines
-# (13.5%) below the line rather than at it, so ordinary project-specific
+# set the ceiling above it. The half that does: the shipped pair sits 61 lines
+# (16.3%) below the line rather than at it, so ordinary project-specific
 # additions fit, while a rules file that has merely DOUBLED from the shipped
-# template (382 lines) breaches it on its own with no checkpoint at all. That
+# template (448 lines) breaches it on its own with no checkpoint at all. That
 # is where this threshold actually sits.
 # STEP 4 - n = 2 observations, one project, one maintainer's measurement. LOW
 # confidence, and lower than the escape-rate ceiling's. Re-derive it from your
@@ -946,12 +971,14 @@ def judge_floor_staleness(rep: dict, window_stages: int, source) -> Finding:
 #
 # THE FIRST OBSERVATION IS BOUND TO THE FILE IT CAME FROM. `--selftest`
 # measures `modules/01-governance/CLAUDE.md.template` and requires it to still
-# be 191 rendered lines; if the template grows, the derivation's input has
-# moved and the selftest goes red naming both numbers, rather than the ceiling
-# silently ceasing to mean what this comment says it means.
-DIGEST_SHIPPED_RULES_LINES = 191
+# be DIGEST_SHIPPED_RULES_LINES rendered lines; if the template grows, the
+# derivation's input has moved and the selftest goes red naming both numbers,
+# rather than the ceiling silently ceasing to mean what this comment says it
+# means. The numbers in this comment are part of the same contract: when the
+# constant below moves, STEP 1, STEP 2 and STEP 3 are re-stated with it.
+DIGEST_SHIPPED_RULES_LINES = 224
 DIGEST_CHECKPOINT_NORM_LINES = 90
-DIGEST_CEILING_LINES = 325
+DIGEST_CEILING_LINES = 375
 
 
 def rendered_template_lines(text: str) -> int:
@@ -1040,6 +1067,65 @@ L1_LEDGERS = ("JUDGMENT-LEDGER.md", "FAILURE-FLOOR.md", "LESSONS.md",
               "TOKEN-LEDGER.md")
 L1_PROFILE = "collaboration-profile.md"
 L1_RULES = "CLAUDE.md"
+
+# ==========================================================================
+# PRESENT IS NOT ADOPTED - the module-01 fingerprints
+# ==========================================================================
+# Round 24's acceptance run adopted the kit into a repository that already had
+# a 30-line `CLAUDE.md` of its own. The adoption never opened it for writing.
+# This check reported it as `CLAUDE.md (module 01 as prose)`, the green line
+# certified six documents where five had been installed, and the REMOVAL COST
+# line told a reader to delete a file the adoption never wrote. On an existing
+# project, presence-at-a-path and adoption are different facts.
+#
+# THE MECHANISM, and it is a choice with a cost: the kit's own TEMPLATE
+# FINGERPRINTS. These strings are section headings and rule sentences of
+# `modules/01-governance/CLAUDE.md.template` - seven headings and one rule
+# sentence, which is why the reader-facing lines call them FINGERPRINTS and
+# not "section headings" (round 24 review, m6) - that carry no {{SLOT}}, so they
+# survive rendering unchanged; a file carrying at least MIN of them is module
+# 01 as prose, however it got there. Held as literals because an adopted tree
+# has no `modules/` directory to read, and held to the shipped template by a
+# `--selftest` cross-check that runs whenever this tool sits in a kit checkout
+# - the same arrangement `L1_LEDGERS` ships under.
+#
+# WHY NOT GIT PROVENANCE: the honest question is "did this adoption write this
+# file", and git cannot answer it at the moment the check runs. Step 5 runs
+# BEFORE the commit, so an adopted rules file is untracked or modified and a
+# pre-existing one is clean - which would report the two backwards - and after
+# the commit a MERGED file (the route `EXISTING-PROJECT.md` prescribes for a
+# host that already has rules) is indistinguishable from an overwritten one by
+# commit history alone. Fingerprints answer the question the reader is asking.
+#
+# THE RESIDUAL, STATED IN BOTH DIRECTIONS:
+#   - An adoption that deleted or rewrote nearly every kit heading - which the
+#     template's own instruction 2 invites - reads as PRE-EXISTING. The check
+#     then understates what was installed. WHAT THE OUTPUT MAY THEREFORE SAY
+#     (round 24 review, M3): the printed lines claim the COUNT and nothing
+#     about provenance. This mechanism cannot establish that a file is the
+#     owner's own, that it is untouched, or that this level did not install
+#     it; it establishes that the file carries fewer than MIN of the kit's
+#     fingerprints. Both branches print the two integers they used, and the
+#     not-adopted line names the reworded-adoption case out loud.
+#   - A host file that happens to contain two of these headings reads as
+#     ADOPTED. It would have to contain the kit's own section titles to do it.
+#   - A MERGED file reads as ADOPTED, which is correct: module 01's prose is
+#     in it. Removing it is then a revert rather than a delete, which is what
+#     the REMOVAL COST line already says of a merged document.
+L1_RULES_FINGERPRINTS = (
+    "MODEL TIERING",
+    "HALT authority",
+    "WHEN THE LOOP ENDS",
+    "Reviewers onboard SPEC-SIDE",
+    "ORACLE MANUFACTURE",
+    "STRUCTURE OVER SENTENCES",
+    "Stage close checklist",
+    "Certification is a property of a",
+)
+# Two, not one: one heading is a coincidence a host document could reach on its
+# own vocabulary; two of the kit's own section titles in one file is the kit's
+# prose. Stated as a number here so it can be argued with.
+L1_RULES_MIN_FINGERPRINTS = 2
 
 # The template header blocks. A document still carrying one is a document
 # nobody read to the end: each block's last line tells the adopter to delete it.
@@ -1206,16 +1292,56 @@ def level1_hint(has_runner: bool, has_hook: bool, l1_docs: list) -> str:
             f"`--level1` for the checks that apply to this tree.")
 
 
+def rules_file_provenance(text):
+    """(is_adopted, [fingerprints found]) for a host rules file. Pure.
+
+    `text` None means there is no such file; the answer is then (None, []).
+    See the L1_RULES_FINGERPRINTS block for the mechanism and its residual."""
+    if text is None:
+        return None, []
+    hits = [f for f in L1_RULES_FINGERPRINTS if f in text]
+    return len(hits) >= L1_RULES_MIN_FINGERPRINTS, hits
+
+
 def judge_l1_documents(required: list, optional: list) -> Finding:
-    """`required` and `optional` are [(label, path_or_None)] - the path when the
-    document was found, None when it was not."""
+    """`required` is [(label, path_or_None)]. `optional` is
+    [(label, path_or_None, adopted_or_None, fingerprints)] - `adopted` is None
+    when the file is absent, True when it carries module 01's prose, and False
+    when a file of that name is there but is the host's own.
+
+    PRESENT IS NOT ADOPTED. A document that is simply there is not a document
+    this adoption installed, and on an existing project the difference decides
+    what the removal cost may name."""
+    optional = [(o + (None, []))[:4] if len(o) < 4 else o for o in optional]
     missing = [lab for lab, p in required if p is None]
-    absent_opt = [lab for lab, p in optional if p is None]
-    found = [lab for lab, p in required + optional if p is not None]
+    absent_opt = [lab for lab, p, a, _ in optional if p is None]
+    host_own = [(lab, hits) for lab, p, a, hits in optional
+                if p is not None and a is False]
+    # THE ADOPTED BRANCH PRINTS ITS NUMBERS TOO (round 24 review, M4). The
+    # decision that lets REMOVAL COST name a file is the one a reader most
+    # needs the basis of, and before this it was the only branch that printed
+    # none. Both branches now carry the same two integers.
+    found = ([lab for lab, p in required if p is not None]
+             + [f"{lab} — {len(h)} of {len(L1_RULES_FINGERPRINTS)} "
+                f"fingerprints found; {L1_RULES_MIN_FINGERPRINTS} is the floor"
+                for lab, p, a, h in optional if p is not None and a])
     tail = ("" if not absent_opt else
             f"\n      NOT TAKEN (optional at this level): "
             f"{', '.join(absent_opt)}. Level 1 recommends the governance "
             f"rules as prose; it does not require them.")
+    for lab, hits in host_own:
+        tail += (
+            f"\n      PRESENT BUT NOT ADOPTED: {lab.split()[0]} carries too "
+            f"little of module 01's prose to read as an adoption "
+            f"({len(hits)} of {len(L1_RULES_FINGERPRINTS)} fingerprints found; "
+            f"{L1_RULES_MIN_FINGERPRINTS} is the floor). It is "
+            f"not counted as a Level-1 document and the removal cost below "
+            f"does not name it — deleting it could remove rules that are the "
+            f"owner's own. If you MEANT to adopt module 01 as prose over an "
+            f"existing "
+            f"rules file, the route is `EXISTING-PROJECT.md`: render, read the "
+            f"diff, then merge by hand with the kit's rules as the base and "
+            f"your existing rules preserved verbatim under a marked heading.")
     if missing:
         return Finding(
             ATTENTION, f"{len(missing)} Level-1 document(s) missing",
@@ -1226,6 +1352,78 @@ def judge_l1_documents(required: list, optional: list) -> Finding:
     return Finding(
         OK, f"{len(found)} Level-1 document(s) present",
         "      " + "\n      ".join(found) + tail)
+
+
+def level1_summary_lines(n_scanned: int, commit_clause: str, rules_adopted,
+                         rules_hits: list, outside_disp: list,
+                         removal: list) -> list:
+    """The lines a GREEN Level-1 run ends in: CERTIFIES, DOES NOT CERTIFY,
+    REMOVAL COST, and the two conditional lines between them. Returned rather
+    than printed so the SENTENCES can carry negative controls.
+
+    ROUND 24's REVIEW, M10, IS WHY THIS IS A FUNCTION. F3's fix was tested
+    where it computes (`rules_file_provenance`, `judge_l1_documents`) and not
+    where it speaks, and four findings shipped at the two print sites this
+    function now holds. A control that reads what the reader reads is the
+    layer that was missing.
+
+    `rules_adopted` is True, False or None (no such file). `removal` is the
+    file list REMOVAL COST names. Colour is included because the caller prints
+    these verbatim; assertions match on substrings."""
+    out = [
+        f"  {BOLD}CERTIFIES{RESET} — and only this: the "
+        f"{n_scanned} document(s) listed above exist where this "
+        f"repository names them, carry no unsubstituted {{{{SLOT}}}}, no "
+        f"template header block and no shipped example value, "
+        f"{commit_clause}, and record the KNOWLEDGE_DIR decision and the "
+        f"seed interview's status."]
+    if rules_adopted is False:
+        # THE LINE ROUND 24's F3 EXISTS FOR, REWORDED BY ITS REVIEW (M3). A
+        # reader following REMOVAL COST literally deletes what it names, so a
+        # file this level may not have written is called out above that line.
+        # What the sentence may claim is bounded by what the fingerprint count
+        # can establish: a COUNT, never a provenance. "the owner's own",
+        # "untouched" and "this level did not install it" were three claims
+        # the mechanism cannot make, and on a trimmed adoption all three were
+        # false about a file the level had installed.
+        out.append(
+            f"    NOT ADOPTED, AND NOT COUNTED ABOVE: host {L1_RULES} carries "
+            f"fewer than {L1_RULES_MIN_FINGERPRINTS} of module 01's "
+            f"{len(L1_RULES_FINGERPRINTS)} fingerprints "
+            f"({len(rules_hits)} found), so this check reads it as a rules "
+            f"file of your own, does not count it above, and the removal cost "
+            f"below does not name it. THE LIMIT OF THAT READING: if module 01 "
+            f"WAS adopted here and its headings were reworded, the count is "
+            f"the same and this check cannot tell the two apart — you can, so "
+            f"say which it is in your report.")
+    if outside_disp:
+        out.append(
+            f"    NOT IN THAT COMMIT CLAIM: {', '.join(outside_disp)} — read "
+            f"and rendering-checked, but outside this work tree, so its "
+            f"commit state was not judged by anything here.")
+    out.append(
+        f"  {BOLD}DOES NOT CERTIFY{RESET}: any behaviour. No gate ran — "
+        f"Level 1 installs none. Nothing enforces these rules, no agent is "
+        f"checked against them, no hook fires, and the CONTENT of these "
+        f"documents is not judged: a ledger with a correct header and no "
+        f"rows passes every check above. `PASS` belongs to `verify.py`, "
+        f"which Level 2 installs (`QUICKSTART.md`).")
+    # THE CLOSING CLAUSE NAMES NO RULES FILE (round 24 review, m5). It used to
+    # offer `CLAUDE.md` and `.gitignore` as "the usual two" merge targets, on
+    # every run - including the run whose line above had just promised that
+    # the removal cost does not name it. The merge case is stated generically;
+    # a rules file that this level DID install is already in the list above.
+    out.append(
+        f"  {BOLD}REMOVAL COST{RESET}: {len(removal)} file(s) "
+        f"in this repository — {', '.join(removal)}"
+        + (f" — plus {len(outside_disp)} outside it" if outside_disp else "")
+        + ". No settings file, no hook and no harness wiring were "
+          "installed, so there is nothing merged into `.claude/` to unpick. "
+          "Delete the files this line names and the level is gone — EXCEPT "
+          "where you merged one of them into a file you already had "
+          "(`.gitignore` is the usual case), which is a revert rather than a "
+          "delete.")
+    return out
 
 
 def exemption_line(exempted) -> str:
@@ -1614,6 +1812,17 @@ CHECKS = [
 # hand-listed, so an eighth Level-1 check cannot be added to the table and left
 # out of the run.
 L1_CHECKS = [c for c, _ in CHECKS if c.startswith("doctor:l1-")]
+
+# THE PROSE COUNTS, SUBSTITUTED RATHER THAN TYPED. A hand-maintained count in
+# prose goes stale the first time a check lands - this kit's own recorded
+# lesson, and the reason `.github/workflows/kit-ci.yml` dropped its count too.
+# The module docstring and `--help` therefore carry `{N_FULL}` / `{N_L1}`
+# sentinels and get the real numbers from the lists above. Guarded because
+# `python -OO` strips docstrings and leaves `__doc__` as None.
+N_FULL = len(CHECKS) - len(L1_CHECKS)
+N_L1 = len(L1_CHECKS)
+if __doc__:
+    __doc__ = __doc__.replace("{N_FULL}", str(N_FULL)).replace("{N_L1}", str(N_L1))
 
 
 # ==========================================================================
@@ -2167,9 +2376,19 @@ def run_level1(root: Path) -> int:
         (disp(prof_paths[0]) + "  (the collaboration profile)" if prof_paths
          else f"{ledgers}/{L1_PROFILE}  (the collaboration profile)",
          prof_paths[0] if prof_paths else None))
+    # The rules file: present is not adopted. A host that already had a
+    # `CLAUDE.md` still has one, and this adoption may never have opened it.
     rules_path = root / L1_RULES
+    rules_text = None
+    if rules_path.is_file():
+        try:
+            rules_text = rules_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            rules_text = ""
+    rules_adopted, rules_hits = rules_file_provenance(rules_text)
     optional = [(L1_RULES + " (module 01 as prose)",
-                 rules_path if rules_path.is_file() else None)]
+                 rules_path if rules_path.is_file() else None,
+                 rules_adopted, rules_hits)]
 
     def add(cid: str, f: Finding):
         findings.append((cid, f))
@@ -2205,7 +2424,11 @@ def run_level1(root: Path) -> int:
                                   f"{ledgers}/"))
 
     # ---- rendered? -------------------------------------------------------
-    scanned = [p for _, p in required + optional if p is not None]
+    # A rules file that is the host's own is NOT scanned for shipped example
+    # values: this check judges the documents this adoption installed, and
+    # `Example Project` in somebody's own rules file is their business.
+    scanned = ([p for _, p in required if p is not None]
+               + [p for _, p, a, _ in optional if p is not None and a])
     if len(prof_paths) > 1:
         scanned += prof_paths[1:]
     problems = []
@@ -2292,37 +2515,17 @@ def run_level1(root: Path) -> int:
     commit_clause = ("are committed to git" if not outside else
                      f"the {len(rels)} of them inside this repository are "
                      f"committed to git")
-    print(f"  {BOLD}CERTIFIES{RESET} — and only this: the "
-          f"{len(scanned)} document(s) listed above exist where this "
-          f"repository names them, carry no unsubstituted {{{{SLOT}}}}, no "
-          f"template header block and no shipped example value, "
-          f"{commit_clause}, and record the KNOWLEDGE_DIR decision and the "
-          f"seed interview's status.")
-    if outside:
-        print(f"    NOT IN THAT COMMIT CLAIM: "
-              f"{', '.join(disp(p) for p in outside)} — read and "
-              f"rendering-checked, but outside this work tree, so its commit "
-              f"state was not judged by anything here.")
-    print(f"  {BOLD}DOES NOT CERTIFY{RESET}: any behaviour. No gate ran — "
-          f"Level 1 installs none. Nothing enforces these rules, no agent is "
-          f"checked against them, no hook fires, and the CONTENT of these "
-          f"documents is not judged: a ledger with a correct header and no "
-          f"rows passes every check above. `PASS` belongs to `verify.py`, "
-          f"which Level 2 installs (`QUICKSTART.md`).")
     # The config files count. They are not documents and no check above reads
     # them as one, but the adopter added them and a removal cost that omits
     # them is a removal cost that is wrong.
     cfg_extra = [r for r in ("kit.config", "kit.config.local")
                  if (root / r).is_file()]
-    print(f"  {BOLD}REMOVAL COST{RESET}: {len(rels) + len(cfg_extra)} file(s) "
-          f"in this repository — {', '.join(rels + cfg_extra)}"
-          + (f" — plus {len(outside)} outside it" if outside else "")
-          + ". No settings file, no hook and no harness wiring were "
-            "installed, so there is nothing merged into `.claude/` to unpick. "
-            "Delete the files and the level is gone — EXCEPT where you merged "
-            "a document into one you already had (`CLAUDE.md` and "
-            "`.gitignore` are the usual two), which is a revert rather than a "
-            "delete.")
+    # The sentences themselves live in `level1_summary_lines`, where the
+    # selftest can read them (round 24 review, M10).
+    for ln in level1_summary_lines(len(scanned), commit_clause, rules_adopted,
+                                   rules_hits, [disp(p) for p in outside],
+                                   rels + cfg_extra):
+        print(ln)
     return code
 
 
@@ -2876,9 +3079,16 @@ def selftest() -> int:
 
     # THE CEILING'S FIRST OBSERVATION, BOUND TO THE FILE IT WAS MEASURED
     # FROM. The derivation in the comment above DIGEST_CEILING_LINES starts
-    # from the shipped rules template at 191 rendered lines. If that template
+    # from the shipped rules template's rendered line count. If that template
     # grows, the input has moved and the ceiling stops meaning what the
     # comment says - so this reads the file rather than trusting the number.
+    #
+    # ROUND 26 (m1): the third label below used to SPELL the arithmetic as
+    # "(209 + 90) x 1.15" while both sides of its assertion read the live
+    # constant, so the sentence a human read was never compared to anything
+    # and stayed two revisions stale through 191 -> 206 -> 209 -> 219. The
+    # label is now BUILT FROM THE CONSTANTS, which makes the prose a third
+    # reader of the same source rather than a free-standing claim about it.
     _tmpl = (HERE.parent / "modules" / "01-governance" / "CLAUDE.md.template")
     check("the ceiling's first observation is the SHIPPED template, measured "
           "now, not a number somebody typed once",
@@ -2889,7 +3099,8 @@ def selftest() -> int:
           len(_tmpl.read_text(encoding="utf-8").splitlines())
           > DIGEST_SHIPPED_RULES_LINES, True)
     check("...and the ceiling is the derivation's arithmetic, not a "
-          "free-standing number: (191 + 90) x 1.15, rounded up to 25",
+          "free-standing number: ({} + {}) x 1.15, rounded up to 25"
+          .format(DIGEST_SHIPPED_RULES_LINES, DIGEST_CHECKPOINT_NORM_LINES),
           DIGEST_CEILING_LINES,
           25 * -(-int((DIGEST_SHIPPED_RULES_LINES
                        + DIGEST_CHECKPOINT_NORM_LINES) * 1.15) // 25))
@@ -3138,6 +3349,102 @@ def selftest() -> int:
            "docs/LESSONS.md" in
            judge_l1_documents([("docs/LESSONS.md", None)], []).detail],
           [ATTENTION, True])
+
+    # ---- PRESENT IS NOT ADOPTED (round 24, F3) --------------------------
+    # A rules file at the right path was counted as module 01 adopted as
+    # prose, so a green line certified six documents where five were
+    # installed and told the reader to delete the sixth. Both directions are
+    # asserted here, against the REAL provenance function.
+    _host_rules = ("# a host project — its own rules\n\n"
+                   "Run `python -m pytest -q` before every commit. Evidence "
+                   "pages live under docs/evidence/.\n")
+    _adopted_rules = (
+        "# a host project — binding coordinator rules\n\n"
+        "## MODEL TIERING — the orchestrator orchestrates\n\n"
+        "Every spawn declares an explicit model tier.\n\n"
+        "## WHEN THE LOOP ENDS — review terminates by rule\n\n"
+        "One review round by default.\n")
+    check("F3: a host's OWN rules file is not module 01 as prose",
+          rules_file_provenance(_host_rules)[0], False)
+    check("F3: ...and a file carrying module 01's headings IS",
+          rules_file_provenance(_adopted_rules)[0], True)
+    check("F3: ...and no file at all is neither, not a false negative",
+          rules_file_provenance(None), (None, []))
+    check("F3: the floor is a COUNT of fingerprints, and one is not enough "
+          "(a host may reach one heading on its own vocabulary)",
+          rules_file_provenance("# rules\n\n## MODEL TIERING\n")[0], False)
+    _pre = judge_l1_documents(
+        [("docs/LESSONS.md", _p)],
+        [(L1_RULES + " (module 01 as prose)", _p, False, [])])
+    check("F3: NC — a PRE-EXISTING rules file is not counted as a Level-1 "
+          "document",
+          _pre.headline, "1 Level-1 document(s) present")
+    check("F3: ...and the finding says so, in the words a reader needs",
+          "PRESENT BUT NOT ADOPTED" in _pre.detail, True)
+    check("F3: ...and it is still OK, not ATTENTION — the host having its "
+          "own rules file is not a defect", _pre.state, OK)
+    check("F3: ...and the NOT-ADOPTED line claims a COUNT, never a provenance "
+          "— no 'untouched', no 'the owner's own', no 'did not install it' "
+          "(round 24 review, M3)",
+          [w for w in ("untouched", "did not install",
+                       "carries none of module 01") if w in _pre.detail], [])
+    _took = judge_l1_documents(
+        [("docs/LESSONS.md", _p)],
+        [(L1_RULES + " (module 01 as prose)", _p, True,
+          list(L1_RULES_FINGERPRINTS[:2]))])
+    check("F3: the OTHER direction — an actually adopted module-01 prose "
+          "file still counts",
+          [_took.headline, "PRESENT BUT NOT ADOPTED" in _took.detail],
+          ["2 Level-1 document(s) present", False])
+    check("F3: ...and the ADOPTED branch prints the numbers it decided on "
+          "too, which is the direction that lets REMOVAL COST name a file "
+          "(round 24 review, M4)",
+          ["2 of 8 fingerprints found; 2 is the floor" in _took.detail,
+           "2 of 8 fingerprints found; 2 is the floor" in _pre.detail],
+          [True, False])
+
+    # ---- THE PRINT SITE, NOT THE PURE LAYER (round 24 review, M10) -------
+    # Everything above asserts the functions that DECIDE. These assert the
+    # sentences a reader actually gets, which is where four findings of the
+    # round shipped: a green line claiming provenance it could not establish,
+    # an adopted branch with no numbers, and a REMOVAL COST closing clause
+    # naming the very file the line above it had just promised to leave out.
+    _own = level1_summary_lines(5, "are committed to git", False, ["MODEL "
+                                "TIERING"], [], ["docs/LESSONS.md",
+                                                 "kit.config"])
+    _own_txt = "\n".join(_own)
+    check("M10: NC — on a host rules file below the floor, the summary says "
+          "so WITH ITS NUMBERS", ["fewer than 2 of module 01's 8 fingerprints"
+                                  in _own_txt, "(1 found)" in _own_txt],
+          [True, True])
+    _own_cost = [ln for ln in _own if "REMOVAL COST" in ln][0]
+    check("M10: NC — and `CLAUDE.md` appears in NO part of REMOVAL COST on "
+          "that run, its closing merge clause included",
+          L1_RULES in _own_cost, False)
+    check("M10: ...and the summary states the limit of the reading rather "
+          "than asserting provenance",
+          ["cannot tell the two apart" in _own_txt,
+           "untouched" in _own_txt, "the owner's own" in _own_txt],
+          [True, False, False])
+    _ado = level1_summary_lines(6, "are committed to git", True,
+                                list(L1_RULES_FINGERPRINTS),
+                                [], ["docs/LESSONS.md", L1_RULES,
+                                     "kit.config"])
+    _ado_txt = "\n".join(_ado)
+    check("M10: the OTHER direction — an adopted rules file IS named in "
+          "REMOVAL COST, and the not-adopted line is absent",
+          [L1_RULES in _ado_txt, "NOT ADOPTED, AND NOT COUNTED" in _ado_txt],
+          [True, False])
+    check("M10: no such file at all — neither line fires, and the closing "
+          "clause still names no rules file",
+          [("NOT ADOPTED, AND NOT COUNTED" in t, L1_RULES in t)
+           for t in ["\n".join(level1_summary_lines(
+               5, "are committed to git", None, [], [], ["kit.config"]))]],
+          [(False, False)])
+    check("M10: every summary carries all three headline words, in order",
+          [[w for w in ("CERTIFIES", "DOES NOT CERTIFY", "REMOVAL COST")
+            if w in t] for t in (_own_txt, _ado_txt)],
+          [["CERTIFIES", "DOES NOT CERTIFY", "REMOVAL COST"]] * 2)
     check("no rendering problem is OK; one is ATTENTION",
           [judge_l1_rendered([], 6).state,
            judge_l1_rendered(["docs/x.md: {{A}} was never substituted"],
@@ -3231,6 +3538,18 @@ def selftest() -> int:
               sorted(p.name for p in
                      (_kit / "modules" / "04-ledgers").glob("*.md")
                      if p.name != "README.md"), sorted(L1_LEDGERS))
+        # The module-01 fingerprints are literals for the same reason the
+        # ledger names are - an adopted tree has no `modules/` to read - so
+        # they are held to the shipped template here, in the kit, rather than
+        # drifting quietly and reading an adopted file as the host's own.
+        _tpl = (_kit / "modules" / "01-governance"
+                / "CLAUDE.md.template").read_text(encoding="utf-8")
+        check("CROSS-CHECK: every module-01 fingerprint is in the SHIPPED "
+              "rules template",
+              [f for f in L1_RULES_FINGERPRINTS if f not in _tpl], [])
+        check("CROSS-CHECK: ...and the shipped template itself reads as "
+              "module 01 as prose, which is the claim the fingerprints make",
+              rules_file_provenance(_tpl)[0], True)
         _prof = (_kit / "modules" / "08-collaboration"
                  / "PROFILE-TEMPLATE.md").read_text(encoding="utf-8")
         _m = L1_INTERVIEW.search(_prof)
@@ -3304,7 +3623,7 @@ def main() -> int:
         epilog="exit 0 HEALTHY · 1 ATTENTION · 2 ABORT")
     ap.add_argument("--root", default="", help="the repository to diagnose")
     ap.add_argument("--level1", action="store_true",
-                    help="the documents-only diagnosis: the five "
+                    help=f"the documents-only diagnosis: the {N_L1} "
                          "`doctor:l1-*` checks, for a tree adopted by "
                          "LEVEL-1.md (no runner, no hook, no settings file)")
     ap.add_argument("--selftest", action="store_true")

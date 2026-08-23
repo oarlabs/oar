@@ -14,6 +14,24 @@ It is also the tool YOU want after you adopt the kit, pointed the other way: run
 it over anything you are about to publish, share, or hand to a client, with your
 own private token list.
 
+WHAT THIS IS NOT, AND WHO OWNS THAT CLASS
+=========================================
+This is NOT a secret scanner and it does not compete with one. `gitleaks` and
+`TruffleHog` are the incumbents for credentials: the first decides whether a
+string LOOKS LIKE a secret, the second whether the secret WORKS. Both detect by
+shape and entropy over a maintained rule set, and neither needs you to know in
+advance what you are looking for. Run one of them for that class - this tool
+will not find your cloud key.
+
+What this tool covers is the adjacent job those two do not do: PROGRAM-IDENTITY
+tokens, which have no detectable shape. A person's name, a username, an
+employer, a machine path fragment and an internal project name are ordinary
+words; nothing separates them from prose except a list somebody wrote. So this
+scanner takes the list as its input, and its whole quality is the list's
+quality - which is why the run prints the token count, and why an empty list
+under --strict is an ABORT rather than a green. A green here says the words on
+your list are absent from the tree. It says nothing whatever about secrets.
+
 THE CONTRACT
 ============
     exit 0   clean - no token from the list appears anywhere in the scanned tree

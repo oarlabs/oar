@@ -49,6 +49,12 @@ note; the table is what the numbers mean.
 | 19 | **Funded-builds round** — not a walk: the three builds funded out of rounds 15 and 17 (the Level-1 onboarding path; the escape-rate instrument whose table this register now carries; the walk-label relabel with `docs/walks/`), each run impl → spec-side review → single fix pass under the round-18 stopping rules | 30 dispositioned review findings across the three builds (10 + 10 + 10); a further 14 were REJECTED below the materiality bar with one-line reasons. Notable: the relabel build's three MAJORs shared one root cause — attribution written from memory rather than from the source, including one invented quotation — for which no covering check exists; recorded as an oracle candidate (verify a quoted string appears in its cited source), not an escape | All 30 fixed in single fix passes, none needing a second review round; the Level-1 shipped-values escape fixed by relocating the placeholder rule to a single authority and manufacturing its missing selftest oracle; the instrument's two escapes (a silently driftable ceiling; a stale module row) fixed with a bound cross-check and the row edit |
 | 20 | **Positioning-and-instrumentation round** — not a walk: three small owner-funded items (the README "Beyond code" scope statement; the decision brief's tiering-economics paragraph; the optional module-05 escape-rate sparkline), one build, one spec-side review, one fix pass | 7 dispositioned review findings (5 MINOR, 2 NIT), zero MAJOR; a further 7 REJECTED below the bar with reasons. The two live-proven check gaps: a registry reason claiming a ceiling binding its check did not deliver (the reviewer's mutation passed 90/90), and a selftest line that crashed instead of failing — both the claims-more-than-it-verifies class | All 7 fixed in one pass; the ceiling binding was made real (the mutation now fails, naming its check) rather than re-worded; the statusline selftest grew 90 → 94; every prose citation in the new sections was cross-checked against this register and held |
 | 21 | **Existing-project round** — the first measured brownfield adoption walk (closing the decision brief's never-measured caveat) plus its ruled fix round: an LLM-persona walker adopted the kit @ `990b950` into a prepared repository that really had a pytest suite, CI, populated docs, a `.claude/`-covering ignore file, a pre-existing `CLAUDE.md` and settings file, and uncommitted work; then a code lane and a doc lane fixed the ruled findings, one spec-side review ran with mutation tests on a tree copy, and one fix pass closed its punch list | 22 dispositioned items: the walk's 16 findings (6 MAJOR, 6 MINOR, 4 NIT — all six MAJORs one root cause, the empty-repository assumption) and the Level-1 dogfood's six (F1–F6). The review returned APPROVE-WITH-PUNCH-ITEMS: 1 MAJOR + 4 MINOR punch items on the round's own fixes (all five fixed in the fix pass; the MAJOR was the round's own "safer" commit line failing on the repository shape it was prescribed for), plus 3 findings REJECTED below the bar with reasons. The 5 punch items are review findings on work built this round and are not added to the item count — adding them would enlarge the denominator and lower the rate, so the worse reading is published | 20 FIXED (the existing-project branch through Steps 1/4/6/9; the render route made required over pre-existing files; the runner's printed remedy corrected; `gate_line.py` + captured pytest goldens; F1–F5 as mechanical checks; `EXISTING-PROJECT.md`; `docs/walks/WALKING-YOUR-OWN-DOCUMENTS.md`), 1 RECORD-OPEN (P3W-7, gate-schema exact-count expressiveness, fix shape stated), 1 scoped-honest (F6). Independent note: the walk report's claim that an ignored-path `git add` fails atomically was measured false by two later instruments; the shipping text states the true behaviour and discloses the correction |
+| 22 | **Drop-and-go round (R6-A1)** — `ONBOARD.md`, the agent-facing entry document, built impl → spec-side review → single fix pass under the standing stopping rules | 11 dispositioned items: the review's F1–F9 (1 MAJOR-as-filed, 6 MINOR, 2 NIT), the fix pass's F11, and pre-existing P1 (kit_doctor count drift). One review finding (F10) REJECTED below the bar with its reason, uncounted per the worse-reading rule. **F1's MAJOR was an instrument false positive:** the "fabricated" quotation is real, split across a line wrap the review's line-oriented grep could not match; the surviving defect is a wrong-section citation, MINOR. The same blind-spot class (newlines inside quoted strings) appeared in the first build of this round's own new check and was forced red before handoff | All fixed except F10 (rejected, reason recorded); P1 fixed by derivation (`len()` of the check lists, so the counts cannot drift again); the round's manufactured oracle SHIPPED: `tools/citation_lint.py` (quoted-string-in-named-document, scope honestly bounded — document-level, not section-level, and it says so; 13 controls; seen red three times during its own build; caught F11, a paraphrase dressed as a quotation, on its first live run, plus its own author's two unregistered controls via the new `citation:` lint family) |
+| 23 | **Calibration-defaults round (R6-A2)** — `modules/08-collaboration/DEFAULTS.md`: the de-identified default calibration (33 values, one measured program's shapes with the identity removed) plus the realignment ask (the seed interview as a walk down the defaults: KEEP / OVERRIDE / DELETE / NOT-REACHED), OPTIONAL beside the preserved blank-page doctrine route; built impl → adversarial review → single fix pass | 11 dispositioned review findings (2 MAJOR — both routing omissions: the solo-path anchoring gap and KEEP's missing landing site — 6 MINOR, 3 NIT); 6 REJECTED below the bar with reasons, uncounted per the worse-reading rule. **The review's lead attack, re-identification (shape fingerprints beyond the token scan's reach), returned NO LEAK** — every fingerprint cross-checked inside this repository's already-published surface. The round also landed two owner-funded statements: Prerequisites (git named at last — previously the deepest undisclosed dependency; no version floor invented, measured-on facts only) and "At scale, and where it breaks" (the per-seam scaling model with the three-point floor conceded, including that the graph-engine composition is architecturally clean and empirically untested) | All 11 fixed; M1 fixed structurally (the open-first ask precedes any sight of the defaults on every route into the page); 0.60 removed from the kit entirely rather than restated underived; the citation lint went red once mid-pass on its own author and was obeyed; two oracle candidates recorded as shapes, deliberately not built (ordering lint; closed-set routing lint) |
+| 24 | **Acceptance-and-hardening round (R6-A3)** — the first drop-and-go executed through its own front door: an agent handed one sentence and `ONBOARD.md` adopted the healthcare example host at Level 1 in 11m 55s of tool-time (the run itself declined to state a speed claim), ended HEALTHY, protected the host's WIP byte-identical, and handed the owner a fourteen-item deferral punch list; then the ruled fix round, one spec-side review, and a second fix pass under the brake | The run's 6 findings F1–F6 (owner-gated dispositions: the count-drift class promoted to `tools/count_lint.py`; the Level-1 check's misattribution of a host's own CLAUDE.md — ruled ESCAPE; the classification binary's missing third case; a cross-document contradiction resolved by ONBOARD's own yield rule working on first contact; the fence/token-file empty intersection resolved as a documented default-closed capability grant). The review of the round's own fixes returned 10 MAJOR / 7 MINOR / 3 NIT (all fixed; 6 below-bar rejects) — **the MAJOR count spiked 2 → 10 and the scope reading is published rather than assumed: two builds plus doctrine plus six findings rode one lane; if a future round looks like this, that is the redesign signal, not a number to explain away** | All fixed; rule 7 (declined oracle = recorded bet) shipped in module 01 AND applied to this round's own twenty unbuilt candidates — six ORACLE-DECLINED rows filed, the first bets held under the rule by the round that authored it; the grant clause rebuilt on enumerated-purpose-per-path after the review showed the report path could be construed as a grant; the smoke caught the fix lane itself writing a literal slot mid-pass (recorded as the layer working) |
+| 25 | **Self-coverage round** — owner-funded doctrine, one item, coordinator-direct (the round-18 shape): WHEN THE LOOP ENDS rule 8, distilled from round 24's nine self-catches — **ERRATA, round 26 (finding R26-2): that count is unsourced.** "nine self-catches" appears in this register only here, in this row asserting it; round 24's timeline row and its Round #24 section enumerate nothing of the kind, and a reader following the pointer found the claim restated rather than evidenced. Rule 8 now cites four self-catches that this register does carry, one per round across 22–25, each with its check named. The count above is left standing as what was written, marked; the row's original text continues — ("a new check's own claims are the first surface the next check must cover"; first red is a self-red; maximal irony is a detection signal; the cost is front-loaded and the payoff mechanical). Shipped lean at the owner's instruction — the rule carries its own compressed example and points at this register; no new sections anywhere | 1 item, owner-funded. The rule's own arrival tripped `doctor:binding-digest` — the self-coverage rule caught by the rulebook-size guard on the way in, exactly as its own text predicts — and the ceiling was re-derived 350 → 375 with the arithmetic shown (219 rendered + 90 = 309, x1.15 = 355.35, rounded up) | Shipped; the binding observed red before the constants moved; n = 1, which is noise — the denominator is printed for exactly this reason |
+| 26 | **Battery round** — the program's first formal adversarial battery pointed three independent lanes at the kit and its own coordinator's claims (a prior-art hunt with live web citations; a hostile reader in three professional personas; a fresh evaluation read), then one implementation lane closed the ruled findings and one spec-side review confirmed under the brake | 12 findings R26-1…R26-12: the battery's ruled set (the fabricated-vs-real citation classes, the grant clause's second empty intersection generalized, rule 8's unverifiable citation made adopter-verifiable with the count corrected 9 → 4 and the old number errata'd rather than rewritten, six stale locators fixed, BLUEPRINT's zero-external-citations ancestry FAIL closed with §12 Lineage, the peer-naming and conduct-over-composition positioning, COMPARISON.md shipped with a where-competitors-are-better section). Review: APPROVE-WITH-PUNCH-ITEMS (1 MAJOR — the register's own draft double-counted a declined-class finding as an escape, forbidden by module 04's convention; 5 MINOR; 4 NIT; 4 below-bar rejects), all fixed coordinator-direct; review punch items on the round's own work are not counted as items per the standing worse-reading rule | All 12 dispositioned (11 FIXED; R26-5 additionally FIRES round 24's declined-oracle bet — six findings of the declined class; the build-or-re-decline decision is the owner's at the gate, with the review's measured counsel on record: bare-bounds v1 detects 0 of the 6 and would be a vacuous oracle; the line-window extension reaches 4 of 6). Severity fell across rounds (2 MAJOR → 1, unpublished-number class); no second round per the brake |
+| 27 | **Fired-bet round** — rule 7's first resolution: round 24's declined stale-locator oracle, fired by round 26's six attributed findings, resolved at the owner's gate both ways — BUILT as `citation_lint`'s line-window check (tolerance 0, overlap; measured recall 3 of 6, counsel's predicted 4 corrected to the measured number) and RE-DECLINED in the bare-bounds form (0 of 6 on its own class, vacuous). B3-m4's recall control built FIRST (`RECALL_FLOOR`, red-provable), which is the only reason the third defect was reachable. One spec-side review (APPROVE-WITH-PUNCH-ITEMS, worst finding MINOR — down from round 26's MAJOR), one coordinator-direct fix pass. The round's escape row surfaced the per-round ceiling's missing minimum denominator; the owner ruled the derived floor + SMALL-N state (see the Round #27 section) | 2 counted items: R27-1 (**ESCAPE** — a miscased quotation `citation_lint` was green over for four rounds; the recall control caught it on arrival, correcting round 26's "no live defect" reading) and R27-2 (self-catch on the round's own new work, the R26-12 precedent). The review's 5 MINOR + 2 NIT punch items on the round's own build are uncounted per the standing worse-reading rule; 5 below-bar rejects with reasons | Both dispositioned: R27-1 FIXED at both layers (the quotation corrected to its source; the glue generalized with the lookahead, 40 → 44 attributions, none lost); R27-2 WAIVED with its reason rather than relabelled. Three new ORACLE-DECLINED bets filed under rule 7 |
 
 Walks 1–7 were run against the kit as a whole by personas with some exposure to
 it. Walks 8–14 are **LLM-persona adoption walks**: a language model given a
@@ -117,13 +123,20 @@ rather than a quiet one.
 | 19 | 30 | 3 | Items = the three funded builds' dispositioned review findings (10 + 10 + 10). The 14 findings REJECTED below the materiality bar are not counted: counting them would enlarge the denominator and flatter the rate, so the worse reading is published. Escapes: the Level-1 build's shipped-values gap (all six documents titled with the shipped example value certified HEALTHY while a rule the kit already owned should have caught them), and the instrument build's two (the gate ceiling was duplicated in two unlinked places and drifted silently — found by the review of the instrument built to prevent exactly this class; and a stale module-inventory row an existing doc check should have covered). The relabel build's three MAJORs (attribution-from-memory, including one invented quotation) had no covering check and are an oracle candidate, not escapes. |
 | 20 | 7 | 0 | Items = the positioning-and-instrumentation round's dispositioned review findings (5 MINOR + 2 NIT); 7 below-bar REJECTs not counted, same worse-reading rule as round 19. Escapes: none — the reviewer's classification, passed through unaltered: both live-proven gaps (the unbound ceiling claim; the crashing selftest line) were in checks BUILT THIS ROUND, so no pre-existing check should have caught them; they are the new checks' own review findings, not escapes past the standing net. A zero round is published with its reasoning shown, per the register's own suspicion of unexplained zeros. |
 | 21 | 22 | 4 | Items = the 16 brownfield-walk findings plus dogfood F1–F6 (the round's 5 review punch items on its own new work are not counted — see the timeline row; excluding them is the worse reading). Escapes, the reviewer's classification passed through unaltered: P3W-3 (smoke phase 12 proved the force-track remedy but never compared it to the remedy the runner printed), P3W-12 (a smoke check ran the documented shell block without inspecting what it wrote), F3 (`doctor:l1-rendered`'s own selftest was green over a false-positive class it never probed), F4 (`doctor:l1-interview` accepted any parseable future date). All four are one shape — **a check that exercises an artifact without asserting the artifact's own claim about itself** — recorded as this round's oracle candidate. The other 18 findings had no covering check at all. 18.2% is a rise from round 20's zero; the honest reading is a new instrument (the first brownfield walk) reaching surfaces the standing net was never pointed at, not a decaying net. |
+| 22 | 11 | 1 | Items = the review's nine findings plus the fix pass's F11 and the ruled-in pre-existing P1; F10's below-bar REJECT uncounted (worse reading). Escape, the reviewer's classification: F5 — the example-entries removal instruction was incomplete and cited the wrong section, while an existing selftest section (I) bites on exactly that edit; a check existed, covered the surface, and the document contradicted it. Everything else: oracle candidates (F1's wrong-section citation and F11's dressed paraphrase had no covering check — the new `citation_lint.py` now covers the document-level half and states the section-level residual; P1's count drift had no cross-check and is now derived, not asserted). |
+| 23 | 11 | 0 | Items = the adversarial review's dispositioned findings; 6 below-bar rejects uncounted (worse reading). Escapes: none — the reviewer's classification, passed through with its own caveat published: a zero on a prose-only round is arithmetically expected, because DEFAULTS.md is among the kit's most normative documents and not one line of it is mechanically checked. The two candidate oracles that would change that (an ordering lint; a closed-set routing lint) are recorded in Round #23 as shapes, not builds — if either is built and this page's class then produces findings, those will count against the round that declined the check, which is this one. |
+| 24 | 6 | 1 | Items = the acceptance run's findings F1–F6; the review's 20 punch items on the round's OWN fixes are not counted (round-20/21 precedent — including them would enlarge the denominator and flatter the rate; excluding them is the worse reading). Escape, owner-ruled: F3 — `doctor:l1-*` existed, its stated subject covers exactly the claim it printed, and it greened while asserting ownership of a file the adoption never wrote; the third appearance of the exercises-without-asserting-its-own-claim shape. F1 had no covering check (count-drift, second sighting) and its oracle is now BUILT rather than declined; F2/F4/F5/F6 oracle candidates, five of the round's six declination bets filed against their classes per rule 7. |
+| 25 | 1 | 0 | One owner-funded doctrine item; nothing checked doctrine completeness and nothing could have (the round-18 reading applies). n = 1 is noise. The round's one live event — the digest lint firing on rule 8's own growth — is the standing net working, not an escape. |
+| 26 | 12 | 1 | Items = R26-1…R26-12, the battery's ruled findings; the review's own punch items on this round's fixes are uncounted (the worse reading — including them would lower the rate). Escape: R26-4 — the binding-digest's selftest label claimed arithmetic it never compared to anything while the check it labels was green; the claims-more-than-it-verifies class round 20 published, on the check built to prevent drift. R26-5's six stale locators are NOT counted as escapes: their class was ORACLE-DECLINED in round 24 and module 04's convention makes a declined-class finding a coverage gap attributed to the bet, not an escape — the first live firing of rule 7's accountability arithmetic. The remaining ten had no covering check (oracle candidates; three new ORACLE-DECLINED rows filed this round). |
+| 27 | 2 | 1 | Items = R27-1 and R27-2, on the R26-12 precedent (a self-catch on the round's own new work counts as an item, no escape attributed); the alternative one-item reading is 1/1 = 100.0% and is stated here rather than hidden — either reading moves the cumulative rate to the same 16.7%. Escape: R27-1 — `citation_lint` existed from round 22, its stated subject covers exactly this class (a quoted string that does not appear verbatim in the document it names), and it was green over the defect for four rounds because its extractor's reach was narrower than its claim; not the round-20 shape, since the defect sat in shipped prose, not in a check built this round. The review's 7 punch items on the round's own build are uncounted per the standing rule. **This row is the denominator floor's live case:** 1/2 = 50.0% cannot pass a 35.0% ceiling at n = 2, so the round publishes `state SMALL-N` under the owner-ruled derived floor (see the Round #27 section) — the per-round gate is not armed, the cumulative number above still binds, and the six R26-5 locators remain attributed to round 24's bet, not recounted here. |
 
 **The published number, as the tool computes it:**
 
 ```
 ESCAPE RATE UNCOUNTED: 1 round(s) declared uncountable and excluded from the denominator — 1–6
-ESCAPE RATE TREND: 42.9 -> 15.4 -> 14.3 -> 30.0 -> 11.1 -> 16.7 -> 0.0 -> 0.0 -> 50.0 -> 15.8 -> 42.9 -> 0.0 -> 10.0 -> 0.0 -> 18.2 (percent, oldest first); direction RISING
-ESCAPE RATE: 33/179 items (18.4%) over 15 rounds; latest 4/22 (18.2%); ceiling 35.0%; state MEASURED
+ESCAPE RATE TREND: 42.9 -> 15.4 -> 14.3 -> 30.0 -> 11.1 -> 16.7 -> 0.0 -> 0.0 -> 50.0 -> 15.8 -> 42.9 -> 0.0 -> 10.0 -> 0.0 -> 18.2 -> 9.1 -> 0.0 -> 16.7 -> 0.0 -> 8.3 -> 50.0 (percent, oldest first); direction RISING
+ESCAPE RATE SMALL-N: latest round 27 has 2 item(s), under the gate's denominator floor of 3 (ceil(100/35.0), the smallest n at which one escape can sit under the 35.0% ceiling). The per-round gate is not armed; the round's rate is printed above and the cumulative rate and trend still bind.
+ESCAPE RATE: 37/222 items (16.7%) over 21 rounds; latest 1/2 (50.0%); ceiling 35.0%; state SMALL-N
 ```
 
 The direction word swings on small tail denominators (rounds 18–20 are n = 1,
@@ -868,7 +881,7 @@ to wire.
 | F2 | The kit's four ledger filenames are hard-coded and `LEDGERS_DIR` is the only thing an adopter can move, so on a repository that already keeps ledgers the install has three possible outcomes and `LEVEL-1.md` named none of them. The dogfood repository had `docs/LESSONS-LEARNED.md` and `docs/TOKEN_LEDGER.md`, both named in its README as the ledger set. Two of the three outcomes were green: install alongside, and overwrite. | **FIXED** — `doctor:l1-ledger-collision` compares every `*.md` in `LEDGERS_DIR` against the kit's four names on a normalised stem (case, punctuation and the `.md` suffix removed, containment counted as collision, which is what the measured spellings needed) and reports each collision with all three dispositions named: rename onto the kit's name and carry the content forward; freeze the existing file as the record up to adoption; or move `LEDGERS_DIR`. It changes nothing, and says so. Step 3 carries the same branch. |
 | F3 | `doctor:l1-rendered` could not tell a surviving placeholder from a document *about* placeholders. It fired on a judgment-ledger row whose named check was, verbatim, "doctor selftest 149 (forced-red Example Project / your-top-tier-model...)" — the strings are the row's subject, and the only remedy the document offered was to substitute them, which means editing a truthful record of what was fixed and when. **This was a red that could not be cleared by following the document**, and it was live on a real adopter's tree when the fix was written. | **FIXED** — the shipped-value scan now reads each document through `scannable_for_shipped()`, which blanks fenced code blocks, inline code spans, and any line carrying the marker `oar:quotes-example`, for the table cell where backticks would be wrong. **The exemptions apply to that scan only:** an unsubstituted `{{SLOT}}` and a surviving template header block are defects wherever they appear, fence included. **Every exemption is visible** — the finding prints how many lines each mechanism took out of the scan, on every run, so a document cannot go quietly green by fencing itself. Paired selftest checks carry the class: each exemption is asserted GREEN on a quoted string and RED on the same string unquoted, and the measured ledger row is one of the literals. **Residual, stated:** a real defect hidden inside a fenced block is exempt too. A fenced block is displayed as literal example text rather than as the document's own assertion, and the printed counts are the compensating control. |
 | F4 | `doctor:l1-interview` accepted any parseable date after `scheduled`, so a fabricated schedule read identically to a real one. The dogfood adoption produced exactly that — a lane-invented date, which the owner's ruling then removed in favour of `not yet held`. | **FIXED** — the `scheduled` state must now say where the date came from (`scheduled <date> confirmed by <who, or which calendar>`). The red names both ways out, and one of them is `not yet held`, which is green and claims nothing — so the owner-blocked adopter, the design's whole reason for a green non-held state, is still one keystroke from green. `not yet held` and `held <date>` need no confirmation: the first claims nothing, and the second is evidenced by the profile's own answers. `PROFILE-TEMPLATE.md`'s STATUS menu and `LEVEL-1.md` step 4 carry the same wording. |
-| F5 | **The anti-ratchet's own enforcement layer was prose** — the debt `FAILURE-FLOOR.md` exists to audit, carried by the floor itself. Nothing checked that the demotion review had happened, and nothing bounded the size of the text every session is required to read, although the module-01 template states "keep it SHORT" three times. The owner's question was the shortest statement of the gap: *what is checking the lessons?* | **FIXED** — two checks in the default set. `doctor:floor-staleness` reads the floor's own table and reports every rule past its demotion window, with the arithmetic printed on every run: the window comes from `DEMOTION_REVIEW_STAGES` in the config, never from the file being judged, and the stage-to-day conversion is DERIVED from the mean interval between that floor's own distinct firing dates, because no file in an adopting repository relates stages to days. Rows reading `never` or `unknown — predates recording` are reported as NOT MEASURED rather than counted either way; a row already carrying a final disposition is exempt; fewer than two distinct dates makes the window uncomputable and the check reports UNKNOWN rather than green. `doctor:binding-digest` sizes the rules file plus the newest checkpoint against **325 lines, derived by the four-step method `TOKEN-LEDGER.md` gives for the cost ratio**: (191 rendered lines of the shipped `CLAUDE.md.template`, its 36-line header block deleted as the template instructs, + the 90-line measured checkpoint norm) = 281, × 1.15 = 323.15, rounded up to the nearest 25 = 325. The arithmetic prints on every run, green included. **The first observation is bound to the file it came from:** `--selftest` measures the shipped template live and requires it to still render to 191 lines, so if the template grows, the derivation's input has moved and the selftest goes red naming both numbers. That is the same binding shape as `check:escape-ceiling-agrees`, built because that ceiling drifted silently once already. **Residual, stated on every run:** n = 2 observations, one project, LOW confidence — re-derive it from your own stages — and the check counts lines without judging whether any line earned its place. Both checks report `n/a`, not green, on a tree with no floor or no rules file: whether the documents are installed at all is `doctor:l1-documents`' question, and two reds for one fact is how a tool teaches its reader to skim. |
+| F5 | **The anti-ratchet's own enforcement layer was prose** — the debt `FAILURE-FLOOR.md` exists to audit, carried by the floor itself. Nothing checked that the demotion review had happened, and nothing bounded the size of the text every session is required to read, although the module-01 template states "keep it SHORT" three times. The owner's question was the shortest statement of the gap: *what is checking the lessons?* | **FIXED** — two checks in the default set. `doctor:floor-staleness` reads the floor's own table and reports every rule past its demotion window, with the arithmetic printed on every run: the window comes from `DEMOTION_REVIEW_STAGES` in the config, never from the file being judged, and the stage-to-day conversion is DERIVED from the mean interval between that floor's own distinct firing dates, because no file in an adopting repository relates stages to days. Rows reading `never` or `unknown — predates recording` are reported as NOT MEASURED rather than counted either way; a row already carrying a final disposition is exempt; fewer than two distinct dates makes the window uncomputable and the check reports UNKNOWN rather than green. `doctor:binding-digest` sizes the rules file plus the newest checkpoint against **325 lines, derived by the four-step method `TOKEN-LEDGER.md` gives for the cost ratio**: (191 rendered lines of the shipped `CLAUDE.md.template`, its 36-line header block deleted as the template instructs, + the 90-line measured checkpoint norm) = 281, × 1.15 = 323.15, rounded up to the nearest 25 = 325. The arithmetic prints on every run, green included. **The first observation is bound to the file it came from:** `--selftest` measures the shipped template live and requires it to still render to 191 lines, so if the template grows, the derivation's input has moved and the selftest goes red naming both numbers. That is the same binding shape as `check:escape-ceiling-agrees`, built because that ceiling drifted silently once already. **Residual, stated on every run:** n = 2 observations, one project, LOW confidence — re-derive it from your own stages — and the check counts lines without judging whether any line earned its place. Both checks report `n/a`, not green, on a tree with no floor or no rules file: whether the documents are installed at all is `doctor:l1-documents`' question, and two reds for one fact is how a tool teaches its reader to skim. **ERRATA, added round 26 (finding R26-3).** Every number in the `doctor:binding-digest` half of this cell is the measurement as it stood when the check shipped, and it was written in the PRESENT tense, so a reader auditing this row against the shipped check found a mismatch with nothing marking it. Rounds 24, 25 and 26 moved the template four times — 191 → 206 → 209 → 219 → 224 rendered lines — and the ceiling twice, 325 → 350 → 375. **As shipped today: 224 + 90 = 314, × 1.15 = 361.1, rounded up to the nearest 25 = 375, and `--selftest` requires the template to render to 224.** Read the figures above as this row's history and `tools/kit_doctor.py`'s derivation comment as the current statement. This register's exemption from `citation_lint` exists so a finding can quote text as it was; this cell was not quoting a finding but describing a live check, which is the direction the exemption also shields. Marked by hand, and recorded as an oracle candidate in round 26 rather than as a check. |
 
 | P3W-1 | `QUICKSTART.md` step 6 printed `cp <template> ./CLAUDE.md` unconditionally. On the measured repository that destroys a 41-line rules file carrying the fixture rule, the skip rule and the style rules — no backup, no warning, and no check anywhere in the document can tell a merged rules file from a clobbered one: an overwritten `CLAUDE.md` reaches `VERIFY: PASS`. The step's only acknowledgement of a pre-existing rules file was the Level-1 case, which is a file the kit itself put there. | **FIXED** — the `cp` is now conditional, marked in the block itself as the new-file route, and the step carries a merge instruction for the other case: render to `CLAUDE.md.kit-new` and merge, or merge from the template by hand, with the existing rules preserved **verbatim** under a marked heading and the two sets read against each other for conflicts. The step also states what no check can see, so the `git diff` before the Step 9 commit is named as the only thing that will show a clobber. The same collision is row 1 of the new `EXISTING-PROJECT.md`. |
 | P3W-2 | `QUICKSTART.md` step 4 said to *substitute the slots in the template into `.claude/settings.json`*. The template's `permissions` block contains only `ask`; the measured file carried 10 `allow` and 2 `deny` rules, one of them a control the project's own `CLAUDE.md` depended on. Substituting drops all twelve silently — a permission that no longer exists cannot fail. The step's verb throughout was *substitute and place*, and the structural merge that avoids this was offered one screen later as an optional convenience for people who dislike retyping paths. | **FIXED** — the copy block now carries the merge instruction at the point of loss, and the render section is retitled *"optional on an empty repo, required on one that already holds these files"*, stating that by-hand at Step 4 and Step 6 destroys existing files and that the tool merges the settings as JSON with `permissions.allow` and `permissions.deny` left in place. Step 1 routes an existing-project adopter to `EXISTING-PROJECT.md` before Step 1's first command. No code change: the tool already did this, and `adoption_smoke.py` phase 13 already asserted its fidelity. |
@@ -913,6 +926,715 @@ row and no escape-rate row. Both are round-close artifacts — the escape row
 needs the review's classification of which findings an existing check should
 have caught, and the register's own rule is that a timeline entry and its
 escape row land in the same commit.
+
+---
+
+## Round #22 — the agent front door: `ONBOARD.md`
+
+The twenty-second entry is not a walk and not a review. It is a **build**: one
+shipped document, `ONBOARD.md`, addressed to an AI agent that has been dropped
+into a project and asked to adopt the kit.
+
+**What it is.** A sequencing and division-of-labour layer over the documents
+already shipped. It routes an agent through `README.md`, `DECISION-BRIEF.md`,
+`LEVEL-1.md` or `QUICKSTART.md`, `EXISTING-PROJECT.md`, `GATE-LINE.md`, the
+oracle worksheet, the seed interview and `docs/walks/WALKING-YOUR-OWN-DOCUMENTS.md`;
+it classifies the host as greenfield or existing and routes to the
+existing-project branch; it sorts every instruction on the adoption path into
+MECHANICAL, SHIPPED DEFAULT or OWNER JUDGMENT; and it requires the third class
+to be handed back to the owner as an explicit punch list with named states.
+
+**What it is not.** It is not an installer, not a tool and not a script, and it
+executes nothing itself. Every state change it describes is a command a shipped
+document already prints, run through a tool the kit already ships, under the
+guards those tools already carry — the render tool's containment and
+never-overwrite guards, the runner's startup assertion and judges gate, the
+force-track remedy for an ignored judged path, and the backup-stash-certify
+cycle for a tree with work in progress. No new mechanism was added to the
+adoption path, and no shipped instruction was changed.
+
+**The two constraints it was built under**, both owner rulings carried from the
+round that funded it:
+
+- **No artifact executes state changes on the adopter's behalf.** A staging tool
+  was designed for this slot and killed in review three times; the surviving
+  shape is an agent walking the shipped documents under the existing guards.
+- **Honest deferral over simulated judgment.** The mechanical half of an
+  adoption compresses. The judgment half — the Step 3 oracle, the Step 8 seed
+  interview, the Level-1 decisions — does not, and `ONBOARD.md` forbids
+  answering it on the owner's behalf. The precedent it copies is `LEVEL-1.md`
+  Step 4's interview states, where `not yet held` is a **green** state because a
+  stated non-answer is an answer and an invented date is not.
+
+**What is unmeasured, and said so on the page.** Whether routing an agent
+through `ONBOARD.md` changes adoption time or completeness against an agent
+working from `README.md` alone has no data behind it. The document states this
+in its own opening, forbids any speed claim for the route, and forbids restating
+the kit's published budgets as its own numbers. The measurement is a later
+round's work.
+
+**Collateral in this build:** a routing paragraph at the top of `README.md`'s
+"Start here" (agents land at `ONBOARD.md`; the human doors are unchanged) and an
+`ONBOARD.md` row in `README.md`'s repository-layout block. Nothing else was
+restructured.
+
+**The spec-side adversarial review, and the fix pass.** The build was reviewed
+spec-side — the charter, the diff and the shipped tree, with no implementer
+report read — against the two binding constraints above. Verdict:
+APPROVE-WITH-PUNCH-ITEMS, 0 CRITICAL, 1 MAJOR, 6 MINOR, 2 NIT, 1 rejected below
+the bar, 3 pre-existing observations. Both rulings held at the design level: the
+reviewer could not find a state-changing command the shipped documents do not
+print, and could not construct a path where an agent following the page answers
+the seed interview or the oracle worksheet. One review round, per the register's
+loop-termination rule; the items rode this fix pass.
+
+| # | Finding | Disposition |
+|---|---|---|
+| F1 | Reported MAJOR: a fabricated quotation. `ONBOARD.md` attributed to `DECISION-BRIEF.md` limitation 2 the words *"produced no usable human time estimate"*, and a tree-wide grep on the full phrase and on the fragment "usable human" returned only `ONBOARD.md` itself. Compounded by the following instruction, *"Use the same words rather than new ones"*, which directs an obedient agent to copy the string into a report an owner may quote onward. | **FIXED, AND THE FINDING IS PARTLY CORRECTED.** The quotation is **not fabricated.** The words are in `DECISION-BRIEF.md` at lines 40-41 — "It produced no usable human time estimate — it measures an agent executing tool calls" — **wrapped across a line break** between "usable" and "human", which is why a line-oriented grep on either string returned nothing. The real defect is the **section**: those words are in the "one figure with a full walk behind it" paragraph, which cross-references limitation 2 parenthetically; limitation 2 itself does not contain them. So the class is a **miscitation, not an invention** — the same class as F8 and F9, not the round-19 class. Downgraded from MAJOR to MINOR on that evidence. Fixed by citing `DECISION-BRIEF.md`:40-41, quoting the fuller sentence exactly, and rewriting the propagation instruction so it can only apply to text that exists: copy the wording from the lines you are citing, with the document open, never from memory; a quotation that cannot be found in the document it names is a finding against the page; if you cannot locate the string, drop the quotation marks and cite the section for the idea. **The review's method error is now a shipped control** — see the oracle below, whose most important negative control is that a wrapped quotation must still be found. |
+| F2 | `KNOWLEDGE_DIR` was classed a SHIPPED DEFAULT the agent may take when the host tree names no knowledge base. The host tree cannot answer the question: absence of a mention in a repository is not evidence of absence in the owner's working world, and the owner having such a place while the repo never names it is the likely case. Consequence: `doctor:l1-knowledge-dir` goes green over an answer the agent supplied, which is the end state the deferral taxonomy exists to prevent. | **FIXED** — reclassified OWNER JUDGMENT on both branches. Where the host names such a place, `DEFERRED` for the owner to confirm; where it names none, still `DEFERRED`, with the repo path `docs` carried as a **provisional** value on `LEVEL-1.md`:84-86's second branch so the mechanical half proceeds, and the punch text required to state in words that the agent could not observe whether such a place exists. `DEFAULT-TAKEN` is named as the state this one may not use, with the reason: the doctor greening over an unmade decision is the leak the ruling forbids. |
+| F3 | Two judgments `ONBOARD.md` §4 assigns to the owner — `CERT_PATHS` scope and the keep-or-delete of each seed lesson — had no standing row in §7, whose items were D-1…D-5 only, and appeared in neither of the two lists that would otherwise catch them. So two decisions the page itself calls the owner's could be taken by the agent with no punch-list row required anywhere. `CERT_PATHS` is the more material: a `VERIFY: PASS` then certifies a scope nobody ruled. | **FIXED** — **D-6** (`CERT_PATHS`: what is being certified, and why these paths; landing at `verify.py`'s constant, which is authoritative, and the matching `kit.config` key) and **D-7** (each seed lesson, keep or delete; landing at `<LEDGERS_DIR>/LESSONS.md`) added to the standing-items table. §4's `CERT_PATHS` bullet is reclassified OWNER JUDGMENT on **every** layout rather than SHIPPED DEFAULT on the assumed one, and the step table's Step 4 and Step 7 rows now name D-6 and D-7. D-7's citation is the shipped ledger's own "Seed lessons — earned in the reference build" section and its instruction to delete any that do not apply. |
+| F4 | The vacuous-gate "default" was not a shipped default. `QUICKSTART.md`:409-415 presents three honest answers and prescribes none, while `ONBOARD.md`'s own definition of SHIPPED DEFAULT requires a prescribed value **and** a named revisit condition. The sentence declared the choice the owner's and then took it, assigning no punch-list state. | **FIXED** — reclassified OWNER JUDGMENT, recorded `DEFERRED`, with the three answers named and the one the tree is held in stated explicitly: accept the ATTENTION and record why, because it is the only one of the three that writes nothing on the owner's behalf. Writing the `docs/ORACLE-<gate>.md` pages to make the check green is named as the owner's choice, not the agent's. |
+| F5 | **The round's one escape.** "Both example entries go" omitted `RUN_ORDER`, and the reassurance cited the wrong selftest section. Measured on a scratch copy of the runner: deleting the two entries from `GATES` alone leaves selftest **section I** red — `[FAIL] no gate in RUN_ORDER is unmentioned by any check that RAN`, `got ['example_unit', 'example_lint']` — while deleting them from `GATES` **and** `RUN_ORDER` prints `VERIFY SELFTEST: PASS — 106 checks`. The headline claim was true but only under the complete edit, which the sentence did not state; the deferred-oracle route that deletes both with no replacement is a case `QUICKSTART.md` never contemplates, so `ONBOARD.md` is where the instruction has to be complete. | **FIXED** — the instruction now names both places, in bold, with the consequence of the under-edit spelled out and section **I** cited as the section that bites, alongside section F's actual role (resolving a live gate name at runtime, which is what `QUICKSTART.md`:775-777 says of it). The runner's own header warning — a permanently-skipped gate in `RUN_ORDER` reports PARTIAL and can never certify — is cited with it. **The review's experiment was re-run during the fix pass and reproduced exactly**, both variants, on a scratch copy; the live tree was not modified to measure it. |
+| F6 | `ONBOARD.md`'s two own command blocks — §2's six classification probes and §6's clock read — were bash-only, against the kit's convention of pairing every shell-hazardous block with a `⚠ pwsh:` companion (`QUICKSTART.md` carries them at Steps 1, 2, 4, 6, 8 and 9). Nothing breaks under PowerShell, but a missing path in a two-path `ls` raises a non-terminating error that common tooling reports as a failed command, and this is the **first** document a Windows agent reads. | **FIXED** — both blocks gain a `⚠ pwsh:` companion in the kit's existing form. The probe companion splits the two-path `ls` into one `Test-Path` per line, so no shell reports a partial failure for an answer that is simply "not found", and states why. The clock companion uses `Get-Date -Format`, removing the quoting hazard rather than restating it. Both were run under PowerShell 7 during the fix pass and their output recorded. |
+| F7 | The §4 section header read "The four Step-1 values that are not fill-ins" and misassigned two of the four. `QUICKSTART.md`:203-207 states the opposite: `CERT_PATHS` comes back at the end of Step 4 and `KNOWLEDGE_DIR` at Step 6, and `OWNER_ROLE` is not a Step-1 key on that path at all — the string appears there once, in Step 7's slot list. `ONBOARD.md` contradicted its own header twice inside the same section, and D-4's citation was half wrong for the same reason. An agent taking the header literally fills at Step 1 two keys the shipped document says to leave, which is the measured render-early defect. | **FIXED** — retitled "The four values that are decisions, not fill-ins", with an opening paragraph citing `QUICKSTART.md`:203-207 as the authority and naming the render-early defect as the consequence of getting it wrong. Each bullet now carries its actual step in its heading. D-4's citation is corrected to name `LEVEL-1.md` Step 2 for both values and to separate the `QUICKSTART.md` path's Step 1 (tier names) from its Step 7 (`OWNER_ROLE`). The step table's Step 1 row is corrected to say which of the three this step actually asks for. |
+| F8 | NIT, same family as F1. `"An afternoon of thinking… does not compress."` was rendered as one quoted string. "An afternoon of thinking" is `QUICKSTART.md`:361's Step 3 heading; "does not compress" is not in Step 3 — it is the budget paragraph at `QUICKSTART.md`:20 and `DECISION-BRIEF.md`:35. The ellipsis fused two sources into one apparent quotation. | **FIXED** — unfused. The row now cites the heading at :361 and the budget paragraph's "is thinking work and does not compress" at :20 as two statements from two places, and says so. |
+| F9 | NIT. R3 attributed both `git add` behaviours to "`QUICKSTART.md` Step 4, failure modes 1 and 2". Step 4's numbered mode 1 is the directory-pathspec case and mode 2 is the ignored-`.claude` case; the missing-path / exit-128 / stages-nothing behaviour is in the unnumbered paragraph at `:806-811` and in the checkpoints block at `:896-900`. Both exit codes and both staging behaviours were stated correctly — only the pointer was wrong. | **FIXED** — cited as "the two failure signatures", which is the document's own phrase at `:896-900` ("There are two failure signatures, not one"), with the missing-path half also pointed at `:806-811`. |
+| F10 | **REJECTED — below the materiality bar.** "The branches are inline at Steps 1, 4, 6 and 9" omits Step 3, where `EXISTING-PROJECT.md` row 6 also lands. | **REJECTED**, reviewer's own reason carried verbatim: `ONBOARD.md`'s reading order item 5 already routes the existing-suite case to `modules/03-verification/GATE-LINE.md` — its own words are "first if the thing the host must not break is a test suite it already has" — so no adopter is misrouted. |
+| F11 | **NEW — found by this round's oracle on its first live run, not by the review.** `ONBOARD.md` rendered *"Decide now and write the decision down"* as a quotation from `QUICKSTART.md` Step 6. The string is nowhere in `QUICKSTART.md`; what :1005-1006 actually says is that where the two rule sets conflict, "that is a decision to make now and write down, not a duplicate to leave standing". A paraphrase dressed as a quotation — the same class as F1, F8 and F9, and a sixth instance the review's citation audit did not reach. | **FIXED** — the real words are quoted, with the line citation. Recorded here as the first thing the new lint caught, on a tree that had already been read adversarially by a dedicated reviewer. |
+| P1 | Pre-existing, ruled into this pass. `kit_doctor.py`'s module docstring said "The **ten** default checks" and "the **five** `doctor:l1-*` checks", and `--help` repeated the five, while `--list` derived **12** and **7** from `CHECKS` and `L1_CHECKS` and the code comments said twelve and seven. `git show HEAD:tools/kit_doctor.py` carries the identical "five" at both sites, so it predates this round. | **FIXED, by derivation rather than by correction.** The docstring carries `{N_FULL}` / `{N_L1}` sentinels substituted from `len(CHECKS) - len(L1_CHECKS)` and `len(L1_CHECKS)` immediately after those lists are defined, guarded for `python -OO`, which strips docstrings; `--help` interpolates the same value. The numbers cannot drift again because they are no longer typed. The docstring's third figure — ATTENTION on **six** checks when the full set is run against a Level-1 tree — is not a `len()` of anything, so it was **measured** instead: a Level-1 tree was built in a scratch directory and the full diagnosis run against it, reporting exactly six (`doctor:version`, `judge-paths-exist`, `judge-paths-agree`, `vacuous-gate`, `hook-interpreter`, `floor-staleness`). The number was right; the sentence is amended to "most of them about files the adopter was told not to install", since two of the six are not, and the docstring now says which figure is derived and which a reader must still check by hand. |
+
+**THE ROUND'S MANUFACTURED ORACLE — `tools/citation_lint.py`.** F1 was the second
+sighting of the attribution class. The first was round 19, whose three MAJORs
+shared one root cause — attribution written from memory rather than from the
+source, including one invented quotation — recorded there as an **oracle
+candidate** and never built. By the register's own promotion rule, one sighting
+is an anecdote and two is a pattern, so the narrow version was built this round.
+
+**What it checks:** a quoted string attributed to a named kit document must
+appear in that document. Two attribution shapes, both requiring a backticked
+filename — a leading reference with an optional locator (`` `FILE.md`:40-41 ``,
+`` `FILE.md` Step 4 ``) followed by the quotation within 200 characters, and a
+trailing parenthesised reference within 60 characters of the closing quote.
+Comparison is on **whitespace-flattened** text on both sides.
+
+**What it cannot see, stated on the tool's own page and here:** paraphrase, which
+is the larger half of the class; a right quotation under a **wrong locator**,
+which is the actual F1 defect, because the tool asks whether the string is in the
+file and not whether it is in the section named; anything not attributed to a kit
+`.md` file; and attributions whose file is not in the tree being linted, which are
+skipped with the count printed. Quotations shorter than four words are treated as
+named output lines rather than prose. One waiver ships, printed on every run: an
+exemplar in `SEED-INTERVIEW.md` that shows the adopter a sentence to write rather
+than quoting the document it names.
+
+**The design is the review's own method error, inverted.** The F1 grep was
+line-oriented and the source wrapped, so a real quotation was reported as
+invented. A check built the obvious way would not merely miss defects, it would
+**manufacture** them. `CITE(wrapped-quote)` asserts both halves — that a
+line-oriented search misses the string and that this tool finds it — and is the
+most important control in the file.
+
+**Seen red before handoff three times, and every red changed the tool.** First,
+the end-to-end forced red on a scratch copy reported **clean** over a planted
+fabrication: the quote pattern excluded newlines, so a quotation wrapping at the
+linting document's own margin was never seen — the tool had the same blind spot
+as the defect it was built to catch. Fixed, with `CITE(wrapped-attribution)`
+planted over it. Second, the first live run returned five findings, of which
+three were one class: a file reference in an earlier **paragraph** pulled onto an
+unrelated quotation. Fixed by a paragraph-boundary rule, with
+`CITE(paragraph-break)` planted over it; of the two survivors, one was F11 above
+and one a self-coined phrase in scare quotes, now unquoted. Third, the run
+against **this register entry** — the row describing the tool — returned five
+more, which resolved into two prose defects of the author's own (both fixed
+here), one quote-pairing defect where an odd number of quote marks inside a
+table cell captured 300 characters of prose as a quotation, and two instances of
+a class the tool should not be asking about at all: a findings register quotes
+text **as it was**, beside a disposition reading FIXED, so those words are absent
+from the fixed tree by construction. `KNOWN-ISSUES.md` is therefore exempt as a
+document class, with the count printed on every run and the residual disclosed —
+a genuine miscitation written into the register is exempt too. **Thirteen
+negative controls, registered as a fifth `citation:` family in
+`checks-registry.json`** and cross-checked both ways by
+`expectation_lint.py`, so a control dropped from the selftest is reported rather
+than silently lost — the same argument the doctor, the escape-rate controls and
+the golden fixtures made before it. Wired into CI as two steps: the selftest and
+the lint, and a **forced-red step that inverts the exit code** and passes only
+when a planted fabrication is caught, run on a copy in a temporary directory so
+the kit's tree is never modified to test a check against it.
+
+**Collateral in the fix pass:** one paragraph in `DECISION-BRIEF.md`'s "What it
+is" naming the watermelon effect — green outside, red inside — as the
+audience-recognisable statement of the gap, with the brief's existing bridge line
+identified as that effect restated for AI, and three shipped counters named:
+forced red, the state-word contract, and the escape rate. No new claim: each
+counter already ships, and the paragraph closes on the boundary the brief already
+states, that this is not a security boundary.
+
+**Not yet written here, and owed at round close:** this round has no timeline row
+and no escape-rate row. Both are round-close artifacts, and the register's rule
+is that a timeline entry and its escape row land in the same commit.
+
+---
+
+## Round #23 — calibration defaults, and the realignment ask
+
+The twenty-third entry is not a walk and not a review. It is a **build**: one
+shipped document, `modules/08-collaboration/DEFAULTS.md`, offering module 08 a
+second route to the collaboration profile.
+
+**What it is.** Part 1 is a pre-filled starting state — the calibration values of
+one long-running AI-assisted engineering program, distilled to classes and
+de-identified, grouped the way `PROFILE-TEMPLATE.md` is grouped, one sentence
+per value, each with an id. Part 2 is the realignment ask: the seed interview
+restructured as a walk down those values, each one kept, overridden or deleted,
+ending in the same `docs/collaboration-profile.md` the blank-page route produces.
+
+**What it is not.** It is not a replacement for `SEED-INTERVIEW.md`, and it is
+not a new default. The blank-page route remains the shipped default path — the
+same ruling shape the optional render tool ships under, offered beside the
+by-hand route rather than in front of it. No shipped document was restructured,
+`PROFILE-TEMPLATE.md` was not edited, and no check, tool or slot changed.
+
+**Collateral in this build:** two routing sentences (`QUICKSTART.md` Step 8 and
+`LEVEL-1.md` Step 4), one row in `modules/08-collaboration/README.md`'s files
+table with its adopt-alone count corrected from three documents to four, one
+clause on `README.md`'s module-08 row, one cell in `ONBOARD.md`'s reading-order
+table, and one paragraph in `ONBOARD.md` §7 — **and that paragraph is not a
+routing sentence.** It classifies `DEFAULTS.md` as a SHIPPED DEFAULT source for
+the pre-ruling working contract, extends `DEFAULT-CONTRACT.md`'s in-force
+standing to a class of values the eight do not cover, and issues three
+prohibitions: no default in a verbatim answer block, no default in the overrides
+table as an override, and no move of the `INTERVIEW:` line off `not yet held`.
+It is the most load-bearing edit in the build, and it is recorded as a normative
+addition rather than as routing prose, because understating one as the other is
+the class of thing this register exists to catch.
+
+**The constraint it was built under.** The values crossing into the kit are
+calibration *shapes* — how a decision is presented, what an unanswered item
+costs, what ends trust — never personal content. No names, employers, project
+names, anecdotes, quoted personal sentences or machine paths. The build ran
+`tools/deident_scan.py` over the whole kit tree against a token list held
+outside it, and the coordinator re-scanned independently before the commit.
+
+**The two design decisions that carry the doctrine.**
+
+- **A default is a working contract, not an answer.** The page is a SHIPPED
+  DEFAULT source in `ONBOARD.md` §4's sense for the contract an agent runs under
+  before the owner has ruled, and it is explicitly **not** an answer to D-2. An
+  agent may cite it and record `DEFAULT-TAKEN`; it may not write a default into
+  the profile's verbatim blocks or move the `INTERVIEW:` line off `not yet held`.
+- **A kept default is recorded as a kept default.** The route produces the same
+  artefact and no downstream step branches on which route was taken, but the
+  profile stays legible about provenance: the owner's words and a ratified
+  default are different things, and the fabrication rule requires a reader to be
+  able to tell them apart.
+
+**What is unmeasured, and said so on the page.** Whether walking an owner down a
+pre-filled starting state produces a better or faster profile than the blank
+page has no data behind it. The page makes no effectiveness claim, states the
+circularity of its own argument (the reason to offer the route is one of the
+values on it), and names the blank page as the better instrument for an owner
+who overrides that value.
+
+**The spec-side adversarial review, and the fix pass.** The build was reviewed
+spec-side — the charter, the working-tree diff and the shipped tree, with no
+implementer report read — against the two binding constraints above, with
+re-identification as the lead attack. Verdict: APPROVE-WITH-PUNCH-ITEMS, 0
+CRITICAL, 2 MAJOR, 6 MINOR, 3 NIT, 6 rejected below the bar. Both constraints
+held at the design level: the reviewer could not construct a path where the page
+answers D-2, moves the `INTERVIEW:` line, or lets an agent execute a state change
+on the adopter's behalf. **The re-identification attack found no leak** — a
+hostile-profiler pass over the page against the surface the kit already
+publishes returned nothing reconstructible beyond it, no direct identifier, and
+no anecdote residue. One review round, per the register's loop-termination rule;
+the items rode this fix pass.
+
+| # | Finding | Disposition |
+|---|---|---|
+| M1 | MAJOR. The betrayal-group anchoring mitigation was void on the solo-owner path. The page asks question 5 open before showing CAL-F1…F4, but that instruction sits in Part 2, about seventy lines below the four rows themselves. The kit routes a solo adopter here as both walker and owner in three places, so a solo owner reads the four candidates before writing their own answer — silently, and with nothing in the record showing it happened. | **FIXED, and fixed above Part 1 rather than only inside Part 2.** A section, "Before you read Part 1, if you are the owner", now stands immediately before Part 1: write your own answer to question 5 first, dated, and do not read Part 1 until it is written down. Placing it above Part 1 is what makes it route-independent — every route into the page lands at the top, so the instruction precedes any sight of the four however the reader arrived. Restated at two more sites: Part 2's "Who and when" and the CAL-F group note, and in `modules/08-collaboration/README.md`'s "Working solo?" note, which owns the solo case most directly. |
+| M2 | MAJOR. KEEP had no landing site. The page routed OVERRIDE by an explicit table and DELETE by a sentence, and left KEEP — the disposition the route produces most of — with only what the record must *carry*, never where it goes. The only profile sections available are shaped for authored trait prose with an evidence sentence, which is the exact form the page forbids, so an obedient agent was put where the page's instructions could not all be satisfied at once. | **FIXED.** "Where an override lands" is now "Where each disposition lands" and routes all four states. KEEP lands inline in its group's profile section in a fixed one-line form — `CAL-B2 ratified <date> — kit default, not the owner's words.` plus the value in one sentence — and never as a bolded trait claim with an evidence sentence, with the reason stated: a ratified default has no sighting in this project and no words of the owner's behind it. DELETE and `NOT REACHED` are routed in the same section. |
+| m1 | MINOR. "This page points at it rather than restating it" was false for eight values, each a one-sentence restatement of a `DEFAULT-CONTRACT.md` value, only two of which carried the "listed here so the walk reaches it" justification. Three had already drifted into addition. Nothing compares a restatement to its authority; the citation lint reaches quoted strings only, and these are correctly unquoted. | **FIXED, wording.** The claim now says what the page does — it names a value in one sentence so the walk reaches it, and points at the authority — and adds the tie-breaker: **where the two differ, the cited document governs.** The "listed here so the walk reaches it" parenthetical is extended to all eight rows, so the pattern is visible rather than inferred. |
+| m2 | MINOR. CAL-C5 restated the process-ratio numerals. 0.40 already has an authority in this register with a four-step derivation, and the row published it with a second provenance story; the 0.60 all-in tripwire appeared **nowhere else in the kit** and arrived with no cluster maximum, no n and no confidence — the placeholder the row's own group note warns against. | **FIXED.** Both numerals are dropped from CAL-C5. The row now points at the two authorities — `TOKEN-LEDGER.md`, "The ceiling", for the method, and this register's "The ratio ceiling" for the kit's own derivation with its n and confidence — and says: derive yours, do not adopt one. The value survives; one authority holds it. **0.60 is not published anywhere in the kit.** If it is ever to be, it belongs in "The ratio ceiling" with the same four-step treatment 0.40 got. |
+| m3 | MINOR. A taken calibration default left no record in the tree. `ONBOARD.md` requires the punch list to live in the tree as well as the report, and for these values there was no permitted place: not the overrides table, not the verbatim blocks, and `DEFAULTS.md` is never copied. The next session would read `INTERVIEW: not yet held` — correct — with no way to learn the agent had been running under thirty-three unratified values. | **FIXED, one paragraph.** Where an agent has taken values from the page, it adds one line to the profile's `STATUS` section, beside the sentence already there recording the eight as in force and unconfirmed, naming the page and the ids taken. `STATUS` is neither a verbatim block nor the overrides table, so this is permitted and creates no new file. |
+| m4 | MINOR. A closed partial walk recorded four counts and no ids, so a later reader knew *how many* values were still unratified and could not know *which* — and the not-reached set is not recoverable by subtraction, because a kept value is in the profile and a deleted one is absent, while an unwalked one looks exactly like a deleted one. | **FIXED, one clause.** The revision-log entry now lists the not-reached **ids**, with the reason stated: it is what makes a partial walk resumable and what stops an unwalked default reading as a ruled one. |
+| m5 | MINOR. The page said the walk asks the same five subjects, and its order list named six groups, with the mapping never given. Q2 (checkpoint shape) had no named home at all — its content is split across CAL-C1 and CAL-B5 in two different groups, neither of which said so. A completed walk was safe; a **partial** walk left the agent judging whether all five subjects were put to the owner with nothing to judge against, and a wrong answer there moves the `INTERVIEW:` line. | **FIXED, one table.** Part 2's order section now carries the five-question to six-group mapping, with Q2 shown explicitly as requiring both CAL-C1 and CAL-B5, and states that the two groups carrying no seed question — How they think, and Blind spots — can be skipped without a subject going uncovered. |
+| m6 | MINOR. This entry described "three routing sentences and one README row", and one of the three was `ONBOARD.md` §7's fourteen-line normative paragraph, which creates a SHIPPED DEFAULT source and issues three prohibitions. Understating a normative addition as routing prose is the class of thing this register exists to catch. | **FIXED, wording.** Split out into a named "Collateral in this build" subsection above, matching Round #22's shape, with the `ONBOARD.md` paragraph called what it is and the other collateral enumerated per site. |
+| n1 | NIT. The C-group note called CAL-C5 and CAL-C6 both "numbers from the source program". CAL-C6 is the loop-termination rule: no measured figure, no decimal point, and the kit ships it in full in module 01. | **FIXED, wording.** "CAL-C5 carries figures from the source program; CAL-C6 restates a rule the kit ships in full." |
+| n2 | NIT. DELETE was the only disposition with no actor named — "The value does not apply to this project" — while KEEP and OVERRIDE both name the owner. Combined with the blind-spots group's stated DELETE default, an agent could close that whole group without the owner and still satisfy "every id has one". Bounded harm: DELETE writes nothing into the profile. | **FIXED, two words.** "The **owner** says the value does not apply to this project", with the `if they gave one` clause kept and clarified — the ruling is not optional; only the reason is. |
+| n3 | NIT. Part 2 item 4 asserted the profile's promotion rule binds the route without saying how a KEEP satisfies it. A ratified default has zero sightings in the adopting project, so a literal reading forbade writing any KEEP into the profile. | **FIXED, one clause.** The item now states the resolution that was sound but unstated: the promotion rule governs what the AI *observes*, not what the owner *states* — a ratified default, like a seed-interview answer, enters on the owner's ruling rather than on a second sighting, and both always have. |
+| A9 | The review independently enumerated seven unedited sites that describe module 08 and ruled on each: **three FIX, four LEAVE.** | **THREE FIXED, FOUR LEFT AS RULED.** Fixed: `README.md`'s module-08 row gains a clause naming the optional calibration (a shipped document absent from the top-level module map is invisible above the module's own README); `ONBOARD.md` reading-order row 7 gains `DEFAULTS.md` marked optional, because §7 now has the agent cite a page the reading order never told it to open; and `modules/08-collaboration/README.md`'s "Working solo?" note, which is M1's third fix site. Left, as ruled: `README.md`'s Level-1 routing (naming the option there promotes the second route at the layer where the default path is chosen); `ONBOARD.md` §4's step-8 row, whose "OWNER JUDGMENT, absolutely" is the strongest doctrinal sentence in the kit on this subject and would be weakened by qualification; module 08's file contract at "No other substitution exists here", **verified rather than passed over** — `DEFAULTS.md` carries zero slots, so the claim still holds unedited; and `DECISION-BRIEF.md`'s "five required" and `LEVEL-1.md`'s six-document counts, **also verified** — the page is read in the kit clone and never copied, so neither count moves and editing either would be wrong. |
+| R1-R6 | Six findings **rejected below the materiality bar**, each with the reviewer's one-line reason. | **REJECTED**, reasons carried: (1) "two unrelated projects" as newly disclosed shape — `BLUEPRINT.md` already publishes "n=2 projects, one owner" and names both. (2) `BLUEPRINT.md`'s "collaboration-layer evidence is n=1" against the A-note's "two unrelated projects" — both true (one owner, two projects); no reader is misled by the pair. (3) The `QUICKSTART.md` insertion sits above the blank-page steps — it is labelled Optional and names the route below as the default; ordering alone does not make it primary. (4) Thirty-three `DEFAULT-TAKEN` punch rows is a heavy list — volume, not a defect; the states and their requirements are correct. (5) `DEFAULT-CONTRACT.md` default 3 (verbatim capture) has no CAL id — the page never claims to enumerate the eight, and CAL-A3 covers the adjacent ground. (6) "Three checks name module 08 by path" against the four references found — all four name `PROFILE-TEMPLATE.md`, the substantive claim holds, and the count wording changes nothing an adopter sees. |
+
+**ORACLE CANDIDATES from this round — recorded, not built.** Every one of the
+eleven findings was an oracle candidate: no check that existed before this round
+covered any of them, which is the arithmetically expected shape for a prose-only
+build and is also the finding worth recording, because `DEFAULTS.md` is now one
+of the most normative documents in the kit and not one line of it is
+mechanically checked. Two of the eleven suggest cheap, general oracles:
+
+- **Ordering lint.** An instruction of the form "do not show X before Y" must
+  appear **above** X in the same document. Catches M1.
+- **Closed-set routing lint.** A document that defines a closed set of states
+  must name a landing site for each one. Catches M2, and would have caught the
+  shape of m4.
+
+Neither was a shipping requirement of this round, and neither is built. They are
+recorded here as candidates for the promotion rule to act on at a second
+sighting, which is the same route `citation_lint.py` took in Round #22.
+
+**Two owner-funded additions rode this fix pass**, on the Round #20
+tiering-economics precedent (positioning prose funded by the owner, landing in
+one place, compressed rather than expanded, making no new claim).
+
+- **An at-scale statement**, in `README.md` as "At scale, and where it breaks",
+  placed immediately after "Why files, and where this sits" because that section
+  already carries the not-a-runtime position and the compose-with-a-framework
+  argument, and the floor's third item is the direct continuation of it. It
+  states the per-seam-not-per-mass scaling model (the kit rides git's scaling
+  model — many per-repository instances, nothing centralised, with the ratio
+  metrics scale-invariant by construction), gives the existence proof for the
+  mechanisms at organisational scale (file-based, check-based, ledger-based
+  control programs already run globally under SOX, COSO and ISO — an existence
+  proof for the mechanisms, explicitly **not** evidence about this kit, and no
+  audit function has consumed anything it produces), and concedes the floor
+  plainly: judgment plurality (single-seat today, `ROADMAP.md` tracks it),
+  certification composition across trust boundaries (no attestation chain
+  ships — compose with supply-chain attestation rather than rebuilding it), and
+  high agent concurrency, where an orchestration engine is genuinely required
+  (the graph says what ran; the rails say whether the green was real — a
+  composition that is architecturally clean and **empirically untested**, with
+  no measured instance of the two running together). The section closes by
+  saying it is architecture argument and not measurement.
+- **A prerequisites statement**, consolidated in `README.md` under
+  "Prerequisites" ahead of "Start here", with a four-line summary on
+  `DECISION-BRIEF.md`'s cost table and a pointer from `QUICKSTART.md` Step 0.
+  Git was previously **stated nowhere**, which made the kit's deepest dependency
+  the only undisclosed one; Python 3.10+ was stated only in Step 0 and the
+  harness assumption only in `BLUEPRINT.md` §9. Step 0 gains `git --version` as
+  its first line and its checkpoint is corrected from nine lines to ten.
+  **No version floor was invented.** The statement says no minimum git version
+  has been derived, names the six git commands the kit actually uses, and
+  records that every git behaviour the kit cites was **measured on git 2.54** —
+  the honest form, and the one the citation lint's spirit requires of a number.
+  pytest and GitHub Actions are labelled optional where they already live.
+
+**Not yet written here, and owed at round close:** this round has no timeline row
+and no escape-rate row. Both are round-close artifacts, and the register's rule
+is that a timeline entry and its escape row land in the same commit.
+
+---
+
+## Round #24 — the drop-and-go acceptance run, and its fix pass
+
+The twenty-fourth entry is two instruments in one round. First an **acceptance
+run**: an LLM-persona agent, given nothing but the instruction to adopt the kit
+into a host starting at `ONBOARD.md`, adopted the kit @ `15c2ded` into a
+prepared existing project — a real pytest suite, CI, an evidence binder, a
+`.claude/`-covering ignore file, a pre-existing `CLAUDE.md` and settings file,
+and uncommitted work in progress. It ran the `LEVEL-1.md` path to
+`LEVEL 1: HEALTHY (exit 0)` and reported **six findings against the documents**
+and one self-inflicted incident. Then the **fix pass** below, which dispositioned
+all six.
+
+**What the run is evidence for, and what it is not.** It is the first end-to-end
+exercise of `ONBOARD.md` as a route rather than as a document, and the first one
+where the host was somebody else's project rather than an empty directory. It is
+still an agent executing tool calls: its 11m 55s of wall-clock is tool-time, the
+run says so, and no speed claim is made from it here or there.
+
+**The host's punch list is not registered here.** The run raised seven items
+(H-1…H-7) for the host's owner — module 01 not adopted, the scan not run, an
+ignore rule over a judged path, and so on. Those are the adoption's output
+working exactly as `ONBOARD.md` §7 designs it, not defects in the kit, and
+registering them would inflate this round's denominator with somebody else's
+decisions.
+
+| # | Finding | Disposition |
+|---|---|---|
+| F1 | `ONBOARD.md`:41 told the agent Step 0 is **nine** lines. Round 23 had added `git --version` and corrected `QUICKSTART.md`'s own checkpoint from nine to ten; the copy of that number in `ONBOARD.md` — which names `QUICKSTART.md` Step 0 by name — was left behind. Cost nothing this run; the hazard is an agent counting to nine and stopping before the live fixture run, the only line in Step 0 that exercises a settings file rather than a selftest. | **FIXED**, and the class was **promoted to a check** — see the oracle below. The number is now ten, and the count lint reads it against the block it names on every run and on every push. |
+| F2 | `LEVEL-1.md`:184-189 stated the expected render result as **one** unfilled slot (`{{PROTECTED_PATH}}`). `kit_render.py` treats a shipped placeholder as UNSET, and `kit.config.example` ships all four tier names in the `your-…` shape, so a config copied from the example yields **five**. An adopter who takes `CLAUDE.md` is told to expect one red and gets five, with no page saying the other four are normal. | **FIXED, and CORRECTED AGAIN BY THIS ROUND'S REVIEW (M1, M2, n1).** The first fix stated the tool's real summary line but named the wrong precondition: it promised **five** unfilled slots on a `kit.config` copied from the example, where the real result on that config is **six** — `{{KNOWLEDGE_DIR}}` is the sixth — and the `NONE` branch two screens earlier yields six as well, which is F2's own defect reproduced on a documented branch. The step now carries a three-row table, one row per answer step 1 offers, each with the summary line that branch actually produces (reproduced on three scratch hosts) and what is unfilled on it, quoted through `each named above`. Each slot then gets its disposition: the four tier names are step 2's decision arriving late (fill them and re-render if you run agents; if you do not, the rules file is the conditional sixth document and the tiering prose goes with it, deletion recorded); `{{PROTECTED_PATH}}` is the module-02 tripwire the template marks *delete if unused*; and `{{KNOWLEDGE_DIR}}` is step 1's decision rather than a slot to delete — answer it and re-render. The closing paragraph states which of them redden step 5 and which do not, per branch: `doctor:l1-knowledge-dir` is green on `NONE`, so `doctor:l1-rendered` is the only thing between an adopter and a document pointing at a directory called NONE. |
+| F3 | **The round's escape, ruled so.** `doctor:l1-documents` reported the host's own untouched 30-line `CLAUDE.md` as `CLAUDE.md (module 01 as prose)`. The green line then certified **six** documents where five were installed, and REMOVAL COST named a file the adoption never wrote — a reader following it literally deletes the owner's own rules. The neighbouring member of this class was already recorded (`EXISTING-PROJECT.md`:49: no check can tell a merged rules file from a clobbered one); this is the third, and a check existed, covered the surface, and answered the wrong question. | **FIXED, code and documents.** The doctor now decides **present** against **adopted** by the kit's own template fingerprints — eight slot-free **fingerprints** of `modules/01-governance/CLAUDE.md.template` — seven section headings and one rule sentence, which is why the reader-facing lines no longer call them all headings — two or more of which mean the file carries module 01's prose however it got there. A pre-existing file is not counted, is not scanned for shipped values, and is named in the finding with the numbers the decision used; REMOVAL COST never names it. **Why fingerprints and not git:** step 5 runs before the commit, where an adopted rules file is dirty and a pre-existing one is clean — git would report the two backwards — and after the commit a merged file is indistinguishable from an overwritten one by history alone. **Residual, stated in the tool and in `LEVEL-1.md`:** an adoption that deleted nearly every kit heading reads as the host's own file, and a host file carrying two of the kit's section titles reads as adopted; a merged file reads as adopted, which is correct, and its removal is a revert, which the line already says. Both directions are negative controls in `--selftest`, the fingerprint literals are cross-checked against the shipped template, and both end states were run against a scratch host. **CORRECTED BY THIS ROUND'S REVIEW (M3, M4, M10, m4, m5, m6), all at the reader-facing surface the first fix left uncontrolled.** The green line used to read `host CLAUDE.md is the owner's own, untouched — it carries none of module 01's prose, this level did not install it`: three claims of provenance that a count of fingerprints cannot establish, and all three false on a trimmed adoption (a genuinely adopted 10.7 KB file whose headings were reworded, which the template's own instruction 2 invites). It now claims only what the mechanism supports — `carries fewer than 2 of module 01's 8 fingerprints (N found)` — and states the limit of that reading out loud. The detail line no longer says `carries none` beside `1 of 8 found`. The ADOPTED branch prints the same two integers, which is the direction that lets REMOVAL COST name a file and was the direction with no printed evidence. REMOVAL COST's closing clause names no rules file at all: it used to offer ``CLAUDE.md`` and ``.gitignore`` as the usual merge targets on every run, including the run whose line above had just promised the removal cost does not name it. **The structural fix is M10:** the three summary lines are now `level1_summary_lines()`, a pure function the selftest reads, with controls asserting the not-adopted line's numbers, that ``CLAUDE.md`` appears in no part of REMOVAL COST on that run, and that it does appear on the adopted run. The first fix was tested where it computes and not where it speaks. |
+| F4 | `ONBOARD.md`:235-243 offered a binary — the host runs no agents, or the host runs agents with the tiers unevidenced — and the measured host was neither. It has a `CLAUDE.md` and a `.claude/settings.json` with 10 allow rules, so an assistant demonstrably works in it; it contains no agent, tier, spawn, lane or charter vocabulary anywhere, so tiered spawning is unevidenced. The blocking branch's stated consequences are all Level-2 mechanics that do not exist at Level 1. | **FIXED** — the third case is now shipped, and it codifies what the run itself did rather than inventing a resolution. Harness configuration present, agent vocabulary absent: do not pick a branch; classify the underlying question (does this project run agents, in the sense the four keys describe) as OWNER JUDGMENT under §4's own definition, record it in §7 `DEFERRED` where the mechanical half continued and `BLOCKED` where it stopped, leave the keys unset, and write into the punch text what was searched for and not found. |
+| F5 | `ONBOARD.md` §4 and `LEVEL-1.md` disagreed on whether the rules file is conditional. `LEVEL-1.md`:157 makes it conditional on running agents; `ONBOARD.md`'s no-agents branch presumed it installed and then partly deleted, which is only possible if it was taken. | **FIXED by yielding, which is what the page already says to do.** `ONBOARD.md`:16-20's rule — where this page and a shipped document disagree, the shipped document wins and the disagreement is a finding — **worked on first contact**: the run detected the conflict, named `LEVEL-1.md` as governing, took the conditional reading, and reported the disagreement rather than picking a side. The page is now aligned: the no-agents branch says the honest act on the `LEVEL-1.md` path is not to install the file and to say so, with the delete-and-record instruction scoped to the `QUICKSTART.md` path where Step 6 installs it, and §4's step-6 row states the conditionality and names `LEVEL-1.md` as the authority. |
+| F6 | `LEVEL-1.md`:320's de-identification scan requires `--tokens <a-path-outside-this-repo>`; `ONBOARD.md`:521-523's fence permits writes inside the host plus one named report file. **The intersection is empty**, so an agent obeying both cannot run the step as printed. The run did not run it, did not invent a fourth location and did not weaken the command. | **FIXED as a documented capability grant**, which is what the fence's existing implicit exception (the report path) always was. §8 now states it with four properties, all requirements. **The owner ruled the granularity after this round's review (M5) found the permissive reading:** the clause presented the report path as an existing instance of the *same single* capability and then enumerated two artifact types for it, so an agent handed a report path — that is, every run — could conclude a granted path existed and write the token list beside it, citing the clause at every step, leaving DEFAULT-CLOSED unreachable in the common case. The properties as shipped are: **DEFAULT-CLOSED, PER ARTIFACT** (no path designated *for a given artifact* → the capability to write that artifact does not exist, and the dependent step is recorded NOT RUN citing the clause); **HUMAN-GRANTED**, extended with *you never infer a grant from a path's existence* — a path handed to you, a directory that is there and writable, or an artifact of yours already sitting in it are none of them grants; **ENUMERATED PURPOSE, ONE PER PATH** (a grant covers one artifact type at one path; the two enumerated types each require their own explicitly designated path; the report path is not a token-list path and neither is its directory; a granted path is a file unless the operator named a directory); **USE-RECORDED** (the report names every granted path, the artifact type each was granted for, and every file written there), now carrying its self-attestation residual. A closing paragraph states the ordinary outcome — report written, scan NOT RUN, punch item raised — as the designed one rather than a degraded one. `LEVEL-1.md`'s rule is unchanged and now points at the clause, and its Step 6 prose says a path given for something else is not a grant for this. **The rejected alternative, and why:** a token list inside the tree is one force-add from published. |
+| A1 | **Owner-ruled, queued before this round and landing in it: the anti-ratchet mirror.** The register's declined-oracle reasoning existed as one clause inside Round #23's escape row and nowhere in the shipped doctrine, so an adopting project inherited the promotion rule and not its reverse gear. | **SHIPPED.** Module 01's WHEN THE LOOP ENDS gains rule 7: a round may decline to build an oracle it was offered, the declination is a **recorded bet**, and future findings of that class count against the round that declined. The ORACLE-DECLINED row shape is defined beside it, and module 04's judgment-ledger status legend describes that shape rather than redefining it. **This round's review (M7, M8, M9, n3) found the doctrine's own paperwork short in three ways, all fixed in the fix pass:** module 01 gave a six-field row for a four-column table, which drops cells in a markdown renderer, so the row is now written in the ledger's own four columns and module 01 is the single authority for it; *counts against the round that declined* had no arithmetic home, so module 04 now states the convention — a declined-class finding is **not** an escape (an escape is what an existing check should have caught, and a declined class has no check), it is a coverage gap with a named owner, and attribution is one citation of the declining round's row in the finding's register entry, changing no metric and touching `escape_rate.py` not at all — and states how a bet closes: the check is later built and the row is marked `SUPERSEDED` citing it, or a later round re-declines the class, appends its own row and holds the bet from then on. The kit also shipped the doctrine with zero conforming instances; this round's own declinations, below, are the first. **The first instance is retro-cited, not rewritten:** Round #23's escape row already states that if either of its two recorded-not-built oracles is later built and the class produces findings, those count against the round that declined the check. That sentence is the doctrine's first use; rule 7 is the doctrine. |
+
+**THE ROUND'S MANUFACTURED ORACLE — `tools/count_lint.py`.** The citation lint's
+own docstring names the class it declines to cover: *a claim in a document should
+be verifiable against the source it names — quoted strings, cited steps, stated
+counts.* F1 is the third member, and this is the narrow version of it.
+
+**What it checks:** a stated count whose target it can locate must match the
+target. Three ways a count names a target, and nothing else counts as naming
+one: a count phrase that **opens** a paragraph ending in a colon, over the table,
+list or fenced block immediately below it; a line count in the paragraph
+immediately **after** a fenced block; and — F1's shape — a count naming another
+document's section in backticks, over the single fenced block in that section.
+Countable lines are non-blank, non-comment lines with a wrapped command counted
+once.
+
+**What it cannot see, stated on the tool's page and here:** prose counts with no
+locatable target, which is the larger half of the class by volume and is skipped
+with the count printed on every run; semantic counts (*two version checks, five
+selftests* describes what the ten lines are, not how many there are); counts of
+things outside the documents; ambiguous targets, which are skipped rather than
+guessed at; and counts inside this register, which records what a count used to
+be beside its correction — exempt as a document class the same way the citation
+lint exempts it, with the same disclosed residual.
+
+**Seen red before handoff, twice, and both reds changed the tool.** First, on the
+live tree with F1 unfixed: one finding, `ONBOARD.md`:41, `counted 10, stated 9`.
+Second, and this is the one that changed the design: the first build let a count
+phrase anywhere inside a colon-ended paragraph claim the block below it, and its
+first live run **reported 23 findings against this kit of which 22 were its
+own** — 21 of them one class (*one pass*, *4 is what lets*, *eight defaults*:
+numbers that merely sit in a paragraph which happens to end in a colon). The rule
+is now that the phrase must **open** the paragraph, and the cost of that
+narrowing is stated in the tool (*Run these ten commands:* is no longer seen).
+The twenty-second was a different class and a worse one: `QUICKSTART.md` Step 4's
+correct *three lines* was reported as a defect, because the third of its three
+commands is a pipeline written across two physical lines. A command that wraps
+now counts once, which is the sibling of the citation lint's most important
+control — there a quotation that wraps in its source must still be found — and is
+planted as `COUNT(wrapped-command)`. **Nineteen negative controls, registered as
+a sixth `count:` family in `checks-registry.json`** and cross-checked both ways
+by `expectation_lint.py` — seventeen at handoff, plus the two this round's
+review added (see the vocabulary ceiling below). Wired into CI as two steps:
+step 2b8 runs the selftest and the lint as two commands, and step 2b9 is the
+forced-red half that inverts the exit code and passes only when a planted stale
+count is caught, run on a copy in a temporary directory so the kit's own tree
+is never modified to test a check against it.
+
+**Collateral in this fix pass:** the binding digest's ceiling was **re-derived**,
+twice, which is the binding working rather than a defect. Rule 7 grew the
+module-01 template from 191 rendered lines to 206, and the review's fix pass grew
+it again to 209 when the row shape was refitted to the ledger's four columns.
+`kit_doctor.py --selftest` fails on a stale constant naming both numbers, and the
+derivation was re-run each time rather than the assertion relaxed: (209 + 90) ×
+1.15 = 343.85, rounded up to the nearest 25 → `DIGEST_CEILING_LINES = 350`, with
+n = 2 and LOW confidence unchanged. The ceiling lands on 350 both times because
+the arithmetic puts it there, not because a number was left alone.
+
+### The adversarial review of this round, and its fix pass
+
+The round was reviewed spec-side against the owner's F-gate rulings and the diff,
+on the uncommitted work at `15c2ded`. **Verdict: APPROVE-WITH-PUNCH-ITEMS** — 0
+CRITICAL, 10 MAJOR, 7 MINOR, 3 NIT, 6 rejected below the materiality bar, 0
+HALTs. Per module 01's loop-termination rules that is approved: the items rode
+this one fix pass and bought no second round. Every item above has been
+dispositioned in the row it belongs to; the items with no home in an F-row are
+the doctrine's own paperwork (M7–M9, below), the count lint's disclosure gaps
+(m2, m3, m7) and the two stale line citations (m1).
+
+**Read the MAJOR count at its true size.** Ten MAJOR findings against a round
+whose predecessor drew two is a spike, and the honest reading is scope rather
+than a fall in quality: this round shipped **two builds, one piece of doctrine
+and six acceptance-run fixes in a single lane**, where round 23 shipped one
+theme. Nine of the ten are wording at a reader-facing surface — the tenth, M10,
+is the structural reason the other four in its group existed at all. Nothing in
+the review was unsafe to ship, and the reviewer said so.
+
+**The escape rate for the review is 0 of 20, and that zero is not a quality
+signal.** No check that existed at `15c2ded` should have caught any of the
+findings, which is honest — the round's checks are new — and it is evidence that
+the checked surface is young rather than that the loop is learning. The number
+worth watching is the twenty oracle candidates the review named, and the
+declinations recorded below are this round's answer to them.
+
+**The two stale citations, and both lints' shared blind spot (m1).** The F6
+clause shipped citing `LEVEL-1.md`:320 twice for the de-identification scan; the
+round's own +36 lines in that document had moved it, and :320 by then read
+"DOES NOT CERTIFY". Corrected to the command at :398 and the rule at :402. The
+class is invisible to both lints **by design** — the citation lint requires a
+quoted string, and the count lint's `SECTION_REF` excludes the bare `:N` line
+form because a line range names no enumerable section — so both tools now
+disclose that blindness in their stated scope, naming each other. A disclosure,
+not a build; the check is declined below.
+
+**The count lint's second blind spot (m2), disclosed rather than closed.** Its
+`NUMBERS` vocabulary stops at *twenty* and its digit form reads three digits, so
+"thirty rows", "twenty-five checks" and "1024 lines" were matched by nothing:
+not checked, not skipped, and absent from the skip total the tool's own docstring
+calls "the disclosure". The review proved it by planting five false counts
+written with the word *ninety* and watching all five vanish. **The ceiling stays
+and the disclosure is completed**, because widening what the tool checks widens
+what it can be wrong about, and v1 buys its low false-positive rate by reading
+few numbers. A second pattern now recognises the tens words, their hyphenated
+forms and digit runs of four or more, for the sole purpose of counting those
+phrases as **skipped with a reason of their own** — it decides nothing and can
+never produce a finding. Eight real phrases became visible on the live tree the
+day it landed. Residual of the disclosure itself, stated: "a hundred lines" and
+spelled compounds beyond the tens remain invisible.
+
+**Two smaller corrections in the same tool.** Its module docstring is now a raw
+string, ending a `SyntaxWarning` printed on every local run and both CI steps
+(m3); and its two statements about the first live run — "22 findings, 21 its
+own" — are corrected to the register's 23 and 22, which were right (m7).
+
+### Rule 7 applied to this round — the declined oracles
+
+The review named twenty oracle candidates. Three were built into this fix pass
+(the `level1_summary_lines` control, and the count lint's two vocabulary
+controls). The rest are declined, and rule 7 says a declination is a recorded bet
+rather than a silence. These are the doctrine's first conforming rows, written in
+the four columns module 01 now prescribes:
+
+| Ruling (verbatim where possible) | Landed in | Enforcing check | Status |
+|---|---|---|---|
+| ORACLE-DECLINED: a document that quotes a tool's summary line disagreeing with what the tool prints on the state the document names — run the tool in a fixture tree and string-match the quoted line | round 24 | not built: needs a fixture-tree harness no kit tool has yet, and the fix pass corrected the two live instances by hand; trigger: a third finding of this class, or the first one that reaches an adopter | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a bare `` `DOC.md`:N `` citation whose line number has drifted — minimum viable, N exists in DOC.md; better, the cited line's section carries a keyword from the citing sentence | round 24 | not built: the minimum-viable form is nearly free and nearly worthless, and the useful form needs a section resolver the citation lint has already declined once (its v2 question); trigger: the section resolver landing, or a third stale citation | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a kit tool emitting a warning on stderr — run the tools under `-W error`, or assert an empty stderr, in CI | round 24 | not built: one instance, one character to fix, and `-W error` over every tool risks reddening CI on a dependency's deprecation the kit does not control; trigger: a second warning shipping to CI | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a stated count whose target the count lint cannot locate — prose counts, semantic counts, counts of things outside the documents, ambiguous targets | round 24 | not built: it is the tool's declared out-of-scope surface, the larger half of the class by volume, and covering it needs a target resolver rather than a wider pattern; trigger: a wrong count of this shape reaching an adopter, which the skip count is the standing disclosure for | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a stated count written with a number above the checking vocabulary (the tens words, hyphenated forms, digit runs of four or more) | round 24 | not built: v1 keeps its checking surface small on purpose and the fix pass completed the disclosure instead, so these phrases are now skipped and counted rather than invisible; trigger: a wrong count of this shape found by hand | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a number stated in a tool's source disagreeing with the same number in this register — the count lint reads no `.py` and exempts the register as a document class | round 24 | not built: two exemptions would have to be reversed to reach it, and both are load-bearing; trigger: a second disagreement of this shape | **ORACLE-DECLINED** |
+
+None of these was built in this pass, deliberately: rule 7's point is that the
+declination is recorded, not that it is avoided. A later finding of any of these
+classes cites the row above it, per module 04's attribution convention.
+
+**Not yet written here, and owed at round close:** this round has no timeline row
+and no escape-rate row. Both are round-close artifacts, and the register's rule
+is that a timeline entry and its escape row land in the same commit. The
+escape-rate row will carry the review's own items alongside the acceptance run's,
+with the MAJOR-count spike read as scope — two builds, doctrine and six findings
+closed in one lane.
+
+---
+
+## Round #26 — the adversarial battery: an evaluation read and a prior-art audit
+
+The twenty-sixth entry is two adversarial instruments run against the shipped
+kit at `2ad480a`, both read-only, and one implementation lane closing what the
+owner ruled GO.
+
+**Instrument 1 — an LLM-persona evaluation read** in the kit's own vocabulary: a
+principal-engineer persona with a controls and QA background, no prior contact
+with the kit, deciding whether to recommend adoption. It read `ONBOARD.md`,
+`DEFAULTS.md`, `GATE-LINE.md`, `EXISTING-PROJECT.md` and `JUDGMENT-LEDGER.md` in
+full, ran the kit's own Step 0 battery and every selftest, and recomputed the
+whole escape-rate table by hand before running the instrument. **Verdict:
+ADOPT-PARTIAL** — 0 CRITICAL, 2 MAJOR, 4 MINOR, 2 NIT, 14 GOOD, 0 halts.
+
+**Instrument 2 — a prior-art audit**: a redundancy hunt over the kit's
+load-bearing claims against live artifacts, plus an ancestry audit of the
+doctrine document. Fourteen live web searches and twelve page fetches, with
+every reference carrying a verification tier. **Verdict: the composition claim
+stands narrowly and is eroding; the ancestry audit FAILS for `BLUEPRINT.md`,
+which names no ancestor for any mechanism.**
+
+**What the evaluation read confirmed, and it is worth recording beside the
+defects.** The escape register's arithmetic reproduced exactly — nineteen
+rounds, 208 items, 35 escapes, 16.8%, with all nineteen per-round percentages
+recomputed by hand and matching, and the tool's published block reproduced
+character for character. Every claim on `GATE-LINE.md` matched `gate_line.py`.
+The P3 baseline was green on the first attempt on a Windows host. The read's own
+summary of why it recommended adoption at all is the part worth keeping: it
+found instances of failure modes this register had already published — round 24
+discloses the bare-locator blind spot that produced the locator finding below,
+round 20 names the claims-more-than-it-verifies class that produced the doctor
+finding — which is a different and better situation than finding failure modes
+the kit had not disclosed.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R26-1 | **MAJOR. `ONBOARD.md` §8's capability grant and §5's R4 had an empty intersection on the common brownfield case.** §8 enumerated exactly two artifact types an agent may write outside the host — the handoff report and the de-identification token list — and forbade everything else under any grant. But `QUICKSTART.md`:915-927 makes a third mandatory: the work-in-progress backup, `wip.patch`, written outside the repository, with :925 requiring both backups. `ONBOARD.md` restates that route as binding twice and never names the artifact. So the designed outcome for a brownfield host with uncommitted work inside `CERT_PATHS` — the case `EXISTING-PROJECT.md` exists to serve, and where it records the collision as measured — was a HALT that no document anticipated, with no `NOT RUN` disposition and no punch-item route. Aggravating: §8's premise sentence asserted that the token list is the one artifact the kit keeps out of the tree, which `QUICKSTART.md`:919 makes false as stated. **This is round 24's F5 class exactly** — the fence/token-file empty intersection — resolved then for one artifact and never generalised to the class. | **FIXED, and generalised this time.** The enumeration is now labelled a CURRENT LIST of three, set by the shipped documents rather than by the clause, and **the extension rule is stated as part of the grant**: every artifact type a shipped document requires to be written outside the host gets its own operator-designated path on the same four properties, and where none was designated the step is recorded NOT RUN citing the clause, as a §7 punch item. The rule therefore reaches a fourth artifact type without another round. The work-in-progress backup is added with its consequence stated in full: with no granted backup path the agent does not stash, does not certify, records the certifying run NOT RUN, and hands back a punch item naming the path the owner would have to grant — rather than committing the work to clear the tree, which is what R4 exists to forbid. The paragraph states why this is no longer a HALT under either §5's "do not invent a fourth" or §3's contradiction rule. The false premise sentence is corrected to name both artifacts and the reason each is kept out. **All four grant properties survive unchanged as requirements** — default-closed per artifact, human-granted, single-purpose-per-path, use-recorded. R4 in §5 now points forward to the clause as the source of the path it needs. |
+| R26-2 | **MAJOR. `WHEN THE LOOP ENDS` rule 8 shipped an unverifiable citation into every adopter's rules file.** The rule's authority is one measured instance, and the instance read "the reference register's round 24 — nine self-catches in one round, including the rulebook-size lint firing on the growth rule 7 itself caused." Three independent defeats of verification. The register is never named in the template and no step copies it into a host, so the adopter held a pointer to a document they could not identify. "Nine self-catches" appears in this whole kit exactly once — at :55, the round-25 row asserting it; round 24's timeline row and its section enumerate nothing of the kind. And "the rulebook-size lint" is not a check name; the check is `doctor:binding-digest`. `CLAUDE.md.template` renders into the host, so this shipped into adopters' repositories, in the newest and least-read doctrine, in the finding class `DEFAULTS.md`'s own betrayal line CAL-F3 names. The root cause is round 19's, recorded here: attribution written from working memory of a round the author had just run. | **FIXED, and the count now matches what this register carries.** Rule 8 names the source (`KNOWN-ISSUES.md` in the kit repository, rounds 22-25), states that the file stays in the kit clone and is never copied into the host so the adopter knows where to read it, uses the real check id `doctor:binding-digest` and says what that check does, and cites **four** self-catches instead of nine — one per round, each recoverable from this register's own timeline rows: the citation lint red on its author's two unregistered controls (round 22) and again on its author's prose mid-pass (round 23), the adoption smoke catching the fix lane writing an unsubstituted slot (round 24), and `doctor:binding-digest` red on the growth rule 8 itself caused (round 25). **Nothing in the rendered rule is now unverifiable by an adopter.** The unsourced count at :55 is left standing as what was written, with an errata marker beside it rather than a silent edit. |
+| R26-3 | **MINOR. This register described a currently-shipped check in the present tense with two-revisions-stale numbers.** Finding F5's disposition (:879) states that `doctor:binding-digest` sizes against 325 lines derived from a 191-line template, and that `--selftest` requires the template to still render to 191 lines. Shipped at the time of the read: 219 and 375. The register's exemption from `citation_lint` is sound for quoted findings text — a register quotes text as it was, beside a disposition reading FIXED — but this cell was not quoting a finding; it was describing a live check, and the exemption shields forward-looking claims in the same motion. A reader auditing the register against the artifact found a mismatch with no errata marker. | **FIXED by errata, and the mechanism named rather than hidden.** An ERRATA block now closes that cell: the numbers above it are marked as this row's history, the shipped values are stated (224 + 90 = 314, x 1.15 = 361.1, rounded up to 375, selftest requiring 224), and the reader is pointed at `tools/kit_doctor.py`'s derivation comment as the current statement. The gap the exemption creates is stated in the errata itself. **No check built** — see the declined-oracle row below; distinguishing a quoted finding from a live description is a judgment this register's shape does not currently expose to a tool. |
+| R26-4 | **MINOR. `kit_doctor.py`'s binding-digest derivation carried stale prose beside current constants, and the selftest's own assertion label was arithmetically wrong.** The shipped constants were right. The explanation was one and two revisions behind: the four-step comment still narrated 191 → 206 → 209 and "lands on 350 both times", and its STEP 3 opened at 350 while quoting 375's figures. The finding proper is the selftest label at :3085 — "the ceiling is the derivation's arithmetic, not a free-standing number: **(209 + 90) x 1.15**, rounded up to 25", where (209 + 90) x 1.15 = 343.85 → 350, not the 375 the check was asserting. **The check passed because both sides of the assertion read the live constant, so the sentence a human reads was never compared to anything.** That is the claims-more-than-it-verifies class this register names at round 20, on the check built to prevent exactly this drift, and it is invisible to `count_lint` because these are code comments rather than prose claims. Mitigating: every number that PRINTS on a run is computed from the live constants, so no user-visible figure was ever wrong. | **FIXED at the structural layer, not the wording layer.** The label is now BUILT FROM THE CONSTANTS with a format string, so the prose a human reads is a third reader of the same source and cannot go stale again — the previous fix shape would have been to retype the numbers. The four-step comment is rewritten with current figures (224 rendered, 314 digest, 375 ceiling, 61 lines and 16.3% below the line, 448 for a doubled template) and now carries the re-derivation history as an explicit dated list, because each re-derivation is evidence the guard fires. The binding note states that when the constant moves, STEPS 1-3 are re-stated with it. |
+| R26-5 | **MINOR. Four `document:line` locators in `ONBOARD.md` did not point at what they cited**, plus two imprecise ones. `:422` cited `DECISION-BRIEF.md`:40-41 for a quotation actually at :64-65, where :40 is a section heading. `:535` cited `QUICKSTART.md`:1005-1006 for text at :1011-1012. `:308` cited `:775-777` for a claim at :778-780. `:212` cited `(:361)` for a heading at :366. Imprecise: `:226` cited `:203-207` for a quotation at :208-209, and `:367` cited `:806-811` for a failure signature at :861. **The `:422` instance is self-indicting** — it sits four lines above the passage ordering the reader to copy quotations "from the lines you are citing, with the document open, and never from memory", and §8 requires findings to carry the line, not the section, not the gist. | **ALL SIX FIXED**, each re-verified with the target document open rather than from the finding's report. The two imprecise ones were in scope because they are the same class and the same cost to correct. **This finding CLOSES round 24's declined-oracle bet on stale bare locators**, whose recorded trigger was "the section resolver landing, or a third stale citation" — six is past three, and the class is attributed to round 24 per module 04's convention. Whether the check is now built is an owner decision and is not taken here; the bet is recorded as triggered. One related observation, recorded and not fixed: the quotation at `ONBOARD.md`:306 is real but its source is `verify.py`:1484's selftest section header, not the `QUICKSTART.md` line the sentence cites; the citation now points at the claim's document and the quotation is the tool's own label. |
+| R26-6 | **HIGH, from the prior-art audit. `BLUEPRINT.md` contained zero external citations.** A grep for eighteen ancestry-bearing terms across the doctrine document returned only the kit's own vocabulary. Mutation testing (§5.5), defect escape rate (§2 and §11), SRE error budgets (§6), IV&V (§4), requirements traceability (§1), SRE postmortem culture (§8) and the andon cord (§4) are all present and all unattributed, under the framing "each law paid for at least once on the reference builds". That framing is true and it is also the failure mode: a reader who knows mutation testing reads §5.5 and either concludes the author does not know the 1978 literature or concludes the author knew and did not say. Both readings cost more than the citation. **The audit was explicit that the discipline exists elsewhere in the program** — `README.md` names SOX, COSO, ISO, SLSA and sigstore; `DECISION-BRIEF.md` hands the reader watermelon reporting — and stops at this one document. | **FIXED with a section rather than a standing instruction**, which is this kit's own structure-over-sentences rule applied to a prose failure. `BLUEPRINT.md` §12 "Lineage" ships as the document's last word: a mechanism → named ancestor → what this kit added table covering all ten gaps the audit named, each row carrying its source's verification tier, opening with the honest framing that a practice two independent derivations arrive at is better evidenced than one only this project found. Three inline lines were added at the points a hostile reader trips first, where a forward reference is too slow — §5 law 5 (mutation testing), §2 (defect escape rate), §6 (SRE error budgets). **Sourcing discipline, stated:** only references the audit marked FETCHED or SEARCH-URL are cited. The andon cord's Toyota origin was RECALLED-UNVERIFIED and ships **explicitly labelled unverified in its own row** rather than dropped or asserted; the promotion-and-demotion row states that no named artifact was found and reports the negative result rather than inventing an ancestor. |
+| R26-7 | **HIGH, from the prior-art audit. `README.md` positioned the kit against the wrong neighbours.** "Why files, and where this sits" named only LangGraph and CrewAI, which are orchestration runtimes the kit composes with, not the governance-layer projects it actually sits beside. The audit named three live ones a reader reaches in one search — Chock (Apache-2.0; policy committed to the repo compiled to pre-tool-use hooks and CI gates, with per-surface enforcement labelled enforced / enforced-at-commit / advisory, which is functionally this kit's Zone A/B honesty shipped as compiler output), Agentic OS (the same evidence-gated thesis as drop-in files across several harnesses), and Microsoft's Agent Governance Toolkit (a runtime control plane with an SRE package). **Not naming a competitor a reader will find in one search is the same failure class as not naming an ancestor.** | **FIXED.** The compose-with-orchestrators paragraph is kept unchanged, and a peer paragraph follows it naming all three with one sentence each on the real difference, sourced only from the audit's classifications. No disparagement: Agentic OS is cited as convergent evidence strengthening the file-first argument rather than as a rebuttal of it, and Microsoft AGT's threat model is stated as the one this kit declines rather than as a weakness. `COMPARISON.md` is named as the full table. |
+| R26-8 | **MEDIUM, from the prior-art audit. The self-application claim has near neighbours, so "we apply it to ourselves" is no longer distinctive.** Three artifacts in the 2026 literature publish self-hosting or dogfooding evidence about themselves. The distinction survives — all of them publish coverage or completeness scores, which is the flattering direction, and none publishes a miss rate with denominators that is allowed to rise — but the kit's decision surface was leading with composition, which is the weaker of its two claims and the one measurably eroding. | **FIXED, surgically, at the two places the claim is made** — `README.md`'s opening and `DECISION-BRIEF.md`'s "What it is". Both now state the differentiator as CONDUCT rather than composition: the discipline applied to itself with the unflattering number published, leading with the 50.0% and 42.9% spikes rather than the 21.7% average, and stating in each place that the composition claim has a short half-life and is not the one to weigh. `BLUEPRINT.md` §11's evidence bullet is untouched by the owner's instruction — surgical sentences, not a restructuring. |
+| R26-9 | **Owner-funded. There was no public page a reader could check the kit's claims against.** The audit produced a per-claim classification the kit had no home for, and a comparison that lives only in a private report is a comparison the reader cannot audit. | **SHIPPED: `COMPARISON.md`** at the kit root, date-stamped as of 2026-08-22, opening with the standing invitation — if you know an artifact that makes a row wrong, name it and we will cite it. It carries all eighteen load-bearing claims classified REDUNDANT-BY, PARTIAL-OVERLAP or NO-MATCH-FOUND with sources at their verification tiers; the composition scorecard against the four closest candidates; an explicit "where a competitor is simply better" section; and a "what this page does not establish" section stating that a NO-MATCH-FOUND means the queries were run and the results read, and nothing more. The headline is published before the table and states the unflattering half first: the composition claim is narrow and eroding, and the conduct claim is the durable one. `README.md` routes to it from "Start here" and lists it in the repository layout. **One correction made while building it:** the audit's summary line said eleven of the eighteen claims are PARTIAL-OVERLAP; recounting from its own table gives twelve rows carrying that verdict — eight wholly and four in part. The page publishes the recount with the enumeration visible rather than carrying the number forward. |
+| R26-10 | **LOW, from the prior-art audit. De-identification gating is REDUNDANT-BY gitleaks and TruffleHog for the secret class, and the incumbents were never named.** `README.md`'s existing label — a publication aid, not a data-loss control — was already honest; the gap was that the tools that own the class went unnamed, in the one component where an incumbent does the adjacent job better. | **FIXED in two places.** `README.md`'s security-scope bullet now names both incumbents, states the difference between them (one decides whether a string looks like a secret, the other whether it works), says to run one of them for that class, and states that what `deident_scan.py` covers is program-identity tokens — a name, a username, an employer, machine path fragments — which have no detectable shape and can only come from a list. `tools/deident_scan.py`'s own docstring carries the same statement, because the tool's help is what an adopter reads before the README section. Both close with the same sentence: a green here says nothing whatever about secrets. |
+| R26-11 | **DISCLOSURE, not a defect. `agt doctor` is a name collision.** Microsoft's Agent Governance Toolkit ships `agt doctor` and `agt verify` alongside this kit's `kit_doctor.py` and `verify.py`. The tools do different jobs — AGT is a runtime control plane aimed at the hostile agent this kit explicitly declines to defend against — but a reader searching either name will meet both. | **DISCLOSED in both places a reader could hit it**: `README.md`'s peer paragraph and `COMPARISON.md`'s C16 row, in each case stated as a collision disclosed here rather than left to be discovered, with the difference in job named in the same sentence. No rename: the collision costs a reader one sentence, and a rename would cost every existing adopter their commands. |
+| R26-12 | **SELF-CATCH, recorded because rule 8 says to expect one.** `citation_lint` went red on this round's own new prose, in the fix pass for R26-2 — the round whose whole subject is making rule 8's self-coverage citation verifiable. Both hits were the same shape: a rhetorical phrase in quotation marks sitting within the glue distance of a backticked `.md` filename, which the lint correctly reads as an attribution and correctly reports as absent from the named document. One was in `COMPARISON.md`, one in `DECISION-BRIEF.md`. | **FIXED** — the quotation marks are dropped and the phrase is stated as prose in both places, which is one of the two remedies the lint's own red prints. **No defect in the check.** Recorded because rule 8's claim is that a new rule's arrival draws its own red at maximal irony, and this is the round-26 instance of it: the check built in round 22 firing on the round documenting the doctrine that predicts it. **A second self-catch in the same lane, caught by hand and not by a tool:** the R26-8 edit added a paragraph to `DECISION-BRIEF.md` above line 64, which moved the very quotation R26-5 had just re-pointed `ONBOARD.md`:422 at — so the lane fixing four stale locators created a fifth, in the same pass, in the same finding. Caught by re-verifying every touched locator against the FINAL tree rather than against the tree as it stood when the fix was written, and corrected to :76-77. **That re-verification step is the finding**: fixing a locator and editing its target document in one round are independent acts whose collision nothing checks, and the class is the round-24 declined oracle's, now triggered above. |
+
+**Collateral: the ceiling re-derived a fourth time, and the red was observed
+before any constant moved.** R26-2's rewrite grew `CLAUDE.md.template` from 219
+to 224 rendered lines. `kit_doctor.py --selftest` failed first, naming both
+numbers — `got 224, want 219` — exactly as its binding promises, and only then
+was `DIGEST_SHIPPED_RULES_LINES` moved. **The ceiling itself did not move:**
+(224 + 90) x 1.15 = 361.1, which rounds up into the same 25-line bucket, so
+`DIGEST_CEILING_LINES` stays 375. That is the arithmetic holding a number in
+place rather than a number being left alone, and the comment now says which.
+
+### Rule 7 applied to this round — the declined oracles
+
+| Ruling (verbatim where possible) | Landed in | Enforcing check | Status |
+|---|---|---|---|
+| ORACLE-DECLINED: a present-tense description of a live check inside this register drifting from the artifact it describes — the register is exempt from `citation_lint` by design, and the exemption shields forward-looking claims in the same motion that makes it honest about history | round 26 | not built: separating a cell that quotes a finding from a cell that describes a live check needs a distinction this register's shape does not expose to a tool, and the errata convention is the cheaper control; trigger: a second forward-looking claim in this register found stale, or the register growing a marker that makes the two cell kinds machine-separable | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a stale bare `` `DOC.md`:N `` locator — **round 24's bet, now TRIGGERED.** Round 24 declined this class with the trigger "the section resolver landing, or a third stale citation"; round 26 found six in one document | round 24, re-raised round 26 | not built in this lane: the useful form needs the section resolver `citation_lint` has declined twice, and this is a build decision the owner funds rather than a fix pass takes; trigger MET — the class is attributed to round 24 per module 04's convention, the bet is fired, and the build-or-re-decline decision is owed at the owner's gate | **SUPERSEDED by round 27** — resolved at the owner's gate, both ways: BUILT in the line-window form (`citation_lint`'s window check, `citation:window-*`), RE-DECLINED in the bare-bounds form. See Round #27's rule-7 table for the resolution row and its measured recall |
+| ORACLE-DECLINED: a quotation whose real source is a tool's source line rather than the document the sentence cites — `citation_lint` reads no `.py`, so a quotation lifted from a selftest section header and attributed to a document passes | round 26 | not built: one instance, and widening the lint to read Python source widens what it can be wrong about against a corpus where quoted strings are output lines rather than prose; trigger: a second instance, or a quotation of this shape reaching an adopter | **ORACLE-DECLINED** |
+
+**Not yet written here, and owed at round close:** this round has no timeline row
+and no escape-rate row. Both are round-close artifacts and the coordinator's, and
+this register's rule is that a timeline entry and its escape row land in the same
+commit. One finding this round is an escape by the register's own definition —
+R26-4 names the class round 20 published, and a check that existed was green
+over it. R26-5 is NOT an escape: its class was ORACLE-DECLINED in round 24,
+and module 04's convention (stated in `JUDGMENT-LEDGER.md`'s legend) is that
+a finding of a declined class is a coverage gap attributed to the declining
+round's bet — counting it as an escape would make the number mean two
+things. The escape row is where that reading is published rather than here.
+
+---
+
+## Round #27 — the fired bet's build: recall, and the line window
+
+Round 24 declined the stale-locator oracle and filed it as a rule-7 bet. Round
+26 attributed six locator findings to it. This round is what rule 7 says
+happens next: the bet is resolved at the owner's gate, in public, with the
+built check's recall measured against the six findings that fired it.
+
+**The order was forced by round 26's own m4 finding, and the order mattered.**
+`citation_lint`'s selftest section E asserted only that the lint saw SOME
+attributions in the kit's documents. That is a presence count, not recall, and
+it was green while the lint could not see a real ten-word attribution at
+`ONBOARD.md`:227-228. Building a window check on top of an extractor whose
+reach was unmeasured would have produced a check that looked stronger and
+covered less. So the recall floor was built first, and it immediately paid for
+itself — see R27-1.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R27-1 | **ESCAPE. A quotation in `ONBOARD.md` did not match its source, and `citation_lint` was green over it for four rounds.** `ONBOARD.md`:227 quoted `QUICKSTART.md` as "four keys come back later, each at the step that needs it". `QUICKSTART.md`:208 begins the sentence "**Four** keys come back later" — the quotation silently lowercases a sentence-initial capital. The lint's whole subject is whether a quoted string appears in the document it names, and this one does not, verbatim. It was invisible because shape B's glue forbade a backtick between the reference and the quotation, and this sentence names two config keys on its way there. **Round 26's m4 raised the reach gap and recorded "no live defect: the quotation is real." That reading is now corrected: there was a live defect, and the reach gap was hiding it.** An unmeasured reach does not merely miss defects — it converts them into evidence that nothing is wrong. | **FIXED at both layers.** The quotation is corrected to the source's own capital. The glue now admits COMPLETE inline code spans and lets the existing `MD_REF` post-filter decide attribution, which is where that rule always lived; the glue and quotation are matched inside a LOOKAHEAD so a match consumes only the reference, without which `finditer` swallows the span and `CITE(intervening-ref)` is silently repealed (proven: removing the lookahead reds that control). Measured recall over the shipped kit: **40 → 44 attributions, none lost**; checked quotations 28 → 30. Section E is replaced by `RECALL_FLOOR`, four NAMED attributions asserted extracted-and-present, registered as `citation:recall-floor`. **Red-provable, proven:** reverting the glue to its pre-round-27 form reds exactly the m4 row and no other. |
+| R27-2 | **SELF-CATCH on this round's own new work, uncounted as an item.** The registry row for `citation:window-normalisation` was flagged SELF-REFERENTIAL by `expectation_lint` on its first run, before any waiver was written: subject and expectation are two functions in one file. | **WAIVED WITH ITS REASON, not relabelled.** The finding is correct and the shape is kept deliberately — the property asserted IS an agreement between two normalisations, and there is no third artifact that defines it. What keeps it above a tautology is stated in the row: the two are independently implemented (a regex substitution and a character walk), and the equality is asserted over all 48 shipped documents rather than a literal the test wrote. Residual accepted and stated: an author who rewrites both in lockstep passes. Recorded because the alternative — re-pointing `expectation_from` at "the kit's own documents" — would have cleared the lint by relabelling, which is the failure this register exists to catch. |
+
+### The bet, resolved — what was built and what was re-declined
+
+**BUILT: the line window.** For an attribution carrying a LINE locator
+(`FILE.md`:N or `:N-M`), the lint now checks that the quotation actually sits
+at those lines. Tolerance **0**, comparison **overlap**. Overlap is what makes
+zero defensible: it already absorbs a quotation that wraps past a single-line
+locator, and a range wider than the quotation. Line numbers come from
+`flatten_with_lines()`, which produces the same normalised string as
+`flatten()` — asserted equal over every shipped document, because a window
+layer that normalised differently could report a quotation both present and
+absent. Five new registered controls (`citation:window-lines`,
+`window-stale`, `window-locator`, `window-repeat`, `window-normalisation`),
+forced red before shipping and proven end to end: a stale locator in a fixture
+tree exits 1 and prints where the quotation really is.
+
+**The tolerance is a measurement, not a taste.** Recall against the six R26-5
+defects at each candidate tolerance: **±0 → 3, ±1 → 2, ±2 → 2, ±3 → 2, ±5 →
+1**. Every non-zero tolerance costs a real defect, because the tightest of the
+six sits ONE line outside its cited range (`:203-207` for a quotation at
+:208-209). A locator is a mechanical fact about a file, not an estimate.
+
+**MEASURED RECALL: 3 of 6, published as measured.** The reviewer's counsel at
+the owner's gate predicted 4 of 6. The prediction was one high, and the
+published number is the measured one. The three reached — `:422`
+(`DECISION-BRIEF.md`:40-41 for a quotation at :76-77), `:535`
+(`QUICKSTART.md`:1005-1006 for :1011-1012) and `:226` (`:203-207` for
+:208-209) — were validated as FIXTURES reconstructed from the battery reports,
+with each stale locator reverted in memory against the real current source. The
+kit tree was never mutated to a stale state. **Note that `:226` is reachable
+only because R27-1 was fixed first**: before the glue fix its quotation was not
+extracted at all, so building the window first would have measured 2 of 6 and
+attributed the shortfall to the window design.
+
+The three not reached are named rather than assumed covered, and the reasons
+are in the tool's own OUT OF SCOPE block:
+
+- `:212` — the stale line sits in a BARE trailing locator, `(:361)`, naming a
+  line but no file, while the attribution's own locator is a section name
+  (`Step 3`). The bare `` `DOC.md`:N `` form is the shared gap this register
+  has disclosed since round 24.
+- `:367` — a locator with no quotation anywhere near it. The window check needs
+  a needle.
+- `:308` — counsel's fourth. The quotation sits about 150 characters BEFORE its
+  reference with an intervening parenthesis, past what shape A's glue allows.
+  Widening the glue that far would trade a known miss for unknown false
+  findings, which is the wrong trade for a tool whose green is the product.
+
+**RE-DECLINED: the bare-bounds form.** The v1 shape round 24 described —
+assert only that line N exists in DOC.md — was measured against the same six
+and detects **0 of 6**, because every one of the six points at a line that
+exists and holds the wrong text. A check that cannot fail on any instance of
+the class it names is not a weak check, it is a vacuous one, and shipping it
+would have moved the register's coverage claim without moving its coverage.
+The re-declination is filed as a fresh bet below rather than closing the class.
+
+### Rule 7 applied to this round — the declined oracles
+
+| Ruling (verbatim where possible) | Landed in | Enforcing check | Status |
+|---|---|---|---|
+| ORACLE-DECLINED: a stale bare `` `DOC.md`:N `` locator, BARE-BOUNDS FORM — assert only that the cited line number exists in the cited document | round 24, re-declined round 27 | not built: measured against the six R26-5 defects it detects 0 of 6 — every one names a line that exists and holds the wrong text, so the check is vacuous on its own class; the useful half shipped this round as the line-window check instead; trigger: a finding whose defect IS an out-of-range line number, which this form would catch and the window form would not | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a stale locator carrying no quotation of its own, or one separated from its quotation by more than the glue allows — the three of six the window check does not reach | round 27 | not built: two of the three need the section resolver `citation_lint` has now declined three times, and the third needs a glue wide enough to manufacture findings; the limits are published in the tool's OUT OF SCOPE block so the green is not read as covering them; trigger: a third stale locator of these shapes after this round, or the section resolver landing | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a `RECALL_FLOOR` row that goes stale because the kit's prose legitimately changed, corrected by editing the row rather than by investigating the recall loss | round 27 | not built: distinguishing "the prose moved" from "the pattern's reach shrank" needs a judgment no tool in this kit can make, and the floor's value comes from being expensive enough to notice; trigger: a floor row edited in the same commit that changes the extractor, which is the shape that would hide a reach regression | **ORACLE-DECLINED** |
+
+### The escape reading, and a conflict the arithmetic surfaced
+
+**Not yet written here, and owed at round close:** this round has no timeline
+row and no escape-rate row. Both are round-close artifacts and the
+coordinator's, on the same rule round 26 recorded. The reading they should
+carry is stated here so it is not re-derived later.
+
+**R27-1 is an escape** by this register's own definition: `citation_lint`
+existed from round 22, its stated subject covers exactly this class, and it was
+green over the defect. This is not the round-20 shape — the defect was not
+inside a check built this round, it was in shipped prose a four-round-old check
+was pointed at. **R27-2 is a self-catch on this round's own new work**; the
+closest precedent is R26-12, which counted a self-catch as an item with no
+escape attributed. **The six R26-5 locators are not recounted**: module 04's
+convention makes a declined-class finding a coverage gap attributed to the bet,
+and the bet being resolved this round does not retroactively convert them into
+escapes.
+
+That gives round 27 **2 items, 1 escape (50.0%)** on the R26-12 reading, or
+1/1 (100.0%) if R27-2 is excluded as own-new-work. Cumulative, computed by the
+tool against both readings rather than by hand: **37/222 (16.7%) over 21
+rounds** on the two-item reading and 37/221 (16.7%) on the one-item reading,
+either way up from 36/220 (16.4%). The cumulative figure barely moves, which is
+the point of publishing a denominator — one small round cannot swing it, and
+the per-round ceiling alarm below is reacting to something the cumulative
+number correctly ignores.
+
+**The conflict, stated rather than resolved here.** Either reading puts the
+latest round over `escape_rate.py`'s 35.0% per-round ceiling, and the tool
+exits 1 on that condition, which CI runs and the `escapes` gate reads. **A
+two-item round cannot fall below a 35% ceiling unless it has zero escapes** —
+the smallest non-zero rate available at n = 2 is 50%. The ceiling has no
+minimum denominator, so on a small round it fires on arithmetic rather than on
+evidence, which is the exact small-tail noise this register already warns about
+in the trend paragraph and at rounds 18 and 25. **This is a decision for the
+owner's gate, not for a build lane**, and three shapes are available: give the
+ceiling a minimum denominator below which it reports rather than fails; let a
+round declare itself too small to rate, as rounds 1–6 already do with
+UNCOUNTABLE; or accept the red and let the round close over an acknowledged
+ceiling breach. Recording the choice matters more than which one is taken —
+the wrong move is to enlarge the denominator until the number behaves, which
+this register would then be unable to tell apart from an honest count.
+
+**RULED (owner's gate, 2026-08-23): the first shape, with the floor derived
+rather than picked.** The per-round ceiling arms only at
+n >= ceil(100/ceiling) — 3 at the shipped 35.0% — because below that the
+smallest non-zero rate is already over the ceiling and the gate measures
+arithmetic, not learning. The floor is computed by `min_countable()` in
+`escape_rate.py` from the ceiling itself, never configured: a knob would
+invite tuning it until the gate stops finding things. Below the floor the
+round still enters the cumulative numbers unchanged and the required line
+carries **`state SMALL-N`** — chosen over "MEASURED-SMALL-N" because the
+gate pattern alternates on MEASURED and would prefix-match that quietly; a
+runner whose hand-written transcription of the pattern is not updated goes
+red instead, which is the two-authorities design working. The rejected
+shapes, with the owner's reasons on record: UNCOUNTABLE hides a real number
+behind a word that means "unrecoverable", which this round's counts are not;
+accepting the red makes a red CI mean nothing. Negative controls:
+`escape:nc-xv` (a small round does not arm the gate; its numbers still enter
+the cumulative rate; a round AT the floor is gated; a small CLEAN round is
+SMALL-N too, so its green cannot claim a ceiling it could not have failed;
+the pre-round-27 pattern refuses the new state word). The status board keeps
+the cumulative rate on a SMALL-N round and renders the state word as a
+literal suffix — hiding a fully measured number behind the word would drop
+information from the glance. **The ruling's accepted residual, disclosed by
+its review:** the floor makes the per-round gate partition-sensitive — the
+same evidence split into sub-floor rounds exits 0 where one round of it
+exits 1, and no check fires on a sustained sub-floor run; the cumulative
+rate, trend line and per-run SMALL-N line are the compensating disclosure,
+and their reader is a person. Stated in the tool's own SMALL-N block and on
+the `escape:nc-xv` registry row as well as here.
 
 ---
 

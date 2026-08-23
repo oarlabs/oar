@@ -38,6 +38,29 @@ first, and that is a much cheaper conversation than a surprise.
 | **UNCHECKED** | The ruling landed; nothing would catch a future inversion. Reason given, plus the shape the check would take. |
 | **PENDING** | Ruled, not yet implemented (awaiting a batch, or awaiting the owner). |
 | **SUPERSEDED** | Reversed or narrowed later — citation given. Marked **in place**; rows are never deleted. |
+| **ORACLE-DECLINED** | Not a ruling row: a check this round was offered and chose **not** to build, recorded as a bet. The row shape is module 01's, under WHEN THE LOOP ENDS, rule 7 — that clause is the authority and this legend describes it rather than redefining it. It is written in this table's own four columns: the first cell carries the literal `ORACLE-DECLINED:` then the class of finding the check would have covered and the check's shape in one line; **Landed in** carries `round <n>`; **Enforcing check** carries `not built: <why not now>; trigger: <what would build it>`; **Status** is `ORACLE-DECLINED`. A later finding of that class is attributed to the round that declined. |
+
+### What "attributed to the round that declined" means, and how a bet closes
+
+Two mechanics that rule 7 states as a consequence and this ledger has to make
+usable. Both are **conventions of citation, not new metrics**: nothing here
+changes the escape rate, and `escape_rate.py` neither reads nor counts an
+ORACLE-DECLINED row.
+
+- **A finding of a declined class is not an escape.** An escape is an item an
+  existing check *should have caught*, and a declined class has no check by
+  construction — calling it an escape would make the number mean two things.
+  It is a **coverage gap with a named owner**. What "attributed" requires is
+  one sentence in the finding's own register entry: cite the declining round's
+  ORACLE-DECLINED row. The bet's cost then accumulates where anyone reading
+  that class can see it, and the round that took it is named every time.
+- **A bet closes two ways, both marked in place.** The check is later
+  **built** — the row becomes `SUPERSEDED`, citing the new check, the same way
+  every other reversal is marked. Or a later round is offered the same class
+  and **declines it again** — that round appends its own ORACLE-DECLINED row
+  and holds the bet from then on, and the older row becomes `SUPERSEDED`
+  citing the newer one. A bet nobody closes stays open, which is the correct
+  reading of a class still uncovered.
 
 ## Maintenance rule (binding)
 
@@ -60,6 +83,7 @@ uses. A renamed check silently orphans every row that cited it.
 | *"<their exact words>"* | `path/to/file.ext:LINE` | `<gate>` → `<case/rule id>` | **CHECKED** |
 | *"<their exact words>"* | — (triaged to a lane that was held) | — | **PENDING** — unowned since <date> |
 | *"<their exact words>"* | `path/to/file.ext:LINE` | **Nothing.** The behaviour is real but nothing asserts it. | **UNCHECKED** — see backlog #1 |
+| ORACLE-DECLINED: <the class of finding it would cover> — <the check's shape, one line> | round <n> | not built: <why not now>; trigger: <what would build it> | **ORACLE-DECLINED** |
 
 ---
 

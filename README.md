@@ -11,17 +11,84 @@ collaboration contract with the human owner. It was distilled from a
 multi-month, multi-agent reference build; each mechanism exists because a
 specific failure made it necessary.
 
+**What is different here is conduct, not composition.** Every mechanism in this
+kit has an older name — `BLUEPRINT.md` §12 lists the ancestors — and several
+now have live competitors, named in `COMPARISON.md` with the claims they make
+redundant. The claim that survives that comparison is narrower and harder to
+copy: this kit turns its own headline instrument on itself and publishes the
+unflattering number with its denominators, including the rounds where the
+number went **up** — 50.0% and 42.9%, kept in and named. A prior-art audit run
+on 2026-08-22 found no other artifact publishing a self-applied miss rate that
+is allowed to rise. Treat that as the reason to read on, and the composition as
+a convenience.
+
 **OAR is rails, not a runtime** — it does not schedule, route, or execute
 agents, and it composes with the frameworks that do.
 
 ---
 
+## Prerequisites
+
+Four things, none of them installed by this kit.
+
+- **git — required, and the deepest dependency.** The certification runner's
+  `judges` gate reads `git status` over the judged paths; its startup assertion
+  asks `git check-ignore` about every judged and certified path; the cert-green
+  token names a commit and is checked against the history. Without git those
+  gates cannot run at all. **No minimum version is derived here.** Every git
+  behaviour the kit cites was **measured on git 2.54** — `QUICKSTART.md` Step 4
+  and `EXISTING-PROJECT.md` say so at each citation. The commands used are
+  `git status --porcelain`, `git check-ignore -z --stdin`, `git rev-parse`,
+  `git log`, `git merge-base` and `git add -f`. No floor has been established
+  for any of them, and a floor nobody measured would be a fabricated number.
+- **Python 3.10 or newer.** Every executable in the kit is a Python script: the
+  runner, the hooks, the linters, the adoption smoke, the status line.
+  **Standard library only** — there is no `requirements.txt`, nothing to
+  install, and no virtual environment to create. Debian and Ubuntu hosts ship
+  `python3` with no `python` shim unless `python-is-python3` is installed;
+  substitute `python3` in every command and nothing else changes.
+- **A shell: `pwsh`, `bash`, or Git Bash.** QUICKSTART's command blocks run in
+  all three except in a small number of marked places; QUICKSTART's own "Shell"
+  section lists them, and `adoption_smoke.py` phase 9 machine-checks the claim
+  for Step 4's block.
+- **A harness that fires pre-tool hooks — for modules 02, 05 and 06 only.** The
+  doctrine is tool-agnostic; the enforcement *wiring* is not. Modules 02
+  (enforcement), 05 (statusboard) and 06 (sidequest) assume a harness that
+  fires pre-tool hooks, lets a spawn declare a model, and pipes session JSON to
+  a status-line command. The Claude Code harness fits that description and is
+  what the reference build ran on. Under a different harness, keep the doctrine
+  and rebuild the wiring — Portability below prices that. Modules 01, 03, 04,
+  07 and 08 assume nothing about how agents are run.
+
+**Optional, and only where a step already says so:** **pytest**, if your gate
+line runs a Python test suite — the runner judges required output lines from
+any stack and does not care which; and **GitHub Actions**, which is module 07's
+shipped CI workflow and the only CI system the kit ships a file for. Neither is
+needed to certify locally.
+
+---
+
 ## Start here
+
+**An AI agent, dropped into a project and asked to adopt the kit?** Read
+**`ONBOARD.md`**. It is the agent-facing front door: it sequences the documents
+below, says which half of an adoption an agent may perform and which half is the
+owner's to decide, and requires the second half to be handed back as an explicit
+punch list rather than answered on the owner's behalf. It installs nothing and
+executes nothing itself — every command it names is one of the documents' own.
+The doors below are the human ones and are unchanged.
 
 **Deciding whether to adopt at all?** Read **`DECISION-BRIEF.md`** first — one
 page: what the kit is and is not, what certifies at each level, what it costs,
 what is not shipped, the exit cost, and the limitations most likely to matter
 to you. Three minutes.
+
+**Already running something in this space, or about to search for one?** Read
+**`COMPARISON.md`**. It classifies every load-bearing claim this kit makes as
+redundant, partially overlapping or unmatched against named live artifacts,
+with each source carrying its verification tier, and it names the one component
+where an incumbent does the job better. `BLUEPRINT.md` §12 does the same
+exercise against ancestors rather than competitors.
 
 **Adopting the documents first?** **`LEVEL-1.md`** is the 30–45 minute
 entry: four ledgers, a collaboration profile, the standing rules as prose, no
@@ -57,9 +124,8 @@ performed by LLM personas rather than by people. No human has walked this
 document end to end. `docs/walks/` publishes the prompts behind every one of
 those walks and states what they do and do not establish.
 
-> **Debian/Ubuntu:** these hosts ship `python3` with no `python` shim unless
-> `python-is-python3` is installed. Substitute `python3` in every command;
-> nothing else changes.
+> **Debian/Ubuntu:** the `python3` substitution rule is in
+> Prerequisites, above.
 
 **Evaluating in depth?** After the brief, read **`BLUEPRINT.md`** for the
 doctrine the mechanisms come from, then **`CONTEXT-ARCHITECTURE.md`** for the
@@ -91,6 +157,88 @@ works — the runner judges required output lines and floors from any stack,
 and modules 01, 03, 04, 07 and 08 assume nothing about how agents are run.
 Module 02's hooks are the one harness-specific layer, and Portability below
 says exactly what porting them costs.
+
+**The neighbours, named.** Orchestration frameworks are what this kit composes
+with, not what it competes with. The nearer neighbours are the other
+governance-layer projects, and a prior-art audit on 2026-08-22 found three that
+a reader will reach in one search. **Chock** (`open-coder-ai/chock`,
+Apache-2.0) commits policy to the repository and compiles it to pre-tool-use
+hooks, CI gates and an agent rules file, labelling each emitted control
+*enforced*, *enforced-at-commit* or *advisory* — which is this kit's Zone A/B
+honesty, shipped as compiler output rather than as a writing rule. The
+difference is direction: Chock generates enforcement from one policy; this kit
+asks whether the checks were ever proven, and ships the forced-red requirement,
+the escape rate and the judgment ledger that Chock does not. **Agentic OS**
+(`KbWen/agentic-os`) is a rules-and-check system over existing git workflows
+across several agent harnesses, built on the same thesis — no step counts as
+done without evidence — and its existence is convergent support for the
+file-first argument above rather than a rebuttal of it; it carries no
+self-applied published miss rate, and only partial analogues of the
+forced-red and ledger disciplines — `COMPARISON.md` has the row-by-row. **Microsoft's Agent Governance
+Toolkit** (`microsoft/agent-governance-toolkit`) is a runtime control plane with
+an SRE package — SLOs, error budgets, circuit breakers — aimed at the hostile
+agent this kit explicitly declines to defend against (see Security scope). It
+ships an `agt doctor` command; that is a name collision with this kit's
+`kit_doctor.py`, disclosed here so nobody has to discover it, and the two tools
+do different jobs. `COMPARISON.md` carries the full claim-by-claim table,
+including the claims where an incumbent does the job better.
+
+---
+
+## At scale, and where it breaks
+
+The question a large organisation asks first is whether any of this survives
+ten thousand repositories. The architecture's answer is that it does not scale
+up; it scales out. **The rails are per-seam, not per-mass.** Everything here is
+per-repository — plain files, local checks, local ledgers, nothing centralised
+— which is git's own scaling model, and a large organisation runs many
+instances of it rather than one large one. `ONBOARD.md` and the module file
+contracts are what make an instance stampable. The load-bearing numbers are
+scale-invariant by construction: the escape rate is a ratio with a published
+denominator, the state words mean the same thing at any n, and `RATIO_CEILING`
+is derived per project rather than set centrally.
+
+The mechanisms are not novel at that scale. Organisations already run
+file-based, check-based, ledger-based control programs globally — the internal
+controls function under SOX, COSO or ISO is that shape. This kit asks for
+nothing that machinery does not already ask for; it applies the discipline to
+the record of AI-assisted work. That is an existence proof for the mechanisms
+at organisational scale. It is not evidence about this kit, and no audit
+function has consumed anything this kit produces.
+
+**The floor — three places this breaks, stated before you find them.**
+
+1. **Judgment plurality.** One owner's rulings saturate. The kit is written
+   throughout for one owner and one orchestrator seat, and multi-seat adoption
+   is undecided rather than solved: `ROADMAP.md` under "In active design" and
+   `KNOWN-ISSUES.md` under "Whose settings file?" carry the current state. At
+   portfolio scale the same gap returns as a decision-rights hierarchy, which
+   is organisational design and not something a kit ships.
+2. **Certification composition across trust boundaries.** The runner certifies
+   a tree. A large system is a graph of trees, and a green that depends on
+   another repository's artifact re-imports the second-machine problem
+   transitively. No attestation chain ships here, and the certification token
+   is local and per-machine by design. The answer is composition with
+   supply-chain attestation — signed provenance of the SLSA or sigstore class —
+   not a second attestation system built inside this one.
+3. **High agent concurrency genuinely requires an orchestration engine.** At
+   hundreds of concurrent agents, with scheduling, retry and queueing
+   semantics, you need one, and this kit is not one and was never meant to be.
+   The division is clean: the graph says what ran and in what order; the rails
+   say whether the green was real. They meet at the record — graph runs emit
+   file evidence with red-capable checks, and the runner judges that evidence.
+   **That composition is architecturally clean and empirically untested.** No
+   measured instance of this kit running alongside an orchestration engine
+   exists.
+
+Project size by itself is not on that list. The kit decomposes rather than
+grows, and its own context ceiling is answered by its own doctrine: a rule that
+keeps costing context gets promoted to a mechanical check, which costs none.
+
+None of this section is a measurement. The evidence base is one reference build
+and one seat, with no deployment at organisational scale, and every claim above
+is an argument about architecture rather than a result. `DECISION-BRIEF.md`
+states what the evidence base does and does not support.
 
 ---
 
@@ -149,6 +297,15 @@ What it does **not** defend against:
   egress control, and no network policy. `tools/deident_scan.py` scans a tree
   for tokens *you list yourself* before you publish it; it is a publication
   aid, not a data-loss control, and it cannot see what an agent already sent.
+  **The general secret class belongs to the incumbents, and this kit does not
+  compete for it.** `gitleaks` and `TruffleHog` are the established pre-commit
+  and CI secret scanners — the first decides whether a string *looks like* a
+  credential, the second whether the credential *works*. Run one of them for
+  that class. What `deident_scan.py` covers is the narrower, adjacent job they
+  do not do: program-identity tokens you enumerate yourself — a name, a
+  username, an employer, machine path fragments — which have no detectable
+  shape and can only come from a list. Neither tool substitutes for the other,
+  and a green from this one says nothing about secrets.
 - **Supply chain.** The kit ships stock Python and pins nothing of its own.
   Module 07's CI template checksum-pins the toolchain it downloads, and that
   is the extent of it. Nothing verifies the provenance of your dependencies,
@@ -221,7 +378,7 @@ and not yet on record.
 | **05-statusboard** | A status line showing live agents and their model tiers, a terrain-colored context bar with a clear mark, a sidequest banner with a staleness amber, and an opt-in escape-rate segment that renders module 04's number and a per-round sparkline (the Python board only — the pwsh variant does not carry that segment). Two implementations of one contract: portable Python (`tools/statusline.py`; `--selftest` renders all four banner states) and a pwsh variant. Includes the flag-file contract. | **Yes — executable** |
 | **06-sidequest** | A bounded-detour skill: snapshot first, flag lifecycle, explicit close, durable record. | Prose — yes |
 | **07-ci** | A CI workflow that pins and checksum-verifies its toolchain, selftests the judges first, and asserts an exact exit code. Includes `BRANCH-PROTECTION.md`, which distinguishes tripwire from gate. | After slot substitution |
-| **08-collaboration** | Eight evidenced defaults, a five-question seed interview, and a living-profile scaffold written from evidence rather than self-description. | Documents — yes |
+| **08-collaboration** | Eight evidenced defaults, a five-question seed interview, and a living-profile scaffold written from evidence rather than self-description — plus an optional pre-filled calibration an owner can be walked down instead of the blank page. | Documents — yes |
 
 Modules are separately adoptable and coupled only through documented file
 contracts. Every module README states its contract and what breaks if you take
@@ -345,8 +502,14 @@ The unqualified claim returns when a re-test passes, not when the fixes land.
 ```
 oar/
   README.md              you are here
+  ONBOARD.md             the agent-facing front door: sequencing and division of
+                           labour over the documents below, for an AI agent
+                           adopting the kit into a project. Executes nothing
   DECISION-BRIEF.md      one page for a decider: what certifies, what it costs,
                            what is not shipped, exit cost, the honest caveats
+  COMPARISON.md          every load-bearing claim classified against named live
+                           artifacts - redundant, partially overlapping, or
+                           unmatched - with each source's verification tier
   LEVEL-1.md             the documents-only entry: 30-45 minutes, reversible,
                            ending in `kit_doctor.py --level1`
   QUICKSTART.md          the first session, ordered, testable at every step

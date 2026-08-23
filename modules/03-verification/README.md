@@ -218,9 +218,12 @@ If you did **not** adopt **module 04**: delete the `escapes` entry from
 `tools/escape_rate.py` and your judgment ledger, and keep the gate.
 Certification then publishes your **escape rate** — the share of findings an
 existing check should have caught — on every run, and holds the latest round to
-the ceiling written into the gate entry beside the other floors. Until your
-first round lands a row it prints `state NO-ROUNDS-RECORDED`, which is the true
-state of a new project rather than a zero. **If you change that ceiling, change
+the ceiling written into the gate entry beside the other floors — provided the
+round has at least `ceil(100/ceiling)` items (3 at the shipped 35.0): below
+that floor no non-zero rate could pass, so the gate is not armed and the line
+carries `state SMALL-N` instead, with the cumulative rate still binding. Until
+your first round lands a row it prints `state NO-ROUNDS-RECORDED`, which is the
+true state of a new project rather than a zero. **If you change that ceiling, change
 `DEFAULT_CEILING` in `escape_rate.py` to match** — the tool's `--selftest`
 binds the two and goes red naming both. A gate and a hand run publishing
 different ceilings while both stay green is the two-authorities defect this kit

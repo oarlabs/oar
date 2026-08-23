@@ -181,6 +181,7 @@ then in the kit's `modules/04-ledgers/` layout.
 | Ledger missing, unreadable, or malformed | `esc LEDGER ABORT: <the tool's own sentence>` on the loud red field. **Never dropped** — an aborting instrument that renders as no segment reads as a good score. |
 | No rounds recorded yet | `esc NO-ROUNDS-RECORDED` — the tool's state word, verbatim. **Never `esc 0.0%`**, which is the same flattering lie the tool's exit-code contract exists to prevent. |
 | Measured | the rate, the sparkline, `+N uncounted` when rounds were excluded from the denominator, and `RISING` (amber) or `OVER` (red) when either applies. |
+| Latest round under the gate's denominator floor | the rate and sparkline as above, with the literal `SMALL-N` suffix on amber (plus `RISING` when the trend also rises). The cumulative number is still fully measured, so the board keeps it — only the per-round ceiling was not armed (the floor is `ceil(100/ceiling)`, derived in `escape_rate.py`). |
 
 **Cost, measured rather than assumed.** On the kit's own 1071-line ledger,
 averaged over 20 renders: **5.8 ms one-off to import the tool, 1.4 ms per

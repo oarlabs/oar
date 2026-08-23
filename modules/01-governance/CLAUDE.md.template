@@ -173,6 +173,35 @@ stop a loop by itself; these rules do:
 6. **Witnessing is a stop signal.** If a round catches something an existing
    check should have caught (escape rate rising), stop the loop and fix the
    check — more review of the same class is witnessing, not learning.
+7. **A declined oracle is a RECORDED BET.** A round may decline to build a
+   check it was offered — too costly, too narrow, one sighting is an anecdote.
+   Declining is legitimate and it is not free: the round records an
+   **ORACLE-DECLINED** row, and a later finding of that class is **attributed
+   to the round that declined**. This is rule 6's anti-ratchet in the other
+   direction: without the row, a decision not to build disappears, the next
+   round re-decides it from nothing, and a class nobody covers keeps producing
+   findings nobody attributes. **The row is written in the four columns
+   `{{LEDGERS_DIR}}/JUDGMENT-LEDGER.md` already has** — a six-field row in a
+   four-column table drops cells in a markdown renderer. This shape is the
+   authority; that ledger's status legend describes it and never redefines it:
+   `| ORACLE-DECLINED: <the class of finding it would cover> — <the check's shape, one line> | round <n> | not built: <why not now>; trigger: <what would build it> | **ORACLE-DECLINED** |`
+   What *attributed* means arithmetically, and how a bet is closed, are that
+   ledger's own business and are stated in its legend beside the row.
+8. **A new check's own claims are the first surface the next check must
+   cover.** Expect a new check's first red to be a self-red: at build time
+   the hardest adversary available is its maker's fresh mistakes, and a
+   check that has never bitten its author is uncalibrated. New rules create
+   unexamined surface exactly where the maker looks least — the maker's own
+   artifact — so a finding that lands with maximal irony is a detection
+   signal, not a coincidence. Self-coverage costs one expensive review at
+   build time and is mechanical forever after. Measured instances, four of
+   them, each recorded in the kit repository's findings register
+   (`KNOWN-ISSUES.md`, rounds 22-25 — that file stays in the kit clone and is
+   never copied here, so read it there): the citation lint went red on its own
+   author's two unregistered controls via the expectation lint's cross-check
+   (round 22), then red on its author's prose mid-pass (round 23); the smoke caught the fix lane writing an
+   unsubstituted slot (round 24); and `doctor:binding-digest`, the check that
+   sizes this file, went red on the growth this rule itself caused (round 25).
 
 {{OWNER_ROLE}} owns the bar and the caps; the coordinator enforces the shape.
 
@@ -187,6 +216,10 @@ inverts *in equally good faith*.
 
 Stage reports carry the **ESCAPE RATE**: items an existing check should have
 caught. If it does not fall across rounds, the loop is witnessing, not learning.
+
+An oracle **offered and not built** is recorded too, as an ORACLE-DECLINED row —
+see WHEN THE LOOP ENDS, rule 7. Manufacture and declination are the same ledger's
+business; only one of them is free.
 
 ## Stage close checklist — in order, none skipped
 

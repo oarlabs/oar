@@ -107,7 +107,9 @@ jobs:
       # -- 2b4. THE KIT'S OWN HEADLINE NUMBER. The kit claims the loop
       #         publishes its own escape rate; this is the step where that
       #         stops being a sentence. The selftest proves the judging layer
-      #         including its twelve forced-red controls, and the second
+      #         including its forced-red controls (the escape:nc-* rows in
+      #         checks-registry.json - counted there, not here, so this
+      #         comment cannot drift the way its "twelve" once did), and the second
       #         command computes the number over KNOWN-ISSUES.md - the kit's
       #         own escape-rate table - on BOTH hosts, so a Windows-only or
       #         Linux-only reading defect is a red here rather than a wrong
@@ -147,6 +149,146 @@ jobs:
                     "verify gate vetoes on. Check what actually failed.")
               sys.exit(1)
           print(f"missing ledger aborted as required (exit {p.returncode})")
+
+      # -- 2b6. THE ATTRIBUTION LINT. Two rounds shipped a quotation written
+      #         from memory and attributed to a shipped document (round 19,
+      #         recorded as an oracle candidate and not built; round 22, the
+      #         same class again). This is that oracle, narrow: a quoted
+      #         string attributed to a named kit document must be in that
+      #         document. The selftest runs first because it carries the
+      #         control that stops the tool MANUFACTURING findings - a
+      #         quotation that wraps across a line must still be found, which
+      #         is the exact error the round-22 review itself made.
+      - name: citation lint (and its negative controls)
+        run: |
+          python tools/citation_lint.py --selftest
+          python tools/citation_lint.py
+
+      # -- 2b7. ...and its forced-red half. This step INVERTS the exit code:
+      #         it passes only when a planted fabrication is CAUGHT. It runs
+      #         on a copy in a temporary directory - the kit's own tree is
+      #         never modified to test a check against it.
+      - name: citation lint FABRICATION case (must go RED)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib, shutil
+          d = pathlib.Path(tempfile.mkdtemp())
+          shutil.copy("README.md", d / "README.md")
+          (d / "PLANTED.md").write_text(
+              "A page that cites a document.\n\n"
+              "The kit's own `README.md`:14 calls it "
+              '"a sentence that no README anywhere has ever contained".\n',
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/citation_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 1:
+              print("::error::a planted fabrication did NOT go red (exit "
+                    f"{p.returncode}). A citation check that cannot refuse "
+                    "is a citation check nobody has tested.")
+              sys.exit(1)
+          if "NOT IN THE DOCUMENT IT NAMES" not in p.stdout:
+              print("::error::it went red, but not with the finding token. "
+                    "Check what actually failed.")
+              sys.exit(1)
+          print(f"planted fabrication caught as required (exit {p.returncode})")
+
+      # -- 2b7a. THE ROUND-27 HALF: right words, WRONG LINES. The fabrication
+      #          case above proves the tool refuses a quotation that is not in
+      #          the document. It says nothing about a quotation that IS there
+      #          under a stale locator, which was the actual round-22 defect
+      #          and the class round 26 found six of. Same inverted exit code,
+      #          same temporary directory, the kit's own tree never touched.
+      #          The planted locator is ONE line past the quotation - the
+      #          tightest of the six real defects, and the case any tolerance
+      #          above zero would pass.
+      - name: citation lint window - correct locator stays GREEN, stale locator must go RED
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "SOURCE.md").write_text(
+              "line one\nline two\nline three\n"
+              "the words that are really here and they\n"
+              "wrap across this line as well\nline six\n", encoding="utf-8")
+          quote = ("the words that are really here and they wrap across "
+                   "this line as well")
+          # First: the CORRECT locator must stay green. A window check that
+          # reds on a right citation manufactures findings, which is worse
+          # than missing them. Note the quotation WRAPS in the source and the
+          # locator names both lines it occupies.
+          (d / "CITER.md").write_text(
+              f'# Citing page\n\nSome prose. `SOURCE.md`:4-5 says "{quote}".\n',
+              encoding="utf-8")
+          ok = subprocess.run([sys.executable, "tools/citation_lint.py",
+                               "--root", str(d)], capture_output=True, text=True)
+          if ok.returncode != 0:
+              print(ok.stdout[-3000:])
+              print("::error::a CORRECT line locator went red. The window "
+                    "check is manufacturing findings.")
+              sys.exit(1)
+          # Then: one line past it must go red.
+          (d / "CITER.md").write_text(
+              f'# Citing page\n\nSome prose. `SOURCE.md`:6-7 says "{quote}".\n',
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/citation_lint.py",
+                              "--root", str(d)], capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 1:
+              print("::error::a stale line locator did NOT go red (exit "
+                    f"{p.returncode}). The window check cannot refuse.")
+              sys.exit(1)
+          if "NOT AT THE LINES IT NAMES" not in p.stdout:
+              print("::error::it went red, but not with the window finding "
+                    "token. Check what actually failed.")
+              sys.exit(1)
+          print(f"stale locator caught as required (exit {p.returncode}), "
+                "and the correct locator stayed green")
+
+      # -- 2b8. THE COUNT LINT, the citation lint's sibling. Round 23
+      #         corrected QUICKSTART Step 0 from nine lines to ten; ONBOARD
+      #         still said nine, about that document's Step 0 by name, and the
+      #         round-24 acceptance run found it. This is that oracle, narrow:
+      #         a stated count whose target this tool can locate must match
+      #         the target. The selftest runs first because it carries the
+      #         controls that stop the tool MANUFACTURING findings - a wrapped
+      #         command counts once, and a number inside a paragraph is not a
+      #         count of the block below it.
+      - name: count lint (and its negative controls)
+        run: |
+          python tools/count_lint.py --selftest
+          python tools/count_lint.py
+
+      # -- 2b9. ...and its forced-red half. This step INVERTS the exit code:
+      #         it passes only when a planted stale count is CAUGHT. It runs
+      #         on a copy in a temporary directory - the kit's own tree is
+      #         never modified to test a check against it.
+      - name: count lint STALE-COUNT case (must go RED)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib, shutil
+          d = pathlib.Path(tempfile.mkdtemp())
+          shutil.copy("QUICKSTART.md", d / "QUICKSTART.md")
+          (d / "PLANTED.md").write_text(
+              "A page that counts another document's step.\n\n"
+              "| P3 | tooling green | Run `QUICKSTART.md` **Step 0** in the "
+              "kit clone: three lines, all exit 0 |\n",
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/count_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 1:
+              print("::error::a planted stale count did NOT go red (exit "
+                    f"{p.returncode}). A count check that cannot refuse is a "
+                    "count check nobody has tested.")
+              sys.exit(1)
+          if "THE NUMBER IS NOT THE NUMBER" not in p.stdout:
+              print("::error::it went red, but not with the finding token. "
+                    "Check what actually failed.")
+              sys.exit(1)
+          print(f"planted stale count caught as required (exit {p.returncode})")
 
       # -- 2c. the fixture harness's OWN pure layer. It shipped a
       #        ship-blocker (a substring test on a regex field) that reported

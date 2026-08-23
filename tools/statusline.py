@@ -408,11 +408,14 @@ def escape_text(kind: str, detail, ramp: str) -> tuple:
 
     rep = detail if isinstance(detail, dict) else {}
     state = str(rep.get("state") or "?")
-    if state != "MEASURED":
+    if state not in ("MEASURED", "SMALL-N"):
         # THE STATE WORD, VERBATIM FROM THE TOOL, and never a zero. `esc 0.0%`
         # for a project that has recorded no rounds is a flattering lie; the
         # tool's own exit-code contract makes the same distinction and this
-        # segment carries it through unchanged.
+        # segment carries it through unchanged. SMALL-N is NOT in this branch:
+        # there the CUMULATIVE number is still fully measured and hiding it
+        # behind the state word would drop real information from the glance -
+        # it renders below with the rate kept and the word as a suffix.
         return (f"esc {state}", "90")
 
     ticks, hidden = spark([r.get("pct") for r in rep.get("per_round") or []],
@@ -431,6 +434,14 @@ def escape_text(kind: str, detail, ramp: str) -> tuple:
         txt += f" +{unc} uncounted"
     if rep.get("over_ceiling"):
         return (txt + " OVER", "91;1")
+    if state == "SMALL-N":
+        # The latest round is under the gate's denominator floor (round 27's
+        # ruling): the per-round gate is not armed, the cumulative rate above
+        # is untouched, and the literal state word says so on the glance. A
+        # rising trend is not masked by it - both words are functional and
+        # both fit the glance.
+        sfx = " RISING" if rep.get("trend") == "RISING" else ""
+        return (txt + " SMALL-N" + sfx, "93")
     if rep.get("trend") == "RISING":
         return (txt + " RISING", "93")
     return (txt, "90")
@@ -910,6 +921,21 @@ def selftest() -> int:
           "esc NO-ROUNDS-RECORDED")
     check("FORCED RED: ...and never a zero, which would read as a good score",
           "0.0%" in txt, False)
+    small_n = {"state": "SMALL-N", "rate_pct": 16.7, "ceiling_pct": 35.0,
+               "rounds_uncounted": 0, "trend": "RISING",
+               "over_ceiling": False,
+               "per_round": [{"pct": 8.3}, {"pct": 50.0}]}
+    sn_txt, sn_style = escape_text("ok", small_n, SPARK_BLOCKS) or ("", "")
+    check("SMALL-N keeps the cumulative rate on the board - the number is "
+          "still fully measured and hiding it would drop information from "
+          "the glance", sn_txt.startswith("esc 16.7% "), True)
+    check("...carries the literal state word as a suffix, on amber, and "
+          "does NOT mask a rising trend beside it",
+          (sn_txt.endswith(" SMALL-N RISING"), sn_style), (True, "93"))
+    check("...and without a rising trend the suffix is the state word alone",
+          (escape_text("ok", dict(small_n, trend="FALLING"),
+                       SPARK_BLOCKS) or ("", ""))[0].endswith(" SMALL-N"),
+          True)
 
     print("\n=== the escape-rate segment: a measured rate ===")
     measured = {"state": "MEASURED", "rate_pct": 19.3, "ceiling_pct": 35.0,
