@@ -9,6 +9,60 @@ conclude the omission was deliberate — costs more than the citation would.
 
 ---
 
+## Verify these rows yourself
+
+**These rows were compiled and verified by the program they describe.** An
+AI-run build lane ran the searches, fetched the pages, wrote the
+classifications and checked them; the maintainer ruled them. Nobody outside
+this program has checked a single row. A reader who declines to take that on
+faith is applying this kit's own thesis to this kit — a green produced by the
+party it evaluates is not evidence — and the answer is the one the kit gives
+everywhere else: do not trust the verdict, run the check.
+
+**The check is per-row, and the checks come in two shapes.** Budget five to
+ten minutes per row — an estimate, not a measurement. Most rows name an
+artifact and carry a source in brackets, and the bracket states how far the
+audit itself got. `[FETCHED]` means the page was retrieved and read.
+`[SEARCH-URL]` means the URL was verified and the description came from a
+search index rather than from a read of the page. `[UNVERIFIED]` and
+`[RECALLED-UNVERIFIED]` mean the reference is a lead and nothing more; *How to
+read the sources*, below, defines the vocabulary in full.
+
+- **A row with a source:** open its source, look for the capability the row
+  attributes to that artifact, and judge whether the row describes what you
+  found.
+- **A NO-MATCH-FOUND row:** there is nothing to open, because the claim is
+  that nothing was found. The check is to run the search yourself and try to
+  name one counterexample; the correction invitation at the top of the page is
+  the report path. C11, C17 and C18 carry no source for exactly this reason —
+  and that is what makes them the cheapest rows to attack.
+
+The rows are independent, so checking one is worth doing and does not commit
+you to checking eighteen.
+
+**Start with a NO-MATCH-FOUND row.** Those rows make the strongest-sounding
+claim and rest on the weakest evidence. NO-MATCH-FOUND is a statement about a
+search that was run on one day by one reader, not a statement about the world,
+and one name falsifies it. C11, C13, C14 and C17 carry that verdict outright;
+C3, C4, C5 and C7 carry it on a sub-claim.
+
+**If a row is wrong, the correction mechanism is the invitation above:** name
+the artifact, and the row gets cited or rewritten. That is not a formality.
+The table keeps the rows conceding that an incumbent does the job better, and
+the `agt doctor` name collision in C16, for the reason stated at the top of
+this page.
+
+**The axis this page compares on, stated so you can reject it.** The neighbours
+here are **agent-governance** artifacts — tools that constrain, record or
+verify what AI agents do inside a repository. They were chosen because they
+make the closest claims to this kit's. If your established tools are
+vulnerability management, SIEM, or compliance and audit tooling, this page does
+not compare against them, and their absence is not a verdict: those rows were
+never run. That row-set is queued and not present, and until it ships this page
+is silent about that landscape rather than dismissive of it.
+
+---
+
 ## The headline, stated before the table
 
 Two claims run through this kit's own documents. They are not equally strong,
@@ -43,7 +97,7 @@ claim is the one under pressure.
 
 ## How to read the sources
 
-Every reference on this page carries one of three tiers, and no reference is
+Every reference on this page carries one of four tiers, and no reference is
 cited without one.
 
 - **[FETCHED]** — the page was retrieved and read during the audit. The title,
@@ -54,8 +108,11 @@ cited without one.
   Treat the URL as verified and the paraphrase as one remove from the source.
 - **[UNVERIFIED]** — known of, not checked during the audit. Do not carry it
   onward without checking it yourself.
+- **[RECALLED-UNVERIFIED]** — recalled from the audit's own working memory and
+  not confirmed against any source, not even a search index. The weakest tier:
+  a lead only, retained where discarding it would hide that the lead exists.
 
-Three classifications are used, and each is a statement about **one claim**,
+Four classifications are used, and each is a statement about **one claim**,
 never about a project as a whole.
 
 - **REDUNDANT-BY** — an existing artifact does this job, and does it better.
@@ -63,6 +120,9 @@ never about a project as a whole.
   by a different route. The row states which part.
 - **NO-MATCH-FOUND** — the audit searched and found nothing matching. This means
   the queries were run and the results read. It does not mean nothing exists.
+- **COMPOSITION-STANDS** — the assembled set was not found in one artifact,
+  while its parts each exist somewhere. A claim about the assembly only, with
+  the erosion risk stated where it is used.
 
 ---
 

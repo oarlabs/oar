@@ -55,6 +55,8 @@ note; the table is what the numbers mean.
 | 25 | **Self-coverage round** — owner-funded doctrine, one item, coordinator-direct (the round-18 shape): WHEN THE LOOP ENDS rule 8, distilled from round 24's nine self-catches — **ERRATA, round 26 (finding R26-2): that count is unsourced.** "nine self-catches" appears in this register only here, in this row asserting it; round 24's timeline row and its Round #24 section enumerate nothing of the kind, and a reader following the pointer found the claim restated rather than evidenced. Rule 8 now cites four self-catches that this register does carry, one per round across 22–25, each with its check named. The count above is left standing as what was written, marked; the row's original text continues — ("a new check's own claims are the first surface the next check must cover"; first red is a self-red; maximal irony is a detection signal; the cost is front-loaded and the payoff mechanical). Shipped lean at the owner's instruction — the rule carries its own compressed example and points at this register; no new sections anywhere | 1 item, owner-funded. The rule's own arrival tripped `doctor:binding-digest` — the self-coverage rule caught by the rulebook-size guard on the way in, exactly as its own text predicts — and the ceiling was re-derived 350 → 375 with the arithmetic shown (219 rendered + 90 = 309, x1.15 = 355.35, rounded up) | Shipped; the binding observed red before the constants moved; n = 1, which is noise — the denominator is printed for exactly this reason |
 | 26 | **Battery round** — the program's first formal adversarial battery pointed three independent lanes at the kit and its own coordinator's claims (a prior-art hunt with live web citations; a hostile reader in three professional personas; a fresh evaluation read), then one implementation lane closed the ruled findings and one spec-side review confirmed under the brake | 12 findings R26-1…R26-12: the battery's ruled set (the fabricated-vs-real citation classes, the grant clause's second empty intersection generalized, rule 8's unverifiable citation made adopter-verifiable with the count corrected 9 → 4 and the old number errata'd rather than rewritten, six stale locators fixed, BLUEPRINT's zero-external-citations ancestry FAIL closed with §12 Lineage, the peer-naming and conduct-over-composition positioning, COMPARISON.md shipped with a where-competitors-are-better section). Review: APPROVE-WITH-PUNCH-ITEMS (1 MAJOR — the register's own draft double-counted a declined-class finding as an escape, forbidden by module 04's convention; 5 MINOR; 4 NIT; 4 below-bar rejects), all fixed coordinator-direct; review punch items on the round's own work are not counted as items per the standing worse-reading rule | All 12 dispositioned (11 FIXED; R26-5 additionally FIRES round 24's declined-oracle bet — six findings of the declined class; the build-or-re-decline decision is the owner's at the gate, with the review's measured counsel on record: bare-bounds v1 detects 0 of the 6 and would be a vacuous oracle; the line-window extension reaches 4 of 6). Severity fell across rounds (2 MAJOR → 1, unpublished-number class); no second round per the brake |
 | 27 | **Fired-bet round** — rule 7's first resolution: round 24's declined stale-locator oracle, fired by round 26's six attributed findings, resolved at the owner's gate both ways — BUILT as `citation_lint`'s line-window check (tolerance 0, overlap; measured recall 3 of 6, counsel's predicted 4 corrected to the measured number) and RE-DECLINED in the bare-bounds form (0 of 6 on its own class, vacuous). B3-m4's recall control built FIRST (`RECALL_FLOOR`, red-provable), which is the only reason the third defect was reachable. One spec-side review (APPROVE-WITH-PUNCH-ITEMS, worst finding MINOR — down from round 26's MAJOR), one coordinator-direct fix pass. The round's escape row surfaced the per-round ceiling's missing minimum denominator; the owner ruled the derived floor + SMALL-N state (see the Round #27 section) | 2 counted items: R27-1 (**ESCAPE** — a miscased quotation `citation_lint` was green over for four rounds; the recall control caught it on arrival, correcting round 26's "no live defect" reading) and R27-2 (self-catch on the round's own new work, the R26-12 precedent). The review's 5 MINOR + 2 NIT punch items on the round's own build are uncounted per the standing worse-reading rule; 5 below-bar rejects with reasons | Both dispositioned: R27-1 FIXED at both layers (the quotation corrected to its source; the glue generalized with the lookahead, 40 → 44 attributions, none lost); R27-2 WAIVED with its reason rather than relabelled. Three new ORACLE-DECLINED bets filed under rule 7 |
+| 28 | **Capsule-doctrine round** — not a walk: one build lane shipped `modules/08-collaboration/CAPSULE.md`, the sync-capsule doctrine, from three hostile lane reports run the day before (a prior-art battery, an ancestry hunt, and a corrected A/B protocol) plus a binding seven-item corrections file those lanes produced. The governance doctrine is published as IMPORTED, with an ancestry table and an ancestor named in the same paragraph as every doctrine claim; the honest-boundary section states the published null on the nearest artifact class as the prior. Prose-only: no new tooling, no new check, and no adoption step routes through the document | 3 counted items, all found by the build against the pre-existing tree or against its own addition: R28-1 (a shipped figure stated as measured when it is an internal estimate), R28-2 (a shipped instruction contradicting the doctrine this round shipped), R28-3 (a stated count inside `checks-registry.json` that the round's own new document made stale — self-catch, R27-2 precedent). **Zero escapes, with the reasoning published** per the register's own suspicion of unexplained zeros: no check in this kit reads any of the three surfaces | All 3 FIXED. Three new ORACLE-DECLINED bets filed under rule 7, one per item's class |
+| 29 | **Front-door round** — driven by the program's first real-human evaluation read (a VM/SecOps engineer who read COMPARISON.md and asked for manual validation of its claims, and skimmed long-form prose to a headache): COMPARISON.md gains a one-screen "Verify these rows yourself" preamble that names the self-attestation problem and hands over the per-row manual check; README gains a practitioner routing block (three artifacts, one line each) and the plain AI-authorship statement. Prose-only; the skim-test instrument deliberately not built | 4 counted items (R29-1/2/3/4, per the Round #29 section; R29-4 is a self-catch on the round's own new work), 0 escapes — coverage gaps, reasoning published per the zero-suspicion convention | Dispositions per the Round #29 section; three new ORACLE-DECLINED bets incl. the skim-test instrument with its trigger; two round-28 bets FIRED in this round's review, recorded, resolution owed at the owner's gate |
 
 Walks 1–7 were run against the kit as a whole by personas with some exposure to
 it. Walks 8–14 are **LLM-persona adoption walks**: a language model given a
@@ -66,7 +68,12 @@ kind of persona reading the shipped repository only, with no scratch project
 and no `QUICKSTART.md` execution. The two instruments find different things —
 a read can find a claim the material contradicts, and cannot find a command
 that does not run as printed — so this register does not merge their counts.
-`docs/walks/` publishes the prompt behind every run of both kinds.
+`docs/walks/` publishes the prompt behind every run of both kinds. Entry 29
+is a third kind and the register's first: a **human read** — a practising
+engineer outside the program, reading the published material self-directed.
+It has no prompt to publish, which is what makes it independent and also
+what makes it unreproducible; its findings are counted like any other
+round's, and the round's section states the instrument's limits.
 
 ---
 
@@ -129,15 +136,25 @@ rather than a quiet one.
 | 25 | 1 | 0 | One owner-funded doctrine item; nothing checked doctrine completeness and nothing could have (the round-18 reading applies). n = 1 is noise. The round's one live event — the digest lint firing on rule 8's own growth — is the standing net working, not an escape. |
 | 26 | 12 | 1 | Items = R26-1…R26-12, the battery's ruled findings; the review's own punch items on this round's fixes are uncounted (the worse reading — including them would lower the rate). Escape: R26-4 — the binding-digest's selftest label claimed arithmetic it never compared to anything while the check it labels was green; the claims-more-than-it-verifies class round 20 published, on the check built to prevent drift. R26-5's six stale locators are NOT counted as escapes: their class was ORACLE-DECLINED in round 24 and module 04's convention makes a declined-class finding a coverage gap attributed to the bet, not an escape — the first live firing of rule 7's accountability arithmetic. The remaining ten had no covering check (oracle candidates; three new ORACLE-DECLINED rows filed this round). |
 | 27 | 2 | 1 | Items = R27-1 and R27-2, on the R26-12 precedent (a self-catch on the round's own new work counts as an item, no escape attributed); the alternative one-item reading is 1/1 = 100.0% and is stated here rather than hidden — either reading moves the cumulative rate to the same 16.7%. Escape: R27-1 — `citation_lint` existed from round 22, its stated subject covers exactly this class (a quoted string that does not appear verbatim in the document it names), and it was green over the defect for four rounds because its extractor's reach was narrower than its claim; not the round-20 shape, since the defect sat in shipped prose, not in a check built this round. The review's 7 punch items on the round's own build are uncounted per the standing rule. **This row is the denominator floor's live case:** 1/2 = 50.0% cannot pass a 35.0% ceiling at n = 2, so the round publishes `state SMALL-N` under the owner-ruled derived floor (see the Round #27 section) — the per-round gate is not armed, the cumulative number above still binds, and the six R26-5 locators remain attributed to round 24's bet, not recounted here. |
+| 28 | 3 | 0 | Items = R28-1, R28-2 and R28-3. The alternative reading is stated rather than hidden: R28-3 is a self-catch on the round's own new document, and excluding it as own-new-work gives 2 items — which is under the denominator floor and would publish `state SMALL-N`. Both readings give 0.0%, because there are no escapes under either. **Escapes: none, and a zero on a prose round is published with its reasoning shown** (the round-20 and round-23 precedent). R28-1 is a provenance label on a figure: `count_lint` checks whether a stated number matches a target it can enumerate and has no opinion about whether the number is an estimate, so no check covered it and none could have as built. R28-2 is a contradiction between two shipped documents' instructions, which needs a reader of meaning; the kit's only cover for that class is the module file contract and spec-side review, both human-shaped. R28-3's surface is `checks-registry.json`, which neither lint reads — `count_lint` enumerates markdown documents only, and its own docstring already discloses that a count with no locatable target is skipped. All three are coverage gaps, and all three have an ORACLE-DECLINED bet filed against their class in the Round #28 section, so a second sighting of any of them counts against this round. |
+| 29 | 4 | 0 | Items = R29-1 through R29-4 (the Round #29 section carries the findings, the alternative two-item reading stated completely, and the counter-argument to the zero-escape classification with its answer). R29-4 is a self-catch on the round's own new work. Two round-28 bets fired in this round's review and are recorded in the section with resolution owed at the owner's gate. A second consecutive zero-escape prose round: the cumulative figure falls 16.7 → 16.4 → 16.2 across rounds 27–29 by denominator growth alone — two prose rounds added seven clean items and built no new check. That is arithmetic, not learning, and the register says so here where the number is published. |
 
 **The published number, as the tool computes it:**
 
 ```
 ESCAPE RATE UNCOUNTED: 1 round(s) declared uncountable and excluded from the denominator — 1–6
-ESCAPE RATE TREND: 42.9 -> 15.4 -> 14.3 -> 30.0 -> 11.1 -> 16.7 -> 0.0 -> 0.0 -> 50.0 -> 15.8 -> 42.9 -> 0.0 -> 10.0 -> 0.0 -> 18.2 -> 9.1 -> 0.0 -> 16.7 -> 0.0 -> 8.3 -> 50.0 (percent, oldest first); direction RISING
-ESCAPE RATE SMALL-N: latest round 27 has 2 item(s), under the gate's denominator floor of 3 (ceil(100/35.0), the smallest n at which one escape can sit under the 35.0% ceiling). The per-round gate is not armed; the round's rate is printed above and the cumulative rate and trend still bind.
-ESCAPE RATE: 37/222 items (16.7%) over 21 rounds; latest 1/2 (50.0%); ceiling 35.0%; state SMALL-N
+ESCAPE RATE TREND: 42.9 -> 15.4 -> 14.3 -> 30.0 -> 11.1 -> 16.7 -> 0.0 -> 0.0 -> 50.0 -> 15.8 -> 42.9 -> 0.0 -> 10.0 -> 0.0 -> 18.2 -> 9.1 -> 0.0 -> 16.7 -> 0.0 -> 8.3 -> 50.0 -> 0.0 -> 0.0 (percent, oldest first); direction FLAT
+ESCAPE RATE: 37/229 items (16.2%) over 23 rounds; latest 0/4 (0.0%); ceiling 35.0%; state MEASURED
 ```
+
+Round 27's run of the same command printed a third line, `ESCAPE RATE
+SMALL-N`, because that round had 2 items and the gate's denominator floor is 3.
+Rounds 28 and 29 have 3 each and the gate is armed again, so the line is
+absent rather than green — which is the floor working as ruled, not a check
+that stopped running. The trend direction reads FLAT at this run because two
+consecutive zero rounds flatten the tail; the cumulative fall across rounds
+27–29 (16.7 → 16.2) is denominator growth from six clean items, not learning,
+as the round-29 row states where the number is published.
 
 The direction word swings on small tail denominators (rounds 18–20 are n = 1,
 30 and 7): a single round moves it. Read the cumulative number and the spikes,
@@ -1635,6 +1652,245 @@ exits 1, and no check fires on a sustained sub-floor run; the cumulative
 rate, trend line and per-run SMALL-N line are the compensating disclosure,
 and their reader is a person. Stated in the tool's own SMALL-N block and on
 the `escape:nc-xv` registry row as well as here.
+
+---
+
+## Round #28 — the capsule doctrine, and three defects a prose round found
+
+This round shipped one document — `modules/08-collaboration/CAPSULE.md`, the
+sync-capsule doctrine — from three hostile lane reports and a binding
+corrections file produced the day before. No tooling was written and no check
+was added, so every finding below is a prose or data defect, and the round's
+own zero-escape reading is stated with its reasoning rather than left to be
+read as a clean run.
+
+**The framing decision that shaped the document, recorded because it reversed
+an earlier claim.** An ancestry hunt ruled the capsule's governance doctrine
+REDUNDANT-BY: append-only, supersede-in-place, authority-gated revision and
+verbatim provenance are each established practice in at least two independent
+professions, and the complete assembly exists in Architecture Decision Records,
+already applied to AI agent context by published 2026 practitioner work and at
+least one shipping product. A predecessor prior-art lane had described the same
+doctrine as an absence in the field. That reading was correct about the
+AI-artifact field it searched and wrong about the world. The document therefore
+describes the doctrine as **imported**, names an ancestor in the same paragraph
+as every doctrine claim, carries the ancestry table, and states the residual as
+subject matter — professional practice governs records of decisions about the
+work; this governs a record of decisions about the working relationship — and
+as nothing larger.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R28-1 | **A shipped figure was stated as measured when it is an internal estimate.** `CONTEXT-ARCHITECTURE.md`'s sync-capsule paragraph said the owner *measured* the relational ramp at roughly 30% of the context window. The figure is one owner's observation on one workstation, uninstrumented. Grounding cost is an established and citable construct in the human-computer interaction literature; this magnitude is not measured anywhere either prior-art lane could find, and that negative finding itself rests on web searches rather than a database sweep. The word "measured" is the whole defect: it converts an estimate into evidence at no cost to the writer and at every cost to the reader. | **FIXED.** The sentence now says the owner *put* the ramp at roughly 30% and labels it, in bold and in the same sentence, an internal estimate from one owner on one workstation rather than an instrumented measurement. The same label binds `CAPSULE.md`, which repeats the figure once, under the label, in its unmeasured list. |
+| R28-2 | **A shipped instruction contradicted the doctrine this round shipped.** The same paragraph told the reader to maintain the relational memory files "like any cache" and to **delete what goes stale**. The capsule doctrine is append-only: an entry is retired by being promoted into the durable profile or superseded in place, never deleted. Both sentences were in the tree at the same time, one of them in a document a walker reads early. **This round created the contradiction and is the one that has to own it** — the doctrine did not exist when the cache sentence was written, and a reader hitting both would have had no way to tell which was current. | **FIXED.** The instruction now reads as a governed record rather than a cache — append on a new confirmed pattern, supersede in place on a correction, retire only by promotion — and it points at `CAPSULE.md` for the governance in full and for what about the practice is unmeasured. |
+| R28-3 | **SELF-CATCH: a stated count inside `checks-registry.json` went stale the moment this round added a document.** The `citation:window-normalisation` waiver reason argued that the check is worth more than a tautology because its equality is asserted "over all 48 SHIPPED DOCUMENTS" rather than over a literal the test wrote. That was true at round 27 and false the moment `CAPSULE.md` landed, making 49. Neither lint sees it: `count_lint` enumerates markdown documents and the registry is JSON, and the tool's own OUT OF SCOPE block already discloses that a count with no locatable target is skipped. **The reason field was arguing the check's value from a number that nothing checks.** | **FIXED, and fixed by removing the trap rather than by bumping the number.** The reason now asserts the equality over *every shipped document the lint enumerates*, records both counts and the round each belonged to, and names this finding. Bumping 48 to 49 would have left the same defect armed for the next document added. |
+
+### Rule 7 applied to this round — the declined oracles
+
+| Ruling (verbatim where possible) | Landed in | Enforcing check | Status |
+|---|---|---|---|
+| ORACLE-DECLINED: a stated count inside a NON-MARKDOWN shipped file — a `checks-registry.json` reason, a `kit.config` comment — going stale; candidate shape: sweep non-markdown shipped files for digit-plus-document-noun pairs and assert each against the citation lint's own runtime enumeration | round 28 (R28-3) | not built: `count_lint`'s three ways of naming a target are all markdown shapes (an introducer before a table or list, a trailing line noun after a fence, a cross-document section locator), and a JSON reason field has none of them. The only true source for "how many documents does the lint enumerate" is the lint's own runtime enumeration, so the check would assert a number against the tool that produces it — the self-referential shape `expectation_lint` already flags. The fix taken instead removes the number rather than checking it; trigger: a second stale count in a non-markdown file, or any stale count a reader acts on | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: two shipped documents giving contradictory instructions for the same practice; candidate shape: a keyword-pair sweep over a curated list of practice nouns (delete, retire, append, fold) flagging any two shipped documents whose sentences about the same noun carry opposing verbs, the flagged pair routed to a person for the meaning call | round 28 (R28-2) | not built: deciding that "delete what goes stale" contradicts "retire by promoting" is a reading of meaning, and no tool in this kit reads meaning. The kit's existing cover for the class is the module-README file contract and spec-side review, both of which need a person. Naming it here rather than claiming coverage; trigger: a third cross-document contradiction after round 26's and this one | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a number shipped without its provenance label — an estimate presented as a measurement; candidate shape: a provenance lint flagging any numeral within one sentence of "measured" or "observed" that carries neither a source locator nor an estimate label, checked against a maintained number-provenance table | round 28 (R28-1) | not built: a check cannot tell an estimate from a measurement without an authority saying which each number is, and building that authority means maintaining a table of every number in the kit and where it came from — the artifact the check was supposed to make unnecessary. The class is real and its cost is real; the honest state is uncovered and declared. Trigger: a second unlabelled estimate shipping, at which point the table is cheaper than the class | **ORACLE-DECLINED** |
+
+### The escape reading
+
+**Zero escapes, and the reasoning is published because an unexplained zero is
+the shape this register distrusts.** All three findings are coverage gaps by
+module 04's definition: no existing check covers a figure's provenance label
+(R28-1), a contradiction of meaning between two documents (R28-2), or a count
+inside a file no lint reads (R28-3). Each now carries a declined-oracle bet, so
+a second sighting of any of the three classes is attributed to this round under
+rule 7 rather than to the round that finds it.
+
+**The alternative reading, stated rather than hidden — and, per the round's
+review (NIT-1), stated completely.** R28-3 is a self-catch on the round's own
+new document, and R28-2 is a contradiction this round itself created; the
+own-new-work exclusion applied consistently removes both, so the fully
+excluded alternative is 1 item, not 2. It sits under the derived denominator
+floor and would publish `state SMALL-N`. Every reading gives 0.0%, because
+none contains an escape. The three-item reading is the one in the table,
+because it is the larger denominator on a zero-escape round and therefore the
+*less* flattering of the available claims about coverage.
+
+**Fix-pass addendum (post-review, coordinator-direct).** The round's
+spec-side review returned APPROVE-WITH-PUNCH-ITEMS with worst finding MAJOR
+— a rise over round 27's MINOR, read by the review as a coupling (the first
+round to ship a kit document that is also a material in the program's own
+pre-registered experiment) rather than build decay; the confound is now
+registered in the experiment's pre-registration with both dispositions
+pre-committed. All punch items fixed pre-commit, including: the one-screen
+doctrine summary added to `CAPSULE.md`; seven aphoristic flourishes cut —
+recorded as the **third firing of the prose-voice rule** (2026-08-20 ask,
+2026-08-22 battery, this round), which trips the rule's own promotion
+trigger in the program's failure-floor table, owner ruling queued; the
+ancestry table's unverified chronology labeled; these three bet rows given
+their candidate check shapes; and the kit README's module-08 row updated for
+`CAPSULE.md` — that stale row is the same class as R28-3's family and is
+recorded here as a fourth uncounted instance rather than a counted item,
+because no covering check exists either way and recounting after review
+would change denominators the review already verified. Disclosed, not
+hidden.
+
+**What this round does not establish.** A prose round with no new check cannot
+lower the escape rate through learning; it lowers the cumulative figure
+arithmetically, from 16.7% to 16.4%, by adding three clean items to the
+denominator. The trend word flips from RISING to FALLING on the same
+arithmetic. Both movements are the small-tail noise this section already warns
+about at rounds 18, 25 and 27, and neither is evidence that the net improved.
+
+---
+
+## Round #29 — the front door: handing the reader the check
+
+**This round was driven by the first read of this kit by a person outside the
+program.** Every prior evaluation read in this register was an LLM persona,
+labelled as one. This reader is a practising security engineer with about ten
+years in vulnerability management and security operations. He read the
+published material on his own time, at the owner's invitation, and returned two
+sentences, verbatim:
+
+> "it is a lot of AI writing to sift through which just hurts my eyes. and
+> double check coverage for completeness with a manual validation check of
+> claims against established tools."
+
+**The entry-path data is the more useful half.** He skimmed `BLUEPRINT.md`
+lightly and stopped; he read `COMPARISON.md` properly. Long-form prose was
+filtered out before it was evaluated and the table was not. He then asked for a
+manual validation of claims against established tools *after* reading the page
+that classifies this kit's claims against named live artifacts. The table did
+not fail to be found. It failed to persuade, because its rows are claims about
+the AI-tooling landscape verified by an AI-run program that is itself in that
+landscape. That is this kit's own thesis — a green produced by the party it
+evaluates is not evidence — applied to this kit, and it is correct.
+
+**What this instrument is and is not.** n = 1, self-selected, with a
+long-standing personal prior about the owner's ideas that no document changes.
+Nothing in the feedback evaluates the kit's ideas; by the owner's own reading
+the reader did not get far enough to judge them, so the thesis here is
+unexamined rather than rejected. It is also the first entry in this register
+with **no prompt to publish**: the read was unprompted and self-directed, which
+is what makes it independent and also what makes it unreproducible.
+`docs/walks/` carries the prompt behind every other finding count in this
+repository and cannot carry this one.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R29-1 | **`COMPARISON.md` asked the reader for trust on the one page whose whole job is to refuse it.** The page classifies eighteen load-bearing claims against named live artifacts and gives every source a verification tier, but it nowhere states **who produced the classifications**, and it nowhere hands the reader a procedure for checking a row. Its "What this page does not establish" section discloses that the audit ran once, on one day, by one reader — a limit of the *search*. It does not disclose the structural problem, which is that the auditor and the subject are the same party. The kit publishes its escape rate with exactly that disclosure attached in the same paragraph; the comparison page shipped without it. The first person outside the program to read the page found the gap on one reading. | **FIXED.** A "Verify these rows yourself" section now opens the page. It states the self-attestation problem in its first sentence, gives the per-row five-to-ten-minute procedure keyed to the verification tiers each row already carries, points the reader at the NO-MATCH-FOUND rows first as the rows that sound strongest and are worth the least, and routes corrections through the standing invitation the page already carried. **No claim was softened and no row was changed.** What was missing was the instrument, not the honesty, and adding honesty-flavoured prose instead of the procedure would have been the failure this round exists to avoid. |
+| R29-2 | **The comparison page never stated its axis, so an absence reads as a verdict.** Every neighbour on the page is an agent-governance artifact — a tool that constrains, records or verifies what AI agents do inside a repository. The reader's "established tools" come from a vulnerability-management and security-operations seat, where the phrase means scanners, SIEM and compliance tooling. The page compares against none of those and never said so. An unstated axis makes the NO-MATCH-FOUND rows read as claims about the whole field rather than about one corner of it, which is a larger claim than the audit ran and a larger claim than the page intends. | **FIXED AS A DISCLOSURE, NOT AS A ROW-SET.** The new preamble names the axis, says why those neighbours were chosen (they make the closest claims), and states plainly that a VM/SecOps reader's tools were never compared and that their absence is not a verdict because those rows were never run. The row-set for that axis is queued and is out of this round's scope by the owner's ruling. Shipping the disclosure without the rows is the honest interim state and is labelled as one on the page itself. |
+| R29-4 | **SELF-CATCH on this round's own new work (R26-12 / R27-2 precedent): the sources legend claimed three tiers and three classifications while the table uses four of each, and the new preamble pointed at it as complete.** The legend defined `[FETCHED]`, `[SEARCH-URL]` and `[UNVERIFIED]` while row C3 carries `[RECALLED-UNVERIFIED]`, and defined three classifications while C18 carries `COMPOSITION-STANDS`; the preamble written this round said the legend "defines the vocabulary in full", which was false at the moment it shipped. `count_lint` was correctly green — the stated counts matched the bullets present — so the defect was a complete-looking enumeration, not a stale number. | **FIXED.** The legend now defines all four tiers (including `[RECALLED-UNVERIFIED]` as the weakest, a lead only) and all four classifications (including `COMPOSITION-STANDS` as a claim about the assembly only), both counts corrected, and the preamble's pointer is now true. Counted as this round's fourth item. |
+| R29-3 | **`README.md` routed a practitioner through prose to reach the three artifacts that are not prose.** The kit's most practitioner-legible artifacts — the escape table, the comparison page, and the published walk prompts — were each reachable only from inside a paragraph of long-form prose, and two of them only from paragraphs several screens down. The reader skimmed the long-form architecture document, stopped, and never reached the escape table at all. The kit's AI authorship was disclosed across several documents but nowhere in the first screen of the front door, which is where a 2026 reader's slop prior is actually formed. **This is a routing defect, not a content defect:** every artifact the finding asks for already existed and had existed for rounds. | **FIXED, NARROWLY.** An "If you read nothing else" block now sits on the front door's first screen, after the opening wedge paragraphs and before everything long-form, with one line each for the escape table, the comparison page and the walks directory, plus the AI-authorship statement in plain words. Whether it moves higher still is the owner's call at the gate. The larger front-door work the same finding argues for — a demonstration asset at the top, and a restructure of the long-form routing below — is OUT of this round by the owner's ruling and is not claimed here. What shipped is placement. |
+
+### Rule 7 applied to this round — the declined oracles
+
+| Ruling (verbatim where possible) | Landed in | Enforcing check | Status |
+|---|---|---|---|
+| ORACLE-DECLINED: a skim-test / front-door instrument — what a reader actually reaches in the first thirty seconds, measured | round 29 (R29-3) | not built: the check would have to model a reader, and no instrument in this kit reads a document the way a reader does. Every lint here reads a document for internal consistency against a locatable target — a quoted string against its source, a stated count against the block it names, a check's expectation against its subject — and none of them has an opinion about whether anyone gets that far. The mechanisable half (assert the front door's first N rendered lines link to each of the three named artifacts) is a check whose expectation is a list this round wrote, which is the self-referential shape `expectation_lint` flags, and it would go green on a block nobody reads. The honest state is uncovered and declared. Trigger: a second independent reader reporting they did not reach an artifact the front door routes to, or the demonstration-first restructure landing — which is the point at which a placement regression becomes cheap to introduce and expensive to notice | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: a page that verifies claims about third parties without disclosing who produced the verification; candidate shape: a presence check that a designated disclosure section exists and is non-empty on each page in a maintained list of documents making third-party claims | round 29 (R29-1) | not built: the presence of a disclosure section is checkable and its adequacy is not, and a presence check over one document is a check whose expectation is the sentence this round wrote — it would pass on a heading with nothing under it. Generalising it means maintaining a table of which shipped documents make claims about third parties, which is the artifact the check was supposed to make unnecessary; round 28 declined the provenance-label class for the same reason. Trigger: a second shipped page classifying external artifacts, at which point there are two instances and the enumeration is a real target rather than a list of one | **ORACLE-DECLINED** |
+| ORACLE-DECLINED: an unstated comparison axis — a document whose absences a reader will take as verdicts; candidate shape: require every comparison or survey document to carry a named axis-statement section, checked for presence and non-emptiness against a maintained list of such documents | round 29 (R29-2) | not built: deciding that an absence *will be read* as a verdict is a reading of what a reader infers, and no tool in this kit reads meaning. The cover the kit does have is spec-side review and the standing correction invitation, both of which need a person. Trigger: a third finding whose defect is what a reader infers rather than what the document states — counting round 28's cross-document contradiction and this one | **ORACLE-DECLINED** |
+
+### The escape reading
+
+**Three findings, no escapes, and the zero is published with its reasoning
+because this register distrusts an unexplained zero.** No check in this kit
+covers any of the three surfaces. R29-1's surface is whether a page discloses
+who produced its verification; R29-2's is whether an absence will be read as a
+verdict; R29-3's is what a reader reaches before they stop. Every lint here
+reads a document for internal consistency against a locatable target, and none
+of the three surfaces is a locatable target. All three now carry a
+declined-oracle bet under rule 7, so a second sighting of any of them is
+attributed to this round rather than to the round that finds it.
+
+**The counter-argument to the zero-escape classification, stated and then
+answered (the escape-table row promises it, so it is paid here).** The
+strongest version: round 28's own escape reading names spec-side review as
+this kit's cover for meaning-class defects, `COMPARISON.md` passed a
+round-26 spec-side review, and the self-attestation gap R29-1 describes was
+on that page then and was not caught — a check existed, covered the surface,
+and was green, which is the escape definition. The answer, and the reading
+carried: this register has counted only mechanical checks as checks since
+round 23, and reclassifying human review as a check would retroactively
+convert most of the register's clean rounds. The zero stands on that
+convention, with the convention named rather than assumed.
+
+**The alternative reading, stated rather than hidden.** R29-2 and R29-3 are
+both restatements of one defect — the front door does not hand the reader the
+check — and folding them into R29-1 gives 2 items (R29-4, a self-catch on the
+round's own new work, folds out under the same own-new-work exclusion), which
+sits under the derived denominator floor and would publish `state SMALL-N`.
+Every reading gives 0.0%, because none contains an escape. The four-item
+reading is the one carried here, on round 28's precedent: it is the larger
+denominator on a zero-escape round.
+
+Readings were computed against a scratch copy of this ledger and are quoted
+as the tool printed them; the timeline and escape-table rows were then
+appended at the coordinator's close pass, and the entry-kind paragraph under
+the timeline now names the human read as its own kind.
+
+Reading A, four items:
+
+```
+ESCAPE RATE: 37/229 items (16.2%) over 23 rounds; latest 0/4 (0.0%); ceiling 35.0%; state MEASURED
+```
+
+Reading B, two items:
+
+```
+ESCAPE RATE: 37/227 items (16.3%) over 23 rounds; latest 0/2 (0.0%); ceiling 35.0%; state SMALL-N
+```
+
+**Two round-28 bets fired in this round's own review, recorded here per rule
+7 (the R26-5 / round-27 precedent — a declined-class finding is a coverage
+gap attributed to the bet's round, not an escape of the finding round; the
+zero above is unchanged):**
+
+1. **R28-2's bet (cross-document contradiction) FIRED — third instance.**
+   The round's README block claimed `docs/walks/` holds "the prompt behind
+   every finding count" while the same round's register prose stated the
+   opposite, both in the tree at once. Fixed this round (the block now
+   matches the walks README's own scoping). Build-or-re-decline is owed at
+   the owner's gate.
+2. **R28-1's bet (unlabelled estimate) FIRED — second instance.** The
+   preamble shipped "it takes five to ten minutes" as fact; the figure is a
+   charter estimate nobody has timed. Fixed this round (labelled an
+   estimate). The bet's own candidate shape ("a numeral within one sentence
+   of 'measured' or 'observed'") would NOT have caught this instance —
+   neither word appears — so the class is wider than the declined check's
+   reach, which the owner should weigh at the same gate.
+
+**What this round does not establish, and the part worth reading twice.** The
+cumulative rate has now fallen 16.7 → 16.4 → 16.2 across rounds 27, 28 and 29,
+and no new check was built in round 28 or in round 29. Two consecutive prose
+rounds moved the headline down by adding clean items to a denominator, and the
+trend word goes to FLAT on the same arithmetic. **A number that improves while
+nothing improves is a number an adopter should read with its denominator**,
+which is the whole reason this table publishes one. Neither movement is
+evidence that the net improved. The finding that drove this round came from
+outside the net entirely — from a person, on a surface no instrument in this
+kit points at, and the three bets filed above are the record of that rather
+than a repair of it.
+
+**Fix-pass addendum (post-review, coordinator-direct).** The round's
+spec-side review returned APPROVE-WITH-PUNCH-ITEMS, worst finding MAJOR
+(two): the preamble's stated procedure dead-ended on the rows it told the
+reader to start with (fixed — two procedures, the sourceless rows made the
+argument), and the README block shipped a universal walks claim its own
+round's register prose contradicted (fixed — scoped to the walks README's own
+coverage; the contradiction is R28-2's bet firing, recorded above). All punch
+items fixed pre-commit, including R29-4's filing, the legend completion, the
+counter-argument payment, the bet shapes, and two more prose flourishes cut —
+the **fourth firing of the prose-voice rule**, recorded in the program's
+failure-floor table where its promotion is already triggered. The review
+also named the brake signal plainly: worst-finding severity has run MAJOR →
+MINOR → MAJOR → MAJOR across rounds 26–29, with one root-cause class under
+both of this round's MAJORs — a universal quantifier asserted over an
+enumerable target nobody enumerated — found four times in four rounds and
+declined as an oracle each time. The review's candidate check (extend
+`count_lint`'s target-location from numerals to universal quantifiers whose
+predicate is literal token presence) is at the owner's gate with the two
+fired bets. Per the loop-termination doctrine, that severity pattern is a
+redesign signal: no further prose round ships against these surfaces until
+the owner rules on the quantifier class.
 
 ---
 

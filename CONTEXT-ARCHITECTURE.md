@@ -59,18 +59,24 @@ therefore restate the constraints that bind the lane, every time.
 The working calibration between the owner and the assistant — decision style,
 shared shorthand, tone, what "good" feels like on this project — normally lives in
 working context and dies with it, so each new session spends its opening stretch
-re-deriving it from live interaction. On the reference build the owner measured
-this ramp at roughly 30% of the window before collaboration reached its settled
-form. The fix is the same move as everywhere else in this document: put the state
-on disk deliberately. Keep a small set of memory files that capture the
-collaboration itself — the owner's decision cadence, standing feedback with its
-reasons, vocabulary the project has grown — and instruct the session to read them
-as calibration sources at startup, not merely as rules. Maintain them like any
-cache: write an entry when a session produces a new confirmed pattern, update on
-correction, delete what goes stale. What this carries is the seedbed, not the
-grown relationship; the ramp shortens, it does not vanish. The owner-profile
-document (module 08's collaboration profile, if you keep one) is the anchor file
-of this capsule.
+re-deriving it from live interaction. On the reference build the owner put that
+ramp at roughly the first 30% of the window before collaboration reached its
+settled form — **an internal estimate from one owner on one workstation, not an
+instrumented measurement**, and repeated here only with that label. The fix is
+the same move as everywhere else in this document: put the state on disk
+deliberately. Keep a small set of memory files that capture the collaboration
+itself — the owner's decision cadence, standing feedback with its reasons,
+vocabulary the project has grown — and instruct the session to read them as
+calibration sources at startup, not merely as rules. Maintain them as a governed
+record rather than as a cache: append an entry when a session produces a new
+confirmed pattern, supersede in place when a correction lands, and retire an
+entry by promoting it into the durable profile rather than by deleting it. What
+this carries is the seedbed, not the grown relationship; the ramp shortens, it
+does not vanish. The owner-profile document (module 08's collaboration profile,
+if you keep one) is the anchor file of this capsule, and
+`modules/08-collaboration/CAPSULE.md` states that governance in full, names the
+professional practice each rule is borrowed from, and states what about the
+practice is unmeasured.
 
 ## 3. Workflow state: the load-bearing layer
 

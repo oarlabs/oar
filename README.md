@@ -27,6 +27,28 @@ agents, and it composes with the frameworks that do.
 
 ---
 
+## If you read nothing else
+
+Three artifacts, each a check you can run rather than a claim to accept:
+
+- **The escape table** — `KNOWN-ISSUES.md`, "The kit's own numbers": the share
+  of findings this kit's own checks should have caught, per round, with
+  denominators, including the rounds where it rose. Computed on every
+  certifying run, not asserted in a sentence.
+- **`COMPARISON.md`** — every load-bearing claim classified against named live
+  artifacts, including where an incumbent does the job better. It opens with
+  the procedure for checking the rows yourself.
+- **`docs/walks/`** — the prompts behind the persona adoption walks and
+  evaluation reads this register counts, published so the method can be
+  disputed rather than trusted; the directory's own README states exactly
+  which register entries it covers.
+
+**Most of the words in this repository were written by an AI under one human
+owner's supervision. The machinery that keeps those words honest is what the
+kit ships.**
+
+---
+
 ## Prerequisites
 
 Four things, none of them installed by this kit.
@@ -378,7 +400,7 @@ and not yet on record.
 | **05-statusboard** | A status line showing live agents and their model tiers, a terrain-colored context bar with a clear mark, a sidequest banner with a staleness amber, and an opt-in escape-rate segment that renders module 04's number and a per-round sparkline (the Python board only — the pwsh variant does not carry that segment). Two implementations of one contract: portable Python (`tools/statusline.py`; `--selftest` renders all four banner states) and a pwsh variant. Includes the flag-file contract. | **Yes — executable** |
 | **06-sidequest** | A bounded-detour skill: snapshot first, flag lifecycle, explicit close, durable record. | Prose — yes |
 | **07-ci** | A CI workflow that pins and checksum-verifies its toolchain, selftests the judges first, and asserts an exact exit code. Includes `BRANCH-PROTECTION.md`, which distinguishes tripwire from gate. | After slot substitution |
-| **08-collaboration** | Eight evidenced defaults, a five-question seed interview, and a living-profile scaffold written from evidence rather than self-description — plus an optional pre-filled calibration an owner can be walked down instead of the blank page. | Documents — yes |
+| **08-collaboration** | Eight evidenced defaults, a five-question seed interview, and a living-profile scaffold written from evidence rather than self-description — plus an optional pre-filled calibration an owner can be walked down instead of the blank page, and the sync-capsule doctrine (`CAPSULE.md`): a governed record of the working relationship, its fold rules, and what about it is unmeasured. | Documents — yes |
 
 Modules are separately adoptable and coupled only through documented file
 contracts. Every module README states its contract and what breaks if you take

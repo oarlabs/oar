@@ -12,6 +12,7 @@ wanted.
 | `SEED-INTERVIEW.md` | Five questions, fifteen minutes, once. Decision style, checkpoint shape, acceptance test, pushback licence, and **the betrayal line**. |
 | `PROFILE-TEMPLATE.md` | The living profile scaffold: promotion-on-second-sighting, evidence-per-claim, an overrides table, a blind-spots section, a revision log, and a maintenance contract addressed to the AI. |
 | `DEFAULTS.md` | **Optional.** One program's calibration, de-identified to its shape and labelled as one program's values rather than best practice, as a pre-filled starting state — plus the realignment ask, which walks an owner down it keep/override/delete and ends in the same profile. The blank-page route above stays the default path. |
+| `CAPSULE.md` | **Optional, reference doctrine.** The sync capsule: a governed, append-only record of decisions about the working relationship, read by the collaborator itself. States the convention (imported governance doctrine with its ancestry, the fold mechanism and its acceptance test) and the honest boundary — the published null, and what is unmeasured. No tooling, no adoption step; nothing in `QUICKSTART.md` or `ONBOARD.md` routes through it. |
 
 ## The three ideas
 
@@ -60,7 +61,7 @@ check — which makes it the cheapest first oracle in the whole project.
 
 ## What breaks if you adopt this module alone
 
-Nothing, and it is the module most worth adopting alone. Four documents, one of
+Nothing, and it is the module most worth adopting alone. Five documents, two of
 them optional, no tooling, no harness assumptions, useful with any AI system or
 none — the seed interview works verbatim between two humans.
 
