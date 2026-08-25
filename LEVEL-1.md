@@ -203,6 +203,22 @@ one, then move the six above into place yourself.
 **It renders seven files, and Level 1 uses six.** The seventh is
 `.claude/settings.json`, the harness wiring — delete that `.kit-new` file.
 
+Two judgment calls that page did not name until round 30, both met by a real
+adoption:
+
+- **Deleting the seventh render can leave an empty `.claude/` behind.** On a
+  repository that had no `.claude/` before you rendered, the directory exists
+  only because the tool wrote into it. Remove it once the `.kit-new` file is
+  gone: Level 1 installs no settings file, and an empty `.claude/` invites the
+  next reader to look for one.
+- **A second `kit_render.py` run ABORTS if a `.kit-new` file is still there,
+  and that is the safety property working.** The message is
+  `KIT RENDER: ABORTED — .claude/settings.json.kit-new already exists. This
+  tool never overwrites`. If you re-render after a partial first pass — to
+  re-read a long output, for instance — delete the leftover files first, or
+  pass `--force`. Nothing is lost either way; the abort is there so that a
+  re-render can never overwrite a file you had already edited.
+
 The run ends `KIT RENDER: INCOMPLETE`, names every unfilled slot above that
 line, and **that is the expected Level-1 result, not a failure.** How many it
 names depends on step 1's `KNOWLEDGE_DIR` answer.
@@ -215,6 +231,15 @@ between them:
 | the value `kit.config.example` ships (`/abs/path/to/your/knowledge-base`) — you have not answered step 1 yet | `KIT RENDER: INCOMPLETE — 7 files written, 6 unfilled slot(s) in 1 file(s), each named above` | the four tier names, `{{PROTECTED_PATH}}`, and `{{KNOWLEDGE_DIR}}` |
 | the literal `NONE` (step 1's third answer) | the same line, also **6** | the same six: `NONE` is one of the render tool's placeholder words, so that slot reads as UNSET |
 | a real directory, or the repo path `docs` (step 1's first two answers) | `KIT RENDER: INCOMPLETE — 7 files written, 5 unfilled slot(s) in 1 file(s), each named above` | the four tier names and `{{PROTECTED_PATH}}` |
+
+**Every count in that table assumes the four tier names are still at the
+`your-…` values `kit.config.example` ships. If you filled them in Step 2 —
+which Step 2 tells you to do when you run agents — subtract four, and the
+three branches read 2, 2 and 1 instead.** A brownfield adoption in round 30
+did exactly that, followed Step 2 correctly, and got `1 unfilled slot(s) in 1
+file(s)` — a summary line that appeared on no row of the table it was then
+told to read. The arithmetic was always consistent with this page's own prose;
+what was missing was the row for the reader who had obeyed the previous step.
 
 Every slot named is in `CLAUDE.md.kit-new`, whichever branch you are on. What
 to do with each:
@@ -378,13 +403,19 @@ nothing, and stages nothing.
 Run this in: **your project**
 
 ```bash
-git add CLAUDE.md kit.config docs && git commit -m "adopt OAR at Level 1"
+git add CLAUDE.md kit.config .gitignore docs && git commit -m "adopt OAR at Level 1"
 ```
 
 **Run `git status` first.** `docs` is a directory pathspec: on a tree holding
 unrelated uncommitted work it sweeps that work into this commit too. Name the
 files individually if that is your situation. Substitute your own
 `LEDGERS_DIR` if it is not `docs`.
+
+**`.gitignore` is in that line because Step 3 told you to edit it** — the
+`*.kit-new` rule, if you used the render tool. It was omitted until round 30,
+when a real adoption followed both steps literally and left the ignore rule
+uncommitted; `doctor:l1-committed` does not notice, because `.gitignore` is
+not one of the six documents. Drop it from the line if you did not touch it.
 
 The commit matters to the check as well as to your history — an untracked
 document is not adopted, and `doctor:l1-committed` says so.

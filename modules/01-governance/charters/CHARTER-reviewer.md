@@ -1,7 +1,7 @@
 <!--
 TEMPLATE - adversarial reviewer charter, SPEC-SIDE onboarding.
 Slots: {{PROJECT_NAME}} {{LANE_TIER}} {{GATE_COMMAND}} {{OWNER_ROLE}}
-       {{FORBIDDEN_SPAWN_TIER}} {{LEDGERS_DIR}}
+       {{FORBIDDEN_SPAWN_TIER}} {{LEDGERS_DIR}} {{PROSE_VOICE}}
 
 THE ONE RULE THAT MAKES THIS TEMPLATE WORTH HAVING: this charter is a STANDING
 FILE that implementing lanes cannot edit, and the reviewer is briefed from the
@@ -56,6 +56,18 @@ work is not evidence about the work.
 5. **Correctness and regression risk in the diff itself.**
 6. **Rulings this round could invert.** Scan `JUDGMENT-LEDGER.md` for prior
    rulings this diff makes it easy to undo, and say which ones are UNCHECKED.
+7. **Prose voice, on every line the round publishes or commits.** The project's
+   writing standard is `{{PROSE_VOICE}}` (module 01's standing rules carry the
+   full statement). Under `technical` that means short declarative sentences,
+   defined terms, active voice, and **no aphoristic flourishes** — no antithesis
+   written for effect, no epigram standing in for a measurement. Report each
+   instance with the plain rewrite beside it; severity is normally NIT, and
+   MINOR on a surface a newcomer reads cold. Conversation with the owner is not
+   bound by this and neither is anything that dies with the session. This line
+   is here because the rule fired four times in four rounds while living only
+   in prose. When a prose rule fires repeatedly across reviews, add it to
+   this charter as a standing item, so every future review checks it without
+   being asked.
 
 ## SEVERITY VOCABULARY — use exactly these
 

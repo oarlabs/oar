@@ -24,14 +24,25 @@ They are different instruments and the kit does not blur them.
 | | **LLM-persona adoption walk** | **LLM-persona evaluation read** |
 |---|---|---|
 | What it did | Created a throwaway git repository and executed every `QUICKSTART.md` command in it, in printed order | Read the shipped repository only. No scratch project, no command execution beyond read-only selftests |
-| Register entries | 8–14 (seven walks) | 17 (three reads) |
-| Pages here | `walk-08-…` through `walk-14-…` | `evaluation-reads.md` |
+| Register entries | 8–14 (seven walks) | 17 (three reads) and 30 (three recon reads) |
+| Pages here | `walk-08-…` through `walk-14-…` | `evaluation-reads.md`; `read-30-recon-…` (three pages) |
 | What it can find | A command that does not run as printed; a checkpoint that does not match; a step unreachable where placed | A claim the shipped material contradicts or cannot support |
+
+Entry 30's three reads are a variant of the evaluation read: each persona
+read this kit's public tree cold AND a private brownfield host read-only,
+and returned a kit verdict plus a prioritized improvement plan for the host.
+Their prompts are published here with the redactions each page discloses;
+the reports they produced are program records and are summarized in
+`docs/CASE-STUDY-INCREMENT.md`. The fourth lane of that exercise — the
+executed increment — ran from a prompt built live around the recon
+consensus and is quoted, with its outputs, in the case study rather than
+published as a fixed charter page.
 
 Entries 1–7 predate this loop: they are pre-ship module tests and one release
 audit, run by the same kind of persona but without the fixed adoption charter
-these seven share. Entries 15, 16 and 18 are not walks at all. The timeline in
-`KNOWN-ISSUES.md` is what every entry number means.
+these seven share. Entries 15, 16 and 18 are not walks at all. Entry 29 is a
+human read with no prompt to publish. The timeline in `KNOWN-ISSUES.md` is
+what every entry number means.
 
 ---
 
@@ -80,8 +91,9 @@ short distillation of what the run did.
 
 The model family is **not** on that list, because withholding a name this
 repository prints on every adoption path would be a redaction that conceals
-nothing. All ten runs — seven walks and three reads — are recorded in the
-distilled agent records as `model opus`: Anthropic's Claude, top tier. That is
+nothing. All thirteen runs — seven walks, three evaluation reads, and three
+recon reads — are recorded in the distilled agent records as `model opus`:
+Anthropic's Claude, top tier. That is
 the single family `BLUEPRINT.md` §11 means when it states the evidence limit as
 "one AI family".
 
@@ -120,6 +132,9 @@ placeholder, marked at the point of elision:
 | `<HANDOFF-DIR>` | The absolute path of the coordinator's report handoff directory |
 | `<PROGRAM-REPO>` | The private program repository the walks were coordinated from |
 | `<PROTECTED-PATH>` | A directory the program's protected-path tripwire covers |
+| `<COORDINATOR-TIER>` | The program's internal codename for the tier its coordinating session runs on, quoted inside a tiering constraint. The model family that ran the recorded lanes stays named above — what is withheld is a private program label, not the evidence's family |
+| `<PUBLIC-REPO-URL>` | The public mirror's hosting address as the prompt printed it — withheld so this tree names no hosting org; a reader of the public repository is already at the address the prompt named |
+| `<HOST-DESCRIPTION>` | The brownfield host's description as the recon prompts stated it — product category, runtime stack, and repository layout, which together identify a private project. The release describes that host generically: a two-year-old internal AI advisory project of the same owner |
 
 Nothing else in the prompts was changed, and where a page departs from that at
 all it says so on the page — walk 9 collapses a duplicated kit path that would

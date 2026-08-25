@@ -47,7 +47,8 @@ THE FOUR POINTS
 ALL FOUR POINTS ARE ZONE B: useful friction, honestly labeled. Every one is a
 string heuristic running with the same privileges as the agent it governs, in a
 file that agent can edit. They raise the cost of a mistake. They do not stop an
-adversary, and nothing in this kit does - see "Security scope" in README.md.
+adversary, and nothing in this kit does - see "Security scope" in README.md,
+and docs/SECURITY-SCOPE.md for the full statement.
 
 THE PROTOCOL
 ============

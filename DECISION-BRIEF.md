@@ -15,7 +15,7 @@ that ends in one exit code, ledgers that map every human ruling to a named
 check, and a collaboration contract with the owner. **It is not an
 orchestration framework** — it does not route, schedule or run agents; why
 the controls are plain files, and how the kit composes with a framework you
-already run, is `README.md` §"Why files, and where this sits". **It is
+already run, is `docs/WHY-FILES.md`. **It is
 not a security boundary** — it governs correctness and cost, not a hostile
 agent. Every mechanism exists because a specific failure on the reference build
 made it necessary.
@@ -55,7 +55,7 @@ dishonest ones and the silent ones mechanically hard.
 only — nothing to install), and a shell (`pwsh`, `bash` or Git Bash). Modules
 02, 05 and 06 additionally assume a Claude Code-style harness; the doctrine is
 portable, that wiring is not. pytest and GitHub Actions are optional and only
-where a step already says so. `README.md`, "Prerequisites", is the full
+where a step already says so. `docs/PREREQUISITES.md` is the full
 statement, including what has and has not been measured about version floors.
 
 | Level | What you install | What certifies | Cost |

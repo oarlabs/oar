@@ -260,6 +260,76 @@ jobs:
           python tools/count_lint.py --selftest
           python tools/count_lint.py
 
+      # -- 2b8a. THE QUANTIFIER LAYER's forced-red half, added in round 30.
+      #          Round 29's review found two MAJORs with one root cause: a
+      #          universal quantifier asserted over a target the writer could
+      #          have enumerated and did not, a class the program had paid for
+      #          four times in four rounds. The planted page is round 29's F1
+      #          sentence over the shape of the table it quantified: three
+      #          rows carry no bracketed source. This step INVERTS the exit
+      #          code - it passes only when the false universal is CAUGHT -
+      #          and it runs on a page in a temporary directory, so the kit's
+      #          own tree is never modified to test a check against it.
+      - name: count lint FALSE-UNIVERSAL case (must go RED)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "PLANTED.md").write_text(
+              "# A comparison page\n\n"
+              "Every row names an artifact and carries a source in "
+              "brackets:\n\n"
+              "| Claim | Verdict | Source |\n|---|---|---|\n"
+              "| C1 | REDUNDANT-BY | [FETCHED] |\n"
+              "| C11 | NO-MATCH-FOUND | none |\n"
+              "| C17 | NO-MATCH-FOUND | none |\n",
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/count_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 1:
+              print("::error::a planted false universal did NOT go red (exit "
+                    f"{p.returncode}). A quantifier check that cannot refuse "
+                    "is a quantifier check nobody has tested.")
+              sys.exit(1)
+          if "THE CLAIM IS NOT TRUE OF EVERY ELEMENT" not in p.stdout:
+              print("::error::it went red, but not with the quantifier "
+                    "finding token. Check what actually failed.")
+              sys.exit(1)
+          print(f"planted false universal caught as required (exit "
+                f"{p.returncode})")
+
+      # -- 2b8b. ...and the control that keeps it from manufacturing them.
+      #          The SAME page with every row sourced must stay GREEN. A
+      #          checker that has only ever been red over a false universal
+      #          would turn every correct universal in the kit into a finding,
+      #          and that direction fails silently - nobody notices a lint
+      #          that is red for a good reason on the wrong line.
+      - name: count lint TRUE-UNIVERSAL control (must stay GREEN)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "PLANTED.md").write_text(
+              "# A comparison page\n\n"
+              "Every row names an artifact and carries a source in "
+              "brackets:\n\n"
+              "| Claim | Verdict | Source |\n|---|---|---|\n"
+              "| C1 | REDUNDANT-BY | [FETCHED] |\n"
+              "| C11 | NO-MATCH-FOUND | [SEARCH-URL] |\n",
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/count_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 0:
+              print("::error::a TRUE universal went red (exit "
+                    f"{p.returncode}). The quantifier layer is manufacturing "
+                    "findings, which is worse than missing them.")
+              sys.exit(1)
+          print("the true universal stayed green as required")
+
       # -- 2b9. ...and its forced-red half. This step INVERTS the exit code:
       #         it passes only when a planted stale count is CAUGHT. It runs
       #         on a copy in a temporary directory - the kit's own tree is

@@ -9,7 +9,7 @@ one small tool that turns the headline number in one of them into a check.
 |---|---|
 | `JUDGMENT-LEDGER.md` | *What did the owner decide, and what would go red if we undid it?* Ruling → named check, or UNCHECKED + reason. Carries the escape log and the machine-read escape-rate table. |
 | `FAILURE-FLOOR.md` | *What do we require of ourselves, and what actually enforces it?* Rule → layer + zone + last-fired + residual. Carries the demotion review. |
-| `LESSONS.md` | *What did we learn the hard way?* Numbered, status-marked, each earned somewhere specific. Ships with eleven portable seed lessons. |
+| `LESSONS.md` | *What did we learn the hard way?* Numbered, status-marked, each earned somewhere specific. Ships with thirteen portable seed lessons. |
 | `TOKEN-LEDGER.md` | *What did it cost, and how much of that was ceremony?* Actuals, the process/implementation ratio, the rework column, and how to derive a ceiling instead of adopting one. |
 | `escape_rate.py` | *Is the loop learning, or only witnessing?* The one executable in this module. It computes the escape rate from the table in `JUDGMENT-LEDGER.md`, prints a required output line, holds the latest round to a ceiling, and refuses to guess: a missing ledger, a missing table or a malformed row is an ABORT, never a zero. Zero dependencies, and a `--selftest` whose forced-red controls cover every refusal it makes. |
 

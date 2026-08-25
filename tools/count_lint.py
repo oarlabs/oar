@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 r"""
-tools/count_lint.py - the count lint. Is the stated number the number?
+tools/count_lint.py - the count lint. Is the stated number the number, and is
+the universal claim true of every element?
 
     python tools/count_lint.py                 # lint the kit's own documents
     python tools/count_lint.py --root <path>   # lint another tree
     python tools/count_lint.py --selftest      # incl. the negative controls
     python tools/count_lint.py --list          # print every claim seen, and
-                                               # every count phrase skipped
+                                               # every phrase skipped
 
-    exit 0  clean - every stated count whose target this tool can locate
-            matches the target
-    exit 1  at least one stated count disagrees with what it names
+    exit 0  no located claim disagrees with what it names. The summary line
+            says CLEAN or PARTIAL and prints the denominator - see THE STATE
+            WORD below; a run that locates a target for 2% of its subject
+            does not get to print the same word as a run that located all of
+            them
+    exit 1  at least one located claim disagrees with what it names
     exit 2  abort (no root, nothing to read)
 
 ==========================================================================
@@ -158,6 +162,113 @@ Two more residuals, named rather than discovered later:
     indistinguishable from a claim that is right. The skip count on every run
     is the disclosure - and, since round 24's review, so is the vocabulary
     ceiling above.
+
+==========================================================================
+THE QUANTIFIER LAYER (round 30)
+==========================================================================
+A number is not the only claim a document makes about an enumerable thing.
+"Every row carries a source in brackets" is the same claim shape as "eighteen
+rows" - it names a target this tool can already enumerate and asserts
+something about it - and it is the shape the program paid for four times in
+rounds 26-29. Round 29's review found two MAJORs with one root cause: a
+universal quantifier asserted over a target the writer could have enumerated
+and did not. This layer is that check, built to the review's own spec:
+
+    a sentence containing a universal quantifier plus a noun naming a target
+    this tool can enumerate, where the predicate is the presence of a LITERAL
+    token, is asserted against every element of that target.
+
+WHAT COUNTS AS A CHECKABLE QUANTIFIER CLAIM. All four conditions, or the
+phrase is skipped and disclosed:
+
+  1. A QUANTIFIER WORD in the determiner form: `every`, `each`, `all`, `no`,
+     `none of the`. `no` and `none` invert the test - NO element may carry the
+     literal. The adverb absolutes (`never`, `always`) and the pronoun forms
+     (`nothing`, `nobody`, `everything`, `everywhere`) take no noun and name
+     no target, so they are recognised for the SOLE purpose of counting them
+     as SKIPPED - the same disclosure-only device the vocabulary ceiling above
+     uses, and for the same reason: a phrase this tool cannot decide should be
+     visible as a skip rather than invisible.
+  2. A TARGET NOUN whose kind this tool enumerates: `row`/`rows` (a markdown
+     table), `item`/`items`/`bullet`/`bullets` (a list), `line`/`lines`/
+     `command`/`commands` (a fenced block).
+  3. A PRESENCE VERB in the same sentence, after the quantifier - `names`,
+     `carries`, `contains`, `has`, `lists`, `cites`, `ends`, `starts`,
+     `prints`, `states`, `holds`, `links`, and their kin. Without one the
+     sentence is not a claim about token presence at all. It is excluded on
+     relevance grounds and RECORDED AS A SKIP, and the exclusion is
+     disclosed here because it raises the printed coverage percentage: a
+     smaller denominator flatters the figure, so the excluded sentences are
+     kept visible in the skip list rather than silently dropped.
+  4. A LITERAL PREDICATE, one of exactly three forms:
+       - a backticked literal in the same sentence, e.g. `` `[FETCHED]` ``
+         (a backticked name ending in `.md` is a document reference, not a
+         predicate, and does not count);
+       - a double-quoted literal, e.g. "exit 0";
+       - the bracket FORM - the words "in brackets" or "bracketed" - which
+         asserts that each element carries some `[...]` tag. This is the one
+         non-string predicate, and it is here because it is the exact shape
+         of the defect that motivated the layer.
+
+HOW THE TARGET IS LOCATED. Two shapes, both already in this tool:
+
+  Q1  INTRODUCER, the L1 rule reused. The phrase OPENS a paragraph that ENDS
+      in a colon and the next block is the table, list or fenced block.
+  Q2  THE DOCUMENT'S SOLE CONSTRUCT. The noun names a kind of which the
+      document holds EXACTLY ONE - one table, one list, one fenced block.
+      More than one, or none, is ambiguity and is skipped rather than
+      guessed at, the same rule `section_fence_count` already applies. This
+      shape exists because a universal claim is usually written several
+      paragraphs away from the thing it quantifies over, which the adjacency
+      rule alone cannot reach.
+
+PRECISION OVER RECALL, AND WHAT THAT COSTS. Stated plainly, because the
+alternative is a reader assuming this layer covers the class:
+
+  - A universal claim whose target is not enumerable from the markdown is
+    SKIPPED and printed in the denominator. Round 29's F2 - "the prompt
+    behind every finding count here" - is this case: `finding count` names no
+    table, list or block, so the sentence is skipped with its reason. Before
+    this layer it was invisible to every check in the kit; it is now a
+    disclosed skip, which is partial cover and is not full cover. Restated
+    over an enumerable target - a per-entry table with the prompt in each row
+    - the same claim IS caught, and the selftest holds both halves so neither
+    can be quietly moved.
+  - A predicate requiring judgment ("every row is accurate") is not a literal
+    and is skipped.
+  - The layer checks PRESENCE of a token, not its correctness. "Every row
+    carries a `[FETCHED]` tag" passes over eighteen rows tagged `[FETCHED]`
+    whether or not anything was fetched.
+
+==========================================================================
+THE STATE WORD, AND WHY `clean` RETIRED (round 30)
+==========================================================================
+This tool used to print `COUNT LINT: clean - exit 0` over a run that located
+a target for 15 of 769 count phrases. An outside reader ran it, did the
+arithmetic, and filed the obvious finding: *clean* is the wrong word for a
+run that could not locate a target for 98% of its subject, and this kit's own
+state-word doctrine - PARTIAL exists because "the check did not run" and "the
+check passed" must never render alike - was not being applied to this kit's
+own lint.
+
+So the summary line now carries a denominator and a state word:
+
+    COUNT LINT: PARTIAL - 18 of 982 claim(s) located and checked (1.8%),
+    0 disagree - exit 0
+
+  CLEAN    every claim phrase this tool saw was located and decided.
+  PARTIAL  at least one was skipped. The percentage is printed, and the
+           skipped phrases are printed by `--list`.
+
+THE EXIT CODE DOES NOT MOVE, and that is a decision rather than an oversight.
+Over the claims it located, the tool's verdict is complete: nothing
+disagrees. The coverage figure is a disclosure about the SUBJECT, not a
+failure of the RUN, and making a partial run exit non-zero would give this
+kit a permanently red lint whose red means "this document contains English",
+which is a red people learn to skip. The residual is stated rather than
+closed: a reader who reads only the exit code still learns nothing about
+coverage, which is why the number is on the summary line where the exit code
+is read.
 """
 
 from __future__ import annotations
@@ -236,6 +347,56 @@ SECTION_REF = re.compile(
     r'(?P<glue>[^|`]{0,40}?)'
     r'(?:\*{0,2}|_{0,2})'
     r'(?:(?P<kind>Step|step|Section|section|§)\s*(?P<n>[0-9]+[A-Za-z]?))')
+
+# ==========================================================================
+# THE QUANTIFIER VOCABULARY (round 30). See THE QUANTIFIER LAYER above.
+# ==========================================================================
+# The determiner forms, which take a noun and therefore can name a target.
+QUANT_WORDS = ("every", "each", "all", "none of the", "no")
+QUANT_NEGATIVE = frozenset({"no", "none of the"})
+
+# Nouns whose target kind this tool enumerates. A noun outside these three
+# sets names nothing this tool can count, which is most of them.
+TABLE_NOUNS = frozenset({"row", "rows"})
+BULLET_NOUNS = frozenset({"item", "items", "bullet", "bullets"})
+QLINE_NOUNS = frozenset({"line", "lines", "command", "commands"})
+QUANT_NOUNS = TABLE_NOUNS | BULLET_NOUNS | QLINE_NOUNS
+
+QUANT = re.compile(
+    r'(?<![\w.-])(?P<q>' + "|".join(QUANT_WORDS) + r')(?![\w.-])'
+    r'(?P<mid>(?:[ \t]+[*_`]{0,2}[A-Za-z][A-Za-z\'`*_-]*){0,2}?)'
+    r'[ \t]+[*_`]{0,2}(?P<noun>[A-Za-z][A-Za-z-]{1,}s?)\b',
+    re.I)
+
+# DISCLOSURE ONLY, and it decides nothing - the sibling of WIDE_COUNT above.
+# These forms take no noun, so no target can be located from them; they are
+# matched so that an absolute this tool cannot decide reaches the skip total
+# with a reason of its own instead of being invisible.
+QUANT_ABSOLUTE = re.compile(
+    r'(?<![\w.-])(?P<q>never|always|nothing|nobody|everything|everywhere)'
+    r'(?![\w.-])', re.I)
+QUANT_ABSOLUTE_REASON = (
+    "an absolute with no noun - it names no target this tool can enumerate "
+    "(see THE QUANTIFIER LAYER)")
+
+# Condition 3: without a presence verb the sentence is not a claim about
+# token presence, and it is not in this layer's denominator either.
+PRESENCE_VERB = re.compile(
+    r'\b(names?|carr(?:y|ies)|contains?|has|have|includes?|lists?|cites?|'
+    r'ends?|starts?|begins?|prints?|states?|mentions?|holds?|links?|'
+    r'declares?|quotes?|shows?|spells?|uses?|reads?|publish(?:es|ed)?)\b',
+    re.I)
+
+# Condition 4: the three literal predicate forms.
+BACKTICK_LIT = re.compile(r'`([^`\n]{2,60})`')
+QUOTED_LIT = re.compile(r'"([^"\n]{2,60})"')
+BRACKET_FORM = re.compile(r'\bin (?:square )?brackets\b|\bbracketed\b', re.I)
+BRACKET_TAG = re.compile(r'\[[^\]\n]+\]')
+
+# A sentence, for this layer: text between terminators, and a markdown table
+# cell boundary is a terminator too - the same rule the count layer's
+# cell-boundary control established.
+SENTENCE_SPLIT = re.compile(r'(?<=[.:!?])\s+|\|')
 
 # See the docstring: a register states counts as they were.
 REGISTER_DOCS = frozenset({"KNOWN-ISSUES.md"})
@@ -472,6 +633,289 @@ def section_fence_count(lines: list, span):
     return countable_lines(lines, inside[0])
 
 
+# ==========================================================================
+# THE QUANTIFIER LAYER - pure. Same discipline as the count layer above: the
+# deciding is done on a string, so every rule is testable without a tree.
+# ==========================================================================
+def table_row_texts(lines: list, start: int):
+    """The body rows of the table at `start`, as text, or None."""
+    if table_rows(lines, start) < 0:
+        return None
+    out, i = [], start + 2
+    while i < len(lines) and lines[i].lstrip().startswith("|"):
+        out.append(lines[i].strip())
+        i += 1
+    return out
+
+
+def list_item_texts(lines: list, start: int):
+    """(texts, end_index) for the top-level items of the list at `start`, or
+    None. A continuation line belongs to the item above it, which is what a
+    reader sees and what `list_items` already counts."""
+    m = LIST_ITEM.match(lines[start]) if start < len(lines) else None
+    if not m:
+        return None
+    base = len(m.group("ind"))
+    out, cur, i, blanks = [], None, start, 0
+    while i < len(lines):
+        ln = lines[i]
+        if not ln.strip():
+            blanks += 1
+            i += 1
+            continue
+        mm = LIST_ITEM.match(ln)
+        indent = len(ln) - len(ln.lstrip())
+        if mm and len(mm.group("ind")) == base:
+            if cur is not None:
+                out.append(" ".join(cur))
+            cur = [ln.strip()]
+            blanks = 0
+            i += 1
+            continue
+        if cur is not None and ((indent > base and blanks <= 1)
+                                or (blanks == 0 and indent >= base)):
+            cur.append(ln.strip())
+            blanks = 0
+            i += 1
+            continue
+        break
+    if cur is not None:
+        out.append(" ".join(cur))
+    return (out, i) if out else None
+
+
+def fence_line_texts(lines: list, span):
+    """The countable lines of a fenced block, as text, with a wrapped command
+    joined into the one line it is. Same rule as `countable_lines`, which
+    counts what this returns."""
+    o, c = span
+    out, continued = [], False
+    for ln in lines[o + 1:c]:
+        s = ln.strip()
+        if not s:
+            continued = False
+            continue
+        if s.startswith("#") or s.startswith("//") or s.lower().startswith("rem "):
+            continued = False
+            continue
+        if continued and out:
+            out[-1] = out[-1] + " " + s
+        else:
+            out.append(s)
+        continued = bool(CONTINUES.search(s))
+    return out
+
+
+def all_constructs(lines: list, kind: str):
+    """Every construct of `kind` in the document, each as its list of element
+    texts. Used by shape Q2: exactly one is a target, and any other number is
+    ambiguity this tool skips rather than guesses at."""
+    spans = fence_spans(lines)
+    inside = set()
+    for o, c in spans:
+        inside.update(range(o, c + 1))
+    out = []
+    if kind == "fenced block":
+        return [fence_line_texts(lines, s) for s in spans]
+    i = 0
+    while i < len(lines):
+        if i in inside:
+            i += 1
+            continue
+        if kind == "table":
+            rows = table_row_texts(lines, i)
+            if rows:
+                out.append(rows)
+                i += 2 + len(rows)
+                continue
+        else:
+            got = list_item_texts(lines, i)
+            if got:
+                texts, end = got
+                out.append(texts)
+                i = max(end, i + 1)
+                continue
+        i += 1
+    return out
+
+
+def sentence_at(text: str, pos: int) -> str:
+    """The sentence holding `pos`. A table cell boundary ends a sentence, the
+    same rule the count layer's cell-boundary control established."""
+    start = 0
+    for m in SENTENCE_SPLIT.finditer(text, 0, pos):
+        start = m.end()
+    end = len(text)
+    m = SENTENCE_SPLIT.search(text, pos)
+    if m:
+        end = m.start()
+    return text[start:end]
+
+
+def literal_predicate(sentence: str, after: int):
+    """(kind, literal) for the predicate of a quantifier claim, or None.
+
+    Only the part of the sentence AFTER the quantifier is read: a literal
+    sitting before it belongs to some other clause."""
+    # A WINDOW, for the same reason the citation lint's locator has one: a
+    # literal four clauses away is not this claim's predicate. 100 characters
+    # is wide enough for "names an artifact and carries a source in brackets"
+    # and narrow enough to exclude the next sentence's vocabulary.
+    tail = sentence[after:after + 100]
+    if BRACKET_FORM.search(tail):
+        return ("a bracketed tag", None)
+    for m in BACKTICK_LIT.finditer(tail):
+        lit = m.group(1).strip()
+        if lit.lower().endswith(".md"):
+            continue          # a document reference, not a predicate
+        if lit:
+            return ("the literal", lit)
+    for m in QUOTED_LIT.finditer(tail):
+        lit = m.group(1).strip()
+        if lit:
+            return ("the literal", lit)
+    return None
+
+
+def element_satisfies(elem: str, kind: str, literal) -> bool:
+    if kind == "a bracketed tag":
+        return bool(BRACKET_TAG.search(elem))
+    return literal in elem
+
+
+def quantifier_claims(text: str):
+    """Every universal-quantifier claim this tool can decide, plus the ones it
+    had to skip.
+
+    Returns (checked, skipped): `checked` a list of dicts, `skipped` a list of
+    (phrase, reason). Pure - it decides a string, so every rule below is
+    testable without a tree."""
+    lines = text.splitlines()
+    starts = line_starts(text)
+    checked, skipped = [], []
+
+    # THE DISCLOSURE PASS, FIRST AND SEPARATE - the sibling of WIDE_COUNT's.
+    # An absolute that carries a presence verb but names no enumerable noun
+    # decides nothing and is recorded as skipped so that it is visible
+    # rather than absent.
+    for m in QUANT_ABSOLUTE.finditer(text):
+        sent = sentence_at(text, m.start())
+        if not PRESENCE_VERB.search(sent):
+            continue
+        skipped.append((re.sub(r'\s+', " ", m.group(0)).strip(),
+                        QUANT_ABSOLUTE_REASON))
+
+    for m in QUANT.finditer(text):
+        q = m.group("q").lower()
+        noun = m.group("noun").lower()
+        phrase = re.sub(r'\s+', " ", m.group(0)).strip()
+        idx = line_of(starts, m.start())
+        if idx >= len(lines):
+            continue
+        # THE SENTENCE IS SCOPED TO ITS PARAGRAPH. Found by the first CI
+        # rehearsal: a page whose heading carries no full stop put the
+        # heading and the claim in one "sentence", and the opening rule below
+        # then rejected a claim that does open its paragraph's first
+        # sentence. A blank line ends a sentence in markdown whatever the
+        # punctuation says.
+        first, last = paragraph_bounds(lines, idx)
+        para_start = starts[first]
+        para_end = starts[last] + len(lines[last])
+        para = text[para_start:para_end]
+        sent = sentence_at(para, m.start() - para_start)
+        # Condition 3. Not a claim about token presence at all, and not in
+        # this layer's denominator: see the docstring. Recorded as a skip so
+        # the exclusion is visible (r30 review).
+        qin = sent.find(m.group(0))
+        if qin < 0:
+            qin = 0
+        if not PRESENCE_VERB.search(sent[qin:]):
+            skipped.append((phrase, "no presence verb after the quantifier "
+                                    "- not a token-presence claim; recorded "
+                                    "rather than silently excluded"))
+            continue
+        # Condition 2. The word after the quantifier may be an adjective
+        # ("every single row"); before deciding the sentence names no
+        # target, prefer a QUANT_NOUNS member within the next few words
+        # (r30 review).
+        if noun not in QUANT_NOUNS:
+            for cand in re.findall(r"[a-z]+",
+                                   sent[qin:qin + 90].lower())[1:6]:
+                if cand in QUANT_NOUNS:
+                    noun = cand
+                    break
+        if noun not in QUANT_NOUNS:
+            skipped.append((phrase, f"`{noun}` names no target this tool "
+                                    f"enumerates (a table, a list, a fenced "
+                                    f"block)"))
+            continue
+        # THE NARROWING THE FIRST LIVE RUN FORCED, and it is the count
+        # layer's own opening rule one level up. Without it this layer's
+        # first live run manufactured a finding against a published walk
+        # prompt: "executing every command as printed" sits deep inside a
+        # 400-word instruction whose later clause happens to quote the word
+        # "done", and the tool read that quotation as the predicate of a
+        # claim about a fenced block. A universal is a claim ABOUT a target
+        # only when it is what the sentence is about, which in practice means
+        # it opens the sentence.
+        if not re.fullmatch(r'[\s>*_`#|-]*', sent[:qin] or ""):
+            skipped.append((phrase, "does not open its sentence - a "
+                                    "universal buried mid-sentence names no "
+                                    "target this tool can attribute it to"))
+            continue
+        # Condition 4.
+        pred = literal_predicate(sent, qin + len(m.group(0)))
+        if pred is None:
+            skipped.append((phrase, "no literal predicate - the sentence "
+                                    "asserts nothing this tool can test by "
+                                    "token presence"))
+            continue
+        pkind, literal = pred
+
+        kind = ("table" if noun in TABLE_NOUNS else
+                "list" if noun in BULLET_NOUNS else "fenced block")
+
+        elems, where = None, ""
+        # ---- Q1: the phrase introduces the construct ---------------------
+        tail = lines[last].rstrip()
+        opens = re.fullmatch(r'[\s>*_-]*', text[starts[first]:m.start()])
+        if tail.endswith(":") and opens:
+            nxt = next_block(lines, last)
+            if nxt is not None:
+                if kind == "table":
+                    got = table_row_texts(lines, nxt)
+                elif kind == "list":
+                    g = list_item_texts(lines, nxt)
+                    got = g[0] if g else None
+                else:
+                    span = next((s for s in fence_spans(lines)
+                                 if s[0] == nxt), None)
+                    got = fence_line_texts(lines, span) if span else None
+                if got:
+                    elems, where = got, f"the {kind} below it"
+        # ---- Q2: the document's sole construct of that kind --------------
+        if elems is None:
+            found = [c for c in all_constructs(lines, kind) if c]
+            if len(found) != 1:
+                skipped.append((phrase, f"this document holds "
+                                        f"{len(found)} {kind}(s) - a target "
+                                        f"is located only when it introduces "
+                                        f"one or the document holds exactly "
+                                        f"one"))
+                continue
+            elems, where = found[0], f"the one {kind} in this document"
+
+        want = q not in QUANT_NEGATIVE
+        bad = [e for e in elems
+               if element_satisfies(e, pkind, literal) != want]
+        checked.append(dict(phrase=phrase, quant=q, noun=noun, kind=kind,
+                            where=where, predicate=pkind, literal=literal,
+                            total=len(elems), bad=bad, line=idx + 1,
+                            negative=not want))
+
+    return checked, skipped
+
+
 def claims(text: str, self_name: str = "", resolve=None):
     """Every (stated, actual, noun, kind, where, locator) this tool claims to
     be able to decide, plus the phrases it had to skip.
@@ -586,6 +1030,16 @@ def claims(text: str, self_name: str = "", resolve=None):
     return checked, skipped
 
 
+def coverage_state(located: int, skipped: int):
+    """(state word, percentage located) for a run. CLEAN only when nothing was
+    skipped; PARTIAL otherwise, which is the kit's own state-word rule applied
+    to this kit's own lint. One function so the summary line and its control
+    read the same rule."""
+    seen = located + skipped
+    pct = (100.0 * located / seen) if seen else 100.0
+    return ("CLEAN" if skipped == 0 else "PARTIAL"), pct
+
+
 def waiver_for(doc_name: str, stated: int, noun: str):
     """The waiver covering this claim, or None. An empty reason is not a
     waiver - it is the silent case this tool exists to prevent."""
@@ -631,6 +1085,7 @@ def run(root: Path, show_all: bool) -> int:
         return cache[p]
 
     checked, skipped, problems, waived, register = 0, 0, [], [], 0
+    qchecked, qskipped, qproblems, qregister = 0, 0, [], 0
     for doc in docs:
         try:
             text = doc.read_text(encoding="utf-8")
@@ -638,9 +1093,25 @@ def run(root: Path, show_all: bool) -> int:
             print(f"{RED}COUNT LINT: ABORT — cannot read {doc}: {exc}{RESET}")
             return 2
         got, miss = claims(text, doc.name, resolve)
+        qgot, qmiss = quantifier_claims(text)
         if doc.name in REGISTER_DOCS:
             register += len(got)
+            qregister += len(qgot)
             continue
+        qchecked += len(qgot)
+        qskipped += len(qmiss)
+        for c in qgot:
+            ok = not c["bad"]
+            if show_all:
+                mark = f"{GREEN}{c['total']}/{c['total']}{RESET}" if ok else \
+                    f"{RED}{c['total'] - len(c['bad'])}/{c['total']}{RESET}"
+                print(f"  [Q] {doc.name}:{c['line']}  \"{c['phrase']}\" -> "
+                      f"{c['where']}, {mark} element(s) satisfy it")
+            if not ok:
+                qproblems.append((doc, c))
+        if show_all:
+            for phrase, why in qmiss:
+                print(f"  {YELLOW}skipQ{RESET} {doc.name}: \"{phrase}\" — {why}")
         checked += len(got)
         skipped += len(miss)
         for c in got:
@@ -663,20 +1134,29 @@ def run(root: Path, show_all: bool) -> int:
     print()
     print(f"root      : {root}")
     print(f"documents : {len(docs)} scanned")
-    print(f"checked   : {checked} stated count(s) with a locatable target")
+    print(f"counts    : {checked} located and checked, {skipped} skipped")
+    print(f"quantifier: {qchecked} located and checked, {qskipped} skipped")
     # A skip nobody sees is not a skip - the same rule the citation lint and
-    # the expectation lint apply to theirs.
-    print(f"skipped   : {skipped} count phrase(s) this tool cannot locate a "
-          f"target for (printed with --list)")
-    print(f"register  : {register} count(s) NOT checked, in "
-          f"{', '.join(sorted(REGISTER_DOCS))} — a findings register records "
-          f"what a count used to be, beside the correction")
+    # the expectation lint apply to theirs. Since round 30 the skip is also in
+    # the summary's denominator, so `clean` cannot be printed over 2% coverage.
+    print(f"skipped   : {skipped + qskipped} phrase(s) this tool cannot locate "
+          f"a target for (printed with --list)")
+    print(f"register  : {register} count(s) and {qregister} quantifier "
+          f"claim(s) NOT checked, in {', '.join(sorted(REGISTER_DOCS))} — a "
+          f"findings register records what a claim used to be, beside the "
+          f"correction")
     print(f"waivers   : {len(waived)} (each printed below, every run)")
     for doc, c, reason in waived:
         print(f"{YELLOW}  WAIVED {doc.name}: \"{c['phrase']}\" "
               f"(target has {c['actual']})\n    {reason}{RESET}")
 
-    if problems:
+    located = checked + qchecked
+    seen = located + skipped + qskipped
+    state, pct = coverage_state(located, skipped + qskipped)
+    coverage = (f"{located} of {seen} claim(s) located and checked "
+                f"({pct:.1f}%)")
+
+    if problems or qproblems:
         print()
         for doc, c in problems:
             print(f"{RED}THE NUMBER IS NOT THE NUMBER{RESET}  "
@@ -687,12 +1167,32 @@ def run(root: Path, show_all: bool) -> int:
             print(f"  {BOLD}Either the number is wrong or the thing it counts "
                   f"has moved. Open the target, count it, and write that "
                   f"number - or drop the count and describe the thing.{RESET}")
+        for doc, c in qproblems:
+            word = "must not carry" if c["negative"] else "must carry"
+            lit = (repr(c["literal"]) if c["literal"] is not None
+                   else "a bracketed tag")
+            print(f"{RED}THE CLAIM IS NOT TRUE OF EVERY ELEMENT{RESET}  "
+                  f"[quantifier]  {doc.as_posix()}:{c['line']}")
+            print(f"  claim    : \"{c['phrase']}\" — every element {word} "
+                  f"{lit}")
+            print(f"  target   : {c['where']} ({c['total']} element(s))")
+            print(f"  failing  : {len(c['bad'])}")
+            for e in c["bad"][:3]:
+                print(f"    - {e[:110]}")
+            if len(c["bad"]) > 3:
+                print(f"    ... and {len(c['bad']) - 3} more")
+            print(f"  {BOLD}Either the claim is wrong or the elements are. "
+                  f"Enumerate the target, or narrow the sentence to what is "
+                  f"true of all of it.{RESET}")
         print()
-        print(f"{RED}COUNT LINT: {len(problems)} stated count(s) disagree with "
-              f"what they name — exit 1{RESET}")
+        n = len(problems) + len(qproblems)
+        print(f"{RED}COUNT LINT: {n} located claim(s) disagree with what they "
+              f"name — {coverage} — exit 1{RESET}")
         return 1
 
-    print(f"{GREEN}COUNT LINT: clean - exit 0{RESET}")
+    colour = GREEN if state == "CLEAN" else YELLOW
+    print(f"{colour}COUNT LINT: {state} - {coverage}, 0 disagree - "
+          f"exit 0{RESET}")
     return 0
 
 
@@ -895,6 +1395,178 @@ def selftest() -> int:
           (len(got), len(miss)), (1, 0))
 
     print()
+    print(f"{BOLD}=== E. the quantifier layer: the forced-red half "
+          f"==={RESET}")
+
+    # ROUND 29's F1, REPLANTED. The sentence that shipped on the front of
+    # COMPARISON.md, over the shape of the table it quantifies: three of the
+    # rows carry no bracketed source at all. This is the claim the program
+    # paid for four times in rounds 26-29.
+    F1_ROWS = ("Every row names an artifact and carries a source in "
+               "brackets:\n\n"
+               "| Claim | Verdict | Source |\n|---|---|---|\n"
+               "| C1 | REDUNDANT-BY | [FETCHED] |\n"
+               "| C11 | NO-MATCH-FOUND | none |\n"
+               "| C13 | NO-MATCH-FOUND | [FETCHED, as above] |\n"
+               "| C17 | NO-MATCH-FOUND | none |\n"
+               "| C18 | COMPOSITION-STANDS | none |\n")
+    got, _ = quantifier_claims(F1_ROWS)
+    check("QUANT(f1-shape): round 29's F1 sentence is SEEN, and the rows "
+          "that carry no bracketed source are named",
+          [(c["total"], len(c["bad"])) for c in got], [(5, 3)])
+
+    # ...AND NOT ONLY WHEN IT IS ADJACENT. The shipped defect sat several
+    # paragraphs above its table, which the introducer rule alone cannot
+    # reach. Shape Q2: the document holds exactly one table.
+    F1_APART = ("# Verify these rows yourself\n\n"
+                "These rows were compiled by the program they describe.\n\n"
+                "Every row names an artifact and carries a source in "
+                "brackets.\n\n"
+                "Some other paragraph entirely.\n\n"
+                "| Claim | Verdict | Source |\n|---|---|---|\n"
+                "| C1 | REDUNDANT-BY | [FETCHED] |\n"
+                "| C11 | NO-MATCH-FOUND | none |\n")
+    got, _ = quantifier_claims(F1_APART)
+    check("QUANT(f1-nonadjacent): the same claim written pages from its "
+          "table is still located, because the document holds exactly one",
+          [(c["where"], c["total"], len(c["bad"])) for c in got],
+          [("the one table in this document", 2, 1)])
+
+    # ROUND 29's F2, RESTATED OVER AN ENUMERABLE TARGET. The shipped sentence
+    # is skipped (control below); the same claim written against a per-entry
+    # table is caught. Both halves are held so neither can be quietly moved.
+    F2_TABLE = ("Every row of this register names a published prompt in "
+                "`docs/walks/`:\n\n"
+                "| Entry | Prompt |\n|---|---|\n"
+                "| 8 | `docs/walks/walk-08-windows-literalist.md` |\n"
+                "| 13 | `docs/walks/walk-13-thorough-adopter.md` |\n"
+                "| 29 | none - the read was unprompted |\n")
+    got, _ = quantifier_claims(F2_TABLE)
+    check("QUANT(f2-restated): round 29's F2 claim, written over a target "
+          "this tool can enumerate, is CAUGHT on the entry with no prompt",
+          [(c["literal"], c["total"], len(c["bad"])) for c in got],
+          [("docs/walks/", 3, 1)])
+
+    # THE NEGATIVE QUANTIFIER INVERTS. "No row carries X" is red when one
+    # does, which is the other half of the class and is not the same test.
+    NEG = ("No row carries `[UNVERIFIED]`:\n\n"
+           "| Claim | Source |\n|---|---|\n"
+           "| C1 | [FETCHED] |\n| C14 | [UNVERIFIED] |\n")
+    got, _ = quantifier_claims(NEG)
+    check("QUANT(negative-red): `no`/`none` invert the test - the row that "
+          "DOES carry the literal is the finding",
+          [(c["negative"], len(c["bad"])) for c in got], [(True, 1)])
+
+    print()
+    print(f"{BOLD}=== F. the quantifier layer: the controls that keep it "
+          f"from manufacturing findings ==={RESET}")
+
+    # THE MOST IMPORTANT CONTROL IN THIS SECTION, for the same reason
+    # COUNT(true-count) is the most important one in section B.
+    TRUE = ("Every row carries a source in brackets:\n\n"
+            "| Claim | Source |\n|---|---|\n"
+            "| C1 | [FETCHED] |\n| C2 | [SEARCH-URL] |\n")
+    got, _ = quantifier_claims(TRUE)
+    check("QUANT(true-claim): the TRUE universal passes - the same shape, "
+          "and every row satisfies it",
+          [(c["total"], c["bad"]) for c in got], [(2, [])])
+
+    # THE ADJECTIVE CONTROL (r30 review, F6). "Every single row" must reach
+    # the noun past the adjective, not skip on `single` as a non-target.
+    ADJ = ("Every single row carries a source in brackets:\n\n"
+           "| Claim | Source |\n|---|---|\n"
+           "| C1 | [FETCHED] |\n| C2 | none |\n")
+    got, _ = quantifier_claims(ADJ)
+    check("QUANT(adjective): `every single row` decides on `row` - the "
+          "adjective does not defeat the noun match",
+          [(c["total"], len(c["bad"])) for c in got], [(2, 1)])
+
+    got, _ = quantifier_claims("No row carries `[TODO]`:\n\n"
+                              "| Claim | Source |\n|---|---|\n"
+                              "| C1 | [FETCHED] |\n")
+    check("QUANT(negative-true): ...and so does the true negative",
+          [c["bad"] for c in got], [[]])
+
+    # THE LIMIT, HELD AS A CONTROL. Round 29's F2 as it actually shipped has
+    # no enumerable target, so it is SKIPPED WITH ITS REASON - partial cover,
+    # disclosed, and not full cover. Before round 30 it was invisible.
+    got, miss = quantifier_claims(
+        "- **`docs/walks/`** — the prompt behind every finding count here, "
+        "published so the method can be disputed rather than trusted.\n")
+    check("QUANT(f2-as-shipped): F2's sentence as it shipped is SKIPPED with "
+          "its reason - never checked, never invisible",
+          (got, [r.split(" names no")[0] for _, r in miss]),
+          ([], ["`finding`"]))
+
+    # FOUND BY THE FIRST LIVE RUN, NOT BY DESIGN - the sibling of
+    # COUNT(wrapped-command). `docs/walks/walk-13-thorough-adopter.md` holds a
+    # 400-word persona prompt in one fenced block; "executing every command as
+    # printed" sits deep inside it and a later clause quotes the word "done".
+    # The layer read that quotation as the claim's predicate and reported the
+    # correct sentence as a defect.
+    got, miss = quantifier_claims(
+        "THE WALK: follow the route, executing every command as printed and "
+        "verifying it names the step it belongs to; anything degraded at "
+        "\"done\" is a finding.\n\n"
+        "```\na\nb\n```\n")
+    check("QUANT(mid-sentence): a universal buried mid-sentence is SKIPPED, "
+          "not tested against a literal from some other clause",
+          (got, [r.split(" - ")[0] for _, r in miss]),
+          ([], ["does not open its sentence"]))
+
+    got, miss = quantifier_claims("Every row states a verdict that is "
+                                  "accurate:\n\n"
+                                  "| a | b |\n|---|---|\n| 1 | 2 |\n")
+    check("QUANT(no-literal): a predicate that needs judgment is not a "
+          "literal, and is skipped rather than guessed at",
+          (got, [r.split(" - ")[0] for _, r in miss]),
+          ([], ["no literal predicate"]))
+
+    got, miss = quantifier_claims(
+        "Every row cites `BLUEPRINT.md`:\n\n| a |\n|---|\n| 1 |\n")
+    check("QUANT(doc-ref): a backticked DOCUMENT NAME is a reference, not a "
+          "predicate - the claim is skipped, not tested against a filename",
+          (got, [r.split(" - ")[0] for _, r in miss]),
+          ([], ["no literal predicate"]))
+
+    two = ("Every row carries a `[FETCHED]` tag.\n\n"
+           "| a | b |\n|---|---|\n| 1 | 2 |\n\n"
+           "| c | d |\n|---|---|\n| 3 | 4 |\n")
+    got, miss = quantifier_claims(two)
+    check("QUANT(ambiguous): a document with TWO tables and no adjacency is "
+          "skipped, never guessed at",
+          (got, [r[-30:] for _, r in miss]),
+          ([], ["the document holds exactly one"]))
+
+    got, miss = quantifier_claims("Every reader carries their own priors, and "
+                                  "no document names them all.\n")
+    check("QUANT(no-target): a noun this tool cannot enumerate is skipped "
+          "with the noun named",
+          (len(got), len(miss)), (0, 2))
+
+    got, miss = quantifier_claims("The runner never prints a bare count.\n")
+    check("QUANT(absolute): `never` and `always` take no noun, decide "
+          "nothing, and are recorded as skipped so they are visible",
+          (got, [r[:22] for _, r in miss]),
+          ([], ["an absolute with no no"]))
+
+    got, miss = quantifier_claims("Every row in that table was written on a "
+                                  "Tuesday.\n")
+    check("QUANT(no-verb): a sentence with no presence verb decides nothing "
+          "and is recorded as a skip - out of the denominator, visible in "
+          "the skip list (r30 review)",
+          (len(got), len(miss)), (0, 1))
+
+    # THE STATE WORD ITSELF. The stranger's finding, held as a control: this
+    # tool may not print CLEAN over a run that skipped anything.
+    check("QUANT(state-word): a run that skipped nothing is CLEAN",
+          coverage_state(18, 0), ("CLEAN", 100.0))
+    st, pc = coverage_state(15, 754)
+    check("QUANT(state-word): a run that located 15 of 769 is PARTIAL, and "
+          "the percentage is printed rather than the word `clean`",
+          (st, round(pc, 1)), ("PARTIAL", 2.0))
+
+    print()
     print(f"{BOLD}=== D. this tool against the kit it ships in ==={RESET}")
     root = Path(__file__).resolve().parent.parent
     docs = kit_documents(root)
@@ -907,12 +1579,24 @@ def selftest() -> int:
         p = index.get(Path(name).name)
         return p.read_text(encoding="utf-8") if p else None
 
-    total = 0
+    total, qtotal, qseen = 0, 0, 0
     for d in docs:
-        total += len(claims(d.read_text(encoding="utf-8"), d.name, live)[0])
+        text = d.read_text(encoding="utf-8")
+        total += len(claims(text, d.name, live)[0])
+        qgot, qmiss = quantifier_claims(text)
+        qtotal += len(qgot)
+        qseen += len(qmiss)
     # A pattern that matches nothing is a check that proves nothing - the same
     # assertion the citation lint's section E makes about itself.
     check("...and the lint decides real claims in them", total > 0, True)
+    check("the quantifier layer SEES universal claims in this kit's own "
+          "documents (they reach the skip total rather than vanishing)",
+          qseen > 0, True)
+    # AND DECIDES AT LEAST ONE. A layer that locates a target for none of the
+    # claims in the tree it ships in is a layer nobody has run in anger; the
+    # front door carries one universal claim in checkable shape on purpose,
+    # and this control is what stops that claim being quietly deleted.
+    check("...and DECIDES at least one of them", qtotal > 0, True)
 
     print()
     print((GREEN if ok_all else RED)

@@ -127,3 +127,22 @@ decoration.
   the reference build's own tier gate blocked its own documentation minutes
   after birth because its pattern was unanchored.
   *Status: BINDING.*
+- **A stranger decides on what they can run, not on what you wrote.** Three
+  independent cold reads of the reference kit — a principal consultant, a
+  pre-sales architect and a vulnerability-management engineer, each asked for a
+  verdict rather than an opinion — returned the same verdict for the same
+  reason: a diagnostic that went red on its own author's repository and printed
+  the step that fixed it. All three also bounced off the same surface, a 292 KB
+  register they grepped rather than read. Send readers a command and an exit
+  code before you send them a paragraph, and measure where they stop.
+  *Status: BINDING.*
+- **Transplant the method into a project you do not maintain before you
+  believe your own documentation.** Adopting the reference kit into an
+  unrelated existing project surfaced four documentation defects in one
+  afternoon that seven internal walks had not: a branch table that did not
+  enumerate the run a correct adopter gets, a printed commit line omitting a
+  file the previous step told you to edit, and two judgment calls the render
+  step never named. Internal walks meet the tree the documents were written
+  for; a real host does not. One transplant is worth several rehearsals, and
+  it is also the only place a portability claim earns evidence.
+  *Status: BINDING.*

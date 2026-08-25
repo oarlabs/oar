@@ -34,8 +34,11 @@ read the sources*, below, defines the vocabulary in full.
 - **A NO-MATCH-FOUND row:** there is nothing to open, because the claim is
   that nothing was found. The check is to run the search yourself and try to
   name one counterexample; the correction invitation at the top of the page is
-  the report path. C11, C17 and C18 carry no source for exactly this reason —
-  and that is what makes them the cheapest rows to attack.
+  the report path. C17 and C18 carry no source for exactly this reason — and
+  that is what makes them the cheapest rows to attack. **C11 used to be on
+  that list. A reader ran this procedure, named a counterexample, and the row
+  now carries the citation he supplied and a narrowed claim.** That is what
+  this page is for, and it is the first time it has happened.
 
 The rows are independent, so checking one is worth doing and does not commit
 you to checking eighteen.
@@ -43,8 +46,9 @@ you to checking eighteen.
 **Start with a NO-MATCH-FOUND row.** Those rows make the strongest-sounding
 claim and rest on the weakest evidence. NO-MATCH-FOUND is a statement about a
 search that was run on one day by one reader, not a statement about the world,
-and one name falsifies it. C11, C13, C14 and C17 carry that verdict outright;
-C3, C4, C5 and C7 carry it on a sub-claim.
+and one name falsifies it. C13, C14 and C17 carry that verdict outright;
+C3, C4, C5, C7 and — since round 30's correction — C11 carry it on a
+sub-claim.
 
 **If a row is wrong, the correction mechanism is the invitation above:** name
 the artifact, and the row gets cited or rewritten. That is not a formality.
@@ -130,7 +134,7 @@ never about a project as a whole.
 
 | # | The claim, and where this kit makes it | Classification | Who else, with sources |
 |---|---|---|---|
-| C1 | Controls are plain files under git rather than a runtime, because files are the artifact the whole toolchain can hold to account (`README.md`, "Why files, and where this sits") | PARTIAL-OVERLAP | **Chock** — policies committed to the repo compile to pre-tool-use hooks and CI gates, Apache-2.0 [FETCHED: `https://github.com/open-coder-ai/chock`]. **Agentic OS** — no runtime binary; a rules-and-check system over existing git workflows [FETCHED: `https://github.com/KbWen/agentic-os`]. Both are file-first by the same argument. Neither states the threat-model reason this kit states — that a graph held in a runtime is a file the agent can edit with fewer witnesses — and that framing is this kit's |
+| C1 | Controls are plain files under git rather than a runtime, because files are the artifact the whole toolchain can hold to account (`docs/WHY-FILES.md`) | PARTIAL-OVERLAP | **Chock** — policies committed to the repo compile to pre-tool-use hooks and CI gates, Apache-2.0 [FETCHED: `https://github.com/open-coder-ai/chock`]. **Agentic OS** — no runtime binary; a rules-and-check system over existing git workflows [FETCHED: `https://github.com/KbWen/agentic-os`]. Both are file-first by the same argument. Neither states the threat-model reason this kit states — that a graph held in a runtime is a file the agent can edit with fewer witnesses — and that framing is this kit's |
 | C2 | Enforcement ranked by who can rewrite the enforcer: Zone A (human gate, server-side CI, CODEOWNERS) against Zone B, useful friction honestly labeled (`BLUEPRINT.md` §3) | PARTIAL-OVERLAP | **Chock** labels each emitted control *enforced* / *enforced-at-commit* / *advisory* and reports the coverage [FETCHED, as above] — functionally this kit's zone honesty, shipped as compiler output. The generic ancestor (local hooks are bypassable, server-side gates are not) is standard practice [SEARCH-URL: `https://hackernoon.com/how-to-build-a-governance-layer-for-claude-code-with-hooks-skills-and-agents`]. The specific contribution — ranking by the rewritability of the enforcer, and requiring every rule to carry its zone in writing — was not found stated elsewhere |
 | C3 | A PreToolUse hook enforcing model tiering, a blanket-add ban and a protected-path tripwire (module 02) | PARTIAL-OVERLAP on the hook; NO-MATCH-FOUND on model-tier enforcement | **Chock** (pre-tool-use hooks from a committed policy) [FETCHED, as above]. **Provenrail Guard** (denies destructive commands pre-execution; escalations recorded) [FETCHED via `https://github.com/systempromptio/awesome-ai-agent-governance`]. **ThumbGate** (local-first PreToolUse enforcement) [RECALLED-UNVERIFIED — the audit's appendix does not confirm the listed source; retained only as a lead, not as evidence]. None enforces a **model tier** on a spawn; Chock's own feature list marks model-tier enforcement as absent. Tier enforcement is the one hook rule with no competitor found |
 | C4 | Forced red — every check has been seen to fail on purpose; a negative-control facility; a dead-man clause (`BLUEPRINT.md` §5, `DECISION-BRIEF.md`) | PARTIAL-OVERLAP on the mechanism; NO-MATCH-FOUND as a shipped governance gate | The mechanism is 48 years old: mutation testing, DeMillo/Lipton/Sayward 1978 [SEARCH-URL: `https://www.scirp.org/reference/referencespapers?referenceid=953139`]. **Agentic OS** ships one negative control — a planted credential that must block the commit [FETCHED, as above]. Not found anywhere: a governance kit requiring *every* check to carry a recorded red proof, with a dead-man clause scoring a silent gate as zero rather than partial |
@@ -140,8 +144,8 @@ never about a project as a whole.
 | C8 | Self-application: the kit turns its headline instrument on itself and publishes the unflattering number (`BLUEPRINT.md` §11) | PARTIAL-OVERLAP — the closest single attack on this kit's novelty | **ATM** publishes a self-hosting governance section with an overall self-hosting score and coverage figures [abstract FETCHED: `https://arxiv.org/abs/2607.00041`; the self-hosting figures are SEARCH-URL from the PDF body, not read]. **CANONIC** claims self-application by construction [abstract FETCHED: `https://arxiv.org/abs/2607.05410`; the self-application quotation is SEARCH-URL from the PDF body]. **Kitchen Loop** reports dogfooding its own codebase [SEARCH-URL: `https://arxiv.org/html/2603.25697`]. The distinction that survives: all three publish coverage or completeness scores about themselves, which is the flattering direction. None publishes a miss rate with denominators that goes up |
 | C9 | Loop termination: one round by default, approve-with-punch-items is approved, only a reject buys a round, each round's worst finding must be less severe, discovery caps declared up front, AT-CAP and NOT-DRY recorded honestly | PARTIAL-OVERLAP | The round cap is common review practice with numbers attached — a target of one to two rounds, approve with comments when the findings are all nits [SEARCH-URL: `https://mtlynch.io/human-code-reviews-2/`, `https://gitautoreview.com/guides/faster-code-reviews`, `https://zylos.ai/research/2026-03-01-multi-model-ai-code-review-convergence/`]. Not found anywhere: the severity-monotonicity rule (a round whose worst finding is not less severe than the last is a redesign signal, not another round) and the AT-CAP / NOT-DRY honest-close convention |
 | C10 | Cost discipline with denominators: a process-over-implementation ratio published per stage against a declared ceiling, plus a rework column (`BLUEPRINT.md` §6) | PARTIAL-OVERLAP | Direct ancestor: **SRE error budgets** — a declared ceiling, actuals measured against it, a consequence on breach [FETCHED: `https://sre.google/sre-book/embracing-risk/`]. **Microsoft AGT** ships an SRE package with SLOs, error budgets and circuit breakers for agents [FETCHED, as above], and per-agent error budgets are an active topic [SEARCH-URL: `https://www.buildmvpfast.com/blog/ai-agent-error-budget-sre-reliability-autonomous-2026`]. Not found: a **ceremony** ratio — process spend over implementation spend — anywhere |
-| C11 | Promotion **and** demotion: every rule carries a last-fired date, N stages without firing forces a disposition, and zero demotions across a phase is itself a finding | NO-MATCH-FOUND | Adjacent practice exists in detection engineering and in GRC control rationalisation, but the audit found no named artifact that ships a last-fired column with a forced disposition and treats zero demotions as a defect. This is the cleanest unmatched claim in the kit, and the search log is published below |
-| C12 | De-identification gating before publication (`tools/deident_scan.py`) | **REDUNDANT-BY**, for the secret class | **gitleaks** and **TruffleHog** own pre-commit and CI secret scanning [SEARCH-URL: `https://www.jit.io/resources/appsec-tools/trufflehog-vs-gitleaks-a-detailed-comparison-of-secret-scanning-tools`]. This kit's tool scans for tokens you list yourself, which is the narrower de-identification-of-a-known-vocabulary job, and `README.md`'s security scope now names both incumbents and states what this tool does not cover. This is the one component where an incumbent does the adjacent job better |
+| C11 | Promotion **and** demotion: every rule carries a last-fired date, N stages without firing forces a disposition, and zero demotions across a phase is itself a finding | NO-MATCH-FOUND, **on the third property only** | **CORRECTED IN ROUND 30, and the correction came from a reader running the procedure this page hands out.** Firewall policy recertification tooling — **Tufin** and the same class of rule-lifecycle products — ships a last-hit date column, automated unused-rule reports and a forced disposition at recertification [UNVERIFIED: named from a practitioner's own working knowledge; no page was fetched and no search index was consulted, so treat it as a lead to check rather than as a citation]. That is **two of this row's three properties, in a shipped named product**, and it governs network policy rather than agent rules. Detection engineering's periodic recertification is the same shape again. What the audit still found nowhere is the third property: treating **zero demotions as itself a defect**. The row's claim is narrowed to that property, and the previous wording — "the cleanest unmatched claim in the kit" — is retired as stronger than the evidence supported. The search log below is the original audit's, and it did not reach this class |
+| C12 | De-identification gating before publication (`tools/deident_scan.py`) | **REDUNDANT-BY**, for the secret class | **gitleaks** and **TruffleHog** own pre-commit and CI secret scanning [SEARCH-URL: `https://www.jit.io/resources/appsec-tools/trufflehog-vs-gitleaks-a-detailed-comparison-of-secret-scanning-tools`]. This kit's tool scans for tokens you list yourself, which is the narrower de-identification-of-a-known-vocabulary job, and `docs/SECURITY-SCOPE.md` names both incumbents and states what this tool does not cover. This is the one component where an incumbent does the adjacent job better |
 | C13 | The collaboration layer: evidenced owner defaults, a five-question seed interview, and a living owner profile the AI maintains (module 08) | NO-MATCH-FOUND | Nothing in the agent-governance landscape surveyed models the **human** as a cached artifact. **Agentic OS** carries decisions across sessions in a state file [FETCHED, as above] but models the work, not the owner. Instruction-file standards model the project. This is the kit's most differentiated module and, by its own admission, its weakest-evidenced: n = 1 owner |
 | C14 | Andon cord: any lane at any depth returns a halt verdict, orchestration stops mechanically, halts are counted, and zero halts is a finding | NO-MATCH-FOUND as a shipped agent-governance mechanism | The metaphor's origin is the Toyota Production System [UNVERIFIED — the audit did not reach a primary source]. In the corpus surveyed the nearest thing is **Microsoft AGT**'s runtime kill switch and circuit breakers [FETCHED, as above], which is an operator-initiated stop, not a subordinate-initiated one. The specific claim — the *lowest* agent may stop the *whole* round, and a phase with zero stops is evidence of a broken cord — was not found |
 | C15 | Spec-side reviewer onboarding: the reviewer receives the owner's verbatim findings, the rulings and the diff, never the implementer's report (`BLUEPRINT.md` §4) | PARTIAL-OVERLAP | Direct ancestor: **independent verification and validation**, where the reviewing party is separate from the developing one [SEARCH-URL: `https://csrc.nist.gov/glossary/term/independent_verification_and_validation`]. The contribution is the operational form for agents — what the reviewer must **not** be shown — plus the implementer's mandatory "consciously left out" section as a claim the reviewer cross-checks. That form was not found elsewhere |
@@ -151,9 +155,10 @@ never about a project as a whole.
 
 **The tally, recounted for this page rather than carried over.** Twelve rows
 carry a PARTIAL-OVERLAP verdict — eight wholly (C1, C2, C6, C8, C9, C10, C15,
-C16) and four in part, where a sub-claim is unmatched (C3, C4, C5, C7). Four are
-wholly NO-MATCH-FOUND (C11, C13, C14, C17). One is REDUNDANT-BY (C12). One is
-the composition claim itself (C18).
+C16) and four in part, where a sub-claim is unmatched (C3, C4, C5, C7). Three
+are wholly NO-MATCH-FOUND (C13, C14, C17) and one is NO-MATCH-FOUND on a
+sub-claim only (C11, narrowed in round 30 by a reader's counterexample). One
+is REDUNDANT-BY (C12). One is the composition claim itself (C18).
 
 ---
 
@@ -181,7 +186,7 @@ Recorded separately, because a comparison page that never concedes anything is
 marketing.
 
 - **Secret scanning (C12).** `gitleaks` and `TruffleHog` do the credential job
-  properly and this kit does not attempt it. `README.md`'s security scope names
+  properly and this kit does not attempt it. `docs/SECURITY-SCOPE.md` names
   them.
 - **Organisational management systems.** NIST AI RMF toolkits and the ISO/IEC
   42001 implementation toolkits operate one layer above this kit's
@@ -190,7 +195,7 @@ marketing.
   those are the instruments [FETCHED: `https://github.com/Ankit-Uniyal/iso-42001-ai-governance-toolkit`].
 - **Runtime enforcement against a hostile agent.** Microsoft AGT, and the
   guardrail products in that lane, occupy the threat model this kit explicitly
-  declines. `README.md`'s security scope says so and should be read before this
+  declines. `docs/SECURITY-SCOPE.md` says so and should be read before this
   kit is offered to a security reviewer.
 - **Supply-chain attestation.** SLSA, in-toto and sigstore attest artifacts, and
   this kit deliberately declines to build a second attestation system inside

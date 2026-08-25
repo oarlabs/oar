@@ -189,6 +189,17 @@ CITATION_ID = re.compile(r'\bCITE\(([a-z0-9-]+)\)')
 # number inside a paragraph is not a count of the block below it). Registered
 # as `count:wrapped-command`.
 COUNT_ID = re.compile(r'\bCOUNT\(([a-z0-9-]+)\)')
+# A SEVENTH family: the same tool's QUANTIFIER LAYER, added in round 30, whose
+# ids are the `QUANT(f1-shape)` labels its selftest prints. It is its own
+# family rather than more `count:` rows because an id recovered by one pattern
+# and registered under another prefix is a cross-check that silently matches
+# nothing - and because the layer answers a different question (is the
+# universal claim true of every element) and shares only the target-location
+# machinery. Its controls carry the same one-degree-stronger clause: five of
+# them are the only thing keeping the layer from MANUFACTURING findings, and
+# one of those five was written because the first live run did exactly that.
+# Registered as `quant:f1-shape`.
+QUANT_ID = re.compile(r'\bQUANT\(([a-z0-9-]+)\)')
 
 
 def coverage_gaps(fixtures_src: str, entries: list,
@@ -199,7 +210,7 @@ def coverage_gaps(fixtures_src: str, entries: list,
     judge what is written in it, so the failure mode it cannot see is an entry
     that is simply absent. For a family whose ids are recoverable from the
     source, absence IS detectable, and this is that cross-check. The families
-    it runs over are FAMILIES below (six of them) - that tuple is the
+    it runs over are FAMILIES below (seven of them) - that tuple is the
     authority, and
     `--selftest` asserts the prose agrees with it rather than restating a count
     here that would go stale (it already had: this paragraph said "three" while
@@ -238,6 +249,7 @@ FAMILIES = (
     ("modules/03-verification/gate_line.py", GOLDEN_ID, "golden"),
     ("tools/citation_lint.py", CITATION_ID, "citation"),
     ("tools/count_lint.py", COUNT_ID, "count"),
+    ("tools/count_lint.py", QUANT_ID, "quant"),
 )
 
 
@@ -403,10 +415,18 @@ def selftest() -> int:
           coverage_gaps("", [{"id": "count:gone", "subject": "s",
                               "expectation_from": "inline"}],
                         COUNT_ID, "count")[1], ["gone"])
-    check("the cross-check runs over SIX families, and the list is the one "
+    check("the cross-check runs over SEVEN families, and the list is the one "
           "the waiver reason names",
           [f for _, _, f in FAMILIES],
-          ["fixture", "doctor", "escape", "golden", "citation", "count"])
+          ["fixture", "doctor", "escape", "golden", "citation", "count",
+           "quant"])
+    check("...and the quantifier family recovers its own label shape, not the "
+          "count family's",
+          (coverage_gaps('    check("QUANT(f1-shape): x",\n', [],
+                         QUANT_ID, "quant")[0],
+           coverage_gaps('    check("COUNT(true-count): x",\n', [],
+                         QUANT_ID, "quant")[0]),
+          (["f1-shape"], []))
 
     check("...and a registered control that IS in the source is clean",
           coverage_gaps(esc_src, [{"id": "escape:nc-vii", "subject": "s",
@@ -482,7 +502,8 @@ def main() -> int:
         print()
         print(f"{RED}EXPECTATION LINT: {len(problems)} PROBLEM(S) - exit 1{RESET}")
         return 1
-    print(f"{GREEN}EXPECTATION LINT: clean - exit 0{RESET}")
+    print(f"{GREEN}EXPECTATION LINT: PASS - {len(entries)} registry "
+          f"entrie(s) checked, 0 self-referential - exit 0{RESET}")
     return 0
 
 

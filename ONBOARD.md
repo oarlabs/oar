@@ -22,7 +22,7 @@ path.
 **What this document does not claim.** It has not been measured. Whether routing
 an agent through it makes an adoption faster, safer or more complete than
 handing that agent `README.md` is an open question with no data behind it. The
-only adoption figures this kit publishes are the ones in `README.md`,
+only adoption figures this kit publishes are the ones in `docs/START-HERE.md`,
 `LEVEL-1.md`, `DECISION-BRIEF.md` and `EXISTING-PROJECT.md`, each carrying its
 own label; do not restate them as this route's numbers, and do not make a speed
 claim for this route at all. See §6.
@@ -151,7 +151,7 @@ the failure signatures live in the prose.
 
 | Order | Document | What it gives you |
 |---|---|---|
-| 1 | `README.md` | What the kit is and is not, the module map, the three levels, the routing |
+| 1 | `README.md` | What the kit is and is not, the worked demonstration, the module map, and the index to the long-form material under `docs/` |
 | 2 | `DECISION-BRIEF.md` | What certifies per level, the exit cost, the limitations that constrain what you may claim |
 | 3 | `LEVEL-1.md` **or** `QUICKSTART.md` | The path itself, per §2's level decision |
 | 4 | `EXISTING-PROJECT.md` | Read beside the path, **before Step 1**, on the existing-project branch |
@@ -431,7 +431,7 @@ under a citation that does not hold it. If you cannot locate the string, drop
 the quotation marks and cite the section for the idea instead.
 
 **Do not compare it to the kit's published budgets.** The 90–120 minutes in
-`README.md` and `QUICKSTART.md`, the 30–45 minutes in `LEVEL-1.md` and the
+`docs/START-HERE.md` and `QUICKSTART.md`, the 30–45 minutes in `LEVEL-1.md` and the
 3.5–5 hours in `DECISION-BRIEF.md` are sums of per-step estimates, reconciled
 against walks performed by LLM personas rather than by people; no human has
 walked either document end to end. A tool-time number set beside them reads as a

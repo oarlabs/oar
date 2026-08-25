@@ -116,7 +116,7 @@ Run these **inside the kit clone**, before you go near your own project. The
 first two lines are the kit's only hard dependencies: git and Python. No
 minimum git version has been derived — everything this document says about git
 behaviour was measured on **git 2.54** and says so where it is claimed.
-`README.md`, "Prerequisites", carries the full statement.
+`docs/PREREQUISITES.md` carries the full statement.
 
 ```bash
 git --version                           # any recent git; measured on 2.54
@@ -124,7 +124,7 @@ python --version                        # 3.10 or newer
 python tools/deident_scan.py --selftest      # DEIDENT SELFTEST: PASS
 python tools/statusline.py --selftest       # STATUSLINE SELFTEST: PASS
 python tools/expectation_lint.py --selftest # EXPECTATION-LINT SELFTEST: PASS
-python tools/expectation_lint.py            # EXPECTATION LINT: clean
+python tools/expectation_lint.py            # EXPECTATION LINT: PASS - N checked, 0 self-referential
 python tools/adoption_smoke.py              # ADOPTION SMOKE: PASS
 python modules/03-verification/verify.py --selftest        # VERIFY SELFTEST: PASS
 python modules/02-enforcement/hook_fixtures.py --selftest  # HOOK-FIXTURE SELFTEST: PASS
@@ -1628,7 +1628,7 @@ mechanical rather than editorial:
   complete until Steps 6 to 8 are committed.
 
 **This is not the same order as the adoption levels**, and the difference is
-deliberate. `README.md`'s three levels (documents → verification → CI and the
+deliberate. `docs/ADOPTION-LEVELS.md`'s three levels (documents → verification → CI and the
 ambient modules) are an ordering by *commitment*: take the things that cost
 nothing first, promote a rule to a hook only after it has failed once, and add
 CI last because its value depends on everything else already existing. That is

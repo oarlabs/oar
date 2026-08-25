@@ -595,7 +595,28 @@ def run(root: Path, show_all: bool) -> int:
               f"named — exit 1{RESET}")
         return 1
 
-    print(f"{GREEN}CITATION LINT: clean - exit 0{RESET}")
+    # THE STATE WORD (round 30), the same treatment count_lint's summary took
+    # for the same reason: `clean` over a run that could not reach part of its
+    # subject reads as a verdict about the subject rather than about the part
+    # that was checked. Here the measurable skip is an attribution whose named
+    # document is not in this tree.
+    #
+    # THE HALF THAT IS NOT IN THIS DENOMINATOR, stated on the line below it
+    # rather than left to the docstring: an attribution whose SHAPE this tool
+    # does not recognise is not skipped and not counted - it is invisible, and
+    # round 26's evaluation read found a real ten-word one. RECALL_FLOOR is
+    # the answer to that half and it is a floor, not a denominator. So this
+    # percentage is the share of SEEN attributions that were checked, and it
+    # is not a coverage figure for the class.
+    state = "CLEAN" if not skipped else "PARTIAL"
+    seen = checked + len(skipped)
+    pct = (100.0 * checked / seen) if seen else 100.0
+    print(f"{GREEN if state == 'CLEAN' else YELLOW}CITATION LINT: {state} - "
+          f"{checked} of {seen} attribution(s) seen were checked ({pct:.1f}%), "
+          f"0 unfound - exit 0{RESET}")
+    print("            recall is a separate question: an attribution whose "
+          "shape this tool does not recognise is invisible here, and "
+          "RECALL_FLOOR is what holds that half.")
     return 0
 
 

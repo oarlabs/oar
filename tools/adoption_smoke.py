@@ -1710,7 +1710,10 @@ def main() -> int:
         # expectation comes from the artifact it is asserting about. This is
         # that design question promoted to a mechanical layer.
         rc, out = run([py, str(LINT)], KIT, a.verbose)
-        clean = rc == 0 and "EXPECTATION LINT: clean" in out
+        # r30 fix pass: the lint's green line joined the state-word family
+        # ("PASS - N registry entrie(s) checked, 0 self-referential").
+        clean = rc == 0 and ("EXPECTATION LINT: PASS" in out
+                             and "0 self-referential" in out)
         n_waived = sum(1 for ln in out.splitlines() if "WAIVED -" in ln)
         phase(f"11. no check reads its expectation from its own subject "
               f"({n_waived} legitimate self-references, each waived with a "
