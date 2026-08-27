@@ -28,16 +28,16 @@ today; team adoption is in active design (Project status, below).
 
 ## Pick a door
 
-- **`DECISION-BRIEF.md`**: deciding whether to adopt: what it buys, what
+- **[`DECISION-BRIEF.md`](DECISION-BRIEF.md)**: deciding whether to adopt: what it buys, what
   it costs, what it deliberately does not do. Three minutes.
 - **The demonstration, below**: real certification-gate output, before and
   after one kit-governed improvement.
-- **`LEVEL-1.md`**: adopting the documents: 30–45 minutes, reversible, no
+- **[`LEVEL-1.md`](LEVEL-1.md)**: adopting the documents: 30–45 minutes, reversible, no
   code installed into your repository.
 - **[`QUICKSTART.md`](QUICKSTART.md)**: the full adoption, all modules: 90
   minutes to two hours, plus an afternoon for your first
   [oracle](GLOSSARY.md).
-- **`ONBOARD.md`**: you are an AI agent told to adopt this.
+- **[`ONBOARD.md`](ONBOARD.md)**: you are an AI agent told to adopt this.
 - **[`COMPARISON.md`](COMPARISON.md)**: the claims audit: each load-bearing
   claim classified against named live artifacts.
 - **[`KNOWN-ISSUES.md`](KNOWN-ISSUES.md)**: the escape table: the kit's own
