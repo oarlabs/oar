@@ -221,6 +221,30 @@ An oracle **offered and not built** is recorded too, as an ORACLE-DECLINED row �
 see WHEN THE LOOP ENDS, rule 7. Manufacture and declination are the same ledger's
 business; only one of them is free.
 
+## SHIP REQUIREMENTS for a new claim-bearing component
+
+A **claim-bearing component** is anything you ship that makes an assertion a
+reader is expected to act on: a check, a lint, a gate, a published study, a
+comparison page. Three things ship with it, in the same change, or it does not
+ship:
+
+1. **A forced red.** The component has been observed to refuse, on a real
+   instance, before it is registered as passing. A green nobody has seen go red
+   is a hope with a checkmark.
+2. **A recorded seen-red date.** The check's registry row carries the date it
+   was last observed red, or the honest value NEVER. NEVER is permitted and is
+   not a failure; an absent field is, because it renders the same as a green.
+3. **A lineage row.** The component names its nearest published ancestor, or
+   records that a hunt was run and found none. *Verified by reading before it
+   is cited* — a source named from memory is a lead, not a citation, and is
+   labelled as one.
+
+Rule 3 exists because a lineage table built for the components that existed
+when it was written does not travel to the components shipped after it. That
+was found by an adversarial prior-art lane as an escape — a check existed and
+did not fire on new surface — and the fix is this requirement rather than
+another pass over the table.
+
 ## Stage close checklist — in order, none skipped
 
 1. Report saved **verbatim** to `{{REPORTS_DIR}}/<stage>/`.
@@ -228,13 +252,16 @@ business; only one of them is free.
 3. Ledger row with **actual** cost and the process/implementation split.
 4. **JUDGMENT-LEDGER append** — every closed item names its check, or UNCHECKED
    + reason.
-5. Targeted commit — name the paths (this is the same rule as above, not a
+5. **SHIP REQUIREMENTS discharged** for every claim-bearing component this
+   stage added — forced red observed, seen-red date recorded, lineage row
+   written. See the section above.
+6. Targeted commit — name the paths (this is the same rule as above, not a
    softer restatement of it).
-6. **If you have CI:** push — CI re-judges every push, and a red CI run is a
+7. **If you have CI:** push — CI re-judges every push, and a red CI run is a
    stage-close blocker. *Delete this step if you do not have CI yet;* a
    checklist step nobody can perform teaches people to skip steps.
-7. Refresh whatever dashboard or summary artefact {{OWNER_ROLE}} reads.
-8. **LESSONS refresh** — any tuition paid this stage becomes a numbered item.
+8. Refresh whatever dashboard or summary artefact {{OWNER_ROLE}} reads.
+9. **LESSONS refresh** — every failure that cost something this stage becomes a numbered item.
 
 ## STRUCTURE OVER SENTENCES
 

@@ -6,37 +6,6 @@ the supervision burden falls as the project grows.*
 
 ---
 
-## The pitch
-
-**One line:** stop supervising your AI and start caching your judgment — every decision
-you make becomes a permanent, executable check, so the system gets more trustworthy, and
-needs less of you, every round.
-
-**For a technical audience:** the model is the orchestrator and verification is the
-architecture: every human ruling gets converted into a machine-checkable oracle,
-enforcement is ranked by *who can rewrite the enforcer*, and the loop publishes its own
-escape rate — trust is measured, not asserted.
-
-**For a non-technical audience:** you make each decision once, and the system remembers
-it forever — every future version of the work is automatically checked against
-everything you've already ruled. Your time goes to taste and direction instead of
-re-checking work you've reviewed before.
-
-**For a developer:** drop one folder into your repo and your AI agents get charters,
-tiered model spend, a single `verify` command, and adversarial review that catches
-blockers before commit — no orchestration framework to maintain. It's markdown, hooks,
-and checks that live in your repo and outlive any session.
-
-**The 30-second spoken version:** "Everyone's asking how to make AI agents behave.
-Wrong question. I ran a team of AI agents that rebuilt an entire game — ninety-six
-thousand lines — and the thing that made it work wasn't a framework. It was this: every
-time I made a judgment call, we turned it into a permanent, executable check. The system
-never asked me the same question twice. My review burden went *down* as the project
-grew. That's the whole trick — stop supervising the machine. Start caching your
-judgment. And measure the escape rate, so you know it's working."
-
----
-
 ## 1. The thesis: judgment caching
 
 The scarce resource in human-AI collaboration is not model capability — it is human
@@ -86,7 +55,7 @@ have caught them did not. What is added here is the denominator: it is computed 
 the judgment ledger, published per round, and held to a ceiling by a gate rather than
 reported on a dashboard. §12 carries the citation.
 
-Non-negotiables inside the loop, each of which earned its place by preventing a named
+Non-negotiables inside the loop, each present because it prevented a named
 failure class on the reference build:
 
 - **Verbatim capture; invent nothing.** Paraphrase is where requirements die.
@@ -399,10 +368,18 @@ accordingly — this is a field-tested playbook with receipts, not a proven univ
   Honest caveat: those checks were authored from those findings; the measure is
   conversion completeness, and the predictive instrument is the trend from the next
   round on.
-- **The kit's own escape rate, computed rather than narrated:** 26 of 120 items
-  (21.7%) across 12 counted review rounds, with one round declared uncountable and
-  excluded by name. It does **not** fall monotonically: it spikes to 50.0% and 42.9% at
-  the two rounds where the kit had just built new machinery. Method, per-round table,
+- **The kit's own escape rate, computed rather than narrated:** the number is
+  published by the tool, not by this page. Run
+  `python modules/04-ledgers/escape_rate.py --ledger KNOWN-ISSUES.md` and read
+  the summary line; the register's "The kit's own numbers" section prints the
+  same output beside the table it is computed from. *[Round 32 (R32-4): this
+  bullet carried "26 of 120 items (21.7%) across 12 counted review rounds" — a
+  figure last true at round 12 — in the same sentence as the claim that the
+  tool recomputes the number on every push. A hand-copied figure standing
+  beside a claim that it is computed is exactly the drift the tool exists to
+  remove, so the figure is removed rather than refreshed.]* It does **not**
+  fall monotonically: it spikes at the rounds where the kit had just built new
+  machinery. Method, per-round table,
   the disputable classification calls and the ceiling's derivation are in
   `KNOWN-ISSUES.md` ("The kit's own numbers"); `modules/04-ledgers/escape_rate.py`
   recomputes it from that table and CI recomputes it on both hosts on every push. This
@@ -431,9 +408,16 @@ accordingly — this is a field-tested playbook with receipts, not a proven univ
   hooks: pipe-tested 17/17 with negative controls and a dead-man fixture on the
   reference build.
 
-**Known limits:** n=3 projects, one owner, one AI family (the third is the
-brownfield host in `docs/CASE-STUDY-INCREMENT.md` — the same owner's project,
-adopted and improved by zero-context agents); collaboration-layer evidence
+**Known limits:** **n=2 independently built projects, plus one same-owner
+transplant** — the reference build and the prior knowledge-product build, and
+then the brownfield host in `docs/CASE-STUDY-INCREMENT.md`, which is the same
+owner's project, was governed for one afternoon, and was adopted and improved
+by agents rather than by a person. The case study itself states that it "is not
+an independent-adopter study, and it does not claim to be one". *[Round 32
+(R32-4): this line read "n=3 projects", which reads as three projects' worth of
+evidence and is the sentence most likely to travel out of this page on its own.
+The transplant is counted separately above rather than folded into the
+headline.]* One owner, one AI family. Collaboration-layer evidence
 is n=1; portability demonstrated by the tested bootstrap in a scratch project
 and one same-owner brownfield increment, not yet by an independent adopter. **The adoption evidence is synthetic:**
 the seven walks behind this kit's own finding counts were performed by LLM personas,
@@ -470,6 +454,21 @@ than inventing one. The audit ran on 2026-08-22.
 | Loop termination: the one-round default (§2, and module 01's WHEN THE LOOP ENDS) | Review-round practice, which reports diminishing returns after the first or second round and recommends approving with comments when the findings are all nits | search-result: `https://mtlynch.io/human-code-reviews-2/`, `https://zylos.ai/research/2026-03-01-multi-model-ai-code-review-convergence/` | Two rules the audit did not find stated elsewhere: each round's worst finding must be less severe than the last or the loop is a redesign signal, and a discovery loop may close AT CAP and NOT-DRY provided it records that it did |
 | Promotion **and** demotion, with last-fired dates (§3) | Retiring controls that have stopped firing is ordinary practice in control rationalisation and in detection engineering | no named artifact found — the audit searched for one and reports the negative result | Forcing the disposition on a schedule, and treating a phase with zero demotions as a finding rather than as a clean run |
 | Andon cord (§4) | The Toyota Production System, where any worker on the line may stop it | **unverified.** The audit did not reach a primary source for jidoka or the andon cord this session; the attribution is recorded as commonly held rather than as checked | Halts are counted and published, the authority runs to the *lowest* agent at any depth, and a phase with zero halts is read as a broken cord |
+| The claims-governance apparatus as a family (`tools/citation_lint.py`, `tools/count_lint.py`, `tools/skim_lint.py`, `tools/repeat_lint.py`) | The FTC advertising substantiation doctrine: an advertiser must possess a reasonable basis for an objective claim **before** it is disseminated, the substantiation must continue to support the claim for as long as the claim is made, and the level required scales with "the consequences of a false claim" among other factors | fetched: `https://www.dwt.com/insights/2024/03/how-to-substantiate-advertising-claims`, a practitioner summary of the FTC Policy Statement Regarding Advertising Substantiation (1984). The Commission's own page for the statement returned HTTP 403 to this session and was not read; the doctrine is therefore attributed at one remove and the tier says so | The doctrine is implemented as gates on a certifying run rather than as an enforcement standard applied after publication, and the substantiation is a check that has itself been proven able to refuse |
+| `tools/repeat_lint.py` (a universal claim stated in more than one document, so correcting one copy leaves the others standing) | No named artifact checking cross-document CLAIM duplication was found — the round-32 fix pass searched briefly and reports the negative result at that depth. The adjacent classes are real and named: near-duplicate text detection (plagiarism and code-clone tooling) finds repeated TEXT without asking whether it asserts anything, and single-document consistency checkers (the statcheck family, row below) recompute claims without crossing documents. The intersection — repeated ASSERTIONS across documents, flagged because corrections do not travel — is the part this audit did not find shipped | no named artifact found; the search was one fix-pass session deep and the tier says so — a future audit that finds the ancestor corrects this row, which is what rows here are for | Added in the round-32 fix pass because this tool shipped WITHOUT a lineage row in the same commit that made lineage rows a ship requirement — the requirement's first firing, on its own round's component |
+| `tools/count_lint.py`, the count layer (is the stated number the number) | **statcheck** (Nuijten and Epskamp): "Extract Statistics from Articles and Recompute P-Values", described by its own package as "a 'spellchecker' for statistics" — it locates reported results in a document, recomputes them, and flags where the document disagrees with itself | fetched: `https://cran.r-project.org/web/packages/statcheck/index.html` | The same discipline over markdown rather than over APA statistics: the enumerable target is a table, list or fenced block, the tool decides only what it can locate, and it publishes its own coverage percentage rather than a bare state word |
+| `tools/citation_lint.py` (does the quoted string exist in the document it names) | **Clearbrief**, a shipped Microsoft Word add-in for litigators that verifies the accuracy of quotations against the cited record and ships a Cite Check Report — "an audit trail showing that every citation in a document has been systematically verified" and "a permanent record that demonstrates due diligence before filing" | fetched: `https://www.lawnext.com/2025/12/clearbrief-launches-cite-check-report-to-give-law-firm-partners-an-audit-trail-against-ai-hallucinations.html`, `https://www.clearbrief.com/` | Deterministic string containment with a wrapped-quotation rule rather than a semantic score, run as a gate on a certifying run rather than as a tool a person invokes, and carrying registered negative controls that prove it can refuse |
+| `tools/skim_lint.py` (is the artifact named inside the window a reader who stops early has seen) | Nearest parts only: **repolinter** (archived) applied configurable content-existence rules to repository files; **markdownlint** rule MD041 constrains the first line of a file to be a top-level heading; the reader model is newspaper and web above-the-fold doctrine | fetched: `https://github.com/todogroup/repolinter` ("Lint open source repositories for common issues"; the project page carries the notice that it has been archived), `https://github.com/DavidAnson/markdownlint/blob/main/doc/md041.md` (MD041, "First line in a file should be a top-level heading") | **No ancestor was found for the specific form** — a declared window with its derivation printed on every run, an inline literal expectation, reachability decided inside the window, a state word with a denominator, and a distinct abort code. The parts are old; the audit did not match the composition |
+| `docs/CASE-STUDY-INCREMENT.md`, its paired **Establishes** and **Does not establish** reporting form | Runeson and Höst, "Guidelines for conducting and reporting case study research in software engineering", *Empirical Software Engineering* 14(2) 131–164, 2009 — the standard reporting discipline for case studies in this field | search-result: `https://dblp.org/rec/journals/ese/RunesonH09.html`. The paper itself was not read this session; only its bibliographic record was retrieved, and nothing about its contents is claimed here beyond its title | The validity section is written before the result rather than after it, and the study reports a miss rate computed on the host repository. Naming the guideline is a claim about form, not about compliance: no assessment against the guideline was run |
+
+*[Round 32 (R32-3): the six rows above were added after an adversarial
+prior-art lane found that §12 had been built for §1–§11 and did not travel to
+the three lints, the claims apparatus or the case study shipped after it. That
+is an escape in this kit's own vocabulary — a check existed and did not fire on
+new surface — and the structural fix is the ship requirement recorded in the
+ship checklist, not this table. Every source in these rows was retrieved and
+read in round 32 before the row was written; where a page could not be
+retrieved, the row says so and drops to the tier the evidence supports.]*
 
 **What the ancestry audit does not change.** Naming an ancestor is not conceding the
 mechanism was copied — each of these was re-derived from a specific failure, and the

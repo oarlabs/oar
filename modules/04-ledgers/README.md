@@ -47,7 +47,7 @@ document nobody updates:
 
 - the judgment ledger grows on every **ruling**;
 - the failure floor changes when a **rule fails** or a gate is built;
-- lessons grow when **tuition is paid**;
+- lessons grow when **a failure costs something**;
 - the token ledger grows at every **stage close**.
 
 The one hard boundary: **product rulings go in the judgment ledger, process

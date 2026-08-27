@@ -1,393 +1,1472 @@
 {
-  "_comment": [
-    "THE EXPECTATION-SOURCE REGISTRY. Every check in this kit declares two",
-    "things: the SUBJECT it asserts about, and the ARTIFACT its EXPECTATION is",
-    "read from. `tools/expectation_lint.py` fails when those are the same",
-    "artifact and no waiver explains why.",
-    "",
-    "This file exists because the same defect was found eight times by six",
-    "LLM-persona adoption walks, each time wearing a different hat, and the",
-    "operating architecture's own promotion rule says a prose rule that keeps",
-    "failing gets promoted to a mechanical layer. The design question 'where",
-    "does this check's expectation come from?' is now an answer every check",
-    "has to write down.",
-    "",
-    "expectation_from: \"inline\" means hand-written literals in the checking",
-    "code. Those are the specification, they do not move when the code moves,",
-    "and they are deliberately out of scope.",
-    "",
-    "ADDING A CHECK? Add a row. The lint cross-checks the fixture family",
-    "against hook_fixtures.py, so an unregistered fixture is caught; for",
-    "everything else, an absent row is invisible - the residual, named in",
-    "KNOWN-ISSUES rather than papered over."
-  ],
-
-  "checks": [
-    { "id": "fixture:a", "subject": "modules/02-enforcement/hook_model_gate.py:workflow-tier-rule", "expectation_from": "inline" },
-    { "id": "fixture:b", "subject": "modules/02-enforcement/hook_model_gate.py:workflow-tier-rule", "expectation_from": "inline" },
-    { "id": "fixture:c", "subject": "modules/02-enforcement/hook_model_gate.py:agent-tier-rule", "expectation_from": "inline" },
-    { "id": "fixture:d", "subject": "modules/02-enforcement/hook_model_gate.py:agent-tier-rule", "expectation_from": "inline" },
-    { "id": "fixture:e", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:f", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:g", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:h", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:i", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-
-    {
-      "id": "fixture:j",
-      "subject": "kit.config:FORBIDDEN_SPAWN_TIER",
-      "expectation_from": "kit.config",
-      "waived": true,
-      "reason": "THE ORIGINAL INSTANCE. The payload names the tier the rule forbids, and both come from kit.config, so fixture and rule move in lockstep - weaken the key and the fixture weakens with it, still green. Unavoidable for a config-driven rule: the fixture's job is 'the hook honours whatever the config says'. Covered STRUCTURALLY instead: kit.config is in JUDGE_PATHS, so any uncommitted change to it reds the `judges` gate; and the fixture additionally asserts the deny REASON renders the configured tier, which a placeholder value cannot satisfy."
-    },
-    {
-      "id": "fixture:k",
-      "subject": "kit.config:MODEL_EXEMPT_TYPES",
-      "expectation_from": "kit.config",
-      "waived": true,
-      "reason": "Same shape as fixture:j, same structural cover (kit.config in JUDGE_PATHS). Weaker in practice than j was: fixture c's payload is hard-coded, so widening the exempt list moves the hook's answer out from under an independent expectation and IS caught."
-    },
-    {
-      "id": "fixture:l",
-      "subject": "kit.config:PROTECTED_PATH",
-      "expectation_from": "kit.config",
-      "waived": true,
-      "reason": "The payload is built from the configured path when one is set. Narrowed twice since: when the path is UNSET the payload uses a synthetic probe no config can name (so an unconfigured tripwire can no longer pass by matching its own placeholder), and the accept-set is now exactly `ask` when no cert-green token exists rather than {ask, allow}. Structural cover: kit.config in JUDGE_PATHS."
-    },
-    {
-      "id": "fixture:m",
-      "subject": "kit.config:PROTECTED_PATH",
-      "expectation_from": "kit.config",
-      "waived": true,
-      "reason": "As fixture:l, for the Edit branch."
-    },
-    { "id": "fixture:t", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:u", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:v", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:w", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:x", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:y", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:z", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:aa", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:ab", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:ae", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:af", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:ag", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:ah", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:ai", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:aj", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:ak", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:al", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:am", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:an", "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban", "expectation_from": "inline" },
-    { "id": "fixture:r", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
-    { "id": "fixture:s", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
-    { "id": "fixture:ac", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
-    { "id": "fixture:ad", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
-
-    { "id": "fixture:n", "subject": "modules/02-enforcement/hook_model_gate.py:tool-scope", "expectation_from": "inline" },
-    { "id": "fixture:o", "subject": "modules/02-enforcement/hook_model_gate.py:fail-open", "expectation_from": "inline" },
-    { "id": "fixture:p", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
-    { "id": "fixture:q", "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping", "expectation_from": "inline" },
-
-    {
-      "id": "check:armed",
-      "subject": ".claude/settings.json",
-      "expectation_from": ".claude/settings.json",
-      "waived": true,
-      "reason": "INSTANCE 6, and only half-closable. Whether the hook is wired can only be read from the settings file itself; there is no second source for the harness's intent. What WAS closable is startability - the script a matched command names is now checked against the FILESYSTEM, an independent artifact, and a missing one reports UNSTARTABLE. Residual, accepted: a settings file that is internally consistent and wrong (wired to the correct path of the wrong hook) reads as armed."
-    },
-    { "id": "check:deadman", "subject": "modules/02-enforcement/hook_fixtures.py:dead-man-clause", "expectation_from": "inline" },
-    { "id": "check:matcher-arms", "subject": "modules/02-enforcement/hook_fixtures.py:matcher_arms", "expectation_from": "inline" },
-    { "id": "check:startability", "subject": ".claude/settings.json:hook-commands", "expectation_from": "filesystem" },
-    { "id": "check:placeholder-rule", "subject": "modules/02-enforcement/hook_fixtures.py:is_placeholder", "expectation_from": "inline" },
-
-    { "id": "gate:judges", "subject": "the working tree", "expectation_from": "git" },
-    { "id": "gate:hooks", "subject": "modules/02-enforcement/hook_fixtures.py", "expectation_from": "modules/03-verification/verify.py" },
-    { "id": "gate:example_unit", "subject": "modules/03-verification/examples/fake_suite.py", "expectation_from": "modules/03-verification/verify.py" },
-    { "id": "gate:example_lint", "subject": "modules/03-verification/examples/fake_lint.py", "expectation_from": "modules/03-verification/verify.py" },
-    { "id": "check:startup-assertion", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "filesystem" },
-    { "id": "check:judged-paths-not-excluded", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "git" },
-
-    {
-      "id": "gate:escapes",
-      "subject": "the escape-rate table in the judgment ledger",
-      "expectation_from": "modules/03-verification/verify.py",
-      "reason": "NOT a waiver - recorded because this gate's expectation is split and the split is the interesting part. The LINE FORMAT and the CEILING both live in verify.py's `escapes` entry, inside JUDGE_PATHS, so raising the ceiling is a reviewed commit; the DATA is the ledger table, which is deliberately NOT in JUDGE_PATHS because it is the subject being measured and putting it there would make every ordinary ledger append invalidate certification. The residual that buys: an uncommitted edit to the table moves the published number within a run. Compensating control, and it is weaker than a proof: the number is printed on every certification, so a changed number is in the log. Stated in KNOWN-ISSUES, 'The kit's own numbers'." },
-
-    { "id": "selftest:verify", "subject": "modules/03-verification/verify.py:judging-layer", "expectation_from": "inline" },
-    { "id": "selftest:escape-rate", "subject": "modules/04-ledgers/escape_rate.py:pure-layer", "expectation_from": "inline" },
-    { "id": "selftest:statusline", "subject": "tools/statusline.py", "expectation_from": "inline" },
-    { "id": "selftest:statusline-escape", "subject": "tools/statusline.py:escape-segment", "expectation_from": "inline" },
-    { "id": "check:statusline-escape-authority", "subject": "tools/statusline.py:escape-segment",
-      "expectation_from": "modules/04-ledgers/escape_rate.py",
-      "reason": "NOT a waiver - recorded because it is a cross-file binding and a reader should be able to see which file is the authority. The status board renders an escape rate; the number, the ceiling the sparkline is scaled against and the state word all come from escape_rate.py, which the board imports and calls. A board that parsed the ledger itself would be a SECOND parser of one table - the two-authorities class this kit's tools spend their selftests hunting - and it would drift from the tool module 03's `escapes` gate runs, so the board and the gate would publish different numbers from the same file, both green. The statusline selftest's authority section therefore imports escape_rate.py and requires the rendered percentage, the ceiling and the state word to be the tool's, with a forced red that changes the tool's number and requires the board's to move with it. THE CEILING CLAUSE IS BOUND ON THE REPORT THE BOARD PRODUCED, not on one the test handed the ceiling to: spec-side review measured the difference by replacing the ceiling inside `escape_state` with a literal 40.0 and passing 90/90, because the check then in place only proved that `report()` echoes its own argument. That line is now labelled a PRECONDITION and the binding reads `escape_state(...)[1]['ceiling_pct']`, which is the value the board actually scales against; the same mutation now goes red naming that check. The class has precedent - KNOWN-ISSUES round 19 records a silently drifted gate ceiling as one of this kit's own escapes. Residual, stated: that section is the one part of that selftest which touches a filesystem, and when the tool is not reachable (the board copied out of a kit checkout) it reports UNAVAILABLE rather than passing in silence." },
-    { "id": "check:statusline-tick-ramp", "subject": "tools/statusline.py:tick-ramp",
-      "expectation_from": "the Python codec registry",
-      "reason": "NOT a waiver - recorded because the expectation is deliberately NOT a literal. Whether a console can display the sparkline's block characters is a property of its code page, so the check asks the platform's own codec table (encode the ramp with the stream's encoding name and see whether it raises) rather than carrying a hand-written list of encodings that can. A literal list would be the same defect as a hard-coded `sys.platform == 'win32'` branch: wrong in both directions, since a Windows terminal set to UTF-8 draws the blocks and a POSIX host under LANG=C does not. The selftest drives the derivation with cp1252, cp437, ascii and an unknown encoding name and requires the ASCII ramp for each, so an edit that hard-coded the block ramp goes red. Residual, stated in the function's own docstring: an in-process check cannot see a console that misreports its code page, and the board's other segments draw block characters unconditionally, which predates this segment and is unchanged by it." },
-    { "id": "selftest:deident", "subject": "tools/deident_scan.py", "expectation_from": "inline" },
-    { "id": "selftest:hook-fixtures", "subject": "modules/02-enforcement/hook_fixtures.py:pure-layer", "expectation_from": "inline" },
-
-    {
-      "id": "smoke:phase9-document-order",
-      "subject": "QUICKSTART.md",
-      "expectation_from": "tools/adoption_smoke.py",
-      "reason": "Not self-referential by artifact - the checkpoints are hand-transcribed from the document into the walker, so an edit to one does not move the other. That is also its weakness, and a different one: the walker can drift out of date with the prose it transcribes. It runs the COMMANDS, not the explanations. Named in KNOWN-ISSUES as a residual."
-    },
-    { "id": "smoke:phase8-config-in-judge-surface", "subject": "kit.config", "expectation_from": "modules/03-verification/verify.py:JUDGE_PATHS" },
-    { "id": "smoke:phase10-slot-registry", "subject": "modules/**/*.template", "expectation_from": "kit.config.example" },
-    { "id": "smoke:phase10-slot-manifests", "subject": "template SLOTS headers", "expectation_from": "the template body" },
-    {
-      "id": "smoke:phase12-excluded-judge-path",
-      "subject": "modules/03-verification/verify.py:git_excluded",
-      "expectation_from": "git",
-      "reason": "The control for the SHIPPED exclusion probe, where check:judged-paths-not-excluded covers only how the startup assertion reacts to an injected answer. The phase plants a real ignore rule over a real judge path in a real repository, in both rule shapes, and compares the runner against `git check-ignore` run independently. It exists because the first version of the probe corrupted every path it asked about and all three gates stayed green: an injected-answer check cannot see a transport defect."
-    },
-    {
-      "id": "smoke:phase13-render-agrees",
-      "subject": "tools/kit_render.py:rendering",
-      "expectation_from": "tools/adoption_smoke.py:document_order",
-      "reason": "Not self-referential by artifact, and deliberately so. document_order() renders the same templates BY HAND - a person's transcription of QUICKSTART - and phase 13 requires the tool's rendering to match it byte for byte (CLAUDE.md, the collaboration profile, TOKEN-LEDGER.md) and key for key (the structural settings merge). The two authorities are kept apart on purpose: the walk must never call the tool and the tool must never read the walk, or the kit loses its only independent expectation of what a rendered file looks like. When they disagree the arbiter is neither of them - it is the QUICKSTART step the hand model transcribes, and on this phase's first run the document ruled for the tool. Scope: this row covers the RENDERING sub-steps only; the guard assertions in the same phase are registered separately at smoke:phase13-render-guards. Residuals: the walk can drift out of date with the prose it transcribes; and the walk copies three of the four ledgers unrendered at Step 7, so JUDGMENT-LEDGER, FAILURE-FLOOR and LESSONS are checked against Step 7's printed checkpoint rather than diffed - every slot they carry is already covered by the CLAUDE.md byte-diff, and TOKEN-LEDGER is hand-rendered because RATIO_CEILING appears nowhere else."
-    },
-    {
-      "id": "smoke:phase13-render-guards",
-      "subject": "tools/kit_render.py:containment",
-      "expectation_from": "filesystem",
-      "reason": "The same phase also asserts the two containment guards END TO END - a real subprocess, a real target repository, a real kit checkout - and those expectations do not come from the hand model. Guard 1 is measured by pointing a run at the kit clone and checking the kit tree afterwards; guard 1b by a LEDGERS_DIR that climbs out of the target and checking that the outside directory was never created; guard 2 by hashing every hand-rendered file before and after. The tool's own selftest proves the same refusals in process, which cannot see a filesystem that disagrees with the decision layer - the same argument smoke:phase12 makes about the exclusion probe."
-    },
-    { "id": "selftest:kit-render", "subject": "tools/kit_render.py", "expectation_from": "inline" },
-    { "id": "selftest:kit-doctor", "subject": "tools/kit_doctor.py:judging-layer", "expectation_from": "inline" },
-    {
-      "id": "selftest:gate-line",
-      "subject": "modules/03-verification/gate_line.py:pure-layer",
-      "expectation_from": "modules/03-verification/examples/pytest-golden.json",
-      "reason": "NOT a waiver - recorded because it is a cross-file binding and a reader should be able to see which file is the authority. The adapter's expectation is not a literal somebody typed: it is what pytest actually reported when `--capture-golden` ran the six fixture suites in `examples/pytest_suites/`, committed as captured. The pure layer is then required to rebuild those lines and those verdicts exactly. Regenerating the golden file is a reviewed commit for the same reason - recapturing over a defect would install the defect as the new expectation. Residual, stated: the LIVE half (re-running pytest and comparing) needs pytest installed, and this kit's CI deliberately downloads nothing, so there the selftest prints LIVE HALF NOT RUN with the reason rather than passing in silence."
-    },
-
-    { "id": "golden:all-pass", "subject": "modules/03-verification/gate_line.py:all-pass", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
-    { "id": "golden:pass-with-skips", "subject": "modules/03-verification/gate_line.py:pass-with-skips", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
-    { "id": "golden:failures", "subject": "modules/03-verification/gate_line.py:failures", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
-    { "id": "golden:errors", "subject": "modules/03-verification/gate_line.py:errors", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
-    { "id": "golden:collapsed-collection", "subject": "modules/03-verification/gate_line.py:collapsed-collection", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
-    { "id": "golden:subset", "subject": "modules/03-verification/gate_line.py:subset", "expectation_from": "modules/03-verification/examples/pytest-golden.json" },
-
-    { "id": "escape:nc-i", "subject": "modules/04-ledgers/escape_rate.py:no-table", "expectation_from": "inline" },
-    { "id": "escape:nc-ii", "subject": "modules/04-ledgers/escape_rate.py:two-tables", "expectation_from": "inline" },
-    { "id": "escape:nc-iii", "subject": "modules/04-ledgers/escape_rate.py:no-separator", "expectation_from": "inline" },
-    { "id": "escape:nc-iv", "subject": "modules/04-ledgers/escape_rate.py:non-integer-count", "expectation_from": "inline" },
-    { "id": "escape:nc-v", "subject": "modules/04-ledgers/escape_rate.py:escapes-exceed-items", "expectation_from": "inline" },
-    { "id": "escape:nc-vi", "subject": "modules/04-ledgers/escape_rate.py:half-uncountable-items", "expectation_from": "inline" },
-    { "id": "escape:nc-vii", "subject": "modules/04-ledgers/escape_rate.py:half-uncountable-escapes", "expectation_from": "inline" },
-    { "id": "escape:nc-viii", "subject": "modules/04-ledgers/escape_rate.py:empty-round-label", "expectation_from": "inline" },
-    { "id": "escape:nc-ix", "subject": "modules/04-ledgers/escape_rate.py:short-row-not-skipped", "expectation_from": "inline" },
-    { "id": "escape:nc-x", "subject": "modules/04-ledgers/escape_rate.py:negative-count", "expectation_from": "inline" },
-    { "id": "escape:nc-xi", "subject": "modules/04-ledgers/escape_rate.py:over-ceiling", "expectation_from": "inline" },
-    { "id": "escape:nc-xii", "subject": "modules/04-ledgers/escape_rate.py:state-word-dropped", "expectation_from": "inline" },
-    { "id": "escape:nc-xiii", "subject": "modules/04-ledgers/escape_rate.py:round-row-outside-table-body", "expectation_from": "inline" },
-    { "id": "escape:nc-xiv", "subject": "modules/04-ledgers/escape_rate.py:gate_ceiling", "expectation_from": "inline" },
-    { "id": "escape:nc-xv", "subject": "modules/04-ledgers/escape_rate.py:small-n-denominator-floor", "expectation_from": "inline",
-      "reason": "NOT a waiver - an accepted residual, recorded where the check lives. The derived floor (ceil(100/ceiling)) makes the per-round ceiling gate partition-sensitive: the same evidence split into sub-floor rounds exits 0 where one round of it exits 1, and nothing mechanical fires on a sustained run of sub-floor rounds. The compensating disclosure is loud rather than gated - the cumulative rate and trend carry every escape, and the SMALL-N line prints on every such run naming the round, its item count and the floor - but its only reader is a person. Accepted by the owner's 2026-08-23 ruling over the alternatives on record (UNCOUNTABLE hides a real number; an unconditional red makes red mean nothing)." },
-    { "id": "escape:nc-xvi", "subject": "modules/04-ledgers/escape_rate.py:state-alternation-binding", "expectation_from": "modules/03-verification/verify.py" },
-
-    {
-      "id": "check:escape-ceiling-agrees",
-      "subject": "modules/04-ledgers/escape_rate.py:DEFAULT_CEILING",
-      "expectation_from": "modules/03-verification/verify.py",
-      "reason": "NOT a waiver - recorded because this check closes a measured two-authorities defect and a reader should be able to see which authority is which. The escape-rate ceiling is written twice as an operative value: the `--ceiling` literal in the runner's `escapes` gate command, and `DEFAULT_CEILING` in the tool. Nothing related them, and spec-side review measured the consequence - a copy of the tool with `DEFAULT_CEILING` at 90.0 published `ceiling 90.0%` from the standalone command the documents tell an adopter to type, while the same tool through the gate published 35.0, both green. `escape_rate.py --selftest` section F now reads the runner's source and requires agreement: the same cross-check shape as the fixture/registry and doctor/registry families, and it reads a genuinely different file from its subject. A THIRD spelling in `.github/workflows/kit-ci.yml` was deleted rather than bound - that step now passes no `--ceiling` and takes the tool's default - so two authorities remain and they are bound. Residual, stated: section F is the one part of that selftest that touches a filesystem, and when the runner is not reachable (this tool copied out of a kit checkout) it reports UNAVAILABLE rather than passing in silence." },
-
-    {
-      "id": "doctor:version",
-      "subject": "tools/kit_doctor.py:KIT_VERSION",
-      "expectation_from": "VERSION",
-      "reason": "Two artifacts on purpose. The stamp records which kit release a tree was adopted from; the constant records which release the tools came from. Neither can be checked against the FILES - a version stamp is a claim by whoever last copied - but the two disagreeing is exactly the state a partial re-copy leaves behind, and that is mechanically checkable."
-    },
-    {
-      "id": "doctor:config",
-      "subject": "kit.config",
-      "expectation_from": "modules/02-enforcement/hook_model_gate.py:PLACEHOLDER_SHAPES",
-      "reason": "The rule for 'is this key configured or still an example value' is imported from the shipped hook rather than re-implemented in the doctor. A fourth reader of that rule is the arrangement that produced the original defect."
-    },
-    { "id": "doctor:judge-paths-exist", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "filesystem" },
-    { "id": "doctor:judge-paths-ignored", "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS", "expectation_from": "git" },
-    { "id": "doctor:judge-paths-agree", "subject": "kit.config:JUDGE_PATHS+CERT_PATHS", "expectation_from": "modules/03-verification/verify.py" },
-    {
-      "id": "doctor:vacuous-gate",
-      "subject": "modules/03-verification/verify.py:GATES",
-      "expectation_from": "inline",
-      "reason": "Three disjuncts, two of them structural properties of the gate table judged against hand-written rules (a require pattern with no capture group; a floor of 1 or less), and the third read from the FILESYSTEM (no docs/ORACLE-<gate>.md page). Registered as inline because the two rules that decide vacuity are hand-written literals; the filesystem half is named here so the row is not read as covering less than it does."
-    },
-    { "id": "doctor:dirty-paths", "subject": "the working tree", "expectation_from": "git" },
-    { "id": "doctor:hook-interpreter", "subject": ".claude/settings.json:hook-commands", "expectation_from": "filesystem" },
-    { "id": "doctor:protected-case", "subject": "modules/02-enforcement/hook_model_gate.py:touches_protected", "expectation_from": "filesystem" },
-    {
-      "id": "doctor:cert-token",
-      "subject": ".claude/cert-green.json",
-      "expectation_from": "git",
-      "reason": "Whether a token still covers the tree is git's answer (the newest commit touching CERT_PATHS is contained in the token's sha, and those paths are clean). What the check ALSO does is print the honest label on every run - the token is unsigned and forgeable by anything that can write a file - and that half has no expectation source because it is not a measurement. It is a disclosure, and it is the control."
-    },
-    {
-      "id": "doctor:floor-staleness",
-      "subject": "the adopting repository's FAILURE-FLOOR.md",
-      "expectation_from": "kit.config:DEMOTION_REVIEW_STAGES",
-      "reason": "The anti-ratchet, promoted out of prose. The floor's own demotion-review section says every rule quiet for N stages gets RETIRE, DEMOTE or RE-AFFIRM at each phase gate, and nothing checked it - the owner's question was 'what is checking the lessons'. The window comes from the config key, NOT from the floor: a check that read its own threshold out of the file it judges could be cleared by editing that file, which is the class this registry exists for. The stage-to-day conversion is derived from the floor's own distinct firing dates because no file in an adopting repository relates stages to days, and the arithmetic is printed on every run so the threshold can be argued with. Residual, stated in the finding rather than here alone: rows reading `never` or `unknown - predates recording` cannot be dated and are reported as NOT MEASURED rather than counted either way, and the check reads a clock, so a project that has simply stopped recording looks stale - which is the correct reading for an anti-ratchet."
-    },
-    {
-      "id": "doctor:binding-digest",
-      "subject": "the adopting repository's rules file and newest checkpoint",
-      "expectation_from": "modules/01-governance/CLAUDE.md.template",
-      "reason": "The other half of the anti-ratchet, and the only ceiling in this kit derived from a measurement of the kit's own shipped documents. The rules file is re-read at the top of every session; the module-01 template states 'keep it SHORT' three times and nothing measured it. DIGEST_CEILING_LINES = 325 by the four-step method TOKEN-LEDGER.md gives for the cost ratio: (191 rendered template lines + the 90-line measured checkpoint norm) x 1.15, rounded up to the nearest 25, with the arithmetic printed on every run, green included. The FIRST OBSERVATION IS BOUND TO ITS SOURCE: --selftest measures modules/01-governance/CLAUDE.md.template live and requires it to still render to 191 lines, so if the template grows the derivation's input has moved and the selftest goes red naming both numbers - the same binding shape as check:escape-ceiling-agrees, built because that ceiling drifted silently once already. Residual, stated: n = 2 observations, one project, LOW confidence, and the check counts lines without judging whether any line earned its place."
-    },
-
-    {
-      "id": "doctor:l1-documents",
-      "subject": "the adopting repository's LEDGERS_DIR and collaboration profile",
-      "expectation_from": "modules/04-ledgers",
-      "reason": "The file names Level 1 installs are the kit's shipped skeletons, and the doctor carries them as a literal because an adopted tree has no modules/ directory to read. The literal is held to the shipped set by a --selftest cross-check that runs whenever the tool sits in a kit checkout, so a renamed skeleton fails here rather than in an adopter's tree."
-    },
-    { "id": "doctor:l1-rendered", "subject": "the adopting repository's Level-1 documents", "expectation_from": "modules/02-enforcement/hook_model_gate.py:RENDERED_PLACEHOLDER",
-      "reason": "The shipped-value half of this check reads the kit's shared rendered-text rule, imported rather than re-implemented - tools/adoption_smoke.py phase 9 asks the same question about the same class of file and now reads the same constant. The first version of this check carried a one-element list of its own and reported HEALTHY over six documents titled 'Example Project': two readers of one rule, drifting, which is the class this registry exists for. The clause the check implements - no surviving slot, no template header block, one shipped value allowed through by name (RATIO_CEILING) - is specified by the QUICKSTART Step 7 and Step 8 checkpoints. The marker words are literals in the tool, cross-checked against the shipped templates by --selftest, which also reads kit.config.example and requires every shipped example value that reaches a Level-1 document to be caught by the shared rule." },
-    { "id": "doctor:l1-committed", "subject": "the adopting repository's Level-1 documents", "expectation_from": "git" },
-    {
-      "id": "doctor:l1-config-complete",
-      "subject": "the adopting repository's kit.config",
-      "expectation_from": "kit.config.example",
-      "reason": "The shipped example is the registry of every key the templates interpolate, so it is the only honest expectation for 'does this config carry them all' - and it is a different artifact from the config being judged. Built because LEVEL-1.md step 2 prints `cp kit.config.example ./kit.config`, which on a repository that already has a config destroys every answer in it, and the reason an adopter reaches for that command is usually a key that renders as an unfilled slot. The check names the missing keys and names the destructive remedy as destructive in the same red. Residual: it judges PRESENCE of keys only - whether a value is an answer or a shipped example is doctor:l1-rendered's question, on the documents they render into. When no kit.config.example can be found the check reports UNKNOWN rather than passing."
-    },
-    {
-      "id": "doctor:l1-ledger-collision",
-      "subject": "the adopting repository's LEDGERS_DIR",
-      "expectation_from": "modules/04-ledgers",
-      "reason": "The kit's four ledger filenames are fixed - the doctor hard-codes them and LEDGERS_DIR is the only thing an adopter can move - so on a repository that already keeps ledgers the install has three possible outcomes and the documents name none of them. Two of the three used to be green: install alongside, and overwrite. Measured on this kit's own program repository, which had LESSONS-LEARNED.md beside the kit's LESSONS.md and TOKEN_LEDGER.md beside TOKEN-LEDGER.md, every check green over two documents answering one question. The expectation is the shipped skeleton set, carried as the same literal doctor:l1-documents uses and held to modules/04-ledgers by the same --selftest cross-check. Comparison is on a normalised stem (case, punctuation and the .md suffix removed) with containment counted as collision, because the measured spellings differed only by a hyphen and a suffix."
-    },
-    {
-      "id": "doctor:l1-knowledge-dir",
-      "subject": "kit.config:KNOWLEDGE_DIR",
-      "expectation_from": "modules/02-enforcement/hook_model_gate.py:is_placeholder",
-      "reason": "Whether the value is a configured answer or the shipped example is decided by the kit's shared placeholder rule, imported rather than re-implemented - a fourth reader of that rule is the arrangement that produced the original defect. The one departure is stated in the judge: for this key NONE is a decision (kit.config.example says to set it when there is no knowledge base outside the repo), so the NONE case is answered before the shared rule is consulted, and whether the named directory exists is the filesystem's answer."
-    },
-    { "id": "doctor:l1-interview", "subject": "the adopting repository's collaboration profile:INTERVIEW", "expectation_from": "modules/08-collaboration/PROFILE-TEMPLATE.md",
-      "reason": "The three states an interview status may hold are defined by the shipped profile template's STATUS block. --selftest reads that template and requires the shipped line to be judged UNANSWERED, so the pattern is proven against the artifact it was written for rather than against a copy the test wrote itself." },
-
-    { "id": "citation:fabricated-quote", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "The round-22 defect replanted: a quotation attributed to `DECISION-BRIEF.md` whose words are not in it. Inline literals - the control writes both the sentence and a source that does not contain it, so they are the specification rather than a reading of the tool's own output." },
-    { "id": "citation:trailing-paren", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "Shape A, the parenthesised attribution, forced red on an invented quotation. Inline literals: the sentence and the source are both hand-written in the control." },
-    { "id": "citation:wrapped-quote", "subject": "tools/citation_lint.py:flatten", "expectation_from": "inline",
-      "reason": "THE CONTROL THAT KEEPS THIS TOOL HONEST. The round-22 review reported a real quotation as fabricated because its grep was line-oriented and the source wrapped across a newline. The control asserts BOTH halves against inline literals: a line-oriented search misses it, and flatten()-based matching finds it. Without this the tool does not merely miss defects, it manufactures them." },
-    { "id": "citation:wrapped-attribution", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "Found by the forced-red run rather than by design: the first build excluded newlines from the quoted string itself, so a quotation wrapping at the LINTING document's own margin was never seen and a planted fabrication read clean. Inline literals, including the blank-line bound that stops an unpaired quote mark swallowing whole paragraphs." },
-    { "id": "citation:paragraph-break", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "Found by the first live run, which returned five findings of which three were this single class: a file reference in an earlier paragraph pulled onto an unrelated quotation. Inline literals, asserted for both attribution shapes." },
-    { "id": "citation:cell-boundary", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "A reference in a previous markdown table cell must not attribute a quotation in this one - measured on KNOWN-ISSUES.md, where it was this tool's last remaining false positive before the rule landed. Inline literal." },
-    { "id": "citation:intervening-ref", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "With two documents named before one quotation the nearest owns it, and the farther one must not also be made to answer for it. Inline literal; this is the precision half of the proximity heuristic." },
-    { "id": "citation:short-literal", "subject": "tools/citation_lint.py:MIN_WORDS", "expectation_from": "inline",
-      "reason": "The word floor separating a quotation from a named output line such as `0 skipped`. Asserted in both directions against inline literals: a short literal is not checked, a long one is." },
-    { "id": "citation:self-quote", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "A document quoting itself is not an attribution. Inline literal." },
-    { "id": "citation:real-quote", "subject": "tools/citation_lint.py:quote_is_in", "expectation_from": "inline",
-      "reason": "The clean half - a quotation that IS in its source passes, with a locator and without one. A checker that has only ever been red is as untested as one that has only ever been green. Inline literals." },
-    { "id": "citation:waiver", "subject": "tools/citation_lint.py:WAIVERS", "expectation_from": "inline",
-      "reason": "The waiver table is scoped to the case it names, covers nothing else, and every shipped waiver carries a non-empty reason - the same rule this registry applies to its own waivers. Read from WAIVERS itself, which IS the specification of what is waived." },
-
-    { "id": "citation:quote-cell-boundary", "subject": "tools/citation_lint.py:attributions", "expectation_from": "inline",
-      "reason": "Found by a live run against the register row written to record this tool: an odd number of quote marks inside one markdown table cell made the pattern pair one phrase's CLOSING quote with the next phrase's OPENING quote, capturing 300 characters of prose as a quotation. A quotation does not cross a cell boundary either. Inline literal." },
-    { "id": "citation:register", "subject": "tools/citation_lint.py:REGISTER_DOCS", "expectation_from": "inline",
-      "reason": "A findings register quotes text AS IT WAS when the finding was raised, beside a disposition that usually reads FIXED, so those words are absent from the current tree by construction. Exempted as a document class rather than one waiver per row, with the count printed on every run. Asserted in both directions - the register is exempt, an ordinary page is not - against REGISTER_DOCS itself, which IS the specification of which documents are exempt. Residual, disclosed in the tool and in the round entry: a genuine miscitation written into the register is exempt too." },
-
-    { "id": "citation:recall-floor", "subject": "tools/citation_lint.py:RECALL_FLOOR", "expectation_from": "the kit's own shipped documents",
-      "reason": "Round 26's evaluation read (m4) found a real ten-word attribution the lint could not see, and section E passed anyway because it asserted only that SOME attributions were found. A presence count is not recall. RECALL_FLOOR names four attributions the shipped kit really contains - across two documents and both locator forms - and asserts each twice: extracted from its document, and its quotation present in the document it names. The expectation is the kit's prose rather than an inline literal on purpose, since a literal keeps passing while the pattern's reach shrinks underneath it, which is the failure this row exists to catch. Proven red-provable by reverting shape B's glue to its pre-round-27 form, which reds exactly the m4 row and no other." },
-    { "id": "citation:window-normalisation", "subject": "tools/citation_lint.py:flatten_with_lines", "expectation_from": "tools/citation_lint.py:flatten",
-      "waived": true,
-      "reason": "WAIVED, and the lint was right to raise it - flagged on its first run, before any waiver was written. Subject and expectation are two functions in ONE file, so a single edit could move both and this check would stay green. It is kept in that shape deliberately, because the property being asserted IS an agreement between two normalisations and there is no third artifact that defines what the agreement should be. What makes it worth more than a tautology: the two are independently implemented - flatten() is a regex substitution, flatten_with_lines() is a character walk - so they agree only by both being correct, and the equality is asserted over EVERY SHIPPED DOCUMENT THE LINT ENUMERATES rather than over a literal the test wrote, so the input is outside the tool. The count is deliberately not restated here: it was 48 when this row was written at round 27 and 49 once round 28 shipped modules/08-collaboration/CAPSULE.md, and a number frozen in a reason field goes stale on the next document added while nothing checks it - the R28-3 finding in KNOWN-ISSUES.md. Residual, accepted and stated: an author who rewrites both functions in lockstep passes. Structural cover: tools/ is in JUDGE_PATHS, so an uncommitted change to either one reds the judges gate." },
-    { "id": "citation:window-lines", "subject": "tools/citation_lint.py:quote_line_spans", "expectation_from": "inline",
-      "reason": "The clean half of the window layer, against an inline literal whose line numbers the control writes itself: a quotation wrapping across two source lines reports the span it really occupies, a locator naming only its FIRST line still overlaps, and a range wider than the quotation contains it. Overlap rather than containment is what lets the tolerance be zero, so these three are the controls that keep the window check from manufacturing findings against correct citations." },
-    { "id": "citation:window-stale", "subject": "tools/citation_lint.py:quote_in_window", "expectation_from": "inline",
-      "reason": "THE FORCED-RED HALF, and the round-22 defect's actual shape: right words, wrong lines. Four assertions against inline literals - a locator one line past the quotation is a finding, one elsewhere in the file is a finding, the presence check alone still reports the words as present (which is precisely the gap this closes), and a tolerance of one line would pass the off-by-one case. That last assertion holds the shipped tolerance's justification as a test rather than as prose: the tightest of the six round-26 defects sits one line outside its cited range, so any tolerance above zero is blind to it." },
-    { "id": "citation:window-locator", "subject": "tools/citation_lint.py:line_span", "expectation_from": "inline",
-      "reason": "Which locators produce a window at all. A LINE form yields one, a single line yields a one-line window, a SECTION form such as ` Step 4` yields none so the attribution is checked for presence only, and an absent locator yields none. The last assertion checks the extractor carries the locator through to the caller, which is the join between the shipped pattern layer and the new window layer. Inline literals." },
-    { "id": "citation:window-repeat", "subject": "tools/citation_lint.py:quote_line_spans", "expectation_from": "inline",
-      "reason": "A phrase may legitimately occur more than once in a document, and a locator naming EITHER occurrence is a correct citation. Without this the window check would invent findings against documents that repeat a phrase - the same manufacturing failure the wrapped-quote control prevents one layer down. Asserted in all three directions against an inline literal: both spans are reported, either one passes, and a locator naming neither is still a finding." },
-
-    { "id": "count:stale-cross-doc", "subject": "tools/count_lint.py:claims", "expectation_from": "inline",
-      "reason": "ROUND 24's F1 REPLANTED: `ONBOARD.md` said Step 0 was nine lines while `QUICKSTART.md` Step 0 printed ten, a count that travels between documents and that nobody re-derives. Inline literals - the control writes both the claiming sentence and the ten-line section it names, so they are the specification rather than a reading of the tool's own output." },
-    { "id": "count:stale-introducer", "subject": "tools/count_lint.py:table_rows", "expectation_from": "inline",
-      "reason": "The local shape forced red: a stated count over the table it introduces, with a row missing. Inline literal." },
-    { "id": "count:stale-trailing", "subject": "tools/count_lint.py:claims", "expectation_from": "inline",
-      "reason": "The checkpoint shape forced red: a count in the paragraph under the fenced block it counts. This is the site `QUICKSTART.md` corrected in round 23 while the cross-document copy in `ONBOARD.md` was left behind, so the control holds the half that was right as well as the half that was not. Inline literal." },
-    { "id": "count:true-count", "subject": "tools/count_lint.py:claims", "expectation_from": "inline",
-      "reason": "THE CONTROL THAT KEEPS THIS TOOL FROM BEING A DEFECT GENERATOR. A checker that has only ever been red over a stale count would turn every correct sentence in the kit into a finding; this asserts the same shape with the right number passes. Inline literal." },
-    { "id": "count:blank-lines", "subject": "tools/count_lint.py:countable_lines", "expectation_from": "inline",
-      "reason": "Blank lines inside a fenced block are not countable lines. Inline literal; the countable-line definition is a judgment call and each of its clauses is asserted separately." },
-    { "id": "count:comment-line", "subject": "tools/count_lint.py:countable_lines", "expectation_from": "inline",
-      "reason": "A whole-line comment is not a command, and a TRAILING comment does not stop its line being one. Asserted in both directions against an inline literal." },
-    { "id": "count:wrapped-command", "subject": "tools/count_lint.py:CONTINUES", "expectation_from": "inline",
-      "reason": "FOUND BY THE FIRST LIVE RUN, NOT BY DESIGN, and the sibling of the citation lint's most important control. `QUICKSTART.md` Step 4's pwsh block is three commands on four physical lines, the third a pipeline continued on the next; the tool reported that correct sentence as a defect until a line ending in `\\`, `|` or a backtick was counted with the line it continues onto. Inline literal." },
-    { "id": "count:table-header", "subject": "tools/count_lint.py:table_rows", "expectation_from": "inline",
-      "reason": "The header row and the `|---|` separator are not data rows. Inline literal." },
-    { "id": "count:loose-list", "subject": "tools/count_lint.py:list_items", "expectation_from": "inline",
-      "reason": "A list with blank lines between its items is one list, and a continuation line is not an item - the shape most of this kit's numbered lists actually have. Inline literal." },
-    { "id": "count:nested-item", "subject": "tools/count_lint.py:list_items", "expectation_from": "inline",
-      "reason": "An indented sub-item belongs to the item above it and is not a top-level item. Inline literal." },
-    { "id": "count:prose-count", "subject": "tools/count_lint.py:claims", "expectation_from": "inline",
-      "reason": "The false-positive floor, and the tool's largest declared blind spot: a count phrase with no locatable target is SKIPPED with the count printed, never guessed at and never failed. Inline literal." },
-    { "id": "count:mid-paragraph-colon", "subject": "tools/count_lint.py:claims", "expectation_from": "inline",
-      "reason": "A colon inside a paragraph that keeps going introduces nothing. Inline literal; this is half of the narrowing the first live run forced, the other half being that the count phrase must OPEN the introducing paragraph." },
-    { "id": "count:ambiguous-section", "subject": "tools/count_lint.py:section_fence_count", "expectation_from": "inline",
-      "reason": "A named section holding two fenced blocks is skipped rather than guessed at - a wrong target manufactures findings, which is worse than missing them. Inline literal." },
-    { "id": "count:cell-boundary", "subject": "tools/count_lint.py:claims", "expectation_from": "inline",
-      "reason": "A document reference in a previous markdown table cell does not carry a count phrase in this one - the same rule the citation lint learned on this register's own rows. Inline literal." },
-    { "id": "count:semantic-count", "subject": "tools/count_lint.py:LINE_NOUNS", "expectation_from": "inline",
-      "reason": "A cross-document count whose noun is not a line noun is skipped: no parser decides which lines of a block are selftests, or what counts as a document. Inline literal." },
-    { "id": "count:register", "subject": "tools/count_lint.py:REGISTER_DOCS", "expectation_from": "inline",
-      "reason": "A findings register records what a count USED TO BE beside its correction, so checking those against the fixed tree asks the wrong question. Exempt as a document class with the count printed on every run, asserted in both directions against REGISTER_DOCS itself, which IS the specification of which documents are exempt. Residual, disclosed in the tool and in the round entry: a genuinely wrong count written into the register is exempt too." },
-    { "id": "count:waiver", "subject": "tools/count_lint.py:WAIVERS", "expectation_from": "inline",
-      "reason": "Every shipped waiver carries a non-empty reason - the same rule this registry applies to its own waivers. The table ships empty in v1 and the assertion still holds, which is the point: it is the rule that binds the first waiver anyone adds. Read from WAIVERS itself, which IS the specification of what is waived." },
-    { "id": "count:vocabulary-ceiling", "subject": "tools/count_lint.py:WIDE_COUNT", "expectation_from": "inline",
-      "reason": "ROUND 24's REVIEW, m2: the tool CHECKS one..twenty and up to three digits, and phrases above that ceiling ('thirty lines', 'twenty-five commands', '1024 lines') were matched by nothing - not checked, not skipped, and absent from the skip total the docstring calls the disclosure. The review proved it by planting five false counts written with the word 'ninety' and watching all five vanish. The ceiling is deliberate and stays; what this control holds is that a phrase above it is now SKIPPED with a reason of its own. Inline literals - the control writes the phrase and the block it sits over, so both are the specification rather than a reading of the tool's own output." },
-    { "id": "count:vocabulary-in-range", "subject": "tools/count_lint.py:claims", "expectation_from": "inline",
-      "reason": "The other direction of count:vocabulary-ceiling, and the reason the disclosure pass is safe to add: a number INSIDE the checking vocabulary is still decided by the checking pass and is NOT also counted as a skip. The two patterns match disjoint number tokens; this control is what goes red if a later edit makes them overlap and inflates the skip total with phrases the tool actually checks. Inline literal." },
-
-    { "id": "quant:f1-shape", "subject": "tools/count_lint.py:quantifier_claims", "expectation_from": "inline",
-      "reason": "ROUND 29's F1 REPLANTED, and the reason this layer exists: COMPARISON.md shipped 'Every row names an artifact and carries a source in brackets' over a table three of whose rows carried no source at all. The class - a universal quantifier asserted over a target the writer could have enumerated and did not - was paid for four times across rounds 26-29 and declined as an oracle each time. Inline literals: the control writes both the claiming sentence and the table it names, so they are the specification rather than a reading of the tool's own output." },
-    { "id": "quant:f1-nonadjacent", "subject": "tools/count_lint.py:all_constructs", "expectation_from": "inline",
-      "reason": "Shape Q2, and the half that makes the layer useful rather than ornamental: the shipped defect sat several paragraphs above its table, which the adjacency rule the count layer uses cannot reach. A universal claim is usually written away from the thing it quantifies over. Inline literal." },
-    { "id": "quant:f2-restated", "subject": "tools/count_lint.py:quantifier_claims", "expectation_from": "inline",
-      "reason": "ROUND 29's F2, written over an enumerable target. The shipped sentence ('the prompt behind every finding count here') names no table, list or block and is SKIPPED - quant:f2-as-shipped holds that half. This control holds the other: the same claim written against a per-entry table with the prompt in each row IS caught on the entry that has none. Both halves are registered so neither can be quietly moved, and the pair is the honest statement of what this layer covers. Inline literal." },
-    { "id": "quant:negative-red", "subject": "tools/count_lint.py:QUANT_NEGATIVE", "expectation_from": "inline",
-      "reason": "The negative quantifier inverts the test: 'no' and 'none of the' mean NO element may carry the literal, and the element that does is the finding. This is not the same test as the universal and would be silently absent if only the universal were controlled. Inline literal." },
-    { "id": "quant:true-claim", "subject": "tools/count_lint.py:quantifier_claims", "expectation_from": "inline",
-      "reason": "THE CONTROL THAT KEEPS THIS LAYER FROM BEING A DEFECT GENERATOR, the sibling of count:true-count. A checker that has only ever been red over a false universal would turn every correct universal in the kit into a finding. Inline literal." },
-    { "id": "quant:negative-true", "subject": "tools/count_lint.py:quantifier_claims", "expectation_from": "inline",
-      "reason": "The same control for the inverted test: a true negative quantifier passes. Inline literal." },
-    { "id": "quant:adjective", "subject": "tools/count_lint.py:quantifier_claims", "expectation_from": "inline",
-      "reason": "The r30 review's F6: 'every single row' must decide on the noun past the adjective, not skip on the adjective as a non-target. The lookahead window that fixes it is the code under test; the control pins it. Inline literal." },
-    { "id": "quant:f2-as-shipped", "subject": "tools/count_lint.py:QUANT_NOUNS", "expectation_from": "inline",
-      "reason": "THE LIMIT, HELD AS A CONTROL. Round 29's review predicted this layer would not catch F2, and it does not: 'finding count' names no target this tool enumerates, so the sentence is SKIPPED WITH ITS REASON. What changed in round 30 is that it is now a disclosed skip in the denominator rather than invisible to every check in the kit. Partial cover, registered as partial. Inline literal." },
-    { "id": "quant:mid-sentence", "subject": "tools/count_lint.py:quantifier_claims", "expectation_from": "inline",
-      "reason": "FOUND BY THE FIRST LIVE RUN, NOT BY DESIGN - the sibling of count:wrapped-command, one level up. docs/walks/walk-13-thorough-adopter.md holds a 400-word persona prompt in one fenced block; 'executing every command as printed' sits deep inside it and a later clause quotes the word 'done'. The layer read that quotation as the claim's predicate and reported the correct sentence as a defect. The narrowing is the count layer's own opening rule applied to sentences: a universal is a claim ABOUT a target only when it is what the sentence is about. Inline literal." },
-    { "id": "quant:no-literal", "subject": "tools/count_lint.py:literal_predicate", "expectation_from": "inline",
-      "reason": "A predicate that needs judgment ('every row states a verdict that is accurate') is not a literal and is skipped rather than guessed at. The layer tests token PRESENCE and nothing else, which is the entire reason it is buildable at all. Inline literal." },
-    { "id": "quant:doc-ref", "subject": "tools/count_lint.py:literal_predicate", "expectation_from": "inline",
-      "reason": "A backticked name ending in .md is a document reference, not a predicate - the same distinction the count layer's SECTION_REF draws. Without it, 'Every row cites BLUEPRINT.md' would be tested by searching each row for a filename. Inline literal." },
-    { "id": "quant:ambiguous", "subject": "tools/count_lint.py:all_constructs", "expectation_from": "inline",
-      "reason": "A document holding TWO tables offers no single target, and ambiguity is skipped rather than guessed at - the same rule section_fence_count already applies. A wrong target manufactures findings, which is worse than missing them. Inline literal." },
-    { "id": "quant:no-target", "subject": "tools/count_lint.py:QUANT_NOUNS", "expectation_from": "inline",
-      "reason": "A noun outside the three enumerable kinds names nothing this tool can count, and is skipped with the noun printed so the reader can see what was not decided. This is the larger half of the class by volume and it is disclosed, not covered. Inline literal." },
-    { "id": "quant:absolute", "subject": "tools/count_lint.py:QUANT_ABSOLUTE", "expectation_from": "inline",
-      "reason": "DISCLOSURE ONLY, the sibling of count:vocabulary-ceiling. 'never' and 'always' take no noun, so no target can be located from them; they are matched for the sole purpose of reaching the skip total with a reason of their own instead of being invisible. This pattern decides nothing and can never produce a finding. Inline literal." },
-    { "id": "quant:no-verb", "subject": "tools/count_lint.py:PRESENCE_VERB", "expectation_from": "inline",
-      "reason": "A sentence with no presence verb is not a claim about token presence, so it is neither checked nor counted as skipped. This is a denominator rule, and it matters in the unflattering direction: padding the denominator with sentences the layer was never about would make the printed coverage figure look larger than the layer's real reach. Inline literal." },
-    { "id": "quant:state-word", "subject": "tools/count_lint.py:coverage_state", "expectation_from": "inline",
-      "reason": "THE STRANGER'S FINDING, HELD AS A CONTROL. An outside reader ran count_lint, read 'clean' over 15 located claims and 754 skipped ones, and filed the obvious objection: clean is the wrong word for a run that could not locate a target for 98% of its subject, and this kit's own PARTIAL doctrine was not being applied to its own lint. The control asserts both directions - a run that skipped nothing is CLEAN, a run that located 15 of 769 is PARTIAL at 2.0% - so the word cannot drift back. Inline literals, and the second pair is the reader's own arithmetic." },
-
-    {
-      "id": "lint:expectation-source",
-      "subject": "checks-registry.json",
-      "expectation_from": "checks-registry.json",
-      "waived": true,
-      "reason": "The registry can only be checked against itself for internal consistency - there is no independent source for what a check's expectation ought to be. What it therefore cannot catch is an entry that is simply ABSENT. Narrowed for SEVEN families now, whose ids are recovered from the source and cross-checked both ways: the hook fixtures in hook_fixtures.py, the doctor's checks in tools/kit_doctor.py, the escape-rate tool's negative controls in modules/04-ledgers/escape_rate.py, the gate-line adapter's golden fixtures in modules/03-verification/gate_line.py, the citation lint's negative controls in tools/citation_lint.py, the count lint's negative controls in tools/count_lint.py, and that same tool's quantifier-layer controls, which carry their own QUANT() label shape and their own registry prefix. The doctor was the reason to generalise the cross-check rather than trust the author - ten unregistered checks in one commit would have grown this blind spot faster than the lint that discloses it - and the escape-rate tool arrived with a set of them, every one reported by this cross-check on its first run before any were registered. The quantifier layer did the same in round 30: fifteen controls, all fifteen reported unregistered on the first run. Everything outside those seven families still depends on the author adding a row. Stated as a residual in KNOWN-ISSUES rather than presented as closed."
-    }
-  ]
+ "_comment": [
+  "THE EXPECTATION-SOURCE REGISTRY. Every check in this kit declares two",
+  "things: the SUBJECT it asserts about, and the ARTIFACT its EXPECTATION is",
+  "read from. `tools/expectation_lint.py` fails when those are the same",
+  "artifact and no waiver explains why.",
+  "",
+  "This file exists because the same defect was found eight times by six",
+  "LLM-persona adoption walks, each time wearing a different hat, and the",
+  "operating architecture's own promotion rule says a prose rule that keeps",
+  "failing gets promoted to a mechanical layer. The design question 'where",
+  "does this check's expectation come from?' is now an answer every check",
+  "has to write down.",
+  "",
+  "expectation_from: \"inline\" means hand-written literals in the checking",
+  "code. Those are the specification, they do not move when the code moves,",
+  "and they are deliberately out of scope.",
+  "",
+  "ADDING A CHECK? Add a row. The lint cross-checks the fixture family",
+  "against hook_fixtures.py, so an unregistered fixture is caught; for",
+  "everything else, an absent row is invisible - the residual, named in",
+  "KNOWN-ISSUES rather than papered over.",
+  "",
+  "seen_red (added round 32). THE DATE OF THE MOST RECENT FORCED RED",
+  "RECORDED FOR THIS CHECK, or the literal NEVER when no forced red is on",
+  "record. READ THE DEFINITION EXACTLY: this field is a statement about the",
+  "RECORD, not about history. NEVER means nobody has written a red down",
+  "here; it does not mean the check has never refused, and several rows",
+  "marked NEVER are checks whose selftest asserts a refusal on every run.",
+  "The field exists because for three adversarial batteries this kit",
+  "asserted that every check had been seen to fail on purpose and shipped no",
+  "instrument that could answer the question for any single check.",
+  "",
+  "AN ABSENT seen_red IS A FAILURE; the value NEVER is not. That is the",
+  "state-word rule this kit applies everywhere else: 'the check did not run'",
+  "and 'the check passed' must never render alike, and an absent field",
+  "renders like a green. tools/expectation_lint.py enforces the presence and",
+  "the shape (NEVER, or an ISO YYYY-MM-DD date) and prints the backfill",
+  "denominator on every run.",
+  "",
+  "THE BACKFILL IS NOT DONE AND IS NOT CLAIMED TO BE. At round 32, 28 of",
+  "200 rows carry a date. Those 28 are the controls sitting under a selftest",
+  "section headed 'the forced-red half' or 'the FORCED-RED cases' in",
+  "citation_lint.py, count_lint.py, skim_lint.py, repeat_lint.py,",
+  "escape_rate.py and this lint itself, whose selftests were run on",
+  "2026-08-25 and passed. The remaining 172 are",
+  "honest NEVERs. Backfilling is incremental: when you observe a check",
+  "refuse, write the date here in the same change."
+ ],
+ "checks": [
+  {
+   "id": "fixture:a",
+   "subject": "modules/02-enforcement/hook_model_gate.py:workflow-tier-rule",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:b",
+   "subject": "modules/02-enforcement/hook_model_gate.py:workflow-tier-rule",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:c",
+   "subject": "modules/02-enforcement/hook_model_gate.py:agent-tier-rule",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:d",
+   "subject": "modules/02-enforcement/hook_model_gate.py:agent-tier-rule",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:e",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:f",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:g",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:h",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:i",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:j",
+   "subject": "kit.config:FORBIDDEN_SPAWN_TIER",
+   "expectation_from": "kit.config",
+   "seen_red": "NEVER",
+   "waived": true,
+   "reason": "THE ORIGINAL INSTANCE. The payload names the tier the rule forbids, and both come from kit.config, so fixture and rule move in lockstep - weaken the key and the fixture weakens with it, still green. Unavoidable for a config-driven rule: the fixture's job is 'the hook honours whatever the config says'. Covered STRUCTURALLY instead: kit.config is in JUDGE_PATHS, so any uncommitted change to it reds the `judges` gate; and the fixture additionally asserts the deny REASON renders the configured tier, which a placeholder value cannot satisfy."
+  },
+  {
+   "id": "fixture:k",
+   "subject": "kit.config:MODEL_EXEMPT_TYPES",
+   "expectation_from": "kit.config",
+   "seen_red": "NEVER",
+   "waived": true,
+   "reason": "Same shape as fixture:j, same structural cover (kit.config in JUDGE_PATHS). Weaker in practice than j was: fixture c's payload is hard-coded, so widening the exempt list moves the hook's answer out from under an independent expectation and IS caught."
+  },
+  {
+   "id": "fixture:l",
+   "subject": "kit.config:PROTECTED_PATH",
+   "expectation_from": "kit.config",
+   "seen_red": "NEVER",
+   "waived": true,
+   "reason": "The payload is built from the configured path when one is set. Narrowed twice since: when the path is UNSET the payload uses a synthetic probe no config can name (so an unconfigured tripwire can no longer pass by matching its own placeholder), and the accept-set is now exactly `ask` when no cert-green token exists rather than {ask, allow}. Structural cover: kit.config in JUDGE_PATHS."
+  },
+  {
+   "id": "fixture:m",
+   "subject": "kit.config:PROTECTED_PATH",
+   "expectation_from": "kit.config",
+   "seen_red": "NEVER",
+   "waived": true,
+   "reason": "As fixture:l, for the Edit branch."
+  },
+  {
+   "id": "fixture:t",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:u",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:v",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:w",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:x",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:y",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:z",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:aa",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ab",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ae",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:af",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ag",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ah",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ai",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:aj",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ak",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:al",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:am",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:an",
+   "subject": "modules/02-enforcement/hook_model_gate.py:blanket-add-ban",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:r",
+   "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:s",
+   "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ac",
+   "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:ad",
+   "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:n",
+   "subject": "modules/02-enforcement/hook_model_gate.py:tool-scope",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:o",
+   "subject": "modules/02-enforcement/hook_model_gate.py:fail-open",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:p",
+   "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "fixture:q",
+   "subject": "modules/02-enforcement/hook_model_gate.py:comment-stripping",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:armed",
+   "subject": ".claude/settings.json",
+   "expectation_from": ".claude/settings.json",
+   "seen_red": "NEVER",
+   "waived": true,
+   "reason": "INSTANCE 6, and only half-closable. Whether the hook is wired can only be read from the settings file itself; there is no second source for the harness's intent. What WAS closable is startability - the script a matched command names is now checked against the FILESYSTEM, an independent artifact, and a missing one reports UNSTARTABLE. Residual, accepted: a settings file that is internally consistent and wrong (wired to the correct path of the wrong hook) reads as armed."
+  },
+  {
+   "id": "check:deadman",
+   "subject": "modules/02-enforcement/hook_fixtures.py:dead-man-clause",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:matcher-arms",
+   "subject": "modules/02-enforcement/hook_fixtures.py:matcher_arms",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:startability",
+   "subject": ".claude/settings.json:hook-commands",
+   "expectation_from": "filesystem",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:placeholder-rule",
+   "subject": "modules/02-enforcement/hook_fixtures.py:is_placeholder",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "gate:judges",
+   "subject": "the working tree",
+   "expectation_from": "git",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "gate:hooks",
+   "subject": "modules/02-enforcement/hook_fixtures.py",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "gate:example_unit",
+   "subject": "modules/03-verification/examples/fake_suite.py",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "gate:example_lint",
+   "subject": "modules/03-verification/examples/fake_lint.py",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:startup-assertion",
+   "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS",
+   "expectation_from": "filesystem",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:judged-paths-not-excluded",
+   "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS",
+   "expectation_from": "git",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "gate:escapes",
+   "subject": "the escape-rate table in the judgment ledger",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "NEVER",
+   "reason": "NOT a waiver - recorded because this gate's expectation is split and the split is the interesting part. The LINE FORMAT and the CEILING both live in verify.py's `escapes` entry, inside JUDGE_PATHS, so raising the ceiling is a reviewed commit; the DATA is the ledger table, which is deliberately NOT in JUDGE_PATHS because it is the subject being measured and putting it there would make every ordinary ledger append invalidate certification. The residual that buys: an uncommitted edit to the table moves the published number within a run. Compensating control, and it is weaker than a proof: the number is printed on every certification, so a changed number is in the log. Stated in KNOWN-ISSUES, 'The kit's own numbers'."
+  },
+  {
+   "id": "selftest:verify",
+   "subject": "modules/03-verification/verify.py:judging-layer",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "selftest:escape-rate",
+   "subject": "modules/04-ledgers/escape_rate.py:pure-layer",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "selftest:statusline",
+   "subject": "tools/statusline.py",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "selftest:statusline-escape",
+   "subject": "tools/statusline.py:escape-segment",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:statusline-escape-authority",
+   "subject": "tools/statusline.py:escape-segment",
+   "expectation_from": "modules/04-ledgers/escape_rate.py",
+   "seen_red": "NEVER",
+   "reason": "NOT a waiver - recorded because it is a cross-file binding and a reader should be able to see which file is the authority. The status board renders an escape rate; the number, the ceiling the sparkline is scaled against and the state word all come from escape_rate.py, which the board imports and calls. A board that parsed the ledger itself would be a SECOND parser of one table - the two-authorities class this kit's tools spend their selftests hunting - and it would drift from the tool module 03's `escapes` gate runs, so the board and the gate would publish different numbers from the same file, both green. The statusline selftest's authority section therefore imports escape_rate.py and requires the rendered percentage, the ceiling and the state word to be the tool's, with a forced red that changes the tool's number and requires the board's to move with it. THE CEILING CLAUSE IS BOUND ON THE REPORT THE BOARD PRODUCED, not on one the test handed the ceiling to: spec-side review measured the difference by replacing the ceiling inside `escape_state` with a literal 40.0 and passing 90/90, because the check then in place only proved that `report()` echoes its own argument. That line is now labelled a PRECONDITION and the binding reads `escape_state(...)[1]['ceiling_pct']`, which is the value the board actually scales against; the same mutation now goes red naming that check. The class has precedent - KNOWN-ISSUES round 19 records a silently drifted gate ceiling as one of this kit's own escapes. Residual, stated: that section is the one part of that selftest which touches a filesystem, and when the tool is not reachable (the board copied out of a kit checkout) it reports UNAVAILABLE rather than passing in silence."
+  },
+  {
+   "id": "check:statusline-tick-ramp",
+   "subject": "tools/statusline.py:tick-ramp",
+   "expectation_from": "the Python codec registry",
+   "seen_red": "NEVER",
+   "reason": "NOT a waiver - recorded because the expectation is deliberately NOT a literal. Whether a console can display the sparkline's block characters is a property of its code page, so the check asks the platform's own codec table (encode the ramp with the stream's encoding name and see whether it raises) rather than carrying a hand-written list of encodings that can. A literal list would be the same defect as a hard-coded `sys.platform == 'win32'` branch: wrong in both directions, since a Windows terminal set to UTF-8 draws the blocks and a POSIX host under LANG=C does not. The selftest drives the derivation with cp1252, cp437, ascii and an unknown encoding name and requires the ASCII ramp for each, so an edit that hard-coded the block ramp goes red. Residual, stated in the function's own docstring: an in-process check cannot see a console that misreports its code page, and the board's other segments draw block characters unconditionally, which predates this segment and is unchanged by it."
+  },
+  {
+   "id": "selftest:deident",
+   "subject": "tools/deident_scan.py",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "selftest:hook-fixtures",
+   "subject": "modules/02-enforcement/hook_fixtures.py:pure-layer",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "smoke:phase9-document-order",
+   "subject": "QUICKSTART.md",
+   "expectation_from": "tools/adoption_smoke.py",
+   "seen_red": "NEVER",
+   "reason": "Not self-referential by artifact - the checkpoints are hand-transcribed from the document into the walker, so an edit to one does not move the other. That is also its weakness, and a different one: the walker can drift out of date with the prose it transcribes. It runs the COMMANDS, not the explanations. Named in KNOWN-ISSUES as a residual."
+  },
+  {
+   "id": "smoke:phase8-config-in-judge-surface",
+   "subject": "kit.config",
+   "expectation_from": "modules/03-verification/verify.py:JUDGE_PATHS",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "smoke:phase10-slot-registry",
+   "subject": "modules/**/*.template",
+   "expectation_from": "kit.config.example",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "smoke:phase10-slot-manifests",
+   "subject": "template SLOTS headers",
+   "expectation_from": "the template body",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "smoke:phase12-excluded-judge-path",
+   "subject": "modules/03-verification/verify.py:git_excluded",
+   "expectation_from": "git",
+   "seen_red": "NEVER",
+   "reason": "The control for the SHIPPED exclusion probe, where check:judged-paths-not-excluded covers only how the startup assertion reacts to an injected answer. The phase plants a real ignore rule over a real judge path in a real repository, in both rule shapes, and compares the runner against `git check-ignore` run independently. It exists because the first version of the probe corrupted every path it asked about and all three gates stayed green: an injected-answer check cannot see a transport defect."
+  },
+  {
+   "id": "smoke:phase13-render-agrees",
+   "subject": "tools/kit_render.py:rendering",
+   "expectation_from": "tools/adoption_smoke.py:document_order",
+   "seen_red": "NEVER",
+   "reason": "Not self-referential by artifact, and deliberately so. document_order() renders the same templates BY HAND - a person's transcription of QUICKSTART - and phase 13 requires the tool's rendering to match it byte for byte (CLAUDE.md, the collaboration profile, TOKEN-LEDGER.md) and key for key (the structural settings merge). The two authorities are kept apart on purpose: the walk must never call the tool and the tool must never read the walk, or the kit loses its only independent expectation of what a rendered file looks like. When they disagree the arbiter is neither of them - it is the QUICKSTART step the hand model transcribes, and on this phase's first run the document ruled for the tool. Scope: this row covers the RENDERING sub-steps only; the guard assertions in the same phase are registered separately at smoke:phase13-render-guards. Residuals: the walk can drift out of date with the prose it transcribes; and the walk copies three of the four ledgers unrendered at Step 7, so JUDGMENT-LEDGER, FAILURE-FLOOR and LESSONS are checked against Step 7's printed checkpoint rather than diffed - every slot they carry is already covered by the CLAUDE.md byte-diff, and TOKEN-LEDGER is hand-rendered because RATIO_CEILING appears nowhere else."
+  },
+  {
+   "id": "smoke:phase13-render-guards",
+   "subject": "tools/kit_render.py:containment",
+   "expectation_from": "filesystem",
+   "seen_red": "NEVER",
+   "reason": "The same phase also asserts the two containment guards END TO END - a real subprocess, a real target repository, a real kit checkout - and those expectations do not come from the hand model. Guard 1 is measured by pointing a run at the kit clone and checking the kit tree afterwards; guard 1b by a LEDGERS_DIR that climbs out of the target and checking that the outside directory was never created; guard 2 by hashing every hand-rendered file before and after. The tool's own selftest proves the same refusals in process, which cannot see a filesystem that disagrees with the decision layer - the same argument smoke:phase12 makes about the exclusion probe."
+  },
+  {
+   "id": "selftest:kit-render",
+   "subject": "tools/kit_render.py",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "selftest:kit-doctor",
+   "subject": "tools/kit_doctor.py:judging-layer",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "selftest:gate-line",
+   "subject": "modules/03-verification/gate_line.py:pure-layer",
+   "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+   "seen_red": "NEVER",
+   "reason": "NOT a waiver - recorded because it is a cross-file binding and a reader should be able to see which file is the authority. The adapter's expectation is not a literal somebody typed: it is what pytest actually reported when `--capture-golden` ran the six fixture suites in `examples/pytest_suites/`, committed as captured. The pure layer is then required to rebuild those lines and those verdicts exactly. Regenerating the golden file is a reviewed commit for the same reason - recapturing over a defect would install the defect as the new expectation. Residual, stated: the LIVE half (re-running pytest and comparing) needs pytest installed, and this kit's CI deliberately downloads nothing, so there the selftest prints LIVE HALF NOT RUN with the reason rather than passing in silence."
+  },
+  {
+   "id": "golden:all-pass",
+   "subject": "modules/03-verification/gate_line.py:all-pass",
+   "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "golden:pass-with-skips",
+   "subject": "modules/03-verification/gate_line.py:pass-with-skips",
+   "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "golden:failures",
+   "subject": "modules/03-verification/gate_line.py:failures",
+   "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "golden:errors",
+   "subject": "modules/03-verification/gate_line.py:errors",
+   "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "golden:collapsed-collection",
+   "subject": "modules/03-verification/gate_line.py:collapsed-collection",
+   "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "golden:subset",
+   "subject": "modules/03-verification/gate_line.py:subset",
+   "expectation_from": "modules/03-verification/examples/pytest-golden.json",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "escape:nc-i",
+   "subject": "modules/04-ledgers/escape_rate.py:no-table",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-ii",
+   "subject": "modules/04-ledgers/escape_rate.py:two-tables",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-iii",
+   "subject": "modules/04-ledgers/escape_rate.py:no-separator",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-iv",
+   "subject": "modules/04-ledgers/escape_rate.py:non-integer-count",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-v",
+   "subject": "modules/04-ledgers/escape_rate.py:escapes-exceed-items",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-vi",
+   "subject": "modules/04-ledgers/escape_rate.py:half-uncountable-items",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-vii",
+   "subject": "modules/04-ledgers/escape_rate.py:half-uncountable-escapes",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-viii",
+   "subject": "modules/04-ledgers/escape_rate.py:empty-round-label",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-ix",
+   "subject": "modules/04-ledgers/escape_rate.py:short-row-not-skipped",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-x",
+   "subject": "modules/04-ledgers/escape_rate.py:negative-count",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-xi",
+   "subject": "modules/04-ledgers/escape_rate.py:over-ceiling",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "escape:nc-xii",
+   "subject": "modules/04-ledgers/escape_rate.py:state-word-dropped",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "escape:nc-xiii",
+   "subject": "modules/04-ledgers/escape_rate.py:round-row-outside-table-body",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "escape:nc-xiv",
+   "subject": "modules/04-ledgers/escape_rate.py:gate_ceiling",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "escape:nc-xv",
+   "subject": "modules/04-ledgers/escape_rate.py:small-n-denominator-floor",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "NOT a waiver - an accepted residual, recorded where the check lives. The derived floor (ceil(100/ceiling)) makes the per-round ceiling gate partition-sensitive: the same evidence split into sub-floor rounds exits 0 where one round of it exits 1, and nothing mechanical fires on a sustained run of sub-floor rounds. The compensating disclosure is loud rather than gated - the cumulative rate and trend carry every escape, and the SMALL-N line prints on every such run naming the round, its item count and the floor - but its only reader is a person. Accepted by the owner's 2026-08-23 ruling over the alternatives on record (UNCOUNTABLE hides a real number; an unconditional red makes red mean nothing)."
+  },
+  {
+   "id": "escape:nc-xvi",
+   "subject": "modules/04-ledgers/escape_rate.py:state-alternation-binding",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "check:escape-ceiling-agrees",
+   "subject": "modules/04-ledgers/escape_rate.py:DEFAULT_CEILING",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "NEVER",
+   "reason": "NOT a waiver - recorded because this check closes a measured two-authorities defect and a reader should be able to see which authority is which. The escape-rate ceiling is written twice as an operative value: the `--ceiling` literal in the runner's `escapes` gate command, and `DEFAULT_CEILING` in the tool. Nothing related them, and spec-side review measured the consequence - a copy of the tool with `DEFAULT_CEILING` at 90.0 published `ceiling 90.0%` from the standalone command the documents tell an adopter to type, while the same tool through the gate published 35.0, both green. `escape_rate.py --selftest` section F now reads the runner's source and requires agreement: the same cross-check shape as the fixture/registry and doctor/registry families, and it reads a genuinely different file from its subject. A THIRD spelling in `.github/workflows/kit-ci.yml` was deleted rather than bound - that step now passes no `--ceiling` and takes the tool's default - so two authorities remain and they are bound. Residual, stated: section F is the one part of that selftest that touches a filesystem, and when the runner is not reachable (this tool copied out of a kit checkout) it reports UNAVAILABLE rather than passing in silence."
+  },
+  {
+   "id": "doctor:version",
+   "subject": "tools/kit_doctor.py:KIT_VERSION",
+   "expectation_from": "VERSION",
+   "seen_red": "NEVER",
+   "reason": "Two artifacts on purpose. The stamp records which kit release a tree was adopted from; the constant records which release the tools came from. Neither can be checked against the FILES - a version stamp is a claim by whoever last copied - but the two disagreeing is exactly the state a partial re-copy leaves behind, and that is mechanically checkable."
+  },
+  {
+   "id": "doctor:config",
+   "subject": "kit.config",
+   "expectation_from": "modules/02-enforcement/hook_model_gate.py:PLACEHOLDER_SHAPES",
+   "seen_red": "NEVER",
+   "reason": "The rule for 'is this key configured or still an example value' is imported from the shipped hook rather than re-implemented in the doctor. A fourth reader of that rule is the arrangement that produced the original defect."
+  },
+  {
+   "id": "doctor:judge-paths-exist",
+   "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS",
+   "expectation_from": "filesystem",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "doctor:judge-paths-ignored",
+   "subject": "modules/03-verification/verify.py:JUDGE_PATHS+CERT_PATHS",
+   "expectation_from": "git",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "doctor:judge-paths-agree",
+   "subject": "kit.config:JUDGE_PATHS+CERT_PATHS",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "doctor:vacuous-gate",
+   "subject": "modules/03-verification/verify.py:GATES",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Three disjuncts, two of them structural properties of the gate table judged against hand-written rules (a require pattern with no capture group; a floor of 1 or less), and the third read from the FILESYSTEM (no docs/ORACLE-<gate>.md page). Registered as inline because the two rules that decide vacuity are hand-written literals; the filesystem half is named here so the row is not read as covering less than it does."
+  },
+  {
+   "id": "doctor:dirty-paths",
+   "subject": "the working tree",
+   "expectation_from": "git",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "doctor:hook-interpreter",
+   "subject": ".claude/settings.json:hook-commands",
+   "expectation_from": "filesystem",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "doctor:protected-case",
+   "subject": "modules/02-enforcement/hook_model_gate.py:touches_protected",
+   "expectation_from": "filesystem",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "doctor:cert-token",
+   "subject": ".claude/cert-green.json",
+   "expectation_from": "git",
+   "seen_red": "NEVER",
+   "reason": "Whether a token still covers the tree is git's answer (the newest commit touching CERT_PATHS is contained in the token's sha, and those paths are clean). What the check ALSO does is print the honest label on every run - the token is unsigned and forgeable by anything that can write a file - and that half has no expectation source because it is not a measurement. It is a disclosure, and it is the control."
+  },
+  {
+   "id": "doctor:floor-staleness",
+   "subject": "the adopting repository's FAILURE-FLOOR.md",
+   "expectation_from": "kit.config:DEMOTION_REVIEW_STAGES",
+   "seen_red": "NEVER",
+   "reason": "The anti-ratchet, promoted out of prose. The floor's own demotion-review section says every rule quiet for N stages gets RETIRE, DEMOTE or RE-AFFIRM at each phase gate, and nothing checked it - the owner's question was 'what is checking the lessons'. The window comes from the config key, NOT from the floor: a check that read its own threshold out of the file it judges could be cleared by editing that file, which is the class this registry exists for. The stage-to-day conversion is derived from the floor's own distinct firing dates because no file in an adopting repository relates stages to days, and the arithmetic is printed on every run so the threshold can be argued with. Residual, stated in the finding rather than here alone: rows reading `never` or `unknown - predates recording` cannot be dated and are reported as NOT MEASURED rather than counted either way, and the check reads a clock, so a project that has simply stopped recording looks stale - which is the correct reading for an anti-ratchet."
+  },
+  {
+   "id": "doctor:binding-digest",
+   "subject": "the adopting repository's rules file and newest checkpoint",
+   "expectation_from": "modules/01-governance/CLAUDE.md.template",
+   "seen_red": "NEVER",
+   "reason": "The other half of the anti-ratchet, and the only ceiling in this kit derived from a measurement of the kit's own shipped documents. The rules file is re-read at the top of every session; the module-01 template states 'keep it SHORT' three times and nothing measured it. DIGEST_CEILING_LINES = 325 by the four-step method TOKEN-LEDGER.md gives for the cost ratio: (191 rendered template lines + the 90-line measured checkpoint norm) x 1.15, rounded up to the nearest 25, with the arithmetic printed on every run, green included. The FIRST OBSERVATION IS BOUND TO ITS SOURCE: --selftest measures modules/01-governance/CLAUDE.md.template live and requires it to still render to 191 lines, so if the template grows the derivation's input has moved and the selftest goes red naming both numbers - the same binding shape as check:escape-ceiling-agrees, built because that ceiling drifted silently once already. Residual, stated: n = 2 observations, one project, LOW confidence, and the check counts lines without judging whether any line earned its place."
+  },
+  {
+   "id": "doctor:l1-documents",
+   "subject": "the adopting repository's LEDGERS_DIR and collaboration profile",
+   "expectation_from": "modules/04-ledgers",
+   "seen_red": "NEVER",
+   "reason": "The file names Level 1 installs are the kit's shipped skeletons, and the doctor carries them as a literal because an adopted tree has no modules/ directory to read. The literal is held to the shipped set by a --selftest cross-check that runs whenever the tool sits in a kit checkout, so a renamed skeleton fails here rather than in an adopter's tree."
+  },
+  {
+   "id": "doctor:l1-rendered",
+   "subject": "the adopting repository's Level-1 documents",
+   "expectation_from": "modules/02-enforcement/hook_model_gate.py:RENDERED_PLACEHOLDER",
+   "seen_red": "NEVER",
+   "reason": "The shipped-value half of this check reads the kit's shared rendered-text rule, imported rather than re-implemented - tools/adoption_smoke.py phase 9 asks the same question about the same class of file and now reads the same constant. The first version of this check carried a one-element list of its own and reported HEALTHY over six documents titled 'Example Project': two readers of one rule, drifting, which is the class this registry exists for. The clause the check implements - no surviving slot, no template header block, one shipped value allowed through by name (RATIO_CEILING) - is specified by the QUICKSTART Step 7 and Step 8 checkpoints. The marker words are literals in the tool, cross-checked against the shipped templates by --selftest, which also reads kit.config.example and requires every shipped example value that reaches a Level-1 document to be caught by the shared rule."
+  },
+  {
+   "id": "doctor:l1-committed",
+   "subject": "the adopting repository's Level-1 documents",
+   "expectation_from": "git",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "doctor:l1-config-complete",
+   "subject": "the adopting repository's kit.config",
+   "expectation_from": "kit.config.example",
+   "seen_red": "NEVER",
+   "reason": "The shipped example is the registry of every key the templates interpolate, so it is the only honest expectation for 'does this config carry them all' - and it is a different artifact from the config being judged. Built because LEVEL-1.md step 2 prints `cp kit.config.example ./kit.config`, which on a repository that already has a config destroys every answer in it, and the reason an adopter reaches for that command is usually a key that renders as an unfilled slot. The check names the missing keys and names the destructive remedy as destructive in the same red. Residual: it judges PRESENCE of keys only - whether a value is an answer or a shipped example is doctor:l1-rendered's question, on the documents they render into. When no kit.config.example can be found the check reports UNKNOWN rather than passing."
+  },
+  {
+   "id": "doctor:l1-ledger-collision",
+   "subject": "the adopting repository's LEDGERS_DIR",
+   "expectation_from": "modules/04-ledgers",
+   "seen_red": "NEVER",
+   "reason": "The kit's four ledger filenames are fixed - the doctor hard-codes them and LEDGERS_DIR is the only thing an adopter can move - so on a repository that already keeps ledgers the install has three possible outcomes and the documents name none of them. Two of the three used to be green: install alongside, and overwrite. Measured on this kit's own program repository, which had LESSONS-LEARNED.md beside the kit's LESSONS.md and TOKEN_LEDGER.md beside TOKEN-LEDGER.md, every check green over two documents answering one question. The expectation is the shipped skeleton set, carried as the same literal doctor:l1-documents uses and held to modules/04-ledgers by the same --selftest cross-check. Comparison is on a normalised stem (case, punctuation and the .md suffix removed) with containment counted as collision, because the measured spellings differed only by a hyphen and a suffix."
+  },
+  {
+   "id": "doctor:l1-knowledge-dir",
+   "subject": "kit.config:KNOWLEDGE_DIR",
+   "expectation_from": "modules/02-enforcement/hook_model_gate.py:is_placeholder",
+   "seen_red": "NEVER",
+   "reason": "Whether the value is a configured answer or the shipped example is decided by the kit's shared placeholder rule, imported rather than re-implemented - a fourth reader of that rule is the arrangement that produced the original defect. The one departure is stated in the judge: for this key NONE is a decision (kit.config.example says to set it when there is no knowledge base outside the repo), so the NONE case is answered before the shared rule is consulted, and whether the named directory exists is the filesystem's answer."
+  },
+  {
+   "id": "doctor:l1-interview",
+   "subject": "the adopting repository's collaboration profile:INTERVIEW",
+   "expectation_from": "modules/08-collaboration/PROFILE-TEMPLATE.md",
+   "seen_red": "NEVER",
+   "reason": "The three states an interview status may hold are defined by the shipped profile template's STATUS block. --selftest reads that template and requires the shipped line to be judged UNANSWERED, so the pattern is proven against the artifact it was written for rather than against a copy the test wrote itself."
+  },
+  {
+   "id": "citation:fabricated-quote",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "The round-22 defect replanted: a quotation attributed to `DECISION-BRIEF.md` whose words are not in it. Inline literals - the control writes both the sentence and a source that does not contain it, so they are the specification rather than a reading of the tool's own output."
+  },
+  {
+   "id": "citation:trailing-paren",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "Shape A, the parenthesised attribution, forced red on an invented quotation. Inline literals: the sentence and the source are both hand-written in the control."
+  },
+  {
+   "id": "citation:wrapped-quote",
+   "subject": "tools/citation_lint.py:flatten",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE CONTROL THAT KEEPS THIS TOOL HONEST. The round-22 review reported a real quotation as fabricated because its grep was line-oriented and the source wrapped across a newline. The control asserts BOTH halves against inline literals: a line-oriented search misses it, and flatten()-based matching finds it. Without this the tool does not merely miss defects, it manufactures them."
+  },
+  {
+   "id": "citation:wrapped-attribution",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Found by the forced-red run rather than by design: the first build excluded newlines from the quoted string itself, so a quotation wrapping at the LINTING document's own margin was never seen and a planted fabrication read clean. Inline literals, including the blank-line bound that stops an unpaired quote mark swallowing whole paragraphs."
+  },
+  {
+   "id": "citation:paragraph-break",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Found by the first live run, which returned five findings of which three were this single class: a file reference in an earlier paragraph pulled onto an unrelated quotation. Inline literals, asserted for both attribution shapes."
+  },
+  {
+   "id": "citation:cell-boundary",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A reference in a previous markdown table cell must not attribute a quotation in this one - measured on KNOWN-ISSUES.md, where it was this tool's last remaining false positive before the rule landed. Inline literal."
+  },
+  {
+   "id": "citation:intervening-ref",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "With two documents named before one quotation the nearest owns it, and the farther one must not also be made to answer for it. Inline literal; this is the precision half of the proximity heuristic."
+  },
+  {
+   "id": "citation:short-literal",
+   "subject": "tools/citation_lint.py:MIN_WORDS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The word floor separating a quotation from a named output line such as `0 skipped`. Asserted in both directions against inline literals: a short literal is not checked, a long one is."
+  },
+  {
+   "id": "citation:self-quote",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A document quoting itself is not an attribution. Inline literal."
+  },
+  {
+   "id": "citation:real-quote",
+   "subject": "tools/citation_lint.py:quote_is_in",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The clean half - a quotation that IS in its source passes, with a locator and without one. A checker that has only ever been red is as untested as one that has only ever been green. Inline literals."
+  },
+  {
+   "id": "citation:waiver",
+   "subject": "tools/citation_lint.py:WAIVERS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The waiver table is scoped to the case it names, covers nothing else, and every shipped waiver carries a non-empty reason - the same rule this registry applies to its own waivers. Read from WAIVERS itself, which IS the specification of what is waived."
+  },
+  {
+   "id": "citation:quote-cell-boundary",
+   "subject": "tools/citation_lint.py:attributions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Found by a live run against the register row written to record this tool: an odd number of quote marks inside one markdown table cell made the pattern pair one phrase's CLOSING quote with the next phrase's OPENING quote, capturing 300 characters of prose as a quotation. A quotation does not cross a cell boundary either. Inline literal."
+  },
+  {
+   "id": "citation:register",
+   "subject": "tools/citation_lint.py:REGISTER_DOCS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A findings register quotes text AS IT WAS when the finding was raised, beside a disposition that usually reads FIXED, so those words are absent from the current tree by construction. Exempted as a document class rather than one waiver per row, with the count printed on every run. Asserted in both directions - the register is exempt, an ordinary page is not - against REGISTER_DOCS itself, which IS the specification of which documents are exempt. Residual, disclosed in the tool and in the round entry: a genuine miscitation written into the register is exempt too."
+  },
+  {
+   "id": "citation:recall-floor",
+   "subject": "tools/citation_lint.py:RECALL_FLOOR",
+   "expectation_from": "the kit's own shipped documents",
+   "seen_red": "NEVER",
+   "reason": "Round 26's evaluation read (m4) found a real ten-word attribution the lint could not see, and section E passed anyway because it asserted only that SOME attributions were found. A presence count is not recall. RECALL_FLOOR names four attributions the shipped kit really contains - across two documents and both locator forms - and asserts each twice: extracted from its document, and its quotation present in the document it names. The expectation is the kit's prose rather than an inline literal on purpose, since a literal keeps passing while the pattern's reach shrinks underneath it, which is the failure this row exists to catch. Proven red-provable by reverting shape B's glue to its pre-round-27 form, which reds exactly the m4 row and no other."
+  },
+  {
+   "id": "citation:window-normalisation",
+   "subject": "tools/citation_lint.py:flatten_with_lines",
+   "expectation_from": "tools/citation_lint.py:flatten",
+   "seen_red": "NEVER",
+   "waived": true,
+   "reason": "WAIVED, and the lint was right to raise it - flagged on its first run, before any waiver was written. Subject and expectation are two functions in ONE file, so a single edit could move both and this check would stay green. It is kept in that shape deliberately, because the property being asserted IS an agreement between two normalisations and there is no third artifact that defines what the agreement should be. What makes it worth more than a tautology: the two are independently implemented - flatten() is a regex substitution, flatten_with_lines() is a character walk - so they agree only by both being correct, and the equality is asserted over EVERY SHIPPED DOCUMENT THE LINT ENUMERATES rather than over a literal the test wrote, so the input is outside the tool. The count is deliberately not restated here: it was 48 when this row was written at round 27 and 49 once round 28 shipped modules/08-collaboration/CAPSULE.md, and a number frozen in a reason field goes stale on the next document added while nothing checks it - the R28-3 finding in KNOWN-ISSUES.md. Residual, accepted and stated: an author who rewrites both functions in lockstep passes. Structural cover: tools/ is in JUDGE_PATHS, so an uncommitted change to either one reds the judges gate."
+  },
+  {
+   "id": "citation:window-lines",
+   "subject": "tools/citation_lint.py:quote_line_spans",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The clean half of the window layer, against an inline literal whose line numbers the control writes itself: a quotation wrapping across two source lines reports the span it really occupies, a locator naming only its FIRST line still overlaps, and a range wider than the quotation contains it. Overlap rather than containment is what lets the tolerance be zero, so these three are the controls that keep the window check from manufacturing findings against correct citations."
+  },
+  {
+   "id": "citation:window-stale",
+   "subject": "tools/citation_lint.py:quote_in_window",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE FORCED-RED HALF, and the round-22 defect's actual shape: right words, wrong lines. Four assertions against inline literals - a locator one line past the quotation is a finding, one elsewhere in the file is a finding, the presence check alone still reports the words as present (which is precisely the gap this closes), and a tolerance of one line would pass the off-by-one case. That last assertion holds the shipped tolerance's justification as a test rather than as prose: the tightest of the six round-26 defects sits one line outside its cited range, so any tolerance above zero is blind to it."
+  },
+  {
+   "id": "citation:window-locator",
+   "subject": "tools/citation_lint.py:line_span",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Which locators produce a window at all. A LINE form yields one, a single line yields a one-line window, a SECTION form such as ` Step 4` yields none so the attribution is checked for presence only, and an absent locator yields none. The last assertion checks the extractor carries the locator through to the caller, which is the join between the shipped pattern layer and the new window layer. Inline literals."
+  },
+  {
+   "id": "citation:window-repeat",
+   "subject": "tools/citation_lint.py:quote_line_spans",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A phrase may legitimately occur more than once in a document, and a locator naming EITHER occurrence is a correct citation. Without this the window check would invent findings against documents that repeat a phrase - the same manufacturing failure the wrapped-quote control prevents one layer down. Asserted in all three directions against an inline literal: both spans are reported, either one passes, and a locator naming neither is still a finding."
+  },
+  {
+   "id": "citation:stale-relocatable",
+   "subject": "tools/citation_lint.py:relocation",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34. A quotation that is real but whose line locator is stale, where the quotation occurs exactly once elsewhere. The correct locator is then a fact about the file rather than a guess, so the finding names the exact replacement and --fix writes it. Forced red end to end on a temporary tree on 2026-08-26: a citation naming line 2 for words at line 4 exits 1, keeps the NOT AT THE LINES IT NAMES token the CI step depends on, and prints the replacement. Inline literals for the pure layer, plus two controls that stop the repair manufacturing one: a locator that is already correct yields no relocation, and a quotation absent from the document yields none either."
+  },
+  {
+   "id": "citation:stale-ambiguous",
+   "subject": "tools/citation_lint.py:relocation",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34, the half where the tool must refuse rather than repair. A quotation occurring more than once, with the locator on none of the occurrences, has no single correct replacement, so --fix would have to choose - and a wrong line number written under a green is worse than a red. Forced red end to end on 2026-08-26: exit 1, every candidate printed, and --fix leaves the document byte-identical. Inline literals."
+  },
+  {
+   "id": "citation:fix-rewrite",
+   "subject": "tools/citation_lint.py:retarget",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34. The rewrite itself, held narrow: only the digits a line locator matched are replaced. It asserts the conservation rule the owner set for this build: a section locator comes back untouched, an en-dash range keeps its en-dash, a locator carrying both forms keeps its section half, and a splice at the offsets the extractor reports changes the locator and nothing else in the sentence. CORRECTED at the round-34 review's reproduction (the program records repo docs/reports/citation-v2-review-20260826-232212.md): this row previously read NEVER on the ground that a transform cannot make the lint red, and that property is false. Re-measured 2026-08-26 by mutating retarget to an off-by-one - five of these controls fail and --selftest exits 1, which is a CI gate. The one true nuance, kept rather than dropped: the LIVE run stays green under that mutant, because the shipped tree currently holds no relocatable stale locator for retarget to be called on. The refusal is real and it lives in the selftest. Inline literals."
+  },
+  {
+   "id": "citation:fix-order",
+   "subject": "tools/citation_lint.py:splice",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34, added at the review's MINOR-3. Two locator repairs in one document must be applied from the LAST offset backwards, or the first edit's length delta shifts every later offset and the second splice lands inside the citation instead of on it. Nothing asserted this before: every control applied a single edit, and one edit is correct in either order, so a forward-order mutant passed all 87 checks of the first build while destroying a citation line. The control now applies two edits and asserts the result as WHOLE-FILE content, and a second assertion runs the forward-order mutant beside it and requires the two to differ - a control that both implementations satisfy is the case this item found. Inline literals."
+  },
+  {
+   "id": "citation:contested",
+   "subject": "tools/citation_lint.py:contested",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34, added at the review's MAJOR-2. One reference can be claimed by TWO attributions - shape A reads the quotation before it and shape B the quotation after it - and both land on the same locator span. Repairing for one breaks the other. Reproduced by the reviewer and again by this lane before the fix: the locator oscillated :18, :5, :18, :5, :18 across five --fix runs with the exit code stuck at 1, never converging. --fix now refuses a contested locator with a CONFLICT message and leaves it byte-identical; the finding still stands, so the exit code is unchanged. Inline literals for the rule, plus the three controls that keep the refusal from swallowing real repairs: a single claimant is never contested, two claimants that agree are repaired, and two already-satisfied claimants have nothing to write."
+  },
+  {
+   "id": "citation:fenced-heading",
+   "subject": "tools/citation_lint.py:fenced_lines",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34, added at the review's MAJOR-1. A shell comment such as `# 9. copy the runner` inside a fenced code block parses as an ATX heading. Measured in the shipped kit: 41 phantom headings (QUICKSTART 22, the modules 13, ONBOARD 6). Wrong in both directions - on the target side a phantom lets a section anchor resolve to something no reader can see, a false GREEN on a citation that is wrong; on the citing side a §N written inside a fence is an EXAMPLE of the form, and reading it as a citation reports a finding against a document that is fine, a false RED, which this kit treats as the worse half. Both reproduced before the fix. Fences are now masked on both sides, by line rather than by deletion, because --fix splices by character offset. The fence idiom is fence_line_set() in tools/skim_lint.py, reused rather than reinvented. Inline literals, plus the live assertions that the phantoms really exist in the tree and that none survives into headings(), and the scoping controls that the same lines outside a fence are still read."
+  },
+  {
+   "id": "citation:bare-locator",
+   "subject": "tools/citation_lint.py:bare_locators",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Round 34, the invisible class made countable. A reference of the form `FILE.md`:40 with no quotation beside it carries no needle, so before this the tool neither checked it, skipped it, nor counted it - it appeared in no number the run printed. Twelve or so were estimated in the tree; the first live run found seven outside the register, and four of those seven were already stale. NEVER is the honest value and is deliberate: this is a coverage DISCLOSURE that moves the state word to PARTIAL and adds a summary segment, and it cannot go red. Making it red would red the whole tree at once over a class nobody has had a chance to migrate, and a red meaning the migration is unfinished is a red people learn to skip. Inline literals, including the control that keeps the count honest - a locator a quotation already guards is not bare, or the disclosure would double-count the window check."
+  },
+  {
+   "id": "citation:section-anchor",
+   "subject": "tools/citation_lint.py:section_hit",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34. The `FILE.md` §N citation form, resolved against the target's headings. Measured reason to prefer it: 46 section anchors in the tree survived a day of editing that broke three line locators. Forced red end to end on 2026-08-26: a document citing a section number the target does not carry exits 1 with the NAMES A SECTION THAT IS NOT THERE token, and the same tree goes green once the number is a real one. Inline literals, plus the control against a loose prefix match - §4 must not resolve to a heading numbered 4.7, because those are different sections - and the control the first live run forced: a sentence-final full stop is not part of the section number."
+  },
+  {
+   "id": "citation:heading-anchor",
+   "subject": "tools/citation_lint.py:heading_hit",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "Round 34. The `FILE.md`, \"Heading text\" citation form. The quoted string must appear in a HEADING of the target, not merely somewhere in its prose, which is the gap the presence check alone leaves open. Forced red end to end on 2026-08-26: a citation quoting a phrase that is in the document but in no heading exits 1, and it is reported once rather than twice. Inline literals, plus the two controls that stop this form stealing ordinary quotations - one word of glue between the reference and the quotation makes it an attribution again, and so does a line locator, because the author then named lines and the window check owns those."
+  },
+  {
+   "id": "count:stale-cross-doc",
+   "subject": "tools/count_lint.py:claims",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "ROUND 24's F1 REPLANTED: `ONBOARD.md` said Step 0 was nine lines while `QUICKSTART.md` Step 0 printed ten, a count that travels between documents and that nobody re-derives. Inline literals - the control writes both the claiming sentence and the ten-line section it names, so they are the specification rather than a reading of the tool's own output."
+  },
+  {
+   "id": "count:stale-introducer",
+   "subject": "tools/count_lint.py:table_rows",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "The local shape forced red: a stated count over the table it introduces, with a row missing. Inline literal."
+  },
+  {
+   "id": "count:stale-trailing",
+   "subject": "tools/count_lint.py:claims",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "The checkpoint shape forced red: a count in the paragraph under the fenced block it counts. This is the site `QUICKSTART.md` corrected in round 23 while the cross-document copy in `ONBOARD.md` was left behind, so the control holds the half that was right as well as the half that was not. Inline literal."
+  },
+  {
+   "id": "count:true-count",
+   "subject": "tools/count_lint.py:claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE CONTROL THAT KEEPS THIS TOOL FROM BEING A DEFECT GENERATOR. A checker that has only ever been red over a stale count would turn every correct sentence in the kit into a finding; this asserts the same shape with the right number passes. Inline literal."
+  },
+  {
+   "id": "count:blank-lines",
+   "subject": "tools/count_lint.py:countable_lines",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Blank lines inside a fenced block are not countable lines. Inline literal; the countable-line definition is a judgment call and each of its clauses is asserted separately."
+  },
+  {
+   "id": "count:comment-line",
+   "subject": "tools/count_lint.py:countable_lines",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A whole-line comment is not a command, and a TRAILING comment does not stop its line being one. Asserted in both directions against an inline literal."
+  },
+  {
+   "id": "count:wrapped-command",
+   "subject": "tools/count_lint.py:CONTINUES",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "FOUND BY THE FIRST LIVE RUN, NOT BY DESIGN, and the sibling of the citation lint's most important control. `QUICKSTART.md` Step 4's pwsh block is three commands on four physical lines, the third a pipeline continued on the next; the tool reported that correct sentence as a defect until a line ending in `\\`, `|` or a backtick was counted with the line it continues onto. Inline literal."
+  },
+  {
+   "id": "count:table-header",
+   "subject": "tools/count_lint.py:table_rows",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The header row and the `|---|` separator are not data rows. Inline literal."
+  },
+  {
+   "id": "count:loose-list",
+   "subject": "tools/count_lint.py:list_items",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A list with blank lines between its items is one list, and a continuation line is not an item - the shape most of this kit's numbered lists actually have. Inline literal."
+  },
+  {
+   "id": "count:nested-item",
+   "subject": "tools/count_lint.py:list_items",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "An indented sub-item belongs to the item above it and is not a top-level item. Inline literal."
+  },
+  {
+   "id": "count:prose-count",
+   "subject": "tools/count_lint.py:claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The false-positive floor, and the tool's largest declared blind spot: a count phrase with no locatable target is SKIPPED with the count printed, never guessed at and never failed. Inline literal."
+  },
+  {
+   "id": "count:mid-paragraph-colon",
+   "subject": "tools/count_lint.py:claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A colon inside a paragraph that keeps going introduces nothing. Inline literal; this is half of the narrowing the first live run forced, the other half being that the count phrase must OPEN the introducing paragraph."
+  },
+  {
+   "id": "count:ambiguous-section",
+   "subject": "tools/count_lint.py:section_fence_count",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A named section holding two fenced blocks is skipped rather than guessed at - a wrong target manufactures findings, which is worse than missing them. Inline literal."
+  },
+  {
+   "id": "count:cell-boundary",
+   "subject": "tools/count_lint.py:claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A document reference in a previous markdown table cell does not carry a count phrase in this one - the same rule the citation lint learned on this register's own rows. Inline literal."
+  },
+  {
+   "id": "count:semantic-count",
+   "subject": "tools/count_lint.py:LINE_NOUNS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A cross-document count whose noun is not a line noun is skipped: no parser decides which lines of a block are selftests, or what counts as a document. Inline literal."
+  },
+  {
+   "id": "count:register",
+   "subject": "tools/count_lint.py:REGISTER_DOCS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A findings register records what a count USED TO BE beside its correction, so checking those against the fixed tree asks the wrong question. Exempt as a document class with the count printed on every run, asserted in both directions against REGISTER_DOCS itself, which IS the specification of which documents are exempt. Residual, disclosed in the tool and in the round entry: a genuinely wrong count written into the register is exempt too."
+  },
+  {
+   "id": "count:waiver",
+   "subject": "tools/count_lint.py:WAIVERS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "Every shipped waiver carries a non-empty reason - the same rule this registry applies to its own waivers. The table ships empty in v1 and the assertion still holds, which is the point: it is the rule that binds the first waiver anyone adds. Read from WAIVERS itself, which IS the specification of what is waived."
+  },
+  {
+   "id": "count:vocabulary-ceiling",
+   "subject": "tools/count_lint.py:WIDE_COUNT",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "ROUND 24's REVIEW, m2: the tool CHECKS one..twenty and up to three digits, and phrases above that ceiling ('thirty lines', 'twenty-five commands', '1024 lines') were matched by nothing - not checked, not skipped, and absent from the skip total the docstring calls the disclosure. The review proved it by planting five false counts written with the word 'ninety' and watching all five vanish. The ceiling is deliberate and stays; what this control holds is that a phrase above it is now SKIPPED with a reason of its own. Inline literals - the control writes the phrase and the block it sits over, so both are the specification rather than a reading of the tool's own output."
+  },
+  {
+   "id": "count:vocabulary-in-range",
+   "subject": "tools/count_lint.py:claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The other direction of count:vocabulary-ceiling, and the reason the disclosure pass is safe to add: a number INSIDE the checking vocabulary is still decided by the checking pass and is NOT also counted as a skip. The two patterns match disjoint number tokens; this control is what goes red if a later edit makes them overlap and inflates the skip total with phrases the tool actually checks. Inline literal."
+  },
+  {
+   "id": "quant:f1-shape",
+   "subject": "tools/count_lint.py:quantifier_claims",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "ROUND 29's F1 REPLANTED, and the reason this layer exists: COMPARISON.md shipped 'Every row names an artifact and carries a source in brackets' over a table three of whose rows carried no source at all. The class - a universal quantifier asserted over a target the writer could have enumerated and did not - was paid for four times across rounds 26-29 and declined as an oracle each time. Inline literals: the control writes both the claiming sentence and the table it names, so they are the specification rather than a reading of the tool's own output."
+  },
+  {
+   "id": "quant:f1-nonadjacent",
+   "subject": "tools/count_lint.py:all_constructs",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "Shape Q2, and the half that makes the layer useful rather than ornamental: the shipped defect sat several paragraphs above its table, which the adjacency rule the count layer uses cannot reach. A universal claim is usually written away from the thing it quantifies over. Inline literal."
+  },
+  {
+   "id": "quant:f2-restated",
+   "subject": "tools/count_lint.py:quantifier_claims",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "ROUND 29's F2, written over an enumerable target. The shipped sentence ('the prompt behind every finding count here') names no table, list or block and is SKIPPED - quant:f2-as-shipped holds that half. This control holds the other: the same claim written against a per-entry table with the prompt in each row IS caught on the entry that has none. Both halves are registered so neither can be quietly moved, and the pair is the honest statement of what this layer covers. Inline literal."
+  },
+  {
+   "id": "quant:negative-red",
+   "subject": "tools/count_lint.py:QUANT_NEGATIVE",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "The negative quantifier inverts the test: 'no' and 'none of the' mean NO element may carry the literal, and the element that does is the finding. This is not the same test as the universal and would be silently absent if only the universal were controlled. Inline literal."
+  },
+  {
+   "id": "quant:true-claim",
+   "subject": "tools/count_lint.py:quantifier_claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE CONTROL THAT KEEPS THIS LAYER FROM BEING A DEFECT GENERATOR, the sibling of count:true-count. A checker that has only ever been red over a false universal would turn every correct universal in the kit into a finding. Inline literal."
+  },
+  {
+   "id": "quant:negative-true",
+   "subject": "tools/count_lint.py:quantifier_claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The same control for the inverted test: a true negative quantifier passes. Inline literal."
+  },
+  {
+   "id": "quant:adjective",
+   "subject": "tools/count_lint.py:quantifier_claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The r30 review's F6: 'every single row' must decide on the noun past the adjective, not skip on the adjective as a non-target. The lookahead window that fixes it is the code under test; the control pins it. Inline literal."
+  },
+  {
+   "id": "quant:f2-as-shipped",
+   "subject": "tools/count_lint.py:QUANT_NOUNS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE LIMIT, HELD AS A CONTROL. Round 29's review predicted this layer would not catch F2, and it does not: 'finding count' names no target this tool enumerates, so the sentence is SKIPPED WITH ITS REASON. What changed in round 30 is that it is now a disclosed skip in the denominator rather than invisible to every check in the kit. Partial cover, registered as partial. Inline literal."
+  },
+  {
+   "id": "quant:mid-sentence",
+   "subject": "tools/count_lint.py:quantifier_claims",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "FOUND BY THE FIRST LIVE RUN, NOT BY DESIGN - the sibling of count:wrapped-command, one level up. docs/walks/walk-13-thorough-adopter.md holds a 400-word persona prompt in one fenced block; 'executing every command as printed' sits deep inside it and a later clause quotes the word 'done'. The layer read that quotation as the claim's predicate and reported the correct sentence as a defect. The narrowing is the count layer's own opening rule applied to sentences: a universal is a claim ABOUT a target only when it is what the sentence is about. Inline literal."
+  },
+  {
+   "id": "quant:no-literal",
+   "subject": "tools/count_lint.py:literal_predicate",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A predicate that needs judgment ('every row states a verdict that is accurate') is not a literal and is skipped rather than guessed at. The layer tests token PRESENCE and nothing else, which is the entire reason it is buildable at all. Inline literal."
+  },
+  {
+   "id": "quant:doc-ref",
+   "subject": "tools/count_lint.py:literal_predicate",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A backticked name ending in .md is a document reference, not a predicate - the same distinction the count layer's SECTION_REF draws. Without it, 'Every row cites BLUEPRINT.md' would be tested by searching each row for a filename. Inline literal."
+  },
+  {
+   "id": "quant:ambiguous",
+   "subject": "tools/count_lint.py:all_constructs",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A document holding TWO tables offers no single target, and ambiguity is skipped rather than guessed at - the same rule section_fence_count already applies. A wrong target manufactures findings, which is worse than missing them. Inline literal."
+  },
+  {
+   "id": "quant:no-target",
+   "subject": "tools/count_lint.py:QUANT_NOUNS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A noun outside the three enumerable kinds names nothing this tool can count, and is skipped with the noun printed so the reader can see what was not decided. This is the larger half of the class by volume and it is disclosed, not covered. Inline literal."
+  },
+  {
+   "id": "quant:absolute",
+   "subject": "tools/count_lint.py:QUANT_ABSOLUTE",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "DISCLOSURE ONLY, the sibling of count:vocabulary-ceiling. 'never' and 'always' take no noun, so no target can be located from them; they are matched for the sole purpose of reaching the skip total with a reason of their own instead of being invisible. This pattern decides nothing and can never produce a finding. Inline literal."
+  },
+  {
+   "id": "quant:no-verb",
+   "subject": "tools/count_lint.py:PRESENCE_VERB",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A sentence with no presence verb is not a claim about token presence, so it is neither checked nor counted as skipped. This is a denominator rule, and it matters in the unflattering direction: padding the denominator with sentences the layer was never about would make the printed coverage figure look larger than the layer's real reach. Inline literal."
+  },
+  {
+   "id": "quant:state-word",
+   "subject": "tools/count_lint.py:coverage_state",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE STRANGER'S FINDING, HELD AS A CONTROL. An outside reader ran count_lint, read 'clean' over 15 located claims and 754 skipped ones, and filed the obvious objection: clean is the wrong word for a run that could not locate a target for 98% of its subject, and this kit's own PARTIAL doctrine was not being applied to its own lint. The control asserts both directions - a run that skipped nothing is CLEAN, a run that located 15 of 769 is PARTIAL at 2.0% - so the word cannot drift back. Inline literals, and the second pair is the reader's own arithmetic."
+  },
+  {
+   "id": "skim:outside-window",
+   "subject": "tools/skim_lint.py:scan",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "ROUND 29's R29-3 REPLANTED: the front door named the escape table and the walks directory only in prose several screens down, and the first reader outside this program stopped before reaching either. The control writes a door in that shape and requires both to be reported, by name, with the line they were found at so the fix is a move rather than a hunt. Inline literals - the control writes the door and the window, so they are the specification rather than a reading of the tool's own output."
+  },
+  {
+   "id": "skim:absent",
+   "subject": "tools/skim_lint.py:scan",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25",
+   "reason": "The other half of the red: an artifact named NOWHERE in the door is a finding too, and the run says it is nowhere rather than printing a line number it does not have. Registered separately because 'too late in the document' and 'not in the document' are different states and a check that rendered them alike would be the state-word defect one level down. Inline literal."
+  },
+  {
+   "id": "skim:true-front-door",
+   "subject": "tools/skim_lint.py:scan",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE CONTROL THAT KEEPS THIS TOOL FROM BEING A DEFECT GENERATOR, the sibling of count:true-count and citation:real-quote. A checker that has only ever been red over a badly routed door would turn every correct front door into a finding. Inline literal."
+  },
+  {
+   "id": "skim:boundary",
+   "subject": "tools/skim_lint.py:scan",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE WINDOW'S EDGE, ASSERTED IN BOTH DIRECTIONS: a mention ON line N is inside, and the same mention with the window one line shorter is outside. A window is a number and a number has an edge; an edge nobody tested is an edge that is off by one, and this tool's whole verdict is which side of it a link falls. Inline literal - the control writes the door and passes its own N, which is the reason `scan()` takes N as a parameter while the command line does not expose one."
+  },
+  {
+   "id": "skim:fenced-mention",
+   "subject": "tools/skim_lint.py:fence_line_set",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A path inside a fenced code block is a command argument, not a door - the front door's own Quickstart block contains `--ledger KNOWN-ISSUES.md` and a reader cannot follow it. Asserted in both directions against an inline literal: the fenced mention satisfies nothing, AND it is counted and printed, because an exclusion nobody sees is not an exclusion."
+  },
+  {
+   "id": "skim:path-boundary",
+   "subject": "tools/skim_lint.py:name_pattern",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "A near miss that passes is worse than a miss, because it is green. `docs/KNOWN-ISSUES.md`, `KNOWN-ISSUES.md.bak` and `docs/walkthroughs/` are different artifacts and satisfy nothing; the honest forms - a `./` prefix, an `#anchor` - still pass. Both directions, inline literals."
+  },
+  {
+   "id": "skim:directory-artifact",
+   "subject": "tools/skim_lint.py:target_matches",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "One of the three required artifacts is a DIRECTORY, and a link INTO it (`docs/walks/README.md`) routes the reader into it as surely as a link to it does; so does the slashless form. Registered because the directory case is the one shape where the match rule is a judgment call rather than an equality, and a judgment call with no control is a rule nobody can see. Inline literal."
+  },
+  {
+   "id": "skim:reference-style",
+   "subject": "tools/skim_lint.py:mentions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE DISCLOSED LIMIT, HELD AS A CONTROL rather than left in prose. A reference-style link `[the table][ki]` whose definition sits outside the window carries no path in the window, so it is invisible and the artifact reads as unreachable. The front door does not use that form; the residual is stated in the tool's OUT OF SCOPE and pinned here, so a later change to the behaviour is visible rather than silent. Inline literal."
+  },
+  {
+   "id": "skim:wrapped-link",
+   "subject": "tools/skim_lint.py:mentions",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE CITATION LINT'S LESSON, INHERITED RATHER THAN RE-LEARNED. That tool's round-22 review reported a real quotation as fabricated because its search was line-oriented and the source wrapped; this tool matches over the document and maps offsets back to lines, so a link whose target wraps onto the next line is still seen. Inline literal."
+  },
+  {
+   "id": "skim:state-word",
+   "subject": "tools/skim_lint.py:coverage_state",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "ROUND 30's STATE-WORD DOCTRINE APPLIED TO A CHECK BUILT AFTER IT. A door that reaches every artifact BY LINK is CLEAN; one that only NAMES two of them is PARTIAL, with both halves of the denominator printed rather than the word `clean`. The third assertion holds the deliberate part: the state word does not move the exit code, because a named path satisfies the check this tool was chartered to build and reddening it would be the tool deciding a question the charter did not ask. Inline literals."
+  },
+  {
+   "id": "skim:window-derivation",
+   "subject": "tools/skim_lint.py:WINDOW_LINES",
+   "expectation_from": "README.md",
+   "seen_red": "NEVER",
+   "reason": "NOT a waiver - recorded because the window's derivation has an INPUT and a reader should be able to see which artifact it comes from. WINDOW_LINES = 50 is derived in the tool's docstring from a labelled viewport estimate (36 rendered lines) converted by the front door's measured blank-line share (22%), then rounded up. The share is a measurement of README.md, so a document whose shape moves - one line per paragraph, or padded with blank lines - moves the derivation's input while the constant stays put. The selftest re-measures it live and requires it inside BLANK_SHARE_BAND, printing both numbers, and separately pins the shipped 50 so an edit to the window is a visible reviewed change rather than a quiet one. The same binding shape doctor:binding-digest and check:escape-ceiling-agrees carry, built for the same reason: a constant derived once from a measurement drifts silently otherwise. Residual, stated: the band is 15-30%, wide enough to survive ordinary editing, so a share that drifts within it moves the true derivation by a few lines without going red."
+  },
+  {
+   "id": "skim:live-door",
+   "subject": "README.md",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "THE LIVE HALF, and the answer to round 29's first objection to building this check at all - that its expectation would be 'a list this round wrote'. It is: REQUIRED is three hand-written paths in the tool, the specification, and it is deliberately NOT read from the door, because a check that took its list of artifacts out of README.md and then asserted README.md names them would be vacuous. This control runs the real scan over the real front door and requires all three reachable from inside the window. It went red on its first run - the round-30 front door named two of the three only past line 100 - and the fix was a link in the door list, not a wider window. When the door is not reachable (this tool copied out of a kit checkout) the section reports UNAVAILABLE rather than passing in silence."
+  },
+  {
+   "id": "lint:expectation-source",
+   "subject": "checks-registry.json",
+   "expectation_from": "checks-registry.json",
+   "seen_red": "NEVER",
+   "waived": true,
+   "reason": "The registry can only be checked against itself for internal consistency - there is no independent source for what a check's expectation ought to be. What it therefore cannot catch is an entry that is simply ABSENT. Narrowed for TEN families now, whose ids are recovered from the source and cross-checked both ways: the hook fixtures in hook_fixtures.py, the doctor's checks in tools/kit_doctor.py, the escape-rate tool's negative controls in modules/04-ledgers/escape_rate.py, the gate-line adapter's golden fixtures in modules/03-verification/gate_line.py, the citation lint's negative controls in tools/citation_lint.py, the count lint's negative controls in tools/count_lint.py, that same tool's quantifier-layer controls, which carry their own QUANT() label shape and their own registry prefix, the skim lint's negative controls in tools/skim_lint.py, the repeat lint's negative controls in tools/repeat_lint.py, and this lint's OWN seen-red controls in tools/expectation_lint.py - the first family recovered from this file rather than another, which is not self-reference because the subject is the registry on disk and the expectation is a literal in this source. The doctor was the reason to generalise the cross-check rather than trust the author - ten unregistered checks in one commit would have grown this blind spot faster than the lint that discloses it - and the escape-rate tool arrived with a set of them, every one reported by this cross-check on its first run before any were registered. The quantifier layer did the same in round 30: fifteen controls, all fifteen reported unregistered on the first run. Everything outside those eight families still depends on the author adding a row. Stated as a residual in KNOWN-ISSUES rather than presented as closed. Round 32 added the ninth and tenth families and the cross-check reported all twenty-one of their controls unregistered on its first run, the same way it reported the quantifier layer's fifteen in round 30."
+  },
+  {
+   "id": "repeat:relocation",
+   "subject": "tools/repeat_lint.py:restatements",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "repeat:unused-waiver",
+   "subject": "tools/repeat_lint.py:unused_waivers",
+   "expectation_from": "inline",
+   "seen_red": "NEVER",
+   "reason": "The correction-travel tripwire added in the round-32 fix pass: a waiver whose pair stops matching is printed as UNUSED so the surviving copy gets read for staleness. Inline literal; seen_red NEVER is honest - the control asserts the pure function, and the printed line has not yet fired on a real dead waiver."
+  },
+  {
+   "id": "repeat:absolute",
+   "subject": "tools/repeat_lint.py:QUANT_WORDS",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "repeat:copula",
+   "subject": "tools/repeat_lint.py:ASSERT_VERB",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "repeat:different-claims",
+   "subject": "tools/repeat_lint.py:longest_run",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:negation",
+   "subject": "tools/repeat_lint.py:longest_run",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:same-document",
+   "subject": "tools/repeat_lint.py:restatements",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:word-floor",
+   "subject": "tools/repeat_lint.py:universal_sentences",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:no-verb",
+   "subject": "tools/repeat_lint.py:ASSERT_VERB",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:no-quantifier",
+   "subject": "tools/repeat_lint.py:QUANT_WORDS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:register",
+   "subject": "tools/repeat_lint.py:EXEMPT_GLOBS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:verbatim-prompt",
+   "subject": "tools/repeat_lint.py:EXEMPT_GLOBS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:waiver",
+   "subject": "tools/repeat_lint.py:waiver_for",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:empty-waiver",
+   "subject": "tools/repeat_lint.py:waiver_for",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:shipped-waiver",
+   "subject": "tools/repeat_lint.py:WAIVERS",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "repeat:state-word",
+   "subject": "tools/repeat_lint.py:coverage_state",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "seenred:absent",
+   "subject": "checks-registry.json:seen_red-presence",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "seenred:free-text",
+   "subject": "checks-registry.json:seen_red-shape",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "seenred:loose-date",
+   "subject": "checks-registry.json:seen_red-shape",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-25"
+  },
+  {
+   "id": "seenred:never-is-clean",
+   "subject": "checks-registry.json:seen_red-shape",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "seenred:date-is-clean",
+   "subject": "checks-registry.json:seen_red-shape",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "seenred:denominator",
+   "subject": "tools/expectation_lint.py:seen_red_problems",
+   "expectation_from": "inline",
+   "seen_red": "NEVER"
+  },
+  {
+   "id": "prose:budget",
+   "subject": "tools/prose_floor.py:lint_file",
+   "expectation_from": "prose-budgets.json",
+   "seen_red": "2026-08-26",
+   "reason": "THE OWNER'S PROSE FINDING PROMOTED TO A LAYER (2026-08-26): verbose reader-facing prose buries the rule it explains; the fix is a budget per doc. First live run went red on 16 files, including two the same coordinator had just rewritten to pass. The ratchet is enforced in code since the prose-floor review: check_ratchet compares the working manifest against the committed HEAD manifest and fails any raised budget; selftest carries both ratchet controls."
+  },
+  {
+   "id": "prose:long-sentences",
+   "subject": "tools/prose_floor.py:lint_file",
+   "expectation_from": "prose-budgets.json",
+   "seen_red": "2026-08-26",
+   "reason": "Sentences over 30 words above a 10% share fail. The intern bar: a reader new to the project follows the doc without re-reading a sentence. Selftest forces the red; live tree was red on first run."
+  },
+  {
+   "id": "prose:banned-phrase",
+   "subject": "tools/prose_floor.py:lint_file",
+   "expectation_from": "prose-budgets.json",
+   "seen_red": "2026-08-26",
+   "reason": "Stock coined idioms repeat across AI-written docs and read as a fingerprint (owner feedback, 2026-08-24). The list lives in the manifest. Selftest forces the red."
+  },
+  {
+   "id": "prose:jargon-glossary",
+   "subject": "tools/prose_floor.py:lint_file",
+   "expectation_from": "prose-budgets.json",
+   "seen_red": "2026-08-26",
+   "reason": "Project shorthand without a definition is a stumble for a new reader. A doc using a listed term must link GLOSSARY.md. Selftest forces the red; live tree was red on first run in 12 files."
+  },
+  {
+   "id": "prose:unregistered-doc",
+   "subject": "tools/prose_floor.py:scan",
+   "expectation_from": "prose-budgets.json",
+   "seen_red": "2026-08-26",
+   "reason": "A new in-scope doc absent from the manifest fails, so future documents declare their budget or exemption in the change that adds them. This is the rule that makes the floor bind forward, not just today. Selftest forces the red."
+  },
+  {
+   "id": "skim:adoption-door",
+   "subject": "tools/skim_lint.py:scan",
+   "expectation_from": "inline",
+   "seen_red": "2026-08-26",
+   "reason": "THE REVIEWER'S LIVE ESCAPE, CLOSED WITH ITS ORACLE (prose-floor review, 2026-08-26): README named every evaluation artifact and never routed a reader to QUICKSTART.md, and skim_lint ran CLEAN because its REQUIRED tuple had no adoption-entry row. Pre-existing at HEAD, found by a human-shaped read. The row adds QUICKSTART.md to REQUIRED; the selftest's adoption-door control plants a door with all three evaluation artifacts and no adoption entry and requires the red. Inline literal - the control writes the door."
+  },
+  {
+   "id": "prose:public-records",
+   "subject": "tools/prose_floor.py:scan",
+   "expectation_from": "prose-budgets.json",
+   "seen_red": "2026-08-26",
+   "reason": "Records (rationale, history) live in the private repo or the vault, never the public mirror (owner ruling 2026-08-26). With --public-root, a docs/records/ directory in the public tree fails. WIRING, stated honestly: kit CI cannot run this half (no public tree exists there); the call site is step 4 of the program's RELEASE-CHECKLIST.md (the program records repo docs/, minted at the prose-floor review) - a procedural layer, named as such. Selftest forces the red."
+  }
+ ]
 }

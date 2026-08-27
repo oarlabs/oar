@@ -30,8 +30,9 @@ the evidence.
 The adversarial read's first FATAL attack is the reason this directory exists:
 it found that the repository described its adoption walks in language a reader
 takes to mean people while other documents recorded that they were AI personas.
-That finding is now fixed repository-wide, and the prompts behind every walk are
-published so the label can be checked.
+That finding is now fixed repository-wide, and the prompts behind the seven
+adoption walks of entries 8–14 are published so the label can be checked.
+Entries 1–7 predate that loop and have no prompt retained.
 
 **A provenance correction.** The register's Round #17 section said these reads
 were run against `2c18c53`. They were not: all three prompts name `fcd64b1`, the

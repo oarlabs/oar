@@ -932,14 +932,15 @@ def judge_floor_staleness(rep: dict, window_stages: int, source) -> Finding:
 # ratio and `KNOWN-ISSUES.md` uses for the escape-rate ceiling.
 #
 # STEP 1 - the observations, measured rather than estimated. The kit's shipped
-# rules template renders to 224 lines (260 in the file, minus the 36-line
+# rules template renders to 251 lines (287 in the file, minus the 36-line
 # header block the template tells the adopter to delete). The checkpoint's
 # shape contract carries a MEASURED norm of about 90 lines, published in
 # CONTEXT-ARCHITECTURE section 3, BLUEPRINT section 7 and the rules template
-# itself. The shipped binding digest is therefore 224 + 90 = 314 lines.
-# STEP 2 - 314 x 1.15 = 361.1, rounded up to the nearest 25: 375.
-# RE-DERIVED FOUR TIMES NOW - TWICE IN ROUND 24, AGAIN IN ROUND 25, AGAIN IN
-# ROUND 26 - WHICH IS THE BINDING WORKING rather than a number being chased.
+# itself. The shipped binding digest is therefore 251 + 90 = 341 lines.
+# STEP 2 - 341 x 1.15 = 392.15, rounded up to the nearest 25: 400.
+# RE-DERIVED FIVE TIMES NOW - TWICE IN ROUND 24, AGAIN IN ROUND 25, AGAIN IN
+# ROUND 26, AGAIN IN ROUND 32 - WHICH IS THE BINDING WORKING rather than a
+# number being chased.
 # The history, because each re-derivation is evidence the guard fires:
 #   round 24  the declined-oracle clause (WHEN THE LOOP ENDS, rule 7) grew the
 #             template 191 -> 206 rendered lines, and that clause's own fix
@@ -951,18 +952,23 @@ def judge_floor_staleness(rep: dict, window_stages: int, source) -> Finding:
 #             source and the real check id: 219 -> 224. Ceiling re-derived and
 #             UNCHANGED at 375, because (224 + 90) x 1.15 = 361.1 still rounds
 #             up into the same 25-line bucket.
+#   round 32  the SHIP REQUIREMENTS section - a forced red, a recorded seen-red
+#             date and a lineage row before a claim-bearing component ships -
+#             plus its stage-close step grew the template 224 -> 251, and the
+#             ceiling was re-derived 375 -> 400. The guard fired on the round
+#             that wrote the section, in the run that was verifying it.
 # Measured, not assumed: run with a stale constant the selftest fails naming
-# both numbers (`got 224, want 219` the last time), which is exactly what the
+# both numbers (`got 251, want 224` the last time), which is exactly what the
 # binding below promises. The ceiling is re-derived from each new measurement
 # rather than the assertion relaxed, and it is allowed to stay where it is
 # when the arithmetic puts it there.
 # STEP 3 - the backwards sanity check, and one half of it is evidence while
-# the other is arithmetic. The half that carries no information: at 375 the
+# the other is arithmetic. The half that carries no information: at 400 the
 # kit's own shipped pair passes, which is true by construction because step 2
-# set the ceiling above it. The half that does: the shipped pair sits 61 lines
-# (16.3%) below the line rather than at it, so ordinary project-specific
+# set the ceiling above it. The half that does: the shipped pair sits 59 lines
+# (14.8%) below the line rather than at it, so ordinary project-specific
 # additions fit, while a rules file that has merely DOUBLED from the shipped
-# template (448 lines) breaches it on its own with no checkpoint at all. That
+# template (502 lines) breaches it on its own with no checkpoint at all. That
 # is where this threshold actually sits.
 # STEP 4 - n = 2 observations, one project, one maintainer's measurement. LOW
 # confidence, and lower than the escape-rate ceiling's. Re-derive it from your
@@ -976,9 +982,9 @@ def judge_floor_staleness(rep: dict, window_stages: int, source) -> Finding:
 # rather than the ceiling silently ceasing to mean what this comment says it
 # means. The numbers in this comment are part of the same contract: when the
 # constant below moves, STEP 1, STEP 2 and STEP 3 are re-stated with it.
-DIGEST_SHIPPED_RULES_LINES = 224
+DIGEST_SHIPPED_RULES_LINES = 251
 DIGEST_CHECKPOINT_NORM_LINES = 90
-DIGEST_CEILING_LINES = 375
+DIGEST_CEILING_LINES = 400
 
 
 def rendered_template_lines(text: str) -> int:

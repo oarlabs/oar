@@ -63,14 +63,27 @@ oar/
                              summary line with a denominator and a state word
   tools/citation_lint.py is the quoted string in the document it names, and at
                              the lines it names?
+  tools/skim_lint.py     is each of the three practitioner artifacts reachable
+                             from inside the front door's first screen? The
+                             window is a defended number in the source, not a
+                             flag on the command line
+  tools/repeat_lint.py   is this universal claim stated in more than one
+                             document, so that correcting one copy leaves the
+                             others standing? The threshold is a defended
+                             number in the source and its derivation prints on
+                             every run
   tools/expectation_lint.py  fails when a check reads its expectation from
-                             the artifact it is asserting about
+                             the artifact it is asserting about, and fails when
+                             a registry row carries no seen-red field
   checks-registry.json   every check's subject and expectation source, with
-                         each surviving self-reference waived explicitly
+                         each surviving self-reference waived explicitly, and
+                         a seen-red field per check holding the date of its
+                         last recorded forced red or the honest value NEVER
   .github/workflows/kit-ci.yml   the core, on Linux and Windows, every push
   KNOWN-ISSUES.md        what the LLM-persona adoption walks found, and its
                            state. Opens with the escape table
-  docs/walks/            the prompt behind every walk and evaluation read, plus
+  docs/walks/            the published walk and evaluation-read prompts (its
+                           README states exactly which runs are covered), plus
                            WALKING-YOUR-OWN-DOCUMENTS.md: the method, written
                            for your documentation rather than the kit's
   docs/*.md              the long-form material the front door routes to:

@@ -165,6 +165,7 @@ covered English-language public sources only.
 | Verbatim provenance | Medical chart legibility rule; UN verbatim records; 21 CFR Part 11 previous-and-new values | Verbatim reporting practice | search-result: `https://www.un.org/dgacm/en/node/1139` |
 | Judgment transfer to a successor | The Langdell casebook method; ADRs; morbidity-and-mortality conferences; I-PASS handoff; after-action review | Langdell, 1870 | search-result: `https://en.wikipedia.org/wiki/Casebook_method`, `https://www.ahrq.gov/teamstepps-program/curriculum/communication/tools/ipass.html` |
 | The same doctrine applied to AI agent context | Practitioner writing and at least one shipping product, 2026 | 2026 | fetched: `https://www.braingrid.ai/blog/architecture-decision-records-for-ai-coding-agents`, `https://www.decisionlog.ai/` |
+| **The subject matter — a document whose declared subject is how named parties work together** | The personal user manual (also "manager README", "how to work with me"); the agile team working agreement or team charter | Practitioner genre, productized: Manual of Me invites visitors to "join over 30,000 people who have created theirs" and defines the artifact as "a document which helps others understand how they can work best with you", describing it as a living document with no stated revision process | fetched: `https://www.manualof.me/`; search-result: `https://www.easyagile.com/blog/team-charter-working-agreement-social-contract-template-guide` |
 
 ### What is left over, stated narrowly
 
@@ -178,16 +179,34 @@ supersession relationships and an agent workflow that inspects the
 supersession chain before acting. AI-as-reader is kept here as a **design
 property with a see-also**, and is not offered as novelty.
 
-What survives both hunts, across 42 ruled candidates, is narrower and is
-stated in exactly these terms:
+What survives both hunts, across 42 ruled candidates, is narrower than the
+first statement of it and is now stated in these terms:
 
-> Professional practice governs records of decisions about the **work**. This
-> governs a record of decisions about the **working relationship**.
+> Records of decisions about the working relationship already exist as
+> ordinary professional practice — the personal user manual and the team
+> working agreement. Neither is governed as a record. What is applied here is
+> the fidelity discipline from decision-record practice to that existing
+> subject.
 
-Every ancestor above records decisions about an architecture, a patient, an
-experiment or a project. None of them keeps a governed, append-only record
-whose subject is the collaboration protocol between two named parties. That is
-the residual, and it is a residual in **subject matter**, not in mechanism.
+That is a residual in the **composition of two existing things**, and it is a
+weaker claim than the one this section shipped before round 32.
+
+The decision-record ancestors listed above record decisions about an
+architecture, a patient, an experiment or a project, and none of them takes the
+working relationship as its subject. The subject-matter ancestors in the last
+row of the table do take it, and neither is append-only, supersedes in place,
+is owner-gated with a proposal path, or carries verbatim provenance: Manual of
+Me's own material describes a living document with no stated revision process,
+and the working-agreement literature describes a review cadence rather than a
+record-fidelity doctrine. The intersection is what is left.
+
+*[Restated in round 32 (R32-3), from an adversarial prior-art lane. The
+paragraph previously read "None of them keeps a governed, append-only record
+whose subject is the collaboration protocol between two named parties" and
+called the residual one of subject matter. The hunt behind that sentence
+searched decision-record practice and AI memory products; it did not search the
+workplace-practice genre whose entire subject is the working relationship. The
+sentence was also an unenumerated universal of the class round 32 swept.]*
 
 Two smaller residuals are real and are recorded without weight:
 

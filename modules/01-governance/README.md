@@ -12,7 +12,7 @@ templates that bind each seat.
 | `charters/CHARTER-reviewer.md` | Adversarial review, **spec-side onboarding** — punch list + rulings + diff, never the implementer's report. A standing file implementing lanes cannot edit. |
 | `charters/CHARTER-scout.md` | Read-only archaeology. No execution, by charter, with the reason. Carries the six-verdict triage taxonomy. |
 | `charters/CHARTER-synthesis-writer.md` | Report and document composition. Opens with the HALT-on-empty-inputs guard. |
-| `PUNCH-LIST-TEMPLATE.md` | The document all four charters assume: verbatim items, triage verdicts, a numbered decision list with a lean on every line, and a disposition table where no row may be blank. It is also the reviewer's spec-side briefing, which makes its accuracy a verification property rather than a clerical one. |
+| `PUNCH-LIST-TEMPLATE.md` | The document the working charters assume: verbatim items, triage verdicts, a numbered decision list with a lean on every line, and a disposition table where no row may be blank. It is also the reviewer's spec-side briefing, which makes its accuracy a verification property rather than a clerical one. |
 
 ## File contract with other modules
 
@@ -38,7 +38,7 @@ only:
 
 ## What breaks if you adopt this module alone
 
-Nothing. You get a rules document and four charter templates, and they work as
+Nothing. You get a rules document and five charter templates, and they work as
 prose the way every team's conventions work as prose. What you *do not* get is
 any of it firing: an undeclared spawn still runs, a blanket add still stages, a
 skipped gate still looks like a passed one.

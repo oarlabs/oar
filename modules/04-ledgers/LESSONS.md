@@ -8,7 +8,7 @@ Delete this block on adoption.
 
 A living distillation of what this project learned the hard way, written so a
 future seat — human or model, with **zero context** — repeats the wins and not
-the tuition. Sources: every stage report in `{{REPORTS_DIR}}`, the decisions
+the cost. Sources: every stage report in `{{REPORTS_DIR}}`, the decisions
 log, and the ledgers.
 
 **This document is law.** The standing rules point at it and every session
@@ -19,7 +19,7 @@ inherits it.
 Every numbered item carries a `Status:` marker.
 
 - **BINDING** — the default, and **the only status an agent may ever write**.
-  The lesson is law; a session that ignores it pays the tuition a second time.
+  The lesson is law; a session that ignores it repeats the failure at full cost.
 - **BINDING — DEMOTION CANDIDATE** — a *proposal*, not a change in force. The
   item is still fully binding; it is nominated for review at the next phase
   gate because a later lesson, or an enforcement layer built since, appears to

@@ -1,0 +1,75 @@
+{
+ "_comment": [
+  "THE PROSE FLOOR. tools/prose_floor.py enforces this manifest over every",
+  "markdown file at the repository root and in docs/ (docs/walks/ and",
+  "modules/ are out of scope in v1). Owner ruling 2026-08-26: reader-facing",
+  "prose is terse; rationale and history live in records (BLUEPRINT,",
+  "KNOWN-ISSUES, the private program repo, the vault) - never inline, and",
+  "records never ship to the public mirror. The acceptance bar: a reader",
+  "new to the project follows the docs without stumbling on shorthand,",
+  "long sentences, or verbosity.",
+  "",
+  "Every in-scope file appears under budgets (max words) or exempt (with a",
+  "reason). An unlisted file FAILS the gate: new documents declare their",
+  "budget in the same change that adds them. Budgets only ratchet down.",
+  "",
+  "per-step QUICKSTART detail is a private record: the program records repo docs/records/QUICKSTART-APPENDIX.md (owner ruling 2026-08-26); records never ship to the public mirror"
+ ],
+ "limits": {
+  "long_sentence_words": 30,
+  "long_sentence_share_max": 0.1,
+  "min_sentences_for_share": 10,
+  "emdash_per_100_words_max": 1.2
+ },
+ "budgets": {
+  "README.md": 1700,
+  "QUICKSTART.md": 3000,
+  "ONBOARD.md": 2500,
+  "LEVEL-1.md": 2000,
+  "EXISTING-PROJECT.md": 1200,
+  "DECISION-BRIEF.md": 1200,
+  "GLOSSARY.md": 800,
+  "ROADMAP.md": 700,
+  "CONTEXT-ARCHITECTURE.md": 2800,
+  "docs/START-HERE.md": 800,
+  "docs/PREREQUISITES.md": 450,
+  "docs/ADOPTION-LEVELS.md": 300,
+  "docs/ADOPTION-TESTS.md": 300,
+  "docs/AT-SCALE.md": 600,
+  "docs/PORTABILITY.md": 600,
+  "docs/POSITIONING.md": 500,
+  "docs/REPOSITORY-LAYOUT.md": 750,
+  "docs/SECURITY-SCOPE.md": 850,
+  "docs/WHY-FILES.md": 650
+ },
+ "exempt": {
+  "KNOWN-ISSUES.md": "append-only register; entries are the record",
+  "COMPARISON.md": "claims-audit register; rows are the record",
+  "BLUEPRINT.md": "the rationale home; records live here by design",
+  "docs/CASE-STUDY-INCREMENT.md": "evidence record"
+ },
+ "banned_phrases": [
+  "earned its keep",
+  "earns its keep",
+  "worth restating",
+  "rather than argued with",
+  "wearing a different hat",
+  "dressed up rather than",
+  "tuition",
+  "earned its place",
+  "earns its place"
+ ],
+ "jargon_requires_glossary": [
+  "escape rate",
+  "punch item",
+  "spec-side",
+  "andon",
+  "cert-green",
+  "judge surface",
+  "negative control",
+  "seen_red",
+  "state word",
+  "brownfield",
+  "oracle"
+ ]
+}

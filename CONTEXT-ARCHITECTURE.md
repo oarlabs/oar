@@ -34,7 +34,7 @@ disciplines below are followed.
 ## 2. Persistent memory: rules load, facts sleep
 
 The **rules file** (module 01's governance file for `{{PROJECT_NAME}}`) is the one
-text guaranteed to be present in every window at all times: the harness loads it at
+text guaranteed to be present in every window at all times. The harness loads it at
 session start and re-injects it from disk after compaction. Because of this
 property, treat rules-file lines as expensive. Each line should be traceable to a
 specific failure; a rules file grows toward noise otherwise.
@@ -46,9 +46,10 @@ the reference build, only the small index loaded automatically. The topic files 
 them. Audit whether anything actually reads your memory; an unread memory layer is a
 write-only store.
 
-Placement guideline: binding rules go in the rules file; resume-critical information
-goes in the checkpoint; durable background facts go in memory topic files;
-everything else belongs in workflow state or is allowed to expire with the window.
+Placement guideline: binding rules go in the rules file, and resume-critical
+information goes in the checkpoint. Durable background facts go in memory topic
+files. Everything else belongs in workflow state, or is allowed to expire with the
+window.
 
 **Lanes receive none of this automatically.** Harness memory does not cross the
 spawn boundary. A lane knows its charter and whatever it reads from disk. Charters
@@ -56,25 +57,26 @@ therefore restate the constraints that bind the lane, every time.
 
 **The sync capsule: persist relational state, not just task state.** Task state
 (checkpoints, queues, ledgers) is not the only thing a session boundary destroys.
-The working calibration between the owner and the assistant — decision style,
-shared shorthand, tone, what "good" feels like on this project — normally lives in
-working context and dies with it, so each new session spends its opening stretch
-re-deriving it from live interaction. On the reference build the owner put that
-ramp at roughly the first 30% of the window before collaboration reached its
-settled form — **an internal estimate from one owner on one workstation, not an
-instrumented measurement**, and repeated here only with that label. The fix is
+The working calibration between the owner and the assistant covers decision style,
+shared shorthand, tone, and what "good" feels like on this project. That
+calibration normally lives in working context and dies with it. Each new session
+then spends its opening stretch re-deriving it from live interaction. On the
+reference build the owner put that ramp at roughly the first 30% of the window
+before collaboration reached its settled form. That figure is **an internal
+estimate from one owner on one workstation, not an instrumented measurement**, and
+it is repeated here only with that label. The fix is
 the same move as everywhere else in this document: put the state on disk
 deliberately. Keep a small set of memory files that capture the collaboration
-itself — the owner's decision cadence, standing feedback with its reasons,
-vocabulary the project has grown — and instruct the session to read them as
+itself: the owner's decision cadence, standing feedback with its reasons, and
+vocabulary the project has grown. Instruct the session to read them as
 calibration sources at startup, not merely as rules. Maintain them as a governed
-record rather than as a cache: append an entry when a session produces a new
-confirmed pattern, supersede in place when a correction lands, and retire an
-entry by promoting it into the durable profile rather than by deleting it. What
+record rather than as a cache. Append an entry when a session produces a new
+confirmed pattern. Supersede in place when a correction lands. Retire an entry by
+promoting it into the durable profile rather than by deleting it. What
 this carries is the seedbed, not the grown relationship; the ramp shortens, it
 does not vanish. The owner-profile document (module 08's collaboration profile,
-if you keep one) is the anchor file of this capsule, and
-`modules/08-collaboration/CAPSULE.md` states that governance in full, names the
+if you keep one) is the anchor file of this capsule.
+`modules/08-collaboration/CAPSULE.md` states that governance in full. It names the
 professional practice each rule is borrowed from, and states what about the
 practice is unmeasured.
 
@@ -84,13 +86,15 @@ The operating model moves value into this layer as early as possible. This pract
 is called disk-first discipline. The layer's main citizens:
 
 **The checkpoint** (`{{CHECKPOINT_GLOB}}`; the newest file is authoritative). This is
-the only general-purpose carrier between sessions. Its shape contract, at a measured
-norm of about 90 lines: the current state of the mainline; the owner's open decision
-queue, verbatim; a numbered cold-start resume procedure; and a statement of what it
+the only general-purpose carrier between sessions. Its shape contract runs to a
+measured norm of about 90 lines. The contract has four parts: the current state of
+the mainline; the owner's open decision queue, verbatim; a numbered cold-start
+resume procedure; and a statement of what it
 supersedes. A checkpoint that a new collaborator cannot cold-start from does not
-meet the contract. Where a resume hook injects the newest checkpoint automatically
-(Section 6 — a design brief; the kit ships no such hook), checkpoint quality directly
-determines the quality of every session's first minutes. Until one exists, the
+meet the contract. Where a resume hook injects the newest checkpoint automatically,
+checkpoint quality directly determines the quality of every session's first
+minutes. Section 6 is a design brief; the kit ships no such hook. Until one
+exists, the
 "resume anchor" is a rule your rules file states and a human obeys: module 01's
 governance template opens with it.
 
@@ -113,8 +117,8 @@ them. Two disciplines keep this sustainable:
   is a hand copy with unverifiable fidelity — the reference build recorded a silent
   corruption produced exactly this way. A file move is byte-identical by
   construction, and the hash makes it verifiable. Enforce the redirect with a hook
-  where the harness allows it (Section 6 — a design brief; the kit ships no such
-  hook, so this discipline is prose until you write one).
+  where the harness allows it. Section 6 is a design brief; the kit ships no such
+  hook, so this discipline stays prose until you write one.
 - **Disclosed condensation.** The archived report is always complete. Quoted copies
   may condense repetitive material only if the elision is disclosed where it occurs,
   with a count and a pointer to the full list. Verdicts, per-item dispositions, and
@@ -139,9 +143,10 @@ prune**:
    grouping above the round reads "phase" as "round" and prunes at round
    closes.)
 3. Distilled reports are never pruned, and raw transcripts are never pruned before
-   distillation. They are the only source for audits the reports cannot support; the
-   reference build's rework audit — 10% of all agent output, invisible to every
-   ledger — was possible only because the raw transcripts still existed.
+   distillation. They are the only source for audits the reports cannot support.
+   The reference build's rework audit covered 10% of all agent output and was
+   invisible to every ledger. That audit was possible only because the raw
+   transcripts still existed.
 
 ## 4. Working context: the layer that does not survive
 
@@ -149,28 +154,28 @@ prune**:
 plus memory index), then every tool output and every lane summary. A lane's window
 holds its charter, then its own tool output.
 
-**Compaction preserves rules and discards evidence.** When a window reaches the
+**Compaction preserves rules and discards evidence**. When a window reaches the
 harness threshold, conversation history is replaced by a summary and full tool
-outputs are dropped; the rules file and memory index are re-injected from disk.
+outputs are dropped. The rules file and memory index are re-injected from disk.
 Anything not yet on disk survives only to the extent the summarizer kept it. The
 defense is disk-first discipline. The instrument is the status board's context bar
-and its clear mark (`{{STATUS_CLEAR_MARK_PCT}}`): the mark encodes a property of
-your documentation, not of the model — it sits where clearing costs less than
+and its clear mark (`{{STATUS_CLEAR_MARK_PCT}}`). The mark encodes a property of
+your documentation, not of the model. It sits where clearing costs less than
 continuing, and the checkpoint is what makes clearing cheap.
 
 **Fresh lanes by default.** This is the strongest-evidenced rule in this document.
 On the reference build, one lane resumed across five stages climbed monotonically to
-2.24× the cost of a fresh lane onboarded from the reports on disk, and the fresh
+2.24× the cost of a fresh lane onboarded from the reports on disk. The fresh
 lane completed strictly more work. A monotonic ramp followed by a drop indicates
 transcript accumulation, not increasing task difficulty. At stage boundaries, start
 a fresh lane onboarded from disk by default; resuming a transcript requires a stated
 reason in the ledger.
 
-**The context capsule generalizes the rule** (module 06). The capsule — "the minimum
-a fresh session or subagent would need" — is one instance of the universal
-principle: nothing crosses a context boundary except what was written for the
-crossing. Side quests are one boundary; session clears and lane spawns are the
-others.
+**The context capsule generalizes the rule** (module 06). The capsule is "the
+minimum a fresh session or subagent would need". It is one instance of the
+universal principle: nothing crosses a context boundary except what was written
+for the crossing. Side quests are one boundary; session clears and lane spawns are
+the others.
 
 ## 5. The flow, in one picture
 
@@ -212,14 +217,15 @@ flowchart TB
 
 ## 6. The wiring (Claude Code; the harness caveat applies)
 
-> **NOT SHIPPED — this section is a design brief, not documentation of code in this
-> kit.** The three hooks below — SessionStart, PreCompact, and the handoff PreToolUse
-> gate — ran on the reference build and are described here in enough detail to be
-> rebuilt. **No module, template, settings file or tool in this kit implements any of
-> them**, and `hook_model_gate.py` has no reports-tree branch. Nothing here has a
-> fixture, a selftest, or a smoke phase behind it. Read it as the specification you
-> would build from, and expect to write the code and the fixtures yourself. (The
-> shipped enforcement layer is module 02's model-tier gate, and only that.)
+> **NOT SHIPPED**. This section is a design brief, not documentation of code in
+> this kit. The three hooks below are SessionStart, PreCompact, and the handoff
+> PreToolUse gate. They ran on the reference build and are described here in
+> enough detail to be rebuilt. **No module, template, settings file or tool in this
+> kit implements any of them**. `hook_model_gate.py` has no reports-tree branch.
+> Nothing here has a fixture, a selftest, or a smoke phase behind it. Read it as
+> the specification you would build from, and expect to write the code and the
+> fixtures yourself. The shipped enforcement layer is module 02's model-tier gate,
+> and only that.
 
 Sections 1–5 are portable doctrine. This section describes the wiring on the kit's
 reference harness. On a different stack, keep the doctrine and rebuild the wiring.
@@ -243,10 +249,10 @@ each learned from a real failure:
 gitignored state file: the resume line, the decision queue, in-flight lane state and
 any unsaved output, and unfinished close-checklist steps. It emits only a short
 schema-valid status message with a liveness marker. Do not try to send the order to
-the summarizer: on the reference harness this was measured live (2026-08-20), and
-PreCompact output cannot carry `additionalContext` — the harness rejects it at
+the summarizer. This was measured live on the reference harness (2026-08-20).
+PreCompact output cannot carry `additionalContext`; the harness rejects it at
 schema validation before the summarizer sees it. The working pattern is a two-hop
-disk relay: PreCompact writes the state file; the SessionStart `compact` re-anchor
+disk relay. PreCompact writes the state file. The SessionStart `compact` re-anchor
 detects it and tells the post-compact session that anything the summary dropped is
 recoverable from disk. Guard the measured contract with a fixture so the rejected
 output shape cannot return, and add a round-trip fixture for the relay itself.
@@ -254,7 +260,7 @@ output shape cannot return, and add a round-trip fixture for the relay itself.
 **Pipe-test both hooks** with a fixture table (BLUEPRINT §10, bootstrap rule 4):
 negative controls, a dead-man fixture, and an encoding regression. Then wire the
 armed-check and the suite's summary line into the verify runner, with a floor on the
-fixture count — a well-formed `0/0` from a runner that executed nothing must read as
+fixture count. A well-formed `0/0` from a runner that executed nothing must read as
 red.
 
 **The handoff hook** (PreToolUse). Deny subagent writes under the reports tree with
@@ -273,10 +279,11 @@ at every depth. Two portability rules, both paid for on the reference build:
 ## 7. Why this is cost architecture
 
 Every measured context cost on the reference build was a carrying cost, not a doing
-cost: window accumulation (2.24×), boundary rework (10% of all agent output, a third
-of it lanes launched with empty payloads — the origin of the HALT guard), and report
-bodies crossing the operator window twice (the origin of the handoff). One honest
-limit remains: the operator's own window, plausibly the largest driver of all, is
-the one no per-lane instrument can see. A cost discipline with denominators
-(BLUEPRINT §6) that has no denominator for its own operator is incomplete by its own
-standard. Instrument it if your harness allows.
+cost. There were three: window accumulation (2.24×), boundary rework, and report
+bodies crossing the operator window twice. Boundary rework was 10% of all agent
+output, a third of it lanes launched with empty payloads, and it is the origin of
+the HALT guard. The double crossing of report bodies is the origin of the handoff.
+One honest limit remains. The operator's own window, plausibly the largest driver
+of all, is the one no per-lane instrument can see. A cost discipline with
+denominators (BLUEPRINT §6) that has no denominator for its own operator is
+incomplete by its own standard. Instrument it if your harness allows.

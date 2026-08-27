@@ -200,6 +200,31 @@ COUNT_ID = re.compile(r'\bCOUNT\(([a-z0-9-]+)\)')
 # one of those five was written because the first live run did exactly that.
 # Registered as `quant:f1-shape`.
 QUANT_ID = re.compile(r'\bQUANT\(([a-z0-9-]+)\)')
+# An EIGHTH family: the skim lint's NEGATIVE CONTROLS, added in round 31, whose
+# ids are the `SKIM(boundary)` labels its selftest prints. Same argument as the
+# seven families before it - a tool arriving in one commit with a set of
+# unregistered checks grows this kit's named blind spot by that many at once -
+# and it carries the one-degree-stronger clause too: that tool's window is a
+# NUMBER, and a number's edge is the first thing a later edit moves. Six of its
+# controls exist only to keep it from manufacturing findings against a front
+# door that is fine, and two of them bind the window's derivation to the
+# document it was derived from. Registered as `skim:boundary`.
+SKIM_ID = re.compile(r'\bSKIM\(([a-z0-9-]+)\)')
+# A NINTH family: the repeat lint's NEGATIVE CONTROLS, added in round 32, whose
+# ids are the `REPEAT(relocation)` labels its selftest prints. Same argument as
+# every family before it, and the same one-degree-stronger clause: that
+# tool's threshold is a NUMBER derived from a measurement, and eight of its
+# controls exist only to stop it going red on ordinary prose that two documents
+# in a 63-document tree happen to share. Registered as `repeat:relocation`.
+REPEAT_ID = re.compile(r'\bREPEAT\(([a-z0-9-]+)\)')
+# A TENTH family: THIS TOOL'S OWN seen-red controls, added in round 32, whose
+# ids are the `SEENRED(absent)` labels the selftest below prints. It is the
+# first family recovered from this file rather than from another tool, and that
+# is not the self-reference this lint exists to catch: the SUBJECT is the
+# registry on disk and the EXPECTATION is a literal in this source, which are
+# two artifacts, in the same way every `expectation_from: "inline"` row is.
+# Registered as `seenred:absent`.
+SEENRED_ID = re.compile(r'\bSEENRED\(([a-z0-9-]+)\)')
 
 
 def coverage_gaps(fixtures_src: str, entries: list,
@@ -210,7 +235,7 @@ def coverage_gaps(fixtures_src: str, entries: list,
     judge what is written in it, so the failure mode it cannot see is an entry
     that is simply absent. For a family whose ids are recoverable from the
     source, absence IS detectable, and this is that cross-check. The families
-    it runs over are FAMILIES below (seven of them) - that tuple is the
+    it runs over are FAMILIES below (ten of them) - that tuple is the
     authority, and
     `--selftest` asserts the prose agrees with it rather than restating a count
     here that would go stale (it already had: this paragraph said "three" while
@@ -250,10 +275,68 @@ FAMILIES = (
     ("tools/citation_lint.py", CITATION_ID, "citation"),
     ("tools/count_lint.py", COUNT_ID, "count"),
     ("tools/count_lint.py", QUANT_ID, "quant"),
+    ("tools/skim_lint.py", SKIM_ID, "skim"),
+    ("tools/repeat_lint.py", REPEAT_ID, "repeat"),
+    ("tools/expectation_lint.py", SEENRED_ID, "seenred"),
 )
 
 
 # ==========================================================================
+# THE SEEN-RED FIELD (round 32). Three adversarial batteries in a row convicted
+# the same sentence - "every check has been seen to fail on purpose" - and the
+# conviction was always the same: no instrument in this kit could answer the
+# question for any single check. The registry now carries `seen_red` on every
+# row, and this is the layer that keeps it there.
+#
+# WHAT IS CHECKED, and it is deliberately narrow: PRESENCE and SHAPE.
+#
+#   - An ABSENT field is a PROBLEM. That is the whole point. This kit's state
+#     word doctrine says "the check did not run" and "the check passed" must
+#     never render alike, and a row with no seen_red renders exactly like a row
+#     whose red was recorded yesterday.
+#   - The value NEVER is NOT a problem. A check with no recorded red is an
+#     honest state of the record and the register publishes how many there are.
+#     Making NEVER red would buy a permanently red lint whose red means "the
+#     backfill is unfinished", which is a red people learn to skip - the same
+#     argument count_lint's own docstring makes about PARTIAL runs.
+#   - Anything else must be an ISO YYYY-MM-DD date. A free-text value is a
+#     problem, because a field that accepts prose stops being answerable.
+#
+# WHAT IS NOT CHECKED, stated so nobody reads more into a green than is there:
+# whether the date is TRUE. Nothing in this kit observes a check going red and
+# writes the date itself. seen_red is an author's claim, in the same class as
+# expectation_from, and it is exactly as trustworthy. What the field buys is
+# that the claim now has to be made per check rather than asserted once over
+# all of them in a front-door sentence.
+SEEN_RED_NEVER = "NEVER"
+ISO_DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+
+
+def seen_red_problems(entries: list):
+    """(problems, dated, never) for the seen-red field over `entries`.
+
+    Pure - it decides a list of dicts - so the controls below test the rule
+    rather than the registry that happens to be on disk today."""
+    problems, dated, never = [], 0, 0
+    for e in entries:
+        cid = e.get("id", "<no id>")
+        if "seen_red" not in e:
+            problems.append(f"{cid!r} carries no seen_red field - an absent "
+                            f"field renders like a recorded red. Write a date "
+                            f"or the literal {SEEN_RED_NEVER}")
+            continue
+        val = e.get("seen_red")
+        if val == SEEN_RED_NEVER:
+            never += 1
+            continue
+        if isinstance(val, str) and ISO_DATE.match(val):
+            dated += 1
+            continue
+        problems.append(f"{cid!r} has seen_red {val!r}, which is neither "
+                        f"{SEEN_RED_NEVER} nor an ISO YYYY-MM-DD date")
+    return problems, dated, never
+
+
 def load(path: Path):
     data = json.loads(path.read_text(encoding="utf-8"))
     if isinstance(data, list):
@@ -415,11 +498,28 @@ def selftest() -> int:
           coverage_gaps("", [{"id": "count:gone", "subject": "s",
                               "expectation_from": "inline"}],
                         COUNT_ID, "count")[1], ["gone"])
-    check("the cross-check runs over SEVEN families, and the list is the one "
+    # The EIGHTH family: the skim lint's negative controls. Same argument as
+    # every family before it, and the same reason it is its own prefix rather
+    # than more `count:` rows - an id recovered by one pattern and registered
+    # under another is a cross-check that silently matches nothing.
+    check("SKIM-family: an unregistered skim control is reported",
+          coverage_gaps('    check("SKIM(boundary): x",\n', [],
+                        SKIM_ID, "skim")[0], ["boundary"])
+    check("...and a registered skim control with no code behind it is too",
+          coverage_gaps("", [{"id": "skim:gone", "subject": "s",
+                              "expectation_from": "inline"}],
+                        SKIM_ID, "skim")[1], ["gone"])
+    check("the cross-check runs over TEN families, and the list is the one "
           "the waiver reason names",
           [f for _, _, f in FAMILIES],
           ["fixture", "doctor", "escape", "golden", "citation", "count",
-           "quant"])
+           "quant", "skim", "repeat", "seenred"])
+    check("REPEAT-family: an unregistered repeat control is reported",
+          coverage_gaps('    check("REPEAT(relocation): x",\n', [],
+                        REPEAT_ID, "repeat")[0], ["relocation"])
+    check("SEENRED-family: an unregistered seen-red control is reported",
+          coverage_gaps('    check("SEENRED(absent): x",\n', [],
+                        SEENRED_ID, "seenred")[0], ["absent"])
     check("...and the quantifier family recovers its own label shape, not the "
           "count family's",
           (coverage_gaps('    check("QUANT(f1-shape): x",\n', [],
@@ -432,6 +532,72 @@ def selftest() -> int:
           coverage_gaps(esc_src, [{"id": "escape:nc-vii", "subject": "s",
                                    "expectation_from": "inline"}],
                         ESCAPE_ID, "escape"), ([], []))
+
+    print()
+    print(f"{BOLD}=== D. the SEEN-RED field: the forced-red half ==={RESET}")
+    # THE FORCED RED. A row with no seen_red field must be a problem, because
+    # an absent field renders exactly like a recorded red - which is the
+    # three-battery conviction this field answers.
+    probs, dated, never = seen_red_problems(
+        [{"id": "x:no-field", "subject": "s", "expectation_from": "inline"}])
+    check("SEENRED(absent): a row with NO seen_red field is a PROBLEM",
+          (len(probs), dated, never), (1, 0, 0))
+    check("...and the message names the field and both legal values",
+          ("seen_red" in probs[0] and "NEVER" in probs[0]), True)
+    probs, _, _ = seen_red_problems(
+        [{"id": "x:prose", "subject": "s", "expectation_from": "inline",
+          "seen_red": "yes, ages ago"}])
+    check("SEENRED(free-text): a value that is neither NEVER nor an ISO date "
+          "is a PROBLEM - a field that accepts prose stops being answerable",
+          (len(probs), "neither NEVER nor an ISO" in probs[0]), (1, True))
+    probs, _, _ = seen_red_problems(
+        [{"id": "x:sloppy", "subject": "s", "expectation_from": "inline",
+          "seen_red": "2026-8-5"}])
+    check("SEENRED(loose-date): ...and so is a date that is not zero-padded "
+          "ISO, because two spellings of a date are two fields",
+          len(probs), 1)
+
+    print()
+    print(f"{BOLD}=== E. the SEEN-RED field: the controls that keep it from "
+          f"manufacturing findings ==={RESET}")
+    # THE MOST IMPORTANT CONTROL IN THIS SECTION. NEVER is the honest value for
+    # an unbackfilled row and MUST stay green, or this lint goes permanently
+    # red over an unfinished backfill and its red stops being read.
+    probs, dated, never = seen_red_problems(
+        [{"id": "x:never", "subject": "s", "expectation_from": "inline",
+          "seen_red": "NEVER"}])
+    check("SEENRED(never-is-clean): NEVER is an honest state of the RECORD and "
+          "is NOT a problem - it is counted, not failed",
+          (probs, dated, never), ([], 0, 1))
+    probs, dated, never = seen_red_problems(
+        [{"id": "x:dated", "subject": "s", "expectation_from": "inline",
+          "seen_red": "2026-08-25"}])
+    check("SEENRED(date-is-clean): an ISO date passes and is counted as "
+          "backfilled",
+          (probs, dated, never), ([], 1, 0))
+    probs, dated, never = seen_red_problems([
+        {"id": "a", "seen_red": "NEVER"},
+        {"id": "b", "seen_red": "2026-08-25"},
+        {"id": "c"},
+    ])
+    check("SEENRED(denominator): the two counts are the denominator the "
+          "summary prints, and a row that failed is in NEITHER count",
+          (len(probs), dated, never), (1, 1, 1))
+
+    print()
+    print(f"{BOLD}=== F. the SEEN-RED field against the registry it ships "
+          f"with ==={RESET}")
+    # A rule that matches nothing proves nothing - the same assertion every
+    # other family in this file makes about itself.
+    try:
+        live = load(DEFAULT_REGISTRY)
+    except Exception:
+        live = []
+    lp, ld, ln_ = seen_red_problems(live)
+    check("every shipped registry row carries the field", lp, [])
+    check("...and the shipped registry has BOTH kinds of row, so neither "
+          "branch of the rule is untested by the tree it ships in",
+          (ld > 0, ln_ > 0, ld + ln_ == len(live)), (True, True, True))
 
     print()
     print((GREEN if ok_all else RED)
@@ -482,8 +648,19 @@ def main() -> int:
             problems.append(f"registry names {family} {st!r}, which no longer "
                             f"exists in {name}")
 
+    sr_problems, sr_dated, sr_never = seen_red_problems(entries)
+    problems.extend(sr_problems)
+
     print(f"registry  : {reg}")
     print(f"checks    : {len(entries)} registered")
+    # THE BACKFILL DENOMINATOR, ON EVERY RUN. A count of dated rows with no
+    # denominator beside it is the watermelon this kit exists to refuse.
+    sr_seen = sr_dated + sr_never
+    sr_pct = (100.0 * sr_dated / sr_seen) if sr_seen else 0.0
+    print(f"seen-red  : {sr_dated} of {sr_seen} row(s) carry a recorded "
+          f"forced-red date ({sr_pct:.1f}%); {sr_never} are honest "
+          f"{SEEN_RED_NEVER}s. NEVER is a state of the RECORD, not a claim "
+          f"about history, and the backfill is not finished")
     if a.list:
         for e in sorted(entries, key=lambda x: (not x.get("waived"),
                                                 x.get("id", ""))):

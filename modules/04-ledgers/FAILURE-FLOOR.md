@@ -62,6 +62,14 @@ where it has caught nothing yet; `unknown — predates recording` where the reco
 does not say. Guessing a date here destroys the only input the demotion review
 has.
 
+`never` is an honest value and is not a failure; an ABSENT date is, because it
+renders like a date. The same convention now runs one level down, over checks
+rather than rules: `checks-registry.json` carries a `seen_red` field per check
+holding the date of its last recorded forced red or the literal NEVER, and
+`tools/expectation_lint.py` fails on an absent field while counting the NEVERs
+and printing the ratio. Rule-level and check-level use the same rule for the
+same reason.
+
 ## Standing review trigger
 
 Any time a PROSE or AMBER rule fails in practice:

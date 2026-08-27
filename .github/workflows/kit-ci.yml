@@ -246,6 +246,204 @@ jobs:
           print(f"stale locator caught as required (exit {p.returncode}), "
                 "and the correct locator stayed green")
 
+      # -- 2b7b. ROUND 34, THE REPAIR HALF. A stale locator whose quotation
+      #          occurs exactly once elsewhere has one correct replacement, so
+      #          the tool names it and --fix writes it. The registry rows
+      #          citation:stale-relocatable and citation:stale-ambiguous claim
+      #          a forced red on 2026-08-26; this step keeps that claim
+      #          standing rather than anecdotal. It also asserts the half that
+      #          matters more: --fix must NOT guess when there are two
+      #          candidates, and must not touch quoted text when there is one.
+      - name: citation lint relocation - repair the unambiguous, refuse the ambiguous
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          def lint(d, *extra):
+              return subprocess.run(
+                  [sys.executable, "tools/citation_lint.py", "--root", str(d),
+                   *extra], capture_output=True, text=True)
+          # ONE occurrence: relocatable.
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "SOURCE.md").write_text(
+              "a new opening paragraph\nthat pushed everything down\nalpha\n"
+              "the words that really are in this file\nomega\n",
+              encoding="utf-8")
+          cited = ('# Citing\n\nProse. `SOURCE.md`:2 says "the words that '
+                   'really are in this file".\n')
+          (d / "CITER.md").write_text(cited, encoding="utf-8")
+          p = lint(d)
+          if p.returncode != 1 or "RELOCATABLE" not in p.stdout:
+              print(p.stdout[-3000:])
+              print("::error::a relocatable stale locator did not go red with "
+                    "the RELOCATABLE message.")
+              sys.exit(1)
+          f = lint(d, "--fix")
+          got = (d / "CITER.md").read_text(encoding="utf-8")
+          want = cited.replace("`SOURCE.md`:2", "`SOURCE.md`:4")
+          if f.returncode != 0 or got != want:
+              print(f.stdout[-3000:])
+              print("::error::--fix did not repair the locator exactly. "
+                    f"got {got!r}")
+              sys.exit(1)
+          # TWO occurrences: the tool must refuse. A wrong line number written
+          # under a green is worse than a red.
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "SOURCE.md").write_text(
+              "alpha\nthe repeated words that occur twice\nbeta\ngamma\n"
+              "the repeated words that occur twice\ndelta\n", encoding="utf-8")
+          body = ('# Citing\n\nProse. `SOURCE.md`:3 says "the repeated words '
+                  'that occur twice".\n')
+          (d / "CITER.md").write_text(body, encoding="utf-8")
+          p = lint(d, "--fix")
+          if p.returncode != 1 or "AMBIGUOUS" not in p.stdout:
+              print(p.stdout[-3000:])
+              print("::error::--fix did not refuse an ambiguous relocation.")
+              sys.exit(1)
+          if (d / "CITER.md").read_text(encoding="utf-8") != body:
+              print("::error::--fix EDITED a document it could not decide. "
+                    "That is the failure this step exists to catch.")
+              sys.exit(1)
+          # TWO CLAIMANTS ON ONE LOCATOR (the review's MAJOR-2). Shape A reads
+          # the quotation before the reference, shape B the one after it, and
+          # both land on the same `:18`. Before the fix this oscillated
+          # :18 -> :5 -> :18 across five --fix runs, exit stuck at 1. The
+          # locator must now be REFUSED and left byte-identical, and the loop
+          # must be stable rather than merely slow.
+          d = pathlib.Path(tempfile.mkdtemp())
+          src = ["filler"] * 30
+          src[4] = "quote one really lives on line five"
+          src[17] = "quote two really lives on line eighteen"
+          (d / "SOURCE.md").write_text("\n".join(src) + "\n", encoding="utf-8")
+          body = ('# Citing\n\n"quote one really lives on line five" '
+                  '(`SOURCE.md`:18) says "quote two really lives on line '
+                  'eighteen".\n')
+          (d / "CITER.md").write_text(body, encoding="utf-8")
+          for i in range(5):
+              r = lint(d, "--fix")
+              now = (d / "CITER.md").read_text(encoding="utf-8")
+              if now != body:
+                  print(r.stdout[-3000:])
+                  print(f"::error::--fix EDITED a contested locator on run "
+                        f"{i + 1}. Two attributions share it and disagree, so "
+                        "any rewrite breaks one of them.")
+                  sys.exit(1)
+          if "CONFLICT" not in r.stdout:
+              print(r.stdout[-3000:])
+              print("::error::a contested locator was refused without saying "
+                    "why. The CONFLICT message is the actionable half.")
+              sys.exit(1)
+          print("relocation repaired where it was a fact, refused where it "
+                "would have been a guess, and refused a contested locator "
+                "stably across five runs")
+
+      # -- 2b7c. ROUND 34, THE SECTION-ANCHOR FORM. `FILE.md` §N and
+      #          `FILE.md`, "Heading text" are the citation forms that survive
+      #          an edit above them, which is why the kit is migrating to them.
+      #          A form nobody checks is a convention, not a rule. Both halves
+      #          here: a section that is not there must go red, and one that IS
+      #          there must stay green - the second matters because a new check
+      #          that reds correct citations is worse than no check.
+      - name: citation lint section anchors (must go RED on a section that is not there)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          def lint(d):
+              return subprocess.run(
+                  [sys.executable, "tools/citation_lint.py", "--root", str(d)],
+                  capture_output=True, text=True)
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "SOURCE.md").write_text(
+              "# Doc\n\n## 1. First\nprose\n## 4.7 Second\nprose\n"
+              "## Also measured, at Level 1 (5 min)\n"
+              "prose mentioning a phrase never used as a heading here\n",
+              encoding="utf-8")
+          for cite, why in (
+                  ('Read `SOURCE.md` §9 first.',
+                   "a section number the target does not carry"),
+                  ('See `SOURCE.md`, "a phrase never used as a heading".',
+                   "a quoted string that is prose, not a heading")):
+              (d / "CITER.md").write_text(f"# Citing\n\n{cite}\n",
+                                          encoding="utf-8")
+              p = lint(d)
+              if (p.returncode != 1
+                      or "NAMES A SECTION THAT IS NOT THERE" not in p.stdout):
+                  print(p.stdout[-3000:])
+                  print(f"::error::{why} did NOT go red (exit "
+                        f"{p.returncode}).")
+                  sys.exit(1)
+          # ...and the green half, both forms.
+          for cite in ('Read `SOURCE.md` §4.7 first.',
+                       'See `SOURCE.md`, "Also measured, at Level 1".'):
+              (d / "CITER.md").write_text(f"# Citing\n\n{cite}\n",
+                                          encoding="utf-8")
+              g = lint(d)
+              if g.returncode != 0:
+                  print(g.stdout[-3000:])
+                  print("::error::a CORRECT section anchor went red. The "
+                        "anchor check is manufacturing findings.")
+                  sys.exit(1)
+          print("section anchors refuse what is not there and pass what is")
+
+      # -- 2b7d. ROUND 34, THE BARE-LOCATOR DISCLOSURE (the review's MINOR-4).
+      #          This one is not a gate and must never become one: a bare
+      #          locator is a COVERAGE disclosure, so the exit code stays 0 and
+      #          the visible effect is the state word and a summary segment.
+      #          That is exactly why it needs a CI step - a number nothing
+      #          asserts can be dropped in a tidy-up without any gate noticing,
+      #          and the disclosure is the only reason the residual is
+      #          countable. Also asserts the fence rule, since a locator inside
+      #          a code block would otherwise inflate the count.
+      - name: citation lint bare-locator disclosure (must stay exit 0 and stay VISIBLE)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          def lint(d):
+              return subprocess.run(
+                  [sys.executable, "tools/citation_lint.py", "--root", str(d)],
+                  capture_output=True, text=True)
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "SOURCE.md").write_text(
+              "line one\nline two\nalpha\nthe words that really are here\n",
+              encoding="utf-8")
+          (d / "CITER.md").write_text(
+              "# Citing\n\nThe rule at `SOURCE.md`:320 stands unchanged.\n",
+              encoding="utf-8")
+          p = lint(d)
+          if p.returncode != 0:
+              print(p.stdout[-3000:])
+              print("::error::a bare locator went RED. It is a coverage "
+                    "disclosure, not a finding - see the module docstring.")
+              sys.exit(1)
+          for token, what in (
+                  ("1 bare locator(s) unguarded", "the summary segment"),
+                  ("CITATION LINT: PARTIAL", "the PARTIAL state word"),
+                  ("CITER.md:3 -> SOURCE.md:320", "the location")):
+              if token not in p.stdout:
+                  print(p.stdout[-3000:])
+                  print(f"::error::{what} is missing. A disclosure nobody "
+                        "sees is not a disclosure.")
+                  sys.exit(1)
+          # A locator inside a FENCE is an example of the form, not a citation,
+          # and counting it inflates the number that says how much migration is
+          # left. With only the fenced one present the run must read CLEAN.
+          (d / "CITER.md").write_text(
+              "# Citing\n\nWrite it like this:\n\n```markdown\n"
+              "The rule at `SOURCE.md`:320 stands unchanged.\n```\n",
+              encoding="utf-8")
+          g = lint(d)
+          if g.returncode != 0 or "0 bare locator(s) unguarded" not in g.stdout:
+              print(g.stdout[-3000:])
+              print("::error::a FENCED bare locator was counted. That inflates "
+                    "the disclosure with examples.")
+              sys.exit(1)
+          if "CITATION LINT: CLEAN" not in g.stdout:
+              print(g.stdout[-3000:])
+              print("::error::with nothing unguarded the state word should be "
+                    "CLEAN.")
+              sys.exit(1)
+          print("bare-locator disclosure stays exit 0, stays visible, and "
+                "does not count fenced examples")
+
       # -- 2b8. THE COUNT LINT, the citation lint's sibling. Round 23
       #         corrected QUICKSTART Step 0 from nine lines to ten; ONBOARD
       #         still said nine, about that document's Step 0 by name, and the
@@ -359,6 +557,240 @@ jobs:
                     "Check what actually failed.")
               sys.exit(1)
           print(f"planted stale count caught as required (exit {p.returncode})")
+
+      # -- 2b10. THE SKIM LINT, added in round 31 to resolve a bet round 29
+      #          declined and round 30 fired on both triggers. The first
+      #          reader outside this program skimmed the front door, stopped,
+      #          and never reached the escape table; three cold reads then
+      #          reported the same routing failure, and the front door was
+      #          restructured - the point at which a placement regression
+      #          becomes cheap to introduce and expensive to notice. This is
+      #          the mechanisable half and only that half: within the first N
+      #          lines of README.md, is each of the three named practitioner
+      #          artifacts reachable? The selftest runs first because it
+      #          carries the controls that stop the tool MANUFACTURING
+      #          findings - the window's edge, asserted on both sides, and a
+      #          door that routes correctly staying green.
+      - name: skim lint (and its negative controls)
+        run: |
+          python tools/skim_lint.py --selftest
+          python tools/skim_lint.py
+
+      # -- 2b10a. ...and its forced-red half, in the runner. This step INVERTS
+      #           the exit code: it passes only when a front door that names an
+      #           artifact too late is CAUGHT. The planted door is R29-3's own
+      #           shape - the escape table reachable only from prose sixty
+      #           lines down - and it runs in a temporary directory, so the
+      #           kit's own tree is never modified to test a check against it.
+      - name: skim lint LATE-ROUTING case (must go RED)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "README.md").write_text(
+              "# A front door\n\n"
+              "- **[`COMPARISON.md`](COMPARISON.md)** - the claims audit\n"
+              + "\nprose that the reader does not finish\n" * 60
+              + "- **`KNOWN-ISSUES.md`** - the escape table\n"
+                "- **`docs/walks/`** - the prompts\n",
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/skim_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 1:
+              print("::error::a front door that routes to two of its three "
+                    f"artifacts only past line 100 did NOT go red (exit "
+                    f"{p.returncode}). A placement check that cannot refuse "
+                    "is a placement check nobody has tested.")
+              sys.exit(1)
+          if "NOT REACHABLE FROM THE FIRST SCREEN" not in p.stdout:
+              print("::error::it went red, but not with the finding token. "
+                    "Check what actually failed.")
+              sys.exit(1)
+          print(f"late routing caught as required (exit {p.returncode})")
+
+      # -- 2b10b. ...and the control that keeps it from manufacturing them.
+      #           The SAME door with the three links in the door list must stay
+      #           GREEN. A checker that has only ever been red over a badly
+      #           routed front door would turn every correct one into a
+      #           finding, and that direction fails silently.
+      - name: skim lint CORRECT-ROUTING control (must stay GREEN)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          # QUICKSTART.md joined REQUIRED at the prose-floor review (the
+          # adoption-door row); the planted good door routes all FOUR.
+          (d / "README.md").write_text(
+              "# A front door\n\n"
+              "- **[`COMPARISON.md`](COMPARISON.md)** - the claims audit\n"
+              "- **[`KNOWN-ISSUES.md`](KNOWN-ISSUES.md)** - the escape table\n"
+              "- **[`QUICKSTART.md`](QUICKSTART.md)** - the full adoption\n"
+              "- **[`docs/walks/`](docs/walks/)** - the prompts\n"
+              + "\nprose that the reader does not finish\n" * 60,
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/skim_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 0:
+              print(f"::error::a correctly routed front door went red (exit "
+                    f"{p.returncode}). The skim lint is manufacturing "
+                    "findings, which is worse than missing them.")
+              sys.exit(1)
+          if "SKIM LINT: CLEAN" not in p.stdout:
+              print("::error::it stayed green, but without the CLEAN state "
+                    "word - a door whose artifacts are all linked must not "
+                    "read PARTIAL.")
+              sys.exit(1)
+          print("the correctly routed door stayed green as required")
+
+      # -- 2b10c. ...and the ABORT case. "The check did not run" and "the
+      #           check found nothing" must never share an exit code, which is
+      #           this kit's own state-word doctrine applied to an exit
+      #           contract. A missing front door is exit 2, not exit 0.
+      - name: skim lint ABORT case (a missing front door must be exit 2)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "NOT-A-DOOR.md").write_text("# nothing here\n", encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/skim_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-2000:])
+          if p.returncode != 2:
+              print("::error::a tree with no front door did NOT abort (exit "
+                    f"{p.returncode}). A run that read nothing must never "
+                    "report what a clean run reports.")
+              sys.exit(1)
+          if "SKIM LINT: ABORT" not in p.stdout:
+              print("::error::it went red, but without the ABORT token. Check "
+                    "what actually failed.")
+              sys.exit(1)
+          print(f"missing front door aborted as required (exit {p.returncode})")
+
+      # -- 2b10. THE REPEAT LINT, round 32. Round 30 relocated long-form text
+      #          out of README.md into docs/START-HERE.md, corrected two false
+      #          universals in the copy that STAYED, and moved the copy that
+      #          WENT unchanged. A fresh-eyes read found three uncorrected
+      #          instances from a cold start. This is that oracle: a universal
+      #          claim written into two documents, where correcting one copy
+      #          does not reach the other. The selftest runs first because it
+      #          carries the eight controls that stop the tool going red on
+      #          ordinary prose two documents in a 63-document tree share.
+      - name: repeat lint (and its negative controls)
+        run: |
+          python tools/repeat_lint.py --selftest
+          python tools/repeat_lint.py
+
+      # -- 2b10b. The prose floor: reader-facing docs stay inside their word
+      #           budgets, sentences stay short, jargon links the glossary,
+      #           stock phrases are banned, and a new doc must declare its
+      #           budget or exemption in prose-budgets.json. The selftest
+      #           carries the forced-red controls.
+      - name: prose floor (and its forced-red controls)
+        run: |
+          python tools/prose_floor.py --selftest
+          python tools/prose_floor.py
+
+      # -- 2b11. ...and its forced-red half. This step INVERTS the exit code:
+      #          it passes only when a planted restatement is CAUGHT. The
+      #          planted pair is R32-1's own shape - the sentence that rode the
+      #          round-30 relocation - and it runs in a temporary directory, so
+      #          the kit's own tree is never modified to test a check against
+      #          it.
+      - name: repeat lint RELOCATION case (must go RED)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          claim = ("every one of them was run by an LLM persona rather than "
+                   "by a person")
+          (d / "README.md").write_text(
+              "# Front door\n\nThe evidence base is seven adoption walks, and "
+              f"{claim}.\n", encoding="utf-8")
+          docs = d / "docs"
+          docs.mkdir()
+          (docs / "START-HERE.md").write_text(
+              "# Start here\n\nRelocated from `README.md`, intact.\n\n"
+              f"The register says what the tests found — and {claim}.\n",
+              encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/repeat_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-3000:])
+          if p.returncode != 1:
+              print("::error::a universal claim written into two documents did "
+                    f"NOT go red (exit {p.returncode}). A check that cannot "
+                    "refuse is a check nobody has tested.")
+              sys.exit(1)
+          if "THE SAME UNIVERSAL CLAIM IS STATED IN TWO DOCUMENTS" not in p.stdout:
+              print("::error::it went red, but not with the finding token. "
+                    "Check what actually failed.")
+              sys.exit(1)
+          print(f"planted restatement caught as required (exit {p.returncode})")
+
+      # -- 2b12. ...and the control that keeps it from manufacturing findings.
+      #          Two universals about DIFFERENT things must stay green, however
+      #          alike their vocabulary. A repeat lint that reds on ordinary
+      #          prose would make every shared sentence in this kit a finding,
+      #          which is worse than no check at all.
+      - name: repeat lint DIFFERENT-CLAIMS control (must stay GREEN)
+        shell: python
+        run: |
+          import subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          (d / "README.md").write_text(
+              "# A\n\nEvery row of the sources table carries a bracketed tag "
+              "naming where it came from.\n", encoding="utf-8")
+          (d / "OTHER.md").write_text(
+              "# B\n\nEvery check in this kit declares the artifact its "
+              "expectation is read from.\n", encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/repeat_lint.py",
+                              "--root", str(d)],
+                             capture_output=True, text=True)
+          print(p.stdout[-2000:])
+          if p.returncode != 0:
+              print("::error::two DIFFERENT universal claims went red. The "
+                    "repeat lint is manufacturing findings, which is worse "
+                    "than missing them.")
+              sys.exit(1)
+          print("different claims stayed green as required")
+
+      # -- 2b13. the seen-red field's forced red, in the runner. The registry
+      #          gained a per-check seen_red field in round 32 because three
+      #          consecutive adversarial reads convicted the sentence "every
+      #          check has been seen to fail on purpose" and no instrument in
+      #          the kit could answer it for any single check. An ABSENT field
+      #          must be a failure; the value NEVER must not be. This step
+      #          proves the first half by inverting the exit code.
+      - name: expectation lint SEEN-RED case (a row with no seen_red must go RED)
+        shell: python
+        run: |
+          import json, subprocess, sys, tempfile, pathlib
+          d = pathlib.Path(tempfile.mkdtemp())
+          reg = d / "reg.json"
+          reg.write_text(json.dumps({"checks": [
+              {"id": "x:has-it", "subject": "a.py:rule",
+               "expectation_from": "inline", "seen_red": "NEVER"},
+              {"id": "x:missing", "subject": "b.py:rule",
+               "expectation_from": "inline"}]}), encoding="utf-8")
+          p = subprocess.run([sys.executable, "tools/expectation_lint.py",
+                              "--registry", str(reg)],
+                             capture_output=True, text=True)
+          print(p.stdout[-2000:])
+          if p.returncode != 1:
+              print("::error::a registry row with no seen_red field did NOT go "
+                    f"red (exit {p.returncode}). An absent field renders like "
+                    "a recorded red, which is the defect this field answers.")
+              sys.exit(1)
+          if "carries no seen_red field" not in p.stdout:
+              print("::error::it went red, but not with the seen-red finding. "
+                    "Check what actually failed.")
+              sys.exit(1)
+          print(f"absent seen_red caught as required (exit {p.returncode})")
 
       # -- 2c. the fixture harness's OWN pure layer. It shipped a
       #        ship-blocker (a substring test on a regex field) that reported

@@ -76,4 +76,4 @@ Then, in this order:
 5. **Checks manufactured.** ruling → check name → status.
 6. **Consciously left out, and why.** This is a claim a spec-side reviewer will
    independently cross-check against the diff. Write it so it survives that.
-7. **New traps discovered** — tuition someone else should not pay twice.
+7. **New traps discovered** — recorded so the next implementer does not hit them.

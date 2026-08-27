@@ -45,10 +45,11 @@ means this design landing.
 - A **measured existing-project adoption walk**. Today the existing-project
   integration cost is an estimate (3.5–5 hours); one measured walk replaces it
   with data.
-- A **human adoption walk** on record. All current adoption evidence comes from
-  LLM-persona adoption walks, labeled as such throughout and with their prompts
-  published under `docs/walks/`; the protocol transfers to a human walk
-  unchanged.
+- A **human adoption walk** on record. The current adoption-walk evidence is
+  LLM-persona walks, labeled as such throughout (the register also carries one
+  human evaluation read and one executed same-owner transplant, neither of
+  which is a walk); `docs/walks/` publishes the walk prompts and states exactly
+  which runs it covers. The protocol transfers to a human walk unchanged.
 - **De-identified ledgers** for `judgments` and `tokens`, so a reader can
   recompute the remaining headline numbers, published with a dedicated review.
   The `escapes` third of this is done and shipped — see Ready now. What is

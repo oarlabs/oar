@@ -1,7 +1,10 @@
 # The adoption walks — what they were, and what you can check
 
-Every adoption test behind this kit's finding counts was performed by a
-**large language model running a written persona**, not by a person. No human
+The adoption tests behind this kit's finding counts were performed by a
+**large language model running a written persona**, not by a person — with one
+exception on record, stated here rather than forty lines below: **entry 29 is a
+human read**, a practising engineer outside the program, with no prompt to
+publish. No human
 has walked `QUICKSTART.md` end to end and reported findings. This directory
 publishes the prompts that produced those walks so a reader can judge the
 evidence rather than take the counts on trust.
@@ -91,16 +94,20 @@ short distillation of what the run did.
 
 The model family is **not** on that list, because withholding a name this
 repository prints on every adoption path would be a redaction that conceals
-nothing. All thirteen runs — seven walks, three evaluation reads, and three
-recon reads — are recorded in the distilled agent records as `model opus`:
-Anthropic's Claude, top tier. That is
+nothing. All fourteen runs — seven walks, three evaluation reads, three
+recon reads, and the executed increment of entry 30 — are recorded in the
+distilled agent records as `model opus`:
+Anthropic's Claude, top tier. The increment is in this count and has no prompt
+page here: its prompt was built live around the recon consensus and is quoted,
+with its outputs, in `docs/CASE-STUDY-INCREMENT.md`. That is
 the single family `BLUEPRINT.md` §11 means when it states the evidence limit as
 "one AI family".
 
 ### What a reader can and cannot verify from this directory
 
 You can verify the **instrument**: the prompts are here in full — every
-instruction, with only the redactions in the table above, each disclosed on the
+instruction, with the redactions named in the table above and nothing else, each
+disclosed on the
 page that carries it — so you can read exactly what each persona was told to do,
 what it was told to count as a finding, and what it was forbidden to do. You
 can verify the **subject**: each page names the commit the walk ran against,
@@ -135,6 +142,8 @@ placeholder, marked at the point of elision:
 | `<COORDINATOR-TIER>` | The program's internal codename for the tier its coordinating session runs on, quoted inside a tiering constraint. The model family that ran the recorded lanes stays named above — what is withheld is a private program label, not the evidence's family |
 | `<PUBLIC-REPO-URL>` | The public mirror's hosting address as the prompt printed it — withheld so this tree names no hosting org; a reader of the public repository is already at the address the prompt named |
 | `<HOST-DESCRIPTION>` | The brownfield host's description as the recon prompts stated it — product category, runtime stack, and repository layout, which together identify a private project. The release describes that host generically: a two-year-old internal AI advisory project of the same owner |
+| `<PUBLIC-KIT-CLONE>` | The absolute path, on the maintainer's machine, of the public-mirror clone the three recon reads were pointed at. Used only by the `read-30-recon-*` pages |
+| `<HOST-REPO>` | The absolute path of the brownfield host repository on the maintainer's machine. Used only by the `read-30-recon-*` pages, alongside `<HOST-DESCRIPTION>` |
 
 Nothing else in the prompts was changed, and where a page departs from that at
 all it says so on the page — walk 9 collapses a duplicated kit path that would

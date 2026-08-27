@@ -6,7 +6,10 @@ maintains this kit, but built before this program existed, maintained
 outside it, and never previously governed or read by it. The independence in
 this study is in the AGENTS, not the host: three cold reads by LLM personas
 with zero context evaluated the kit and the host and each returned a
-verdict, and a fourth zero-context agent executed the work. The owner
+verdict, and a fourth agent executed the work. **That fourth agent was not
+zero-context**: its prompt was built live around the three reads' consensus,
+so it began with their distilled conclusions about both trees. It had no
+program context, which is a different and weaker claim. The owner
 authorised one increment: adopt the kit at Level 1 by following its
 documents as written, and execute exactly one improvement under that
 discipline. This is not an independent-adopter study, and it does not claim
@@ -26,10 +29,20 @@ and the adopter was a language model rather than a person.
 
 ## 1. The three reads
 
-Three lanes read the published kit cold — no prior contact, no coaching — and
+Three lanes read the published kit cold — no prior contact with the kit — and
 each was required to end in a decision rather than an opinion: **ADOPT**,
 **PILOT**, or **PASS**. Each was also required to read the host and name the
 first three things it would do there.
+
+**They were not uncoached, and the prompts are published.** Each lane's charter
+opens with the program's own tiering rule, its halt authority, its
+out-of-bounds fences and its byte-handoff contract — three shipped kit
+mechanisms — immediately above the line "YOU KNOW NOTHING about this program."
+Each also carries the instruction "Every number sourced or labeled an
+estimate", which is this kit's own conduct doctrine applied to the evaluator
+before the evaluator reads the kit. The prompts are at
+`docs/walks/read-30-recon-principal.md`, `read-30-recon-presales.md` and
+`read-30-recon-secops.md`; read them beside this section rather than after it.
 
 Each read was performed by a **large language model running a written
 persona**, not by a person. That is the same instrument limit every adoption
@@ -45,19 +58,64 @@ Three reads, three verdicts:
 
 Nobody returned ADOPT and nobody returned PASS.
 
-### What they agreed on, unprompted
+### What they converged on, and what the prompt asked for
 
-**The instruments converted them; the prose did not.** All three stopped
-reading within the first ten minutes and started running things. All three
-named a runnable artifact as the reason for their verdict, and none named a
-paragraph.
+*[Rewritten in round 32 (R32-2), from an adversarial hostile-reader lane. This
+section was headed "What they agreed on, unprompted" and reported the
+convergence as independent. The prompts that produced it are published four
+directories away in this same tree, and read beside the claims they falsify the
+word "unprompted". The findings below are the ones that survive being read
+against the instructions.]*
 
-**All three bounced off the same surface.** The findings register was, at the
-time, 292 KB. Each read grepped it rather than reading it, and each was
-looking for the same thing inside it: the escape-rate table. One of them wrote
-that if the escape table is the reason to adopt, it is in the wrong container.
-That finding is the reason the register now opens with that table and the
-reason the front door was rebuilt around a demonstration.
+**The steering, stated first.** Three of the convergent observations were asked
+for in the prompts:
+
+- The ten-minute framing came from the prompts.
+  `docs/walks/read-30-recon-principal.md`:45 asks the lane for "in your first
+  ten minutes, where you bounced".
+  `docs/walks/read-30-recon-presales.md`:38-39 asks for "Include your
+  first-ten-minutes front-door path".
+- "Bounced" is the prompts' own word, in two of the three charters, and it is
+  the word this page used to report as a convergent observation.
+- The instruments-over-prose reading was an instruction to at least one lane.
+  The security-operations persona is defined as "allergic to walls of confident
+  AI prose" (`docs/walks/read-30-recon-secops.md`:16-17); the same page tells it
+  to "trust output lines over prose" (`docs/walks/read-30-recon-secops.md`:28)
+  and that green "for you that means an output line, not a paragraph"
+  (`docs/walks/read-30-recon-secops.md`:48). A lane instructed to prefer output lines to
+  prose, and then reported as having independently concluded that instruments
+  beat prose, is the instruction restated as a finding.
+
+**What survives the instructions.** Three things the prompts did not ask for:
+
+- **The verdicts.** No charter named a target verdict or ranked the three
+  options. Three PILOTs, no ADOPT and no PASS, is the reads' own output.
+- **The specific artifacts named.** Each lane named a *different* runnable
+  artifact as decisive — the doctor's ATTENTION on the kit's own repository,
+  the exit-code contract with a negative control, and the adoption smoke run
+  that exits 2. The prompts asked for an output line; they did not name which.
+- **All three bounced off the same surface.** The findings register was, at the
+  time, 292 KB. Each read grepped it rather than reading it, and each was
+  looking for the same thing inside it: the escape-rate table. One of them
+  wrote that if the escape table is the reason to adopt, it is in the wrong
+  container. The prompts asked where the lane bounced; they did not name the
+  register, and the register is not the surface a charter would have guessed.
+  That finding is the reason the register now opens with that table and the
+  reason the front door was rebuilt around a demonstration.
+
+**A counter-reading, recorded because it is the one a hostile reader reaches
+unaided.** Convergence among personas of the same model family is a documented
+property of the instrument rather than evidence about the subject: Xiao,
+Zhang, Yang, Ma, Xuan and Huang, *The Chameleon's Limit: Investigating Persona
+Collapse and Homogenization in Large Language Models* (arXiv 2604.24698,
+2026-04-27), report that "agents each assigned a distinct profile nonetheless
+converge into a narrow behavioral mode, producing a homogeneous simulated
+population", and that "behavioral variation tracks coarse demographic
+stereotypes rather than the fine-grained individual differences specified in
+each persona" [FETCHED: `https://arxiv.org/abs/2604.24698`]. All three reads
+ran on one model family, which `docs/walks/README.md` records. The agreement in
+this section is therefore reported as an observation about three runs of one
+instrument, not as triangulation across independent ones.
 
 **Two of them declined the full kit for the same disclosed reasons**: no
 multi-seat story, no integration with the assurance tooling their clients are
@@ -66,19 +124,40 @@ people. All three of those limits were already published; none was
 discovered. The documents had stated each reservation before the readers
 raised it, which is the outcome an honest disclosure is for.
 
-### One of them corrected a published claim
+### A commissioned read narrowed a published claim
 
-The security-operations read ran the verification procedure that the kit's
-comparison page hands out, picked the row the page names as the cheapest to
-attack, and produced a counterexample the audit behind that page had missed:
-firewall policy recertification tooling ships a last-hit date column,
+*[Rewritten in round 32 (R32-2), from an adversarial hostile-reader lane. This
+section was headed "One of them corrected a published claim" and closed on
+"That is the first time the standing correction invitation has produced
+anything." Both statements overstated what happened, in two independent ways
+recorded below.]*
+
+**It was a directed task, not an open invitation taken up.** The
+security-operations charter instructs the lane to test "whether the
+verify-these-rows-yourself comparison page holds up when you actually try a
+row (try at least one sourced row and one NO-MATCH-FOUND row and report what
+happened)" (`docs/walks/read-30-recon-secops.md`:39-42). The NO-MATCH-FOUND
+rows are the ones `COMPARISON.md` itself names as the cheapest to attack. The
+program commissioned the attack and pointed it at the row class. A standing
+invitation and a commissioned task are different instruments, and this kit's
+own doctrine is that they are not to be blurred. **The standing correction
+invitation has not yet produced anything**, and this page previously claimed
+otherwise.
+
+**What the lane produced is a lead, not a citation.** The counterexample —
+firewall policy recertification tooling shipping a last-hit date column,
 automated unused-rule reports and a forced disposition at recertification —
-two of the three properties the row claimed nobody shipped.
+was named from the persona's own working knowledge. No page was fetched and no
+search index was consulted. `COMPARISON.md`:147 carries it under the
+`[UNVERIFIED]` tier with the instruction to "treat it as a lead to check rather
+than as a citation"; this page previously dropped that tier label and
+stated the counterexample as established fact.
 
-The row now carries that citation, its claim narrowed to the one property that
-survives, and the correction is recorded as coming from a reader running the
-page's own procedure. That is the first time the standing correction
-invitation has produced anything.
+**What is real.** C11's claim is narrowed to the one property the audit still
+found nowhere, the narrowing is recorded on the row with its evidence tier
+intact, and the lane that produced it was reading the page's own procedure
+when it did. That is a genuine result. Its provenance is a commissioned read,
+and the row it narrowed still rests on an unverified lead.
 
 ---
 
