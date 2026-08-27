@@ -16,9 +16,11 @@ whether anyone has watched one refuse. OAR makes the first answerable and
 the second askable per check. Every check declares where its expectation
 comes from and carries a `seen_red` field: the date of its last recorded
 forced red, or NEVER. At version 0.1.0, 35 of the 208 rows in the check
-registry (`checks-registry.json`) carry a date and 173 are NEVER. [check: python tools/expectation_lint.py]
+registry (`checks-registry.json`) carry a date and 173 are NEVER;
+`python tools/expectation_lint.py` prints that ratio on every run.
 
-**What it is not:** a security boundary [record: docs/SECURITY-SCOPE.md],
+**What it is not:** a security boundary (`docs/SECURITY-SCOPE.md` states
+this in full),
 an agent framework, or a finished enterprise product. It is single-owner
 today; team adoption is in active design (Project status, below).
 
@@ -50,7 +52,7 @@ today; team adoption is in active design (Project status, below).
 The kit's Level 1 was adopted into a two-year-old internal AI advisory
 project: an existing codebase, same owner, built before this program. One
 improvement was then executed under the kit's discipline by an agent with
-no program context [record: docs/CASE-STUDY-INCREMENT.md]: make the
+no program context: make the
 project's certification gate unable to certify a test suite that never ran.
 
 The gate, before and after:
@@ -89,7 +91,8 @@ The full account, including what it does not establish, is in
 ## Quickstart
 
 Clone this repository. Nothing is installed: every executable is stock
-Python 3.10+ with no dependencies [record: docs/PREREQUISITES.md].
+Python 3.10+ with no dependencies; `docs/PREREQUISITES.md` lists the
+four things you need.
 
 Three commands. None writes to your project:
 
@@ -171,7 +174,7 @@ The evidence base: one reference build; seven LLM-persona adoption walks
 six LLM-persona evaluation reads (three of the shipped kit, three of the
 kit plus a brownfield host); one read by a practising engineer outside the
 program; one executed [brownfield](GLOSSARY.md) increment
-[record: docs/CASE-STUDY-INCREMENT.md]. `KNOWN-ISSUES.md` records what each
+(`docs/CASE-STUDY-INCREMENT.md`). `KNOWN-ISSUES.md` records what each
 found; `docs/walks/` publishes the prompts and states exact coverage — the
 human read has no prompt to publish. A human adoption walk is planned and
 not yet on record. `docs/ADOPTION-TESTS.md` carries per-module results.
@@ -185,9 +188,9 @@ Version `0.1.0`. Apache-2.0.
 **This kit is not a security boundary.** It governs correctness, cost, and
 process integrity: the failure modes of an honest agent doing competent
 work badly. It does not defend against a hostile agent, prompt injection,
-credential exfiltration, or your supply chain.
-[record: docs/SECURITY-SCOPE.md — each limit in full, plus the two
-mechanisms that look stronger than they are.]
+credential exfiltration, or your supply chain. `docs/SECURITY-SCOPE.md`
+states each limit in full, plus the two mechanisms that look stronger
+than they are.
 
 ---
 
@@ -221,4 +224,4 @@ The product of a serious build is the growing set of permanent, executable
 checks that capture the owner's judgment. Every [punch item](GLOSSARY.md) is an
 un-automated test that has just revealed itself. Every control is labeled
 with whether the agents it governs could rewrite it.
-[record: BLUEPRINT.md — the full operating architecture.]
+`BLUEPRINT.md` carries the full operating architecture.
