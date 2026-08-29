@@ -40,6 +40,26 @@ records the fix shape; `tools/kit_render.py` already builds the first half of
 it (mechanical settings rendering per machine). "Enterprise-ready" for OAR
 means this design landing.
 
+## Enterprise direction — exports and adapters, not a platform
+
+The enterprise answer is not a platform. The kit stays copy-in files
+on stock Python. The planned shape:
+
+- **Evidence out.** Ledgers emit structured events for a SIEM; the
+  file is the interface.
+- **Ownership named.** A manifest names a human owner per charter;
+  unowned charters are refused.
+- **Policy in.** The rules file compiles to policy-as-code; the
+  markdown stays the human record.
+- **Budgets.** Tier rules rendered as budget and rate configuration
+  for the team's existing gateway.
+- **Provenance.** Signed releases as checklist steps.
+
+The binding constraint: the developer surface never grows. Everything
+above ships off by default, turns on by dropped-in configuration, and
+adds no line to `QUICKSTART.md`. Multi-seat design remains the gate;
+nothing here is started, no dates promised.
+
 ## Planned, not started
 
 - A **measured existing-project adoption walk**. Today the existing-project
