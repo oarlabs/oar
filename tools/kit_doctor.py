@@ -546,6 +546,52 @@ def judge_dirty_paths(porcelain: str, judged: list) -> Finding:
 
 
 # ---- check 8: can the hook's interpreter start? ------------------------
+# Suffixes that name a HOOK SCRIPT rather than an interpreter. `.exe` is
+# deliberately absent: it is how the interpreter itself is spelled on Windows,
+# and a list that contained it would locate the interpreter as the script.
+HOOK_SCRIPT_SUFFIXES = (".py", ".ps1", ".sh", ".js", ".mjs", ".rb", ".pl")
+
+# The shell operators that end one command and begin another. A hook command
+# is one line of shell, not one program.
+SHELL_SEPARATORS = {"&&", "||", "|", ";", "&"}
+
+
+def command_segments(toks: list) -> list:
+    """Split an unquoted token list into the commands the shell would run.
+    Pure. `a && b` is two commands, and only one of them is the hook."""
+    segs, cur = [], []
+    for tok in toks:
+        if tok in SHELL_SEPARATORS:
+            segs.append(cur)
+            cur = []
+            continue
+        # `exit 2;` and `2;` - shlex does not treat `;` as a word boundary.
+        if tok.endswith(";") and tok != ";":
+            cur.append(tok[:-1])
+            segs.append(cur)
+            cur = []
+            continue
+        cur.append(tok)
+    segs.append(cur)
+    return [s for s in segs if s]
+
+
+def running_segment(toks: list) -> list:
+    """The command that RUNS THE HOOK SCRIPT, out of a guarded line. Pure.
+
+    The LAST segment naming a script wins, because a guard that tests the
+    script (`test -f hook.py && python hook.py`) names it too and is not the
+    thing that runs it. A line naming no script keeps the first segment, which
+    is what this function did before it could see segments at all."""
+    segs = command_segments(toks)
+    if not segs:
+        return toks
+    for seg in reversed(segs):
+        if any(t.lower().endswith(HOOK_SCRIPT_SUFFIXES) for t in seg):
+            return seg
+    return segs[0]
+
+
 def interpreter_token(cmd: str, resolves) -> str:
     """The interpreter a hook command names. Pure; `resolves` is a
     callable(str) -> bool.
@@ -565,6 +611,8 @@ def interpreter_token(cmd: str, resolves) -> str:
          path or a program and an argument - so the longest space-joined prefix
          that actually RESOLVES wins, which is how Windows itself reads it.
       3. BARE. One token, as before.
+      4. GUARDED. A guard clause in front of the interpreter is a different
+         command; `running_segment` picks the one that runs the script.
 
     Falls back to the first token when nothing resolves, so an ATTENTION still
     names something the reader recognises."""
@@ -576,6 +624,15 @@ def interpreter_token(cmd: str, resolves) -> str:
     except ValueError:
         toks = text.split()
     toks = [t.strip("\"'") for t in toks if t]
+    if not toks:
+        return ""
+    # SHAPE 4: A GUARD CLAUSE IN FRONT. `python3 -c "pass" && python hook.py`
+    # read as `python3`, so on the host this check exists for - `python3`
+    # present, no `python` shim - a guarded command reported STARTABLE while
+    # the interpreter that actually runs the hook was missing. Read the
+    # interpreter of the command that runs the SCRIPT, not of whatever stands
+    # in front of it.
+    toks = running_segment(toks)
     if not toks:
         return ""
     if resolves(toks[0]):
@@ -2872,6 +2929,34 @@ def selftest() -> int:
           r"C:\Python312\python.exe")
     check("interpreter_token: an empty command yields nothing",
           interpreter_token("   ", lambda t: True), "")
+    # A GUARD CLAUSE IN FRONT OF THE INTERPRETER. The check read the FIRST
+    # token of the whole command, so anything standing in front of the
+    # interpreter was read as the interpreter. On the host this check exists
+    # for - stock Debian, `python3` present and no `python` shim - a guarded
+    # command reported STARTABLE while the interpreter that actually runs the
+    # hook was missing. A false green over a hook that can never run, which is
+    # the exact failure this check was added to close.
+    _deb = lambda t: Path("/usr/bin/python3") if t == "python3" else None  # noqa: E731
+    _guarded = 'python3 -c "pass" && python "tools/hook_model_gate.py"'
+    check("interpreter_token: a guard clause in front does not become the "
+          "interpreter",
+          interpreter_token(_guarded, lambda t: _deb(t) is not None), "python")
+    check("NC: and the guarded Debian case is still caught",
+          judge_interpreter([_guarded], _deb).state, ATTENTION)
+    check("interpreter_token: the `|| exit 2` guard module 02 wires after the "
+          "command is not read as the interpreter either",
+          interpreter_token('python "tools/hook_model_gate.py" || exit 2',
+                            lambda t: t == "python"), "python")
+    check("interpreter_token: a `;`-separated guard splits too",
+          interpreter_token('command -v python || exit 2; python hook.py',
+                            lambda t: t == "python"), "python")
+    check("interpreter_token: the LAST segment naming the script wins, so a "
+          "guard that tests the script is not mistaken for the runner",
+          interpreter_token('test -f hook.py && python hook.py',
+                            lambda t: t == "python"), "python")
+    check("interpreter_token: a command naming no script at all still reads "
+          "its first token (nothing to locate, so nothing changes)",
+          interpreter_token("python -V", lambda t: t == "python"), "python")
     check("a pwsh -File wiring resolves on its interpreter, not its script",
           judge_interpreter(['pwsh -NoProfile -File "C:/r/hook.ps1"'],
                             lambda t: Path(t) if t == "pwsh" else None).state,
