@@ -7,6 +7,8 @@ single project-specific check of your own.
     python hook_fixtures.py                      # run every fixture
     python hook_fixtures.py --hook <path>        # judge a DIFFERENT hook file
     python hook_fixtures.py --armed <settings>   # also assert the hook is WIRED
+    python hook_fixtures.py --unstartable <settings>  # assert an unstartable
+                                                 #   hook BLOCKS, not fails open
     python hook_fixtures.py --strict             # a skipped fixture is a failure
     python hook_fixtures.py --selftest           # judge THIS harness's own layer
     python hook_fixtures.py --make-deadman <dir> # mint a corpse hook, then exit
@@ -23,8 +25,8 @@ development. Nothing fails when it breaks. It can be syntactically dead for
 weeks, in a repository where every test is green, and the only symptom is that
 things you believed were impossible quietly start happening.
 
-TWO CLAIMS, AND THE FIRST ONE IS THE ONE PEOPLE MISS
-====================================================
+THREE CLAIMS, AND THE FIRST ONE IS THE ONE PEOPLE MISS
+======================================================
   1. IS IT ARMED? The fixtures below prove what the hook DECIDES. They say
      nothing about whether the harness ever CALLS it. A settings file whose
      matchers were deleted or rewired leaves every fixture green and every rule

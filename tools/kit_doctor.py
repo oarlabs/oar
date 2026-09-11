@@ -615,7 +615,13 @@ def interpreter_token(cmd: str, resolves) -> str:
          command; `running_segment` picks the one that runs the script.
 
     Falls back to the first token when nothing resolves, so an ATTENTION still
-    names something the reader recognises."""
+    names something the reader recognises.
+
+    KNOWN LIMIT, stated rather than fixed. Quotes come off the tokens BEFORE
+    the segmenting in shape 4, so a quoted literal separator - a command with
+    `"&&"` as an actual argument - would be read as a separator. No shipped
+    command shape does that, and reordering the two steps would disturb shapes
+    1 and 2, which are the ones with a measured failure behind them."""
     text = (cmd or "").strip()
     if not text:
         return ""
