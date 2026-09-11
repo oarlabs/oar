@@ -731,9 +731,17 @@ def plant_unstartable(cmd: str):
 
     The interpreter is the command's first token, quoted or bare - the token
     kit_doctor's interpreter check reads. Replacing it and keeping everything
-    else preserves the part under test: the guard, or its absence. Remaining
-    `{{SLOTS}}` are filled with a harmless word so the probe can run against
-    the unsubstituted template as well as an adopted settings file."""
+    else preserves the part under test: the guard, or its absence. Any template
+    slot still standing in the command is filled with a harmless word, so the
+    probe runs against the unsubstituted template as well as an adopted
+    settings file.
+
+    The sentence above deliberately spells no slot token, and this one names
+    no inventory heading. `split_manifest` in adoption_smoke.py recognises an
+    inventory by its heading word, either beside a token or above a run of
+    them, so prose that merely DESCRIBES this mechanism is read as a file
+    declaring one. Describing it cost four lint problems once; describing the
+    fix cost two more."""
     m = re.match(r"""\s*("[^"]*"|'[^']*'|\S+)(.*)$""", cmd or "", re.S)
     if not m:
         return None
@@ -1014,9 +1022,15 @@ def selftest() -> int:
           "does not leave half of it in front of the script",
           plant_unstartable('"C:/Program Files/Py/python.exe" h.py || exit 2'),
           NO_SUCH_INTERPRETER + ' h.py || exit 2')
+    # The probe command is BUILT rather than spelled. A literal slot token in
+    # this file's source is the only thing that brings it into the slot lint's
+    # scope at all, and once in scope a body with no inventory reads as an
+    # inventory with no body. At the release base this file carried no token
+    # and was skipped; that property is kept here deliberately.
+    _o, _c = "{" * 2, "}" * 2
+    _probe = _o + "PYTHON_BIN" + _c + ' "' + _o + "PROJECT_ROOT" + _c + '/h.py"'
     check("an unsubstituted template slot is filled, not left as braces",
-          "{{" in (plant_unstartable('{{PYTHON_BIN}} "{{PROJECT_ROOT}}/h.py"')
-                   or ""), False)
+          "{" * 2 in (plant_unstartable(_probe) or ""), False)
     check("NC: a command with no guard is planted WITHOUT one, so the probe "
           "can go red",
           "exit 2" in (plant_unstartable('python "t/hook.py"') or ""), False)
