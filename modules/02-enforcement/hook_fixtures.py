@@ -743,8 +743,18 @@ def plant_unstartable(cmd: str):
 
 def run_unstartable(cmd: str, timeout: int = 30) -> int:
     """Run the planted command through the platform shell and return its exit
-    code. The shell is the point: the guard is shell syntax, so nothing short
-    of running it proves the harness would see a BLOCK."""
+    code, or -1 when there was no exit code to read. The shell is the point:
+    the guard is shell syntax, so nothing short of running it proves the
+    harness would see a BLOCK.
+
+    -1 IS NOT AN EXIT CODE. It is this function's sentinel for "the command
+    did not run to completion", a launch failure or a timeout. A caller that
+    prints it as though a shell returned it tells the reader a shell said
+    something it never said, which is the failure this whole section is about.
+
+    WHICH SHELL. `shell=True` means `/bin/sh` on POSIX and `COMSPEC` on
+    Windows, which is `cmd.exe`. It is not necessarily the shell your harness
+    invokes hooks with. The README says what follows from that."""
     try:
         p = subprocess.run(cmd, shell=True, capture_output=True,
                            timeout=timeout)
@@ -786,7 +796,9 @@ def check_unstartable(settings_path: Path) -> tuple[bool, list[str]]:
         ok_all = False
         notes.append(
             f"UNSTARTABLE: matcher {matcher!r} fails OPEN. With its "
-            f"interpreter missing the command exited {rc}, not {BLOCK_RC}, so "
+            f"interpreter missing the command "
+            f"{'did not run to completion (launch failure or timeout)' if rc == -1 else f'exited {rc}'}"
+            f", not {BLOCK_RC}, so "
             f"the harness reads the silence as no opinion and proceeds. End "
             f"the command with `|| exit 2`. Probe was: {probe[:110]}")
     return ok_all, notes

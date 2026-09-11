@@ -208,7 +208,10 @@ python tools/hook_fixtures.py --unstartable .claude/settings.json
 
 It is a separate command, the way `--make-deadman` is: a proof you run against
 the settings file you actually adopted, not a claim folded into the standard
-run. A command that fails open is reported with the `UNSTARTABLE:` token and
+run. Note what the probe does to get its answer: it replaces the interpreter
+with a name that resolves nowhere and runs the command, so the first branch
+fails and whatever stands after `||` is EXECUTED. Keep that branch to the
+guard. Anything else you put there runs during the probe. A command that fails open is reported with the `UNSTARTABLE:` token and
 the run exits non-zero. That token now covers two different failures: this
 one, a command that runs and fails open, and `--armed`'s older one, a command
 naming a script that is not there. A grep on the token matches both; read the
@@ -221,9 +224,17 @@ the `||` operator from 7.0, but in command position it resolves `exit` as a
 command NAME and does not find one: measured on pwsh 7.6.5 the error is
 "The term 'exit' is not recognized", not a parse error. Do not go looking for
 one. The guard is therefore inert in that shell: it does not block, and it
-does not break a hook that works. If your harness runs hook commands through
-PowerShell, write the guard in that shell's own grammar and re-run the fixture
-above until it is green.
+does not break a hook that works.
+
+If your harness runs hook commands through PowerShell, write the guard in that
+shell's own grammar — and do NOT expect the fixture above to confirm it. The
+probe runs each planted command through `subprocess(shell=True)`, which on
+Windows is `COMSPEC`, which is `cmd.exe`. A guard written in PowerShell grammar
+returns 1 there, measured, so the probe would report it as failing open when
+the harness might read it correctly. The probe answers one question honestly,
+"does this command block under the shell the probe used", and that shell is
+not necessarily yours. Where the two differ, the probe is the wrong instrument
+and the only real test is your own harness.
 
 ## Where the config comes from — four steps, and the loud failure
 
