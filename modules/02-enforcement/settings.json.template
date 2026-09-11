@@ -65,7 +65,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\"",
+            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\" || exit 2",
             "timeout": 20,
             "statusMessage": "Checking model tiers..."
           }
@@ -76,7 +76,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\"",
+            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\" || exit 2",
             "timeout": 20
           }
         ]
@@ -86,7 +86,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\"",
+            "command": "{{PYTHON_BIN}} \"{{PROJECT_ROOT}}/tools/hook_model_gate.py\" || exit 2",
             "timeout": 20
           }
         ]

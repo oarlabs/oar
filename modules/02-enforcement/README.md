@@ -176,6 +176,43 @@ permission system decide"* — which creates the failure mode the clause closes:
 - a fixture expecting **silence** passes only if the process also exited 0.
   Silence from a corpse is not consent.
 
+## A hook that cannot start BLOCKS
+
+A hook that cannot start and a hook that crashes before it decides are the same
+event from the harness's side: nothing said anything. Silence is a real verdict
+from this gate, so the harness reads that nothing as "no opinion" and proceeds.
+A missing interpreter, a moved script, a syntax error introduced by an edit:
+every one of them fails OPEN, and the run looks exactly like a quiet morning.
+
+The wiring closes it. Every hook command in `settings.json.template` ends with
+`|| exit 2`, and exit 2 is the harness's BLOCK. A hook that starts and decides
+never reaches the guard, because this gate exits 0 whatever it decides. The
+guard fires only when the command itself failed, which is precisely the case
+where no decision was delivered.
+
+`--armed` asserts that the named script EXISTS. The guard covers what that
+check cannot see: the interpreter, and every crash between process start and
+the first byte of output. `hook_fixtures.py` proves the guard rather than
+trusting it. Claim 3 plants an unstartable hook in each wired command, runs it
+through the platform shell, and requires exit 2:
+
+```bash
+python tools/hook_fixtures.py --unstartable .claude/settings.json
+```
+
+It is a separate command, the way `--make-deadman` is: a proof you run against
+the settings file you actually adopted, not a claim folded into the standard
+run. A command that fails open is reported with the `UNSTARTABLE:` token and
+the run exits non-zero. Run it whenever you re-render `.claude/settings.json`.
+
+**The guard is shell syntax, and the shell belongs to the harness.**
+`|| exit 2` behaves as described in `sh`, `bash` and `cmd.exe`. PowerShell has
+the `||` operator from 7.0, but `exit` is a keyword there and cannot stand as
+its right operand, so the guard is inert in that shell: it does not block, and
+it does not break a hook that works. If your harness runs hook commands through
+PowerShell, write the guard in that shell's own grammar and re-run the fixture
+above until it is green.
+
 ## Where the config comes from — four steps, and the loud failure
 
 Both tools search in **exactly** this order. Exactness matters: a harness
