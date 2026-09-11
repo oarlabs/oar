@@ -90,9 +90,9 @@ The full account, including what it does not establish, is in
 
 ## Quickstart
 
-Clone this repository. Nothing is installed: every executable is stock
-Python 3.10+ with no dependencies; `docs/PREREQUISITES.md` lists the
-four things you need.
+Clone this repository, `github.com/oarlabs/oar`. Nothing is installed: every
+executable is stock Python 3.10+ with no dependencies;
+`docs/PREREQUISITES.md` lists the four things you need.
 
 Three commands. None writes to your project:
 
