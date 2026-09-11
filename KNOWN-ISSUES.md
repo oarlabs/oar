@@ -2860,3 +2860,57 @@ count lint's live half and skipped its selftest: one escape, caught by
 the layer above. The paragraph shape is restored, the full battery now
 enumerates every selftest by list, and the escape counts against the
 round in the program ledger.
+
+## Maintenance release 1 (v0.1.1, 2026-09-10): the release's own CI went RED, and what it says about the chain
+
+**v0.1.1 IS SUPERSEDED BY v0.1.2.** The tag stays on the remote; it is a real
+release that shipped a real red. Use v0.1.2.
+
+### The defect
+
+`kit-ci` failed on both `ubuntu-latest` and `windows-latest`, exit 1, on the
+pushed release branch. `main` at `c0f1f70` had been green. `adoption_smoke.py`
+phase 10 reported four slot-manifest problems, all in
+`modules/02-enforcement/hook_fixtures.py`, all introduced by that release.
+
+At the release base that file carried **no slot token at all**, so
+`slot_problems` skipped it entirely. Two of the release's additions put tokens
+in it: a docstring sentence that spelled a token while explaining what the code
+does to tokens, and a new selftest whose probe was a literal template string.
+That brought the file into scope for the first time. Once in scope,
+`split_manifest` read the inventory word standing beside a token as an
+inventory header, so a file with no inventory scored as an inventory with no
+body.
+
+The fix restores the property the file shipped with: no literal slot token in
+its source. The docstring spells none and names no heading; the selftest builds
+its probe from pieces at run time, and the check it makes is unchanged and
+still falsifiable.
+
+**Recorded because the second attempt is the better lesson.** The first fix
+rewrote the docstring and took four problems to two. The explanation written in
+its place tripped the same detector, because it also accepts the heading word
+above a run of tokens, and that paragraph named it. Prose about a parser gets
+parsed. Any file that describes this mechanism is inside it.
+
+### What it says about the chain, and the two steps added
+
+This is not really a slot-lint defect. It is a check nobody ran.
+
+The release chain was: containment brake, `verify.py`, the release walk, the
+tag. `adoption_smoke.py` is **not** one of `verify.py`'s gates, so nothing in
+that sequence ever ran it. Two review lanes, a release walk and five
+instruments all passed over a file that fails the kit's own adoption smoke, and
+the first thing to notice was GitHub.
+
+**From this release on the chain carries two more named steps, by the owner's
+ruling of 2026-09-10:**
+
+1. `python tools/adoption_smoke.py` runs **before** the containment brake.
+2. **CI green on the pushed commit closes the release. A red reopens it.**
+
+The general shape is worth stating once: a release chain is a named sequence
+with no assertion that it covers the checks the repository already has. Adding
+two steps fixes this instance. It does not fix the class, and the class is
+recorded rather than closed.
+
