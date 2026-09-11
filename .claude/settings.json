@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"modules/02-enforcement/hook_model_gate.py\"",
+            "command": "python \"modules/02-enforcement/hook_model_gate.py\" || exit 2",
             "timeout": 20,
             "statusMessage": "Checking model tiers..."
           }
@@ -53,7 +53,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"modules/02-enforcement/hook_model_gate.py\"",
+            "command": "python \"modules/02-enforcement/hook_model_gate.py\" || exit 2",
             "timeout": 20
           }
         ]
@@ -63,7 +63,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"modules/02-enforcement/hook_model_gate.py\"",
+            "command": "python \"modules/02-enforcement/hook_model_gate.py\" || exit 2",
             "timeout": 20
           }
         ]
