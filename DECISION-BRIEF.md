@@ -37,8 +37,8 @@ mechanisms aim at it, making the honest states cheaper than the dishonest ones.
 | **The state-word contract** | Instruments print their state rather than a number that implies one: `NO-ROUNDS-RECORDED` never renders as `0.0%`, and a skipped gate reports PARTIAL rather than PASS. |
 | **The escape rate** | The share of findings an existing check should have caught, computed from the judgment ledger by `escape_rate.py`, printed on every certifying run, held to a ceiling. |
 
-A later review narrowed this. At 0.1.0 the registry's per-check
-[`seen_red`](GLOSSARY.md) field has 35 dated rows of 208 and 173 NEVER. The claim
+A later review narrowed this. At 0.1.2 the registry's per-check
+[`seen_red`](GLOSSARY.md) field has 43 dated rows of 217 and 174 NEVER. The claim
 over every check is withdrawn until the backfill supports it.
 
 ## What certifies per level, and what it costs

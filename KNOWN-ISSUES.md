@@ -2864,7 +2864,7 @@ round in the program ledger.
 ## Maintenance release 1 (v0.1.1, 2026-09-10): the release's own CI went RED, and what it says about the chain
 
 **v0.1.1 IS SUPERSEDED BY v0.1.2.** The tag stays on the remote; it is a real
-release that shipped a real red. Use v0.1.2.
+release that shipped a real red. Use v0.1.2 (entry below).
 
 ### The defect
 
@@ -2913,4 +2913,14 @@ The general shape is worth stating once: a release chain is a named sequence
 with no assertion that it covers the checks the repository already has. Adding
 two steps fixes this instance. It does not fix the class, and the class is
 recorded rather than closed.
+
+## v0.1.2 (2026-09-10): the fix push, on its own row
+
+`v0.1.2` is the fix push above: the commit that closed the CI red the
+"Maintenance release 1" entry records. That push did not carry `VERSION`,
+`README.md` or `DECISION-BRIEF.md` forward from `0.1.1`, so the file, the
+front door and the tag disagreed on which release the tree was. This
+maintenance pass sets `VERSION` to `0.1.2` and brings the front-door and
+brief numbers to what `python tools/expectation_lint.py` prints, so the
+tag, the file and the documents agree. Use `v0.1.2`.
 
