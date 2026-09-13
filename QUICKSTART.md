@@ -474,6 +474,7 @@ Select-String -Path CLAUDE.md -Pattern '\{\{|DELETE THIS COMMENT BLOCK'
 
 ```bash
 mkdir -p docs/reports
+cp /path/to/kit/modules/01-governance/REPORTS-DIR-PLACEHOLDER.md docs/reports/README.md
 # JUDGMENT-LEDGER.md is already in docs/ - Step 4 copied it, because the
 # runner's escapes gate reads it. These are the other three.
 cp /path/to/kit/modules/04-ledgers/FAILURE-FLOOR.md   docs/
@@ -482,6 +483,10 @@ cp /path/to/kit/modules/04-ledgers/TOKEN-LEDGER.md    docs/
 ```
 
 Name them explicitly; do not glob `docs/`, which holds its own `README.md`.
+The placeholder copy is why: `docs/reports/` is empty otherwise, and git does
+not track an empty directory, so a committed tree without it would silently
+lack the path `CLAUDE.md`'s rules name. Keep the placeholder or replace it
+with a real report; either way the directory stays tracked.
 
 1. Substitute the slots in all four ledgers; delete each header block. Here the
    marker is `SKELETON`. `TOKEN-LEDGER.md` carries `{{RATIO_CEILING}}`, which

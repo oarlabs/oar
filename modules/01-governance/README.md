@@ -13,6 +13,7 @@ templates that bind each seat.
 | `charters/CHARTER-scout.md` | Read-only archaeology. No execution, by charter, with the reason. Carries the six-verdict triage taxonomy. |
 | `charters/CHARTER-synthesis-writer.md` | Report and document composition. Opens with the HALT-on-empty-inputs guard. |
 | `PUNCH-LIST-TEMPLATE.md` | The document the working charters assume: verbatim items, triage verdicts, a numbered decision list with a lean on every line, and a disposition table where no row may be blank. It is also the reviewer's spec-side briefing, which makes its accuracy a verification property rather than a clerical one. |
+| `REPORTS-DIR-PLACEHOLDER.md` | Copied to `{{REPORTS_DIR}}/README.md` at QUICKSTART Step 7, so the directory `CLAUDE.md.template` names is tracked from the first commit rather than silently absent (git does not track an empty directory). |
 
 ## File contract with other modules
 
