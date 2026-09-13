@@ -188,7 +188,7 @@ doctor doing its job, not a defect this document leaves unexplained.
 ### 4.1 Ignore rules first
 
 ```bash
-printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n.claude/cert-green.json\n' >> .gitignore
+printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n.claude/cert-green.json\n*.kit-new\n' >> .gitignore
 ```
 
 ```powershell
@@ -196,9 +196,12 @@ printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n.claude/c
 # form reads the terminator the file already uses and keeps it
 $raw = if (Test-Path .gitignore) { Get-Content .gitignore -Raw } else { '' }
 $eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
-'__pycache__/','*.pyc','kit.config.local','.claude/sidequest.json','.claude/cert-green.json' |
+'__pycache__/','*.pyc','kit.config.local','.claude/sidequest.json','.claude/cert-green.json','*.kit-new' |
     ForEach-Object { "$_$eol" } | Add-Content .gitignore -NoNewline
 ```
+
+`*.kit-new` is the mechanical renderer's own scratch suffix (§4.4): a render
+you have not reviewed and moved into place yet should never land in a commit.
 
 `⚠ Windows:` per the Shell section, add `.gitattributes` here too, before your
 first commit below:
@@ -281,8 +284,15 @@ copy it doubles every hook entry instead of filling it.
 python /path/to/kit/tools/kit_render.py --target .   # after --selftest and --list
 ```
 
-Renders land at `<name>.kit-new` with a diff; the settings file is merged as
-JSON. [detail: appendix, Step 4]
+This one run renders all seven files QUICKSTART fills, not only the settings
+file (`--list` names them): `.claude/settings.json` here at Step 4, `CLAUDE.md`
+for Step 6, the four ledgers in `docs/` for Step 7, and
+`docs/collaboration-profile.md` for Step 8. Renders land at `<name>.kit-new`
+with a diff; the settings file is merged as JSON, the rest are plain renders.
+Only the settings file is due yet — review and move the other six into place
+at their own steps, or delete them and fill those steps by hand instead;
+`*.kit-new` is gitignored (§4.1) so an unreviewed one cannot be committed by
+accident. [detail: appendix, Step 4]
 
 ### 4.5 ONE MACHINE PER SETTINGS FILE
 
@@ -338,7 +348,9 @@ python tools/verify.py --selftest        # must print: VERIFY SELFTEST: PASS
 python tools/verify.py                   # expect RED - see below
 # EDIT THE NEXT LINE FIRST: drop any path you do not have yet, and run
 # `git status` first - most of these are DIRECTORY pathspecs, and on a tree with
-# unrelated uncommitted work they stage it into this commit too
+# unrelated uncommitted work they stage it into this commit too. `docs` here
+# should hold only your ORACLE page; any *.kit-new files from 4.4 are
+# gitignored and this line will not pick them up.
 git add tools .claude kit.config .gitignore .gitattributes VERSION src tests docs && git commit -m "adopt the kit"
 python tools/verify.py                   # must print: VERIFY: PASS
 ```
