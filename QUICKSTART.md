@@ -314,11 +314,15 @@ in it, use the file-targeted form instead:
 
 ```bash
 git add tools/verify.py tools/hook_model_gate.py tools/hook_fixtures.py tools/statusline.py tools/escape_rate.py kit.config .gitignore VERSION docs
+git add -f .claude/settings.json
 ```
 
-`.claude/settings.json` is deliberately absent: the `git add -f` earlier in
-the step already staged it. A failed `git add` skips the commit through `&&`
-and can still leave the index loaded. [detail: appendix, Step 4]
+The second line stages `.claude/settings.json` unconditionally: the `git add
+-f` at 4.1 only runs after a `VERIFY: ABORTED` over an ignore rule, which does
+not fire on a repository with no rule covering `.claude/`, so this line does
+not depend on that one having run. `-f` is harmless whether or not the path
+is ignored. A failed `git add` skips the commit through `&&` and can still
+leave the index loaded. [detail: appendix, Step 4]
 
 **Checkpoints. Read the VERDICT WORD, never `$?` alone.** Exit 2 is either
 `INSTRUMENTED` or `ABORTED`, opposite kinds of news.
