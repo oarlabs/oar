@@ -596,8 +596,8 @@ python tools/deident_scan.py --root . --tokens <a-path-outside-this-repo> --stri
 Keep the token list outside the repo: a committed one is itself the leak. Read
 the `tokens    :` line, which counts distinct tokens rather than lines; the
 `scope     :` line; and the file list. **The number the tool prints is
-occurrences, not files:** one file naming you in four commands is four hits,
-not one.
+occurrences, not files:** a name repeated several times in one file is that
+many hits, not one.
 
 Two or three files legitimately carry hits: `.claude/settings.json`,
 `docs/collaboration-profile.md`, and any pre-existing package metadata —
