@@ -171,8 +171,15 @@ mkdir -p docs
 6. Save the page as `docs/ORACLE-<gate-name>.md`, named for the gate.
 
 **Checkpoint:** one worksheet page holding a line of text that does not exist
-yet, a number, and a negative control. [detail: appendix, Step 3, including the
-`doctor:vacuous-gate` ATTENTION this leaves behind]
+yet, a number, and a negative control. [detail: appendix, Step 3]
+
+**Expected, and still true at the end of Step 9:** `kit_doctor.py --root .`
+(the full diagnosis, not `--level1`) reports `doctor:vacuous-gate` ATTENTION
+naming `judges`, `hooks` and `escapes`. Those three are the runner's own
+shipped gates, none of which gets an `ORACLE-<gate>.md` page from any step
+here — only your own subject gate does, in this step. Writing pages for the
+shipped three is optional and not part of this walk; the ATTENTION is the
+doctor doing its job, not a defect this document leaves unexplained.
 
 ---
 
