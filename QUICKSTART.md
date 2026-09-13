@@ -121,13 +121,17 @@ python hook_fixtures.py --strict
 # and prove the dead-man clause, which matters more than the green run
 python hook_fixtures.py --make-deadman <scratch-dir>
 python hook_fixtures.py --hook <scratch-dir>/hook_model_gate.py    # 0/N — RED
+
+# KIT_CONFIG=x cmd points the run at a config other than the one this
+# directory would find by walking up - useful once you have more than one
+KIT_CONFIG=/path/to/kit/kit.config python hook_fixtures.py --strict
 ```
 
 `<scratch-dir>` is any writable directory: `/tmp/dead`, or `$env:TEMP/dead` in
 pwsh; `--make-deadman` creates it.
 
 ```powershell
-# ⚠ pwsh: bash's `VAR=x cmd` sets the var for ONE command; $env: persists
+# ⚠ pwsh: bash's `VAR=x cmd` (above) sets the var for ONE command; $env: persists
 $env:KIT_CONFIG = "C:/path/to/kit/kit.config"
 python hook_fixtures.py --strict
 Remove-Item Env:KIT_CONFIG
