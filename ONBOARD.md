@@ -370,7 +370,7 @@ Add one row per collision the host presents, citing the kit document behind it.
 | Collision | Disposition |
 |---|---|
 | Ledger-name collision: an existing `LESSONS-LEARNED.md` or `TOKEN_LEDGER.md` | Rename, freeze, or move `LEDGERS_DIR` (`LEVEL-1.md` Step 3; `EXISTING-PROJECT.md`, "Also measured, at Level 1") |
-| Rules that conflict on merge | `QUICKSTART.md`:430-431 makes it an owner instruction: where the two rule sets conflict, "that is a decision to make now and write down, not a duplicate to leave standing" |
+| Rules that conflict on merge | `QUICKSTART.md`:433-434 makes it an owner instruction: where the two rule sets conflict, "that is a decision to make now and write down, not a duplicate to leave standing" |
 | CI weaker than the local gate | After Step 6 the local certification proves strictly more than the host's CI. Log it as adoption debt in the host's `docs/FAILURE-FLOOR.md` and close it when module 07 lands (`EXISTING-PROJECT.md` row 7). Do not modify the host's CI during an adoption |
 | More than one machine, or more than one person | `.claude/settings.json` is per-machine, committed and judged at once. Read `KNOWN-ISSUES.md`, "Whose settings file? — the team story", before committing that file, and raise the design as a punch item (`QUICKSTART.md` Step 4, "ONE MACHINE PER SETTINGS FILE") |
 | The de-identification token list | You can supply machine path fragments and the username from the environment. The owner's name and employer you cannot. A green scan over a list you assembled alone is labelled as one (`QUICKSTART.md` Step 9). With no path granted **for the token list itself** [§8], the scan is a punch item reading NOT RUN. Your report path is not one |
