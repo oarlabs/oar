@@ -590,12 +590,15 @@ python tools/deident_scan.py --root . --tokens <a-path-outside-this-repo> --stri
 
 Keep the token list outside the repo: a committed one is itself the leak. Read
 the `tokens    :` line, which counts distinct tokens rather than lines; the
-`scope     :` line; and the file list, since the tool counts occurrences.
+`scope     :` line; and the file list. **The number the tool prints is
+occurrences, not files:** one file naming you in four commands is four hits,
+not one.
 
-Three hits are expected: `.claude/settings.json`, `docs/collaboration-profile.md`
-and pre-existing package metadata. Anything else is the escape. Every hit is
-reviewed and explained, and the remediation is `--exclude` per reviewed file,
-never deleting a token. [detail: appendix, Step 9]
+Two or three files legitimately carry hits: `.claude/settings.json`,
+`docs/collaboration-profile.md`, and any pre-existing package metadata —
+however many occurrences each carries. Anything else is the escape. Every hit
+is reviewed and explained, and the remediation is `--exclude` per reviewed
+file, never deleting a token. [detail: appendix, Step 9]
 
 ```bash
 python tools/deident_scan.py --root . --tokens <list> --strict --tracked-only --exclude ".claude/settings.json"
@@ -604,8 +607,10 @@ python tools/deident_scan.py --root . --tokens <list> --strict --tracked-only --
 On the tripwire-ON branch add `--exclude "CLAUDE.md"`.
 
 **Checkpoint:** `DEIDENT SCAN: 0 hits - exit 0`, reached by excluding reviewed
-files — one on the recommended branch, two with the tripwire on, plus one per
-pre-existing file you accounted for.
+files — `.claude/settings.json` on the recommended branch, `CLAUDE.md` too
+with the tripwire on, plus one `--exclude` per pre-existing file you accounted
+for. "0 hits" means zero occurrences across every file still in scope, not
+zero files excluded.
 
 ```bash
 python tools/deident_scan.py --selftest    # proves it fires on a planted token
