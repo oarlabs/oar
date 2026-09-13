@@ -206,7 +206,9 @@ cp /path/to/kit/modules/02-enforcement/hook_model_gate.py tools/
 cp /path/to/kit/modules/02-enforcement/hook_fixtures.py   tools/
 cp /path/to/kit/tools/statusline.py                       tools/   # module 05
 cp /path/to/kit/modules/04-ledgers/escape_rate.py         tools/   # module 04
-mkdir -p docs
+# no `mkdir -p docs` here: Step 3 already made it. In pwsh, a second `mkdir -p`
+# over an existing directory errors ("already exists"); it is not idempotent
+# there the way it is in bash.
 cp /path/to/kit/modules/04-ledgers/JUDGMENT-LEDGER.md     docs/    # module 04
 cp /path/to/kit/VERSION                                   ./VERSION
 cp /path/to/kit/modules/02-enforcement/settings.json.template .claude/settings.json
