@@ -243,6 +243,14 @@ action each time, and only the marker changes.
 
 ### 4.4 Substituting mechanically — optional on an empty repo, required on one that already holds these files
 
+Before running this on `.claude/settings.json`: if you already filled the
+template by hand under §4.3, leave it, the renderer merges into a filled file
+correctly. If you have not, either fill it by hand under §4.3 first, or
+delete 4.2's raw copy (`rm .claude/settings.json` / `Remove-Item
+.claude/settings.json`) before running the command below. The renderer merges
+JSON into whatever is already at the target path; pointed at 4.2's unfilled
+copy it doubles every hook entry instead of filling it.
+
 ```bash
 python /path/to/kit/tools/kit_render.py --target .   # after --selftest and --list
 ```
