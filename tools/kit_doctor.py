@@ -67,7 +67,7 @@ certifies, what it does not, and what removing the level costs.
 RUNNING IT ON THE KIT'S OWN CHECKOUT
 ==========================================================================
 It reports ATTENTION, and that is the correct answer. The kit ships two
-`example_*` gates that QUICKSTART Step 3 tells you to replace, and it ships no
+`example_*` gates that QUICKSTART Step 4.6 tells you to replace, and it ships no
 `docs/ORACLE-<gate>.md` pages for them because they are illustrations rather
 than oracles. The vacuous-gate check says exactly that, by name. A diagnosis
 tool that made an exception for its own repository would be the first thing an
@@ -484,7 +484,7 @@ def judge_vacuous_gates(gates: dict, run_order: list, computed: set,
         doc = (spec.get("doc") or "")
         if doc.startswith("EXAMPLE"):
             why.append("this is one of the kit's shipped EXAMPLE gates, which "
-                       "QUICKSTART Step 3 tells you to replace")
+                       "QUICKSTART Step 4.6 tells you to replace")
         if why:
             problems.append(f"      gate {name!r}:\n"
                             + "\n".join(f"        - {w}" for w in why))

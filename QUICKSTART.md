@@ -79,7 +79,8 @@ Skip a `cp` whose target exists; `cp` overwrites without asking. In `kit.config`
 3. Confirm `GATE_COMMAND`; it ships as `python tools/verify.py`. That file does
    not exist yet — Step 4.2 creates it.
 4. Set `PROTECTED_PATH_ENABLED = false`.
-5. Omit `PROJECT_ROOT`. The key does not fill the `{{PROJECT_ROOT}}` slot.
+5. Omit `PROJECT_ROOT`: leave it at its shipped empty value, key and all;
+   deleting the key works too. The key does not fill the `{{PROJECT_ROOT}}` slot.
 6. Leave every other key at its shipped value. Four keys come back later,
    each at the step that needs it: `JUDGE_PATHS` and `CERT_PATHS` at the end
    of Step 4, `KNOWLEDGE_DIR` at Step 6, `RATIO_CEILING` at Step 7.
@@ -176,13 +177,11 @@ mkdir -p docs
 **Checkpoint:** one worksheet page holding a line of text that does not exist
 yet, a number, and a negative control. [detail: appendix, Step 3]
 
-**Expected, and still true at the end of Step 9:** `kit_doctor.py --root .`
-(the full diagnosis, not `--level1`) reports `doctor:vacuous-gate` ATTENTION
-naming `judges`, `hooks` and `escapes`. Those three are the runner's own
-shipped gates, none of which gets an `ORACLE-<gate>.md` page from any step
-here — only your own subject gate does, in this step. Writing pages for the
-shipped three is optional and not part of this walk; the ATTENTION is the
-doctor doing its job, not a defect this document leaves unexplained.
+**Expected, still true at the end of Step 9:** `kit_doctor.py --root .` (full
+diagnosis, not `--level1`) reports `doctor:vacuous-gate` ATTENTION naming
+`judges`, `hooks` and `escapes` — the runner's shipped gates, none of which
+gets an `ORACLE-<gate>.md` page from any step here, only your own gate does.
+Writing pages for the shipped three is optional; the ATTENTION is expected.
 
 ---
 
@@ -268,34 +267,31 @@ STATUSLINE_CMD = python /home/you/project/tools/statusline.py
 STATUSLINE_CMD = python '/home/you/My Project/tools/statusline.py'
 ```
 
-Delete the header block — here it is the `__COMMENT__` key — then parse the
+Delete the header block if your harness is strict about unknown top-level
+keys; here it is the `__COMMENT__` key, and the template's own header says
+most harnesses tolerate it and keeping it means the reasoning travels with
+the wiring. Every other template in this kit opens with a header block whose
+marker IS always deleted; this is the one exception. Either way, parse the
 result: `python -c "import json; json.load(open('.claude/settings.json'))"`.
-Every template in this kit opens with a header block; deleting it is the same
-action each time, and only the marker changes.
 
 ### 4.4 Substituting mechanically — optional on an empty repo, required on one that already holds these files
 
-Before running this on `.claude/settings.json`: if you already filled the
-template by hand under §4.3, leave it, the renderer merges into a filled file
-correctly. If you have not, either fill it by hand under §4.3 first, or
-delete 4.2's raw copy (`rm .claude/settings.json` / `Remove-Item
-.claude/settings.json`) before running the command below. The renderer merges
-JSON into whatever is already at the target path; pointed at 4.2's unfilled
-copy it doubles every hook entry instead of filling it.
+Before running this on `.claude/settings.json`: if already filled by hand
+under §4.3, leave it. If not, fill it by hand first, or delete 4.2's raw copy
+(`rm .claude/settings.json` / `Remove-Item .claude/settings.json`) first — the
+renderer merges JSON into whatever is already there, and an unfilled copy
+gets every hook entry doubled instead of filled.
 
 ```bash
 python /path/to/kit/tools/kit_render.py --target .   # after --selftest and --list
 ```
 
-This one run renders all seven files QUICKSTART fills, not only the settings
-file (`--list` names them): `.claude/settings.json` here at Step 4, `CLAUDE.md`
-for Step 6, the four ledgers in `docs/` for Step 7, and
-`docs/collaboration-profile.md` for Step 8. Renders land at `<name>.kit-new`
-with a diff; the settings file is merged as JSON, the rest are plain renders.
-Only the settings file is due yet — review and move the other six into place
-at their own steps, or delete them and fill those steps by hand instead;
-`*.kit-new` is gitignored (§4.1) so an unreviewed one cannot be committed by
-accident. [detail: appendix, Step 4]
+This one run renders all seven files QUICKSTART fills (`--list` names them),
+not only the settings file: also `CLAUDE.md` (Step 6), the four ledgers
+(Step 7), and the profile (Step 8). Renders land at `<name>.kit-new`. Only
+the settings file is due yet — move the rest into place at their own steps,
+or fill those by hand instead; `*.kit-new` is gitignored (§4.1), so an
+unreviewed one cannot be committed by accident. [detail: appendix, Step 4]
 
 ### 4.5 ONE MACHINE PER SETTINGS FILE
 
@@ -311,15 +307,20 @@ against toy scripts in the kit's `modules/03-verification/examples/`. Both go,
 and your Step-3 gate takes their place.
 
 1. **`JUDGE_PATHS`**: what decides what green means. Name the judge files, not
-   `"tools"`; include `kit.config`.
+   `"tools"`; include `kit.config`. `tools/statusline.py` and
+   `tools/escape_rate.py` are deliberately not judge files, matching
+   `kit.config.example`'s shipped list: the board is cosmetic, and the ledger
+   the escape rate reads is itself outside `JUDGE_PATHS` by the same design.
 2. **`CERT_PATHS`**: what is being certified. A different list, on purpose.
 3. **`HOOK_FIXTURES`**, **`HOOK_SETTINGS`**: `tools/hook_fixtures.py`,
    `.claude/settings.json`.
 4. **`ESCAPE_TOOL`**, **`ESCAPE_LEDGER`**: `tools/escape_rate.py`,
    `docs/JUDGMENT-LEDGER.md`. Repoint them or the startup assertion aborts.
-5. That gate's ceiling is a literal in the gate entry; ship-value 35.0 is the
-   kit's own number. [record: `modules/04-ledgers/TOKEN-LEDGER.md`] [check:
-   `python tools/escape_rate.py --selftest` requires it to match `DEFAULT_CEILING`]
+5. Leave the ceiling at the shipped 35.0 for now; that gate's ceiling is a
+   literal in the gate entry, and 35.0 is the kit's own number, not yours to
+   set yet. Revisit it at Step 7 once you have real rounds. [record:
+   `modules/04-ledgers/TOKEN-LEDGER.md`] [check: `python tools/escape_rate.py
+   --selftest` requires it to match `DEFAULT_CEILING`]
 6. Rename `example_unit` to your Step-3 gate, in both `GATES` and `RUN_ORDER`,
    and point its command at the command your gate runs.
 7. Delete `example_lint` from `GATES` and `RUN_ORDER` both. Deleting it from
@@ -327,7 +328,17 @@ and your Step-3 gate takes their place.
 8. Add a `selftest()` check that feeds your gate the three lines it must
    refuse: a zero count, a count below your Step-3 floor, and a subset run.
    Each one is well formed, so your `require` pattern accepts it and the run
-   would certify. The check is what stops it.
+   would certify. The check is what stops it, on the pattern selftest's own
+   sections A and B already use for the example gates:
+
+   ```python
+   check("<your-gate>: 0/0 is refused",
+         judge_gate(GATES["<your-gate>"], "<your-gate>: 0/0 cases passed")[0],
+         False)
+   ```
+
+   `judge_gate(spec, text)[0]` is the pass/fail bool; one `check(...)` call
+   per refused line.
 9. Copy `JUDGE_PATHS` and `CERT_PATHS` into `kit.config`. The `verify.py`
    constants are authoritative; the config keys document them.
 
@@ -437,7 +448,9 @@ duplicate to leave standing. [detail: appendix, Step 6]
    `kit.config`.
 2. Re-run `python tools/verify.py --selftest`.
 3. Substitute the slots in `CLAUDE.md`; delete every rule you cannot yet enforce
-   or do not yet believe.
+   or do not yet believe. Tripwire off (Step 1): delete both `{{PROTECTED_PATH}}`
+   rules rather than substituting `NONE` into them; the renderer treats `NONE`
+   as unset and leaves the slot standing.
 4. Delete the header block rather than substituting inside it. Here the marker
    is `DELETE THIS COMMENT BLOCK`.
 5. Read the checkpoint shape contract under the rules file's first line; no
@@ -485,7 +498,9 @@ cp /path/to/kit/modules/04-ledgers/LESSONS.md         docs/
 cp /path/to/kit/modules/04-ledgers/TOKEN-LEDGER.md    docs/
 ```
 
-Name them explicitly; do not glob `docs/`, which holds its own `README.md`.
+Name them explicitly; do not glob `docs/` — no step here creates a
+`docs/README.md`, but your own project may already have one, and a glob would
+catch it too.
 The placeholder copy is why: `docs/reports/` is empty otherwise, and git does
 not track an empty directory, so a committed tree without it would silently
 lack the path `CLAUDE.md`'s rules name. Keep the placeholder or replace it
@@ -501,15 +516,14 @@ with a real report; either way the directory stays tracked.
 3. Keep or delete each seed lesson in `LESSONS.md`, deliberately.
 
 **Checkpoint:** four ledger files — slots substituted, no `SKELETON` header block
-left, no `{{` surviving — one with a real row, and your `docs/README.md`
-untouched. Run Step 6's checkpoint line over `docs/*.md`, with `SKELETON` for
+left, no `{{` surviving — one with a real row, and your own `docs/README.md`
+untouched, if your project already had one. Run Step 6's checkpoint line over
+`docs/*.md`, with `SKELETON` for
 `DELETE THIS COMMENT BLOCK`. In these files `RATIO_CEILING`'s shipped value is
 the one allowed survivor, per Step 1; every other shipped placeholder is a
 fill-in you missed. Neither that scan nor Step 8's doctor run (item 6 below)
-can see a shipped angle-bracket example row (`<the rule, one line>` and the
-like) left standing beside your real one — the doctor's rendering check
-matches `{{slots}}`, template headers and named shipped literals, not the
-angle-bracket family. Read each ledger by eye for a leftover example row.
+catches a shipped angle-bracket example row (`<the rule, one line>` and the
+like) beside your real one. Read each ledger by eye for one.
 [detail: appendix, Step 7]
 
 ---
@@ -521,7 +535,10 @@ Working solo, answer the five questions yourself, in writing, today.
 
 1. Open `modules/08-collaboration/SEED-INTERVIEW.md`, ask the five questions, and
    capture verbatim. Question 5, the betrayal line, is the highest-value one: its
-   answer is a hard constraint, not a preference.
+   answer is a hard constraint, not a preference. Its routing step sends two
+   answers into `JUDGMENT-LEDGER.md` and `FAILURE-FLOOR.md` — Step 7's ledgers,
+   already filled and checkpointed; you are adding rows to them, not starting
+   over.
 2. Copy the template:
 
 ```bash
@@ -566,14 +583,10 @@ python /path/to/kit/tools/kit_doctor.py --root . --level1
 ```
 
 **Checkpoint:** `LEVEL 1: HEALTHY (exit 0) — 7 document checks`. ATTENTION
-names the file and the shape: `doctor:l1-rendered` for a surviving `{{slot}}`,
-an undeleted template header, or a named shipped literal (`Example Project`,
-a `your-...` tier name, `/abs/path/to/...`) copied through unfilled;
-`doctor:l1-interview` for a profile whose `INTERVIEW:` line still shows the
-shipped three-way menu rather than one state. Fix what it names and re-run.
-What it does not catch: a shipped angle-bracket example row in a ledger, or a
-`<their words>` answer in the profile content — Steps 7 and 8 above still
-depend on reading those by eye.
+names the file: `doctor:l1-rendered` for a surviving slot, header, or named
+shipped literal; `doctor:l1-interview` for an unadvanced `INTERVIEW:` line.
+Not caught: a shipped angle-bracket example row, or a `<their words>` answer
+— Steps 7 and 8 above still need a by-eye read for those.
 
 ---
 

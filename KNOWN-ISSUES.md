@@ -574,7 +574,7 @@ adopted without an oracle no longer certifies green.
 ## Walk #9 — LLM-persona adoption walk, Linux/bash conventions
 
 The ninth walk adopted the kit with bash habits on a Windows host. It completed
-all nine steps and found 7 defects, all documentation. Its major is the walk's
+all ten steps and found 7 defects, all documentation. Its major is the walk's
 instance of the class: **Step 9's scan ran `--tracked-only` over a tree whose
 last commit was Step 4's**, so the scan that certifies nothing personal is about
 to be published never saw the rules file, the ledgers, or
@@ -700,7 +700,7 @@ they shipped.
 
 The thirteenth walk combined the full hands-on walk, the end-state audit, and
 doctrine spot-checks against the shipped files. **The walk itself was clean:**
-all nine steps ran as printed in pwsh, every checkpoint matched observed
+all ten steps ran as printed in pwsh, every checkpoint matched observed
 output, and the 12-property end-state audit found nothing broken that no
 checkpoint caught. Its six findings — 0 major, 3 minor, 3 nit — were all in
 the meta layer, and two were this register's own bookkeeping falling out of
