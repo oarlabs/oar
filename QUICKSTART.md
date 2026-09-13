@@ -377,12 +377,10 @@ git add tools/verify.py tools/hook_model_gate.py tools/hook_fixtures.py tools/st
 git add -f .claude/settings.json
 ```
 
-The second line stages `.claude/settings.json` unconditionally: the `git add
--f` at 4.1 only runs after a `VERIFY: ABORTED` over an ignore rule, which does
-not fire on a repository with no rule covering `.claude/`, so this line does
-not depend on that one having run. `-f` is harmless whether or not the path
-is ignored. A failed `git add` skips the commit through `&&` and can still
-leave the index loaded. [detail: appendix, Step 4]
+The second line stages `.claude/settings.json` unconditionally, not
+depending on the `git add -f` at 4.1, which only runs after an ignore-rule
+abort. `-f` is harmless either way. A failed `git add` skips the commit
+through `&&` and can still leave the index loaded. [detail: appendix, Step 4]
 
 **Checkpoints. Read the VERDICT WORD, never `$?` alone.** Exit 2 is either
 `INSTRUMENTED` or `ABORTED`, opposite kinds of news.
@@ -582,11 +580,13 @@ Select-String -Path docs/collaboration-profile.md -Pattern '\{\{|Delete this com
 python /path/to/kit/tools/kit_doctor.py --root . --level1
 ```
 
-**Checkpoint:** `LEVEL 1: HEALTHY (exit 0) — 7 document checks`. ATTENTION
-names the file: `doctor:l1-rendered` for a surviving slot, header, or named
-shipped literal; `doctor:l1-interview` for an unadvanced `INTERVIEW:` line.
-Not caught: a shipped angle-bracket example row, or a `<their words>` answer
-— Steps 7 and 8 above still need a by-eye read for those.
+**Checkpoint:** `doctor:l1-committed` ATTENTION is expected here, only here.
+Steps 6 to 8's files are not committed until Step 9; that clears it. Every
+other line should read `OK`. ATTENTION on `doctor:l1-rendered` names a
+surviving slot, header or shipped literal. ATTENTION on `doctor:l1-interview`
+means an unadvanced `INTERVIEW:` line. Not caught, now or after Step 9: a
+shipped angle-bracket row, or a `<their words>` answer — read Steps 7 and 8
+by eye for those.
 
 ---
 
