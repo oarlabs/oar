@@ -203,8 +203,8 @@ $eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
 `*.kit-new` is the mechanical renderer's own scratch suffix (§4.4): a render
 you have not reviewed and moved into place yet should never land in a commit.
 
-`⚠ Windows:` per the Shell section, add `.gitattributes` here too, before your
-first commit below:
+Per Shell rule 5 above, add `.gitattributes` here too, before your first
+commit below:
 
 ```bash
 printf '* text=auto\n' >> .gitattributes
