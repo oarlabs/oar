@@ -157,7 +157,10 @@ cannot charter the lane. Work in your repo root, where Step 2 left you.
 1. Read Part 1 of `modules/03-verification/ORACLE-WORKSHEET.md`.
 2. Read `modules/03-verification/GATE-LINE.md`, the contract for the line: a
    self-consistent ratio rather than a bare count, a distinct failure line the
-   gate's `fail_pattern` can veto on, and a subset-honesty suffix.
+   gate's `fail_pattern` can veto on, and a subset-honesty suffix. For a
+   worked example of the shape (rather than the pytest route), read
+   `modules/03-verification/examples/fake_suite.py` beside the `example_unit`
+   gate it feeds in `verify.py`.
 3. On an empty repo, create the subject: one source file and one test file, in
    `src/` and `tests/`.
 4. Fill one worksheet page for the most important thing your project must not
