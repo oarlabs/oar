@@ -177,7 +177,7 @@ yet, a number, and a negative control. [detail: appendix, Step 3, including the
 ### 4.1 Ignore rules first
 
 ```bash
-printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n' >> .gitignore
+printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n.claude/cert-green.json\n' >> .gitignore
 ```
 
 ```powershell
@@ -185,7 +185,7 @@ printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n' >> .git
 # form reads the terminator the file already uses and keeps it
 $raw = if (Test-Path .gitignore) { Get-Content .gitignore -Raw } else { '' }
 $eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
-'__pycache__/','*.pyc','kit.config.local','.claude/sidequest.json' |
+'__pycache__/','*.pyc','kit.config.local','.claude/sidequest.json','.claude/cert-green.json' |
     ForEach-Object { "$_$eol" } | Add-Content .gitignore -NoNewline
 ```
 
