@@ -85,9 +85,11 @@ figure, and none is published, so none is quoted.
 
 ## Exit cost
 
-The adopter's footprint is **fourteen files plus an optional CI workflow**, not the
-whole kit: five tools, four ledgers, one profile, one rules file, two configs, one
-settings file. Most delete cleanly. **Some cannot:** the appended `.gitignore`
+The adopter's footprint is **fifteen files plus an optional CI workflow**, not the
+whole kit: six tools, four ledgers, one profile, one rules file, two configs, one
+settings file. A few more small files ride along (`VERSION`, `.gitattributes`,
+your oracle page, a reports-directory placeholder) and are yours regardless.
+Most delete cleanly. **Some cannot:** the appended `.gitignore`
 rules, and `.claude/settings.json` and `CLAUDE.md` where you merged them into
 files you already had. Level 1 is the genuinely reversible commitment: six documents plus
 `kit.config`, nothing in `.claude/`, and the file list printed on each green run.
