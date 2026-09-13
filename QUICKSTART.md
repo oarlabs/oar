@@ -193,6 +193,19 @@ $eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
     ForEach-Object { "$_$eol" } | Add-Content .gitignore -NoNewline
 ```
 
+`⚠ Windows:` per the Shell section, add `.gitattributes` here too, before your
+first commit below:
+
+```bash
+printf '* text=auto\n' >> .gitattributes
+```
+
+```powershell
+$raw = if (Test-Path .gitattributes) { Get-Content .gitattributes -Raw } else { '' }
+$eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
+'* text=auto' | ForEach-Object { "$_$eol" } | Add-Content .gitattributes -NoNewline
+```
+
 `verify.py` prints `VERIFY: ABORTED` over a judged path an ignore rule covers.
 Run `git check-ignore -v <the path>`, then force-track. Never delete the rule:
 
@@ -319,7 +332,7 @@ python tools/verify.py                   # expect RED - see below
 # EDIT THE NEXT LINE FIRST: drop any path you do not have yet, and run
 # `git status` first - most of these are DIRECTORY pathspecs, and on a tree with
 # unrelated uncommitted work they stage it into this commit too
-git add tools .claude kit.config .gitignore VERSION src tests docs && git commit -m "adopt the kit"
+git add tools .claude kit.config .gitignore .gitattributes VERSION src tests docs && git commit -m "adopt the kit"
 python tools/verify.py                   # must print: VERIFY: PASS
 ```
 
@@ -327,7 +340,7 @@ That line is the most dangerous command here. On a repository with other work
 in it, use the file-targeted form instead:
 
 ```bash
-git add tools/verify.py tools/hook_model_gate.py tools/hook_fixtures.py tools/statusline.py tools/escape_rate.py kit.config .gitignore VERSION docs
+git add tools/verify.py tools/hook_model_gate.py tools/hook_fixtures.py tools/statusline.py tools/escape_rate.py kit.config .gitignore .gitattributes VERSION docs
 git add -f .claude/settings.json
 ```
 
