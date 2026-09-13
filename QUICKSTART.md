@@ -459,7 +459,12 @@ left, no `{{` surviving — one with a real row, and your `docs/README.md`
 untouched. Run Step 6's checkpoint line over `docs/*.md`, with `SKELETON` for
 `DELETE THIS COMMENT BLOCK`. In these files `RATIO_CEILING`'s shipped value is
 the one allowed survivor, per Step 1; every other shipped placeholder is a
-fill-in you missed. [detail: appendix, Step 7]
+fill-in you missed. Neither that scan nor Step 8's doctor run (item 6 below)
+can see a shipped angle-bracket example row (`<the rule, one line>` and the
+like) left standing beside your real one — the doctor's rendering check
+matches `{{slots}}`, template headers and named shipped literals, not the
+angle-bracket family. Read each ledger by eye for a leftover example row.
+[detail: appendix, Step 7]
 
 ---
 
@@ -501,9 +506,28 @@ Select-String -Path docs/collaboration-profile.md -Pattern '\{\{|Delete this com
 
 - **The content:** five verbatim answers and an explicit overrides table against
   `modules/08-collaboration/DEFAULT-CONTRACT.md`. An empty table is a real
-  answer.
+  answer. An unanswered profile still reads `<their words>` on some or all of
+  the five lines; the grep above does not see it, and neither does item 6
+  below — read the five answers by eye. The profile's separate `INTERVIEW:`
+  line is item 6's to catch, not this one's.
 - **The rendering:** the line above prints nothing. If your profile lives outside
   the repo, run the same line there.
+
+6. Run the document doctor over everything Steps 6 to 8 wrote:
+
+```bash
+python /path/to/kit/tools/kit_doctor.py --root . --level1
+```
+
+**Checkpoint:** `LEVEL 1: HEALTHY (exit 0) — 7 document checks`. ATTENTION
+names the file and the shape: `doctor:l1-rendered` for a surviving `{{slot}}`,
+an undeleted template header, or a named shipped literal (`Example Project`,
+a `your-...` tier name, `/abs/path/to/...`) copied through unfilled;
+`doctor:l1-interview` for a profile whose `INTERVIEW:` line still shows the
+shipped three-way menu rather than one state. Fix what it names and re-run.
+What it does not catch: a shipped angle-bracket example row in a ledger, or a
+`<their words>` answer in the profile content — Steps 7 and 8 above still
+depend on reading those by eye.
 
 ---
 
