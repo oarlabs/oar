@@ -70,6 +70,23 @@ names it, so `git show <sha>` is the tree the persona actually read.
 
 ---
 
+## The v0.1.2 errata lanes
+
+Five lanes re-ran the same method against the tagged `v0.1.2` public
+release, four adoption walks and one recon read, entries 34–38.
+`KNOWN-ISSUES.md`'s entry timeline carries the finding count and disposition
+for each.
+
+| Entry | Persona | Ran against | Findings, per the register | Page |
+|---|---|---|---|---|
+| 34 | Windows/pwsh literalist, no coach | `1395e92` (`v0.1.2`) | 13 (0 major, 5 minor, 8 nit) | [walk-34-windows-literalist.md](walk-34-windows-literalist.md) |
+| 35 | Impatient skimmer | `1395e92` (`v0.1.2`) | 11 protectable (3 major) | [walk-35-impatient-skimmer.md](walk-35-impatient-skimmer.md) |
+| 36 | Team-lead evaluator, second-machine simulation | `1395e92` (`v0.1.2`) | 16 (4 major, 5 minor, 7 nit) | [walk-36-team-lead-evaluator.md](walk-36-team-lead-evaluator.md) |
+| 37 | Thorough adopter | `1395e92` (`v0.1.2`) | 11 (0 major, 4 minor, 7 nit) | [walk-37-thorough-adopter.md](walk-37-thorough-adopter.md) |
+| 38 | Pre-sales recon read | `1395e92` (`v0.1.2`) | Verdict PILOT | [read-38-recon-presales.md](read-38-recon-presales.md) |
+
+---
+
 ## What is published here, and what is not
 
 **Published:** the prompt each persona was given, verbatim except for the
