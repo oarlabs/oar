@@ -272,8 +272,8 @@ enforced only by prose is debt, and debt should be visible.
 
 Promotion has a reverse gear. Every rule carries a last-fired date; at each
 phase gate, any rule quiet for {{DEMOTION_REVIEW_STAGES}} stages is reviewed and
-retired, demoted, or re-affirmed. **{{OWNER_ROLE}} rules; no agent retires
-anything.** Zero demotions across an entire phase is itself a finding.
+retired, demoted, or re-affirmed. **Only {{OWNER_ROLE}} retires a rule; no
+agent does.** Zero demotions across an entire phase is itself a finding.
 
 ## Working with {{OWNER_ROLE}}
 

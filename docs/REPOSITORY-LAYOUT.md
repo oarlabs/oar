@@ -25,9 +25,13 @@ oar/
   BLUEPRINT.md           the doctrine (authored separately)
   CONTEXT-ARCHITECTURE.md   the full treatment of BLUEPRINT §7: memory, state,
                              and the window — layers, boundaries, wiring
+  GLOSSARY.md            terms this kit uses with a specific meaning; docs
+                           link here at first use
   kit.config.example     every slot in one file
   kit.config             the kit's OWN config - committed, repo-relative
   kit.config.local.example   the gitignored overlay: absolute + protected values
+  .gitignore             this repository's own rules, not the template an
+                           adopter writes at QUICKSTART Step 4.1
   .claude/settings.json  the kit's own harness wiring (a worked example)
   deident.tokens         empty by design - see tools/deident_scan.py
   tools/deident_scan.py  scan any tree for tokens that must not be published
@@ -75,6 +79,11 @@ oar/
   tools/expectation_lint.py  fails when a check reads its expectation from
                              the artifact it is asserting about, and fails when
                              a registry row carries no seen-red field
+  tools/prose_floor.py   reader-facing docs stay terse; rationale lives in
+                           records, not inline. Lints the root and `docs/`
+                           against `prose-budgets.json`
+  prose-budgets.json     the manifest `tools/prose_floor.py` enforces: one
+                           entry per linted document
   checks-registry.json   every check's subject and expectation source, with
                          each surviving self-reference waived explicitly, and
                          a seen-red field per check holding the date of its

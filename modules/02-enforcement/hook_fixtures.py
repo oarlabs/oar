@@ -7,6 +7,8 @@ single project-specific check of your own.
     python hook_fixtures.py                      # run every fixture
     python hook_fixtures.py --hook <path>        # judge a DIFFERENT hook file
     python hook_fixtures.py --armed <settings>   # also assert the hook is WIRED
+    python hook_fixtures.py --unstartable <settings>  # assert an unstartable
+                                                 #   hook BLOCKS, not fails open
     python hook_fixtures.py --strict             # a skipped fixture is a failure
     python hook_fixtures.py --selftest           # judge THIS harness's own layer
     python hook_fixtures.py --make-deadman <dir> # mint a corpse hook, then exit
@@ -23,8 +25,8 @@ development. Nothing fails when it breaks. It can be syntactically dead for
 weeks, in a repository where every test is green, and the only symptom is that
 things you believed were impossible quietly start happening.
 
-TWO CLAIMS, AND THE FIRST ONE IS THE ONE PEOPLE MISS
-====================================================
+THREE CLAIMS, AND THE FIRST ONE IS THE ONE PEOPLE MISS
+======================================================
   1. IS IT ARMED? The fixtures below prove what the hook DECIDES. They say
      nothing about whether the harness ever CALLS it. A settings file whose
      matchers were deleted or rewired leaves every fixture green and every rule
@@ -708,6 +710,109 @@ def check_armed(settings_path: Path, hook: Path) -> tuple[bool, list[str]]:
 
 
 # --------------------------------------------------------------------------
+# claim 3: does a hook that CANNOT START block?
+# --------------------------------------------------------------------------
+# A hook that cannot start and a hook that crashes before deciding are the same
+# event from the harness's side: nothing said anything. Silence is a permitted
+# verdict from this gate, so the harness reads that nothing as "no opinion" and
+# proceeds. The wiring closes it: every hook command ends with `|| exit 2`, and
+# exit 2 is the harness's BLOCK. Claim 1 asserts the named script EXISTS; this
+# claim asserts that when the command fails to run anyway - a missing
+# interpreter, a crash before the first byte of output - the failure is a
+# BLOCK and not a shrug.
+BLOCK_RC = 2
+NO_SUCH_INTERPRETER = "kit-no-such-interpreter-4f21"
+SLOT_FILLER = "kit-fixture-slot"
+
+
+def plant_unstartable(cmd: str):
+    """The same hook command with its interpreter replaced by a name no host
+    has, or None if there is no command. Pure.
+
+    The interpreter is the command's first token, quoted or bare - the token
+    kit_doctor's interpreter check reads. Replacing it and keeping everything
+    else preserves the part under test: the guard, or its absence. Any template
+    slot still standing in the command is filled with a harmless word, so the
+    probe runs against the unsubstituted template as well as an adopted
+    settings file.
+
+    The sentence above deliberately spells no slot token, and this one names
+    no inventory heading. `split_manifest` in adoption_smoke.py recognises an
+    inventory by its heading word, either beside a token or above a run of
+    them, so prose that merely DESCRIBES this mechanism is read as a file
+    declaring one. Describing it cost four lint problems once; describing the
+    fix cost two more."""
+    m = re.match(r"""\s*("[^"]*"|'[^']*'|\S+)(.*)$""", cmd or "", re.S)
+    if not m:
+        return None
+    rest = re.sub(r"\{\{[A-Z_]+\}\}", SLOT_FILLER, m.group(2))
+    return NO_SUCH_INTERPRETER + rest
+
+
+def run_unstartable(cmd: str, timeout: int = 30) -> int:
+    """Run the planted command through the platform shell and return its exit
+    code, or -1 when there was no exit code to read. The shell is the point:
+    the guard is shell syntax, so nothing short of running it proves the
+    harness would see a BLOCK.
+
+    -1 IS NOT AN EXIT CODE. It is this function's sentinel for "the command
+    did not run to completion", a launch failure or a timeout. A caller that
+    prints it as though a shell returned it tells the reader a shell said
+    something it never said, which is the failure this whole section is about.
+
+    WHICH SHELL. `shell=True` means `/bin/sh` on POSIX and `COMSPEC` on
+    Windows, which is `cmd.exe`. It is not necessarily the shell your harness
+    invokes hooks with. The README says what follows from that."""
+    try:
+        p = subprocess.run(cmd, shell=True, capture_output=True,
+                           timeout=timeout)
+        return p.returncode
+    except Exception:
+        return -1
+
+
+def check_unstartable(settings_path: Path) -> tuple[bool, list[str]]:
+    """Plant an unstartable hook in every PreToolUse command this settings
+    file wires, and require a BLOCK from each."""
+    notes: list[str] = []
+    try:
+        s = json.loads(settings_path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return False, [f"UNSTARTABLE: {settings_path} does not exist, so no "
+                       f"hook command could be probed"]
+    except Exception as e:
+        return False, [f"UNSTARTABLE: {settings_path} could not be parsed: "
+                       f"{e!r}"]
+
+    cmds = [(str(entry.get("matcher") or ""), str(h.get("command") or ""))
+            for entry in ((s.get("hooks") or {}).get("PreToolUse") or [])
+            for h in (entry.get("hooks") or [])]
+    cmds = [(m, c) for m, c in cmds if c.strip()]
+    if not cmds:
+        return False, ["UNSTARTABLE: this settings file wires no PreToolUse "
+                       "hook command, so there is nothing that could block "
+                       "and nothing to probe"]
+
+    ok_all = True
+    for matcher, cmd in cmds:
+        probe = plant_unstartable(cmd)
+        rc = run_unstartable(probe)
+        if rc == BLOCK_RC:
+            notes.append(f"blocks: matcher {matcher!r} - a hook that cannot "
+                         f"start exits {rc} (BLOCK)")
+            continue
+        ok_all = False
+        notes.append(
+            f"UNSTARTABLE: matcher {matcher!r} fails OPEN. With its "
+            f"interpreter missing the command "
+            f"{'did not run to completion (launch failure or timeout)' if rc == -1 else f'exited {rc}'}"
+            f", not {BLOCK_RC}, so "
+            f"the harness reads the silence as no opinion and proceeds. End "
+            f"the command with `|| exit 2`. Probe was: {probe[:110]}")
+    return ok_all, notes
+
+
+# --------------------------------------------------------------------------
 # claim 2: what does it decide?
 # --------------------------------------------------------------------------
 def run_fixture(hook: Path, payload: dict, timeout: int = 30):
@@ -909,6 +1014,28 @@ def selftest() -> int:
     check("a decision delivered despite stderr still counts",
           judge(0, deny, "a warning", {"deny"})[0], True)
 
+    print("\n=== E. plant_unstartable(): the probe keeps the guard ===")
+    check("the interpreter is replaced and the rest of the command survives",
+          plant_unstartable('python "t/hook.py" || exit 2'),
+          NO_SUCH_INTERPRETER + ' "t/hook.py" || exit 2')
+    check("a QUOTED interpreter path with a space is one token, so the probe "
+          "does not leave half of it in front of the script",
+          plant_unstartable('"C:/Program Files/Py/python.exe" h.py || exit 2'),
+          NO_SUCH_INTERPRETER + ' h.py || exit 2')
+    # The probe command is BUILT rather than spelled. A literal slot token in
+    # this file's source is the only thing that brings it into the slot lint's
+    # scope at all, and once in scope a body with no inventory reads as an
+    # inventory with no body. At the release base this file carried no token
+    # and was skipped; that property is kept here deliberately.
+    _o, _c = "{" * 2, "}" * 2
+    _probe = _o + "PYTHON_BIN" + _c + ' "' + _o + "PROJECT_ROOT" + _c + '/h.py"'
+    check("an unsubstituted template slot is filled, not left as braces",
+          "{" * 2 in (plant_unstartable(_probe) or ""), False)
+    check("NC: a command with no guard is planted WITHOUT one, so the probe "
+          "can go red",
+          "exit 2" in (plant_unstartable('python "t/hook.py"') or ""), False)
+    check("nothing to plant in an empty command", plant_unstartable("  "), None)
+
     print()
     print(f"HOOK-FIXTURE SELFTEST: {'PASS' if ok_all else 'FAIL'} — {n} checks")
     return 0 if ok_all else 1
@@ -919,6 +1046,10 @@ def main() -> int:
     ap.add_argument("--hook", default=str(DEFAULT_HOOK))
     ap.add_argument("--armed", default="",
                     help="settings file to check the hook is wired into")
+    ap.add_argument("--unstartable", default="",
+                    help="settings file to probe ALONE: plant an unstartable "
+                         "hook in each wired command and require a BLOCK. "
+                         "Runs no hook and no other claim.")
     ap.add_argument("--strict", action="store_true",
                     help="a SKIPPED fixture counts as a failure")
     ap.add_argument("--make-deadman", default="",
@@ -935,6 +1066,13 @@ def main() -> int:
 
     if a.selftest:
         return selftest()
+
+    if a.unstartable:
+        ok, notes = check_unstartable(Path(a.unstartable))
+        print("--- claim 3: does an UNSTARTABLE hook BLOCK? ---")
+        for n in notes:
+            print(f"  {n}")
+        return 0 if ok else 1
 
     if a.make_deadman:
         d = Path(a.make_deadman)

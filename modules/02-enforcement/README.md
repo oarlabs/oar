@@ -7,7 +7,7 @@ The layer that makes a rule fire instead of merely being written down.
 | File | What it is |
 |---|---|
 | `hook_model_gate.py` | A PreToolUse gate with four enforcement points: model tier on workflow `agent()` calls, model tier on agent spawns (plus a ban on naming the orchestrator tier), blanket-staging denial (`git add`/`stage` with `-A`, `-u`, `.`, `:/`, `*`, `git commit -a`, behind `git -C`, or indented in a block), and an optional protected-path tripwire with cert-green pre-authorisation. Three of the four are string heuristics with both error directions disclosed in the source. **Reads everything from `kit.config`; needs no editing.** |
-| `hook_fixtures.py` | The harness that judges the gate. Synthesised stdin payloads, an "is it armed?" settings check, the dead-man clause, and `--make-deadman` so you can prove the clause fires before you trust it. |
+| `hook_fixtures.py` | The harness that judges the gate. Synthesised stdin payloads, an "is it armed?" settings check, an "does an unstartable hook BLOCK?" check (`--unstartable`), the dead-man clause, and `--make-deadman` so you can prove the clause fires before you trust it. |
 | `settings.json.template` | The harness wiring: `permissions.ask` for the protected path, one hook file at three PreToolUse matcher blocks (seven tool names), and the status-line command. Valid JSON with the slots inside strings, so `--armed` works on it unsubstituted. |
 
 ## Adopt it — the commands, in a working order
@@ -175,6 +175,66 @@ permission system decide"* — which creates the failure mode the clause closes:
   red, and false reds are how a suite gets ignored);
 - a fixture expecting **silence** passes only if the process also exited 0.
   Silence from a corpse is not consent.
+
+## A hook that cannot start BLOCKS
+
+A hook that cannot start and a hook that crashes before it decides are the same
+event from the harness's side: nothing said anything. Silence is a real verdict
+from this gate, so the harness reads that nothing as "no opinion" and proceeds.
+A missing interpreter, a moved script, a syntax error introduced by an edit:
+every one of them fails OPEN, and the run looks exactly like a quiet morning.
+
+The wiring closes it. Every hook command in `settings.json.template` ends with
+`|| exit 2`. Exit 2 is the blocking verdict in Claude Code's PreToolUse hook
+contract, which is where this convention comes from; nothing in this
+repository tests that, and nothing in it can, because the harness is not in
+the tree. What the fixture below proves is the half that is testable: that the
+shell returns 2. A hook that starts and decides
+never reaches the guard, because this gate exits 0 whatever it decides. The
+guard fires only when the command itself failed, which is precisely the case
+where no decision was delivered.
+
+`--armed` asserts that the named script EXISTS. The guard covers what that
+check cannot see: the interpreter, and every crash between process start and
+the first byte of output. `hook_fixtures.py` proves the guard rather than
+trusting it. Claim 3 plants an unstartable hook in each wired PreToolUse command, runs
+it through the platform shell, and requires exit 2. It reads `PreToolUse`
+and nothing else, the same scope `--armed` has, so a `PostToolUse`, `Stop`
+or `SessionStart` command is not probed by it:
+
+```bash
+python tools/hook_fixtures.py --unstartable .claude/settings.json
+```
+
+It is a separate command, the way `--make-deadman` is: a proof you run against
+the settings file you actually adopted, not a claim folded into the standard
+run. Note what the probe does to get its answer: it replaces the interpreter
+with a name that resolves nowhere and runs the command, so the first branch
+fails and whatever stands after `||` is EXECUTED. Keep that branch to the
+guard. Anything else you put there runs during the probe. A command that fails open is reported with the `UNSTARTABLE:` token and
+the run exits non-zero. That token now covers two different failures: this
+one, a command that runs and fails open, and `--armed`'s older one, a command
+naming a script that is not there. A grep on the token matches both; read the
+line, which says which.
+Run it whenever you re-render `.claude/settings.json`.
+
+**The guard is shell syntax, and the shell belongs to the harness.**
+`|| exit 2` behaves as described in `sh`, `bash` and `cmd.exe`. PowerShell has
+the `||` operator from 7.0, but in command position it resolves `exit` as a
+command NAME and does not find one: measured on pwsh 7.6.5 the error is
+"The term 'exit' is not recognized", not a parse error. Do not go looking for
+one. The guard is therefore inert in that shell: it does not block, and it
+does not break a hook that works.
+
+If your harness runs hook commands through PowerShell, write the guard in that
+shell's own grammar — and do NOT expect the fixture above to confirm it. The
+probe runs each planted command through `subprocess(shell=True)`, which on
+Windows is `COMSPEC`, which is `cmd.exe`. A guard written in PowerShell grammar
+returns 1 there, measured, so the probe would report it as failing open when
+the harness might read it correctly. The probe answers one question honestly,
+"does this command block under the shell the probe used", and that shell is
+not necessarily yours. Where the two differ, the probe is the wrong instrument
+and the only real test is your own harness.
 
 ## Where the config comes from — four steps, and the loud failure
 

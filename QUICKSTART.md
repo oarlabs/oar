@@ -79,7 +79,8 @@ Skip a `cp` whose target exists; `cp` overwrites without asking. In `kit.config`
 3. Confirm `GATE_COMMAND`; it ships as `python tools/verify.py`. That file does
    not exist yet — Step 4.2 creates it.
 4. Set `PROTECTED_PATH_ENABLED = false`.
-5. Omit `PROJECT_ROOT`. The key does not fill the `{{PROJECT_ROOT}}` slot.
+5. Omit `PROJECT_ROOT`: leave it at its shipped empty value, key and all;
+   deleting the key works too. The key does not fill the `{{PROJECT_ROOT}}` slot.
 6. Leave every other key at its shipped value. Four keys come back later,
    each at the step that needs it: `JUDGE_PATHS` and `CERT_PATHS` at the end
    of Step 4, `KNOWLEDGE_DIR` at Step 6, `RATIO_CEILING` at Step 7.
@@ -121,13 +122,17 @@ python hook_fixtures.py --strict
 # and prove the dead-man clause, which matters more than the green run
 python hook_fixtures.py --make-deadman <scratch-dir>
 python hook_fixtures.py --hook <scratch-dir>/hook_model_gate.py    # 0/N — RED
+
+# KIT_CONFIG=x cmd points the run at a config other than the one this
+# directory would find by walking up - useful once you have more than one
+KIT_CONFIG=/path/to/kit/kit.config python hook_fixtures.py --strict
 ```
 
 `<scratch-dir>` is any writable directory: `/tmp/dead`, or `$env:TEMP/dead` in
 pwsh; `--make-deadman` creates it.
 
 ```powershell
-# ⚠ pwsh: bash's `VAR=x cmd` sets the var for ONE command; $env: persists
+# ⚠ pwsh: bash's `VAR=x cmd` (above) sets the var for ONE command; $env: persists
 $env:KIT_CONFIG = "C:/path/to/kit/kit.config"
 python hook_fixtures.py --strict
 Remove-Item Env:KIT_CONFIG
@@ -153,7 +158,10 @@ cannot charter the lane. Work in your repo root, where Step 2 left you.
 1. Read Part 1 of `modules/03-verification/ORACLE-WORKSHEET.md`.
 2. Read `modules/03-verification/GATE-LINE.md`, the contract for the line: a
    self-consistent ratio rather than a bare count, a distinct failure line the
-   gate's `fail_pattern` can veto on, and a subset-honesty suffix.
+   gate's `fail_pattern` can veto on, and a subset-honesty suffix. For a
+   worked example of the shape (rather than the pytest route), read
+   `modules/03-verification/examples/fake_suite.py` beside the `example_unit`
+   gate it feeds in `verify.py`.
 3. On an empty repo, create the subject: one source file and one test file, in
    `src/` and `tests/`.
 4. Fill one worksheet page for the most important thing your project must not
@@ -167,8 +175,13 @@ mkdir -p docs
 6. Save the page as `docs/ORACLE-<gate-name>.md`, named for the gate.
 
 **Checkpoint:** one worksheet page holding a line of text that does not exist
-yet, a number, and a negative control. [detail: appendix, Step 3, including the
-`doctor:vacuous-gate` ATTENTION this leaves behind]
+yet, a number, and a negative control. [detail: appendix, Step 3]
+
+**Expected, still true at the end of Step 9:** `kit_doctor.py --root .` (full
+diagnosis, not `--level1`) reports `doctor:vacuous-gate` ATTENTION naming
+`judges`, `hooks` and `escapes` — the runner's shipped gates, none of which
+gets an `ORACLE-<gate>.md` page from any step here, only your own gate does.
+Writing pages for the shipped three is optional; the ATTENTION is expected.
 
 ---
 
@@ -177,7 +190,7 @@ yet, a number, and a negative control. [detail: appendix, Step 3, including the
 ### 4.1 Ignore rules first
 
 ```bash
-printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n' >> .gitignore
+printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n.claude/cert-green.json\n*.kit-new\n' >> .gitignore
 ```
 
 ```powershell
@@ -185,8 +198,24 @@ printf '__pycache__/\n*.pyc\nkit.config.local\n.claude/sidequest.json\n' >> .git
 # form reads the terminator the file already uses and keeps it
 $raw = if (Test-Path .gitignore) { Get-Content .gitignore -Raw } else { '' }
 $eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
-'__pycache__/','*.pyc','kit.config.local','.claude/sidequest.json' |
+'__pycache__/','*.pyc','kit.config.local','.claude/sidequest.json','.claude/cert-green.json','*.kit-new' |
     ForEach-Object { "$_$eol" } | Add-Content .gitignore -NoNewline
+```
+
+`*.kit-new` is the mechanical renderer's own scratch suffix (§4.4): a render
+you have not reviewed and moved into place yet should never land in a commit.
+
+Per Shell rule 5 above, add `.gitattributes` here too, before your first
+commit below:
+
+```bash
+printf '* text=auto\n' >> .gitattributes
+```
+
+```powershell
+$raw = if (Test-Path .gitattributes) { Get-Content .gitattributes -Raw } else { '' }
+$eol = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
+'* text=auto' | ForEach-Object { "$_$eol" } | Add-Content .gitattributes -NoNewline
 ```
 
 `verify.py` prints `VERIFY: ABORTED` over a judged path an ignore rule covers.
@@ -206,7 +235,9 @@ cp /path/to/kit/modules/02-enforcement/hook_model_gate.py tools/
 cp /path/to/kit/modules/02-enforcement/hook_fixtures.py   tools/
 cp /path/to/kit/tools/statusline.py                       tools/   # module 05
 cp /path/to/kit/modules/04-ledgers/escape_rate.py         tools/   # module 04
-mkdir -p docs
+# no `mkdir -p docs` here: Step 3 already made it. In pwsh, a second `mkdir -p`
+# over an existing directory errors ("already exists"); it is not idempotent
+# there the way it is in bash.
 cp /path/to/kit/modules/04-ledgers/JUDGMENT-LEDGER.md     docs/    # module 04
 cp /path/to/kit/VERSION                                   ./VERSION
 cp /path/to/kit/modules/02-enforcement/settings.json.template .claude/settings.json
@@ -236,19 +267,31 @@ STATUSLINE_CMD = python /home/you/project/tools/statusline.py
 STATUSLINE_CMD = python '/home/you/My Project/tools/statusline.py'
 ```
 
-Delete the header block — here it is the `__COMMENT__` key — then parse the
+Delete the header block if your harness is strict about unknown top-level
+keys; here it is the `__COMMENT__` key, and the template's own header says
+most harnesses tolerate it and keeping it means the reasoning travels with
+the wiring. Every other template in this kit opens with a header block whose
+marker IS always deleted; this is the one exception. Either way, parse the
 result: `python -c "import json; json.load(open('.claude/settings.json'))"`.
-Every template in this kit opens with a header block; deleting it is the same
-action each time, and only the marker changes.
 
 ### 4.4 Substituting mechanically — optional on an empty repo, required on one that already holds these files
+
+Before running this on `.claude/settings.json`: if already filled by hand
+under §4.3, leave it. If not, fill it by hand first, or delete 4.2's raw copy
+(`rm .claude/settings.json` / `Remove-Item .claude/settings.json`) first — the
+renderer merges JSON into whatever is already there, and an unfilled copy
+gets every hook entry doubled instead of filled.
 
 ```bash
 python /path/to/kit/tools/kit_render.py --target .   # after --selftest and --list
 ```
 
-Renders land at `<name>.kit-new` with a diff; the settings file is merged as
-JSON. [detail: appendix, Step 4]
+This one run renders all seven files QUICKSTART fills (`--list` names them),
+not only the settings file: also `CLAUDE.md` (Step 6), the four ledgers
+(Step 7), and the profile (Step 8). Renders land at `<name>.kit-new`. Only
+the settings file is due yet — move the rest into place at their own steps,
+or fill those by hand instead; `*.kit-new` is gitignored (§4.1), so an
+unreviewed one cannot be committed by accident. [detail: appendix, Step 4]
 
 ### 4.5 ONE MACHINE PER SETTINGS FILE
 
@@ -264,15 +307,20 @@ against toy scripts in the kit's `modules/03-verification/examples/`. Both go,
 and your Step-3 gate takes their place.
 
 1. **`JUDGE_PATHS`**: what decides what green means. Name the judge files, not
-   `"tools"`; include `kit.config`.
+   `"tools"`; include `kit.config`. `tools/statusline.py` and
+   `tools/escape_rate.py` are deliberately not judge files, matching
+   `kit.config.example`'s shipped list: the board is cosmetic, and the ledger
+   the escape rate reads is itself outside `JUDGE_PATHS` by the same design.
 2. **`CERT_PATHS`**: what is being certified. A different list, on purpose.
 3. **`HOOK_FIXTURES`**, **`HOOK_SETTINGS`**: `tools/hook_fixtures.py`,
    `.claude/settings.json`.
 4. **`ESCAPE_TOOL`**, **`ESCAPE_LEDGER`**: `tools/escape_rate.py`,
    `docs/JUDGMENT-LEDGER.md`. Repoint them or the startup assertion aborts.
-5. That gate's ceiling is a literal in the gate entry; ship-value 35.0 is the
-   kit's own number. [record: `modules/04-ledgers/TOKEN-LEDGER.md`] [check:
-   `python tools/escape_rate.py --selftest` requires it to match `DEFAULT_CEILING`]
+5. Leave the ceiling at the shipped 35.0 for now; that gate's ceiling is a
+   literal in the gate entry, and 35.0 is the kit's own number, not yours to
+   set yet. Revisit it at Step 7 once you have real rounds. [record:
+   `modules/04-ledgers/TOKEN-LEDGER.md`] [check: `python tools/escape_rate.py
+   --selftest` requires it to match `DEFAULT_CEILING`]
 6. Rename `example_unit` to your Step-3 gate, in both `GATES` and `RUN_ORDER`,
    and point its command at the command your gate runs.
 7. Delete `example_lint` from `GATES` and `RUN_ORDER` both. Deleting it from
@@ -280,7 +328,17 @@ and your Step-3 gate takes their place.
 8. Add a `selftest()` check that feeds your gate the three lines it must
    refuse: a zero count, a count below your Step-3 floor, and a subset run.
    Each one is well formed, so your `require` pattern accepts it and the run
-   would certify. The check is what stops it.
+   would certify. The check is what stops it, on the pattern selftest's own
+   sections A and B already use for the example gates:
+
+   ```python
+   check("<your-gate>: 0/0 is refused",
+         judge_gate(GATES["<your-gate>"], "<your-gate>: 0/0 cases passed")[0],
+         False)
+   ```
+
+   `judge_gate(spec, text)[0]` is the pass/fail bool; one `check(...)` call
+   per refused line.
 9. Copy `JUDGE_PATHS` and `CERT_PATHS` into `kit.config`. The `verify.py`
    constants are authoritative; the config keys document them.
 
@@ -304,8 +362,10 @@ python tools/verify.py --selftest        # must print: VERIFY SELFTEST: PASS
 python tools/verify.py                   # expect RED - see below
 # EDIT THE NEXT LINE FIRST: drop any path you do not have yet, and run
 # `git status` first - most of these are DIRECTORY pathspecs, and on a tree with
-# unrelated uncommitted work they stage it into this commit too
-git add tools .claude kit.config .gitignore VERSION src tests docs && git commit -m "adopt the kit"
+# unrelated uncommitted work they stage it into this commit too. `docs` here
+# should hold only your ORACLE page; any *.kit-new files from 4.4 are
+# gitignored and this line will not pick them up.
+git add tools .claude kit.config .gitignore .gitattributes VERSION src tests docs && git commit -m "adopt the kit"
 python tools/verify.py                   # must print: VERIFY: PASS
 ```
 
@@ -313,12 +373,14 @@ That line is the most dangerous command here. On a repository with other work
 in it, use the file-targeted form instead:
 
 ```bash
-git add tools/verify.py tools/hook_model_gate.py tools/hook_fixtures.py tools/statusline.py tools/escape_rate.py kit.config .gitignore VERSION docs
+git add tools/verify.py tools/hook_model_gate.py tools/hook_fixtures.py tools/statusline.py tools/escape_rate.py kit.config .gitignore .gitattributes VERSION docs
+git add -f .claude/settings.json
 ```
 
-`.claude/settings.json` is deliberately absent: the `git add -f` earlier in
-the step already staged it. A failed `git add` skips the commit through `&&`
-and can still leave the index loaded. [detail: appendix, Step 4]
+The second line stages `.claude/settings.json` unconditionally, not
+depending on the `git add -f` at 4.1, which only runs after an ignore-rule
+abort. `-f` is harmless either way. A failed `git add` skips the commit
+through `&&` and can still leave the index loaded. [detail: appendix, Step 4]
 
 **Checkpoints. Read the VERDICT WORD, never `$?` alone.** Exit 2 is either
 `INSTRUMENTED` or `ABORTED`, opposite kinds of news.
@@ -384,7 +446,9 @@ duplicate to leave standing. [detail: appendix, Step 6]
    `kit.config`.
 2. Re-run `python tools/verify.py --selftest`.
 3. Substitute the slots in `CLAUDE.md`; delete every rule you cannot yet enforce
-   or do not yet believe.
+   or do not yet believe. Tripwire off (Step 1): delete both `{{PROTECTED_PATH}}`
+   rules rather than substituting `NONE` into them; the renderer treats `NONE`
+   as unset and leaves the slot standing.
 4. Delete the header block rather than substituting inside it. Here the marker
    is `DELETE THIS COMMENT BLOCK`.
 5. Read the checkpoint shape contract under the rules file's first line; no
@@ -424,6 +488,7 @@ Select-String -Path CLAUDE.md -Pattern '\{\{|DELETE THIS COMMENT BLOCK'
 
 ```bash
 mkdir -p docs/reports
+cp /path/to/kit/modules/01-governance/REPORTS-DIR-PLACEHOLDER.md docs/reports/README.md
 # JUDGMENT-LEDGER.md is already in docs/ - Step 4 copied it, because the
 # runner's escapes gate reads it. These are the other three.
 cp /path/to/kit/modules/04-ledgers/FAILURE-FLOOR.md   docs/
@@ -431,7 +496,13 @@ cp /path/to/kit/modules/04-ledgers/LESSONS.md         docs/
 cp /path/to/kit/modules/04-ledgers/TOKEN-LEDGER.md    docs/
 ```
 
-Name them explicitly; do not glob `docs/`, which holds its own `README.md`.
+Name them explicitly; do not glob `docs/` — no step here creates a
+`docs/README.md`, but your own project may already have one, and a glob would
+catch it too.
+The placeholder copy is why: `docs/reports/` is empty otherwise, and git does
+not track an empty directory, so a committed tree without it would silently
+lack the path `CLAUDE.md`'s rules name. Keep the placeholder or replace it
+with a real report; either way the directory stays tracked.
 
 1. Substitute the slots in all four ledgers; delete each header block. Here the
    marker is `SKELETON`. `TOKEN-LEDGER.md` carries `{{RATIO_CEILING}}`, which
@@ -443,11 +514,15 @@ Name them explicitly; do not glob `docs/`, which holds its own `README.md`.
 3. Keep or delete each seed lesson in `LESSONS.md`, deliberately.
 
 **Checkpoint:** four ledger files — slots substituted, no `SKELETON` header block
-left, no `{{` surviving — one with a real row, and your `docs/README.md`
-untouched. Run Step 6's checkpoint line over `docs/*.md`, with `SKELETON` for
+left, no `{{` surviving — one with a real row, and your own `docs/README.md`
+untouched, if your project already had one. Run Step 6's checkpoint line over
+`docs/*.md`, with `SKELETON` for
 `DELETE THIS COMMENT BLOCK`. In these files `RATIO_CEILING`'s shipped value is
 the one allowed survivor, per Step 1; every other shipped placeholder is a
-fill-in you missed. [detail: appendix, Step 7]
+fill-in you missed. Neither that scan nor Step 8's doctor run (item 6 below)
+catches a shipped angle-bracket example row (`<the rule, one line>` and the
+like) beside your real one. Read each ledger by eye for one.
+[detail: appendix, Step 7]
 
 ---
 
@@ -458,7 +533,10 @@ Working solo, answer the five questions yourself, in writing, today.
 
 1. Open `modules/08-collaboration/SEED-INTERVIEW.md`, ask the five questions, and
    capture verbatim. Question 5, the betrayal line, is the highest-value one: its
-   answer is a hard constraint, not a preference.
+   answer is a hard constraint, not a preference. Its routing step sends two
+   answers into `JUDGMENT-LEDGER.md` and `FAILURE-FLOOR.md` — Step 7's ledgers,
+   already filled and checkpointed; you are adding rows to them, not starting
+   over.
 2. Copy the template:
 
 ```bash
@@ -489,9 +567,26 @@ Select-String -Path docs/collaboration-profile.md -Pattern '\{\{|Delete this com
 
 - **The content:** five verbatim answers and an explicit overrides table against
   `modules/08-collaboration/DEFAULT-CONTRACT.md`. An empty table is a real
-  answer.
+  answer. An unanswered profile still reads `<their words>` on some or all of
+  the five lines; the grep above does not see it, and neither does item 6
+  below — read the five answers by eye. The profile's separate `INTERVIEW:`
+  line is item 6's to catch, not this one's.
 - **The rendering:** the line above prints nothing. If your profile lives outside
   the repo, run the same line there.
+
+6. Run the document doctor over everything Steps 6 to 8 wrote:
+
+```bash
+python /path/to/kit/tools/kit_doctor.py --root . --level1
+```
+
+**Checkpoint:** `doctor:l1-committed` ATTENTION is expected here, only here.
+Steps 6 to 8's files are not committed until Step 9; that clears it. Every
+other line should read `OK`. ATTENTION on `doctor:l1-rendered` names a
+surviving slot, header or shipped literal. ATTENTION on `doctor:l1-interview`
+means an unadvanced `INTERVIEW:` line. Not caught, now or after Step 9: a
+shipped angle-bracket row, or a `<their words>` answer — read Steps 7 and 8
+by eye for those.
 
 ---
 
@@ -516,12 +611,15 @@ python tools/deident_scan.py --root . --tokens <a-path-outside-this-repo> --stri
 
 Keep the token list outside the repo: a committed one is itself the leak. Read
 the `tokens    :` line, which counts distinct tokens rather than lines; the
-`scope     :` line; and the file list, since the tool counts occurrences.
+`scope     :` line; and the file list. **The number the tool prints is
+occurrences, not files:** a name repeated several times in one file is that
+many hits, not one.
 
-Three hits are expected: `.claude/settings.json`, `docs/collaboration-profile.md`
-and pre-existing package metadata. Anything else is the escape. Every hit is
-reviewed and explained, and the remediation is `--exclude` per reviewed file,
-never deleting a token. [detail: appendix, Step 9]
+Two or three files legitimately carry hits: `.claude/settings.json`,
+`docs/collaboration-profile.md`, and any pre-existing package metadata —
+however many occurrences each carries. Anything else is the escape. Every hit
+is reviewed and explained, and the remediation is `--exclude` per reviewed
+file, never deleting a token. [detail: appendix, Step 9]
 
 ```bash
 python tools/deident_scan.py --root . --tokens <list> --strict --tracked-only --exclude ".claude/settings.json"
@@ -530,8 +628,10 @@ python tools/deident_scan.py --root . --tokens <list> --strict --tracked-only --
 On the tripwire-ON branch add `--exclude "CLAUDE.md"`.
 
 **Checkpoint:** `DEIDENT SCAN: 0 hits - exit 0`, reached by excluding reviewed
-files — one on the recommended branch, two with the tripwire on, plus one per
-pre-existing file you accounted for.
+files — `.claude/settings.json` on the recommended branch, `CLAUDE.md` too
+with the tripwire on, plus one `--exclude` per pre-existing file you accounted
+for. "0 hits" means zero occurrences across every file still in scope, not
+zero files excluded.
 
 ```bash
 python tools/deident_scan.py --selftest    # proves it fires on a planted token

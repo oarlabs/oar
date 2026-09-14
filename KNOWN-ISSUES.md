@@ -319,6 +319,11 @@ note; the table is what the numbers mean.
 | 30 | **Transplant round** — not a walk and not a read: three cold LLM-persona evaluation reads of the published kit, each required to end in ADOPT / PILOT / PASS rather than in an opinion, plus **one executed increment on a project this program does not maintain** — a two-year-old internal AI advisory project whose owner authorised a Level-1 adoption and one improvement under the kit's discipline. The round then built the quantifier check the round-29 review recommended, rebuilt the front door around the increment's own output, and published the increment as `docs/CASE-STUDY-INCREMENT.md`. | 6 counted items (R30-1 through R30-6, per the Round #30 section), 0 escapes — reasoning published per the zero-suspicion convention, and this round's zero is the most expensive of the three to state. Three verdicts: PILOT, PILOT, PILOT; none ADOPT, none PASS. | R30-1 through R30-5 FIXED; R30-6 fixed pre-commit as a self-catch. `count_lint` gains a quantifier layer with fifteen registered controls, a forced-red and a true-universal control in CI, and a state word with a coverage denominator that retires `clean` over 1.9%. Round 29's skim-test bet FIRED on both of its triggers and is recorded with its resolution owed at the owner's gate; round 28's two bets were resolved RE-DECLINED at that gate, both with rule-7 resolution rows. |
 | 31 | **Fired-bet round** — not a walk and not a read: one build lane resolved R29-3, the skim-test bet round 29 declined and round 30 fired on both triggers, by building the mechanisable half of it — `tools/skim_lint.py`, which asserts that the front door's first 50 lines reach each of the three named practitioner artifacts | 2 (R31-1, found by the new check on its first live run against the shipped front door; R31-2, a layout-page false universal found by the build lane, owner-dispositioned FIX); no escapes — neither surface was covered by a shipped check | R31-1 FIXED by four added README door lines; R31-2 FIXED by deferring exactness to the walks README; `skim_lint` now covers the placement class in CI; R29-3 RESOLVED BUILD (narrow half), its open-half trigger re-armed in the rule-7 row |
 | 32 | **Class round** — not a walk and not a read: the second adversarial battery (a prior-art diff, a hostile-reader diff and a cold fresh-eyes read against `d52f8a5`) returned findings and the owner funded one build round against them. The round's subject is the false-universal class the register had been fixing one instance per round since round 29 | 6 (R32-1 the class sweep, thirteen sentences corrected and ten counted as class instances; R32-2 the case study's provenance framing; R32-3 the ancestry debts (counted as an escape by the build, re-classified as a coverage gap by the round's review — the reasoning is in the escape section); R32-4 four stale derived numbers including a ceiling derivation falsified by a round inside its own table; R32-5 the seen-red field; R32-6 a double self-catch on the round's own new work) | R32-1 FIXED as a sweep, with `tools/repeat_lint.py` built for the relocation mechanism — red first on the pre-round tree with 17 restatements; R32-3 FIXED with six lineage rows, a C13 re-rule and a SHIP REQUIREMENTS section in the governance template; R32-5 BUILT as a `seen_red` field on all 201 registry rows, 28 dated and 173 honest NEVERs, with the over-all-checks claim withdrawn from the front door, the brief and C4; round 30's register-exemption bet FIRED and was re-declined with the adjacent class built; three new ORACLE-DECLINED rows filed, including the expired-GOOD bet |
+| 34 | **LLM-persona adoption walk** — Windows/pwsh, literal obedience, re-walked against the tagged `v0.1.2` public release | 13 (0 major, 5 minor, 8 nit); done state reached | This pass (the MAINT2 document and version fix pass) closes punch items 1–3, 5–15 and 17; item 4 (`--armed` and a hook path anywhere on the host) is held for the owner's ruling; item 16 (KNOWN-ISSUES size and the repeated hedge) is declined as a judgment call for the owner, not a fix |
+| 35 | **LLM-persona adoption walk** — the impatient skimmer, re-walked against the tagged `v0.1.2` public release | 11 protectable (3 major); done state reached; two further observations marked non-defects by the persona itself | Same disposition as entry 34: MAINT2 closes items 1–3, 5–15, 17; item 4 held; item 16 declined |
+| 36 | **LLM-persona adoption walk** — the team-lead evaluator, doctrine read then hands-on then a second-machine simulation, against the tagged `v0.1.2` public release | 16 (4 major, 5 minor, 7 nit), plus 6 verified non-defects; no HALT | Same disposition as entry 34: MAINT2 closes items 1–3, 5–15, 17; item 4 (this entry's own F-5, the `--armed` cross-checkout finding) held for the owner's ruling; item 16 declined |
+| 37 | **LLM-persona adoption walk** — the thorough adopter, full walk plus end-state audit plus doctrine spot-checks, against the tagged `v0.1.2` public release | 11 (0 major, 4 minor, 7 nit); done state reached | Same disposition as entry 34: MAINT2 closes items 1–3, 5–15, 17; item 4 held; item 16 declined |
+| 38 | **Recon read** — a pre-sales solutions engineer evaluation read plus target recon, against the tagged `v0.1.2` public release | Verdict PILOT; front-door bounces on the version triple and the register's size, plus the repeated-hedge and over-written-front-matter observations that fed punch item 16 | The version-triple bounce is closed by items 1–3 and 5–15; the register-size and repeated-hedge observations (punch item 16) are declined as a judgment call for the owner, not a fix, per the punch list's own lean |
 
 Walks 1–7 were run against the kit as a whole by personas with some exposure to
 it. Walks 8–14 are **LLM-persona adoption walks**: a language model given a
@@ -574,7 +579,7 @@ adopted without an oracle no longer certifies green.
 ## Walk #9 — LLM-persona adoption walk, Linux/bash conventions
 
 The ninth walk adopted the kit with bash habits on a Windows host. It completed
-all nine steps and found 7 defects, all documentation. Its major is the walk's
+all ten steps and found 7 defects, all documentation. Its major is the walk's
 instance of the class: **Step 9's scan ran `--tracked-only` over a tree whose
 last commit was Step 4's**, so the scan that certifies nothing personal is about
 to be published never saw the rules file, the ledgers, or
@@ -700,7 +705,7 @@ they shipped.
 
 The thirteenth walk combined the full hands-on walk, the end-state audit, and
 doctrine spot-checks against the shipped files. **The walk itself was clean:**
-all nine steps ran as printed in pwsh, every checkpoint matched observed
+all ten steps ran as printed in pwsh, every checkpoint matched observed
 output, and the 12-property end-state audit found nothing broken that no
 checkpoint caught. Its six findings — 0 major, 3 minor, 3 nit — were all in
 the meta layer, and two were this register's own bookkeeping falling out of
@@ -2860,3 +2865,79 @@ count lint's live half and skipped its selftest: one escape, caught by
 the layer above. The paragraph shape is restored, the full battery now
 enumerates every selftest by list, and the escape counts against the
 round in the program ledger.
+
+## Maintenance release 1 (v0.1.1, 2026-09-10): the release's own CI went RED, and what it says about the chain
+
+**v0.1.1 IS SUPERSEDED BY v0.1.2.** The tag stays on the remote; it is a real
+release that shipped a real red. Use v0.1.2 (entry below).
+
+### The defect
+
+`kit-ci` failed on both `ubuntu-latest` and `windows-latest`, exit 1, on the
+pushed release branch. `main` at `c0f1f70` had been green. `adoption_smoke.py`
+phase 10 reported four slot-manifest problems, all in
+`modules/02-enforcement/hook_fixtures.py`, all introduced by that release.
+
+At the release base that file carried **no slot token at all**, so
+`slot_problems` skipped it entirely. Two of the release's additions put tokens
+in it: a docstring sentence that spelled a token while explaining what the code
+does to tokens, and a new selftest whose probe was a literal template string.
+That brought the file into scope for the first time. Once in scope,
+`split_manifest` read the inventory word standing beside a token as an
+inventory header, so a file with no inventory scored as an inventory with no
+body.
+
+The fix restores the property the file shipped with: no literal slot token in
+its source. The docstring spells none and names no heading; the selftest builds
+its probe from pieces at run time, and the check it makes is unchanged and
+still falsifiable.
+
+**Recorded because the second attempt is the better lesson.** The first fix
+rewrote the docstring and took four problems to two. The explanation written in
+its place tripped the same detector, because it also accepts the heading word
+above a run of tokens, and that paragraph named it. Prose about a parser gets
+parsed. Any file that describes this mechanism is inside it.
+
+### What it says about the chain, and the two steps added
+
+This is not really a slot-lint defect. It is a check nobody ran.
+
+The release chain was: containment brake, `verify.py`, the release walk, the
+tag. `adoption_smoke.py` is **not** one of `verify.py`'s gates, so nothing in
+that sequence ever ran it. Two review lanes, a release walk and five
+instruments all passed over a file that fails the kit's own adoption smoke, and
+the first thing to notice was GitHub.
+
+**From this release on the chain carries two more named steps, by the owner's
+ruling of 2026-09-10:**
+
+1. `python tools/adoption_smoke.py` runs **before** the containment brake.
+2. **CI green on the pushed commit closes the release. A red reopens it.**
+
+The general shape is worth stating once: a release chain is a named sequence
+with no assertion that it covers the checks the repository already has. Adding
+two steps fixes this instance. It does not fix the class, and the class is
+recorded rather than closed.
+
+## v0.1.2 (2026-09-10): the fix push, on its own row
+
+`v0.1.2` is the fix push above: the commit that closed the CI red the
+"Maintenance release 1" entry records. That push did not carry `VERSION`,
+`README.md` or `DECISION-BRIEF.md` forward from `0.1.1`, so the file, the
+front door and the tag disagreed on which release the tree was. This
+maintenance pass sets `VERSION` to `0.1.2` and brings the front-door and
+brief numbers to what `python tools/expectation_lint.py` prints, so the
+tag, the file and the documents agree. Use `v0.1.2`.
+
+## v0.1.3: maintenance release 2 (the pass of 2026-09-13)
+
+`v0.1.3` is the maintenance-2 pass: 25 commits on `release/maintenance-1`
+after `v0.1.2`, closing punch items 1 to 3, 5 to 15 and 17 from entries 34
+to 38, plus the citation repairs those edits caused. Fixes only, no feature.
+Item 4 (`--armed` accepting a hook path anywhere on the host) is held for
+its own read and a later release. Item 16 (this register's size and the
+repeated hedge) is declined as a judgment call for the owner, not a fix.
+The release sets `VERSION`, the doctor's `KIT_VERSION` and the README footer
+to `0.1.3` in one commit before the tag, so the tag, the file and the
+documents agree. Use `v0.1.3`.
+

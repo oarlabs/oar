@@ -37,8 +37,8 @@ mechanisms aim at it, making the honest states cheaper than the dishonest ones.
 | **The state-word contract** | Instruments print their state rather than a number that implies one: `NO-ROUNDS-RECORDED` never renders as `0.0%`, and a skipped gate reports PARTIAL rather than PASS. |
 | **The escape rate** | The share of findings an existing check should have caught, computed from the judgment ledger by `escape_rate.py`, printed on every certifying run, held to a ceiling. |
 
-A later review narrowed this. At 0.1.0 the registry's per-check
-[`seen_red`](GLOSSARY.md) field has 35 dated rows of 208 and 173 NEVER. The claim
+A later review narrowed this. At 0.1.2 the registry's per-check
+[`seen_red`](GLOSSARY.md) field has 43 dated rows of 217 and 174 NEVER. The claim
 over every check is withdrawn until the backfill supports it.
 
 ## What certifies per level, and what it costs
@@ -85,9 +85,11 @@ figure, and none is published, so none is quoted.
 
 ## Exit cost
 
-The adopter's footprint is **fourteen files plus an optional CI workflow**, not the
-whole kit: five tools, four ledgers, one profile, one rules file, two configs, one
-settings file. Most delete cleanly. **Some cannot:** the appended `.gitignore`
+The adopter's footprint is **fifteen files plus an optional CI workflow**, not the
+whole kit: six tools, four ledgers, one profile, one rules file, two configs, one
+settings file. A few more small files ride along (`VERSION`, `.gitattributes`,
+your oracle page, a reports-directory placeholder) and are yours regardless.
+Most delete cleanly. **Some cannot:** the appended `.gitignore`
 rules, and `.claude/settings.json` and `CLAUDE.md` where you merged them into
 files you already had. Level 1 is the genuinely reversible commitment: six documents plus
 `kit.config`, nothing in `.claude/`, and the file list printed on each green run.

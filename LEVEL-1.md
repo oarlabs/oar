@@ -13,6 +13,11 @@ stay in **the kit clone**, this read-only checkout. Every block runs as-is in
 `pwsh` (7+), `bash` and Git Bash, forward slashes included, on Windows too. Verified
 by hand, not machine-checked.
 
+**No project yet?** Use `QUICKSTART.md` Step 1's new-project route to make a
+throwaway one — `mkdir -p /path/to/your-project && cd /path/to/your-project
+&& git init` — then come back here and start at Step 1 below. This page, like
+`QUICKSTART.md`, assumes a repository already exists.
+
 > **`⚠ Debian/Ubuntu:` `python` may not exist** — those hosts ship `python3`
 > and no `python` shim unless `python-is-python3` is installed. Substitute
 > `python3` throughout, or install the shim.
