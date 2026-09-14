@@ -2929,3 +2929,15 @@ maintenance pass sets `VERSION` to `0.1.2` and brings the front-door and
 brief numbers to what `python tools/expectation_lint.py` prints, so the
 tag, the file and the documents agree. Use `v0.1.2`.
 
+## v0.1.3: maintenance release 2 (the pass of 2026-09-13)
+
+`v0.1.3` is the maintenance-2 pass: 25 commits on `release/maintenance-1`
+after `v0.1.2`, closing punch items 1 to 3, 5 to 15 and 17 from entries 34
+to 38, plus the citation repairs those edits caused. Fixes only, no feature.
+Item 4 (`--armed` accepting a hook path anywhere on the host) is held for
+its own read and a later release. Item 16 (this register's size and the
+repeated hedge) is declined as a judgment call for the owner, not a fix.
+The release sets `VERSION`, the doctor's `KIT_VERSION` and the README footer
+to `0.1.3` in one commit before the tag, so the tag, the file and the
+documents agree. Use `v0.1.3`.
+
