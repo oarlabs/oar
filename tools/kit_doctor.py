@@ -118,7 +118,7 @@ sys.dont_write_bytecode = True
 # tree being diagnosed - two artifacts, so the comparison is a real check: copy
 # a newer `tools/` into a repo whose `VERSION` was never refreshed and this is
 # what says so.
-KIT_VERSION = "0.1.5"
+KIT_VERSION = "0.1.6"
 
 HERE = Path(__file__).resolve().parent
 

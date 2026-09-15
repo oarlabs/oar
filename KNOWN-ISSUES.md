@@ -2998,7 +2998,7 @@ before the tag. Use `v0.1.5`.
 walked or read the tagged `v0.1.4` public release, entries 39 to 44.
 MAINT5 closes W3-1, W3-3, W3-5, W3-6 (joined with W6-3), W4-4, W5-1, W5-2,
 W6-1 and W6-2 in the shipped documents, plus two check fixes, W4-1 and the
-expectation lint's selftest-id family — see the rows the conn folds in.
+expectation lint's selftest-id family, recorded in the paragraphs below.
 W3-4 stays open, declined this release: reason at entry 41. W3-2 and W3-7
 stay rejected below the bar, reason recorded at entry 41; W5-3's
 neutral-path fix and its `deident_scan.py` confirmation are a check fix,
@@ -3006,4 +3006,39 @@ held with the two above. The estimate miss is recorded honestly: the round
 ran six lanes for 1,394,523 tokens against an estimate of 720,000. The
 release sets `VERSION`, the doctor's `KIT_VERSION` and the README footer
 to `0.1.6` in one commit before the tag. Use `v0.1.6`.
+
+Lane B (CHECKS) closes W4-1 and W5-3, and the expectation lint's own
+selftest-id gap named alongside them.
+
+`tools/prose_floor.py`'s jargon check missed a plural of a listed
+glossary term: "negative controls" read CLEAN with no `GLOSSARY.md`
+link, because the literal `\bterm\b` match shares no word boundary with
+a trailing "s". The match now allows an optional "s"/"es" suffix.
+Selftest case `jargon-plural.md` forces the red on a copy of the file
+without the fix, observed 2026-09-15. The fixed lint's first live run
+over the box found one new instance the prior check missed:
+`CONTEXT-ARCHITECTURE.md:261`, fixed in the same release by the document pass.
+
+`tools/expectation_lint.py` gained an eleventh family: a `selftest:`
+registry row such as `selftest:hook-fixtures:project-dir` names a
+SECTION of another tool's `--selftest` (a source function ending
+`_selftest`, e.g. `project_dir_selftest` in `hook_fixtures.py`) and was,
+until this release, checked for presence and shape only — the same
+blind spot the doctor and fixture families closed for their own ids.
+The family recovers the function name, dashes it, and cross-checks both
+ways. Forced red observed on a registry copy with the existing row's id
+misspelled (2 problems, exit 1), before it was registered clean; the
+first live run over the real registry found zero unregistered rows,
+since the one function this family covers was already registered.
+
+`modules/02-enforcement/hook_model_gate.py:370-371` (W5-3): the
+case-insensitivity example in `touches_protected`'s docstring carried
+an illustrative absolute path with the Windows profile-folder name, so
+an adopter's de-identification scan hit the kit's own file. Replaced
+with a neutral path that makes the same point about case folding.
+`tools/deident_scan.py --token Users` over `modules/02-enforcement`
+confirms zero hits.
+
+`checks-registry.json`: `prose:jargon-glossary` and
+`lint:expectation-source` rows updated, `seen_red` 2026-09-15.
 
