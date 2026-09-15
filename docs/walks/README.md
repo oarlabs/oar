@@ -101,7 +101,7 @@ timeline carries the finding count and disposition for each.
 | 39 | The other harness | `e8b1a67` (`v0.1.4`) | DRY; expected outcome reached | [walk-39-other-harness.md](walk-39-other-harness.md) |
 | 40 | Windows/pwsh literalist, the plain path | `e8b1a67` (`v0.1.4`) | DRY; done state reached | [walk-40-windows-literalist.md](walk-40-windows-literalist.md) |
 | 41 | Impatient skimmer | `e8b1a67` (`v0.1.4`) | 7 (3 major, 4 minor); done state reached | [walk-41-impatient-skimmer.md](walk-41-impatient-skimmer.md) |
-| 42 | Team-lead evaluator (reads, does not adopt) | `e8b1a67` (`v0.1.4`) | 4 (1 minor, 2 nit), plus 1 non-defect | [walk-42-team-lead-evaluator.md](walk-42-team-lead-evaluator.md) |
+| 42 | Team-lead evaluator (reads, does not adopt) | `e8b1a67` (`v0.1.4`) | 3 (1 minor, 2 nit), plus 1 non-defect | [walk-42-team-lead-evaluator.md](walk-42-team-lead-evaluator.md) |
 | 43 | Thorough adopter, existing repository | `e8b1a67` (`v0.1.4`) | 3 (0 major, 3 minor); done state reached, change preserved | [walk-43-existing-repository.md](walk-43-existing-repository.md) |
 | 44 | The agent door, `ONBOARD.md` | `e8b1a67` (`v0.1.4`) | 3 (0 major, 2 minor, 1 nit); done state reached, one qualification | [walk-44-agent-door-onboard.md](walk-44-agent-door-onboard.md) |
 
@@ -184,6 +184,7 @@ placeholder, marked at the point of elision:
 | `<HOST-DESCRIPTION>` | The brownfield host's description as the recon prompts stated it — product category, runtime stack, and repository layout, which together identify a private project. The release describes that host generically: a two-year-old internal AI advisory project of the same owner |
 | `<PUBLIC-KIT-CLONE>` | The absolute path, on the maintainer's machine, of the public-mirror clone the three recon reads were pointed at. Used only by the `read-30-recon-*` pages |
 | `<HOST-REPO>` | The absolute path of the brownfield host repository on the maintainer's machine. Used only by the `read-30-recon-*` pages, alongside `<HOST-DESCRIPTION>` |
+| `<HANDLE>` | The owner's account handle, where a hard rule about redaction named it as one of its own literal search tokens. Used only by walks 39–44's Hard Rule 8 |
 
 Nothing else in the prompts was changed, and where a page departs from that at
 all it says so on the page — walk 9 collapses a duplicated kit path that would
@@ -194,7 +195,12 @@ reads as a token-presence claim to `count_lint.py`'s quantifier layer — the
 words are unchanged; walks 39–44 also redact the hard rule naming the
 coordinator's own protected repositories by absolute path to
 `<PROTECTED-PATH>` and "this program's own repositories", per this table's
-existing placeholder. Where a prompt named a report file by name, the
+existing placeholder; walks 39–44's Hard Rule 8 also spelled the very
+strings its own redaction check searches for — the drive prefixes and the
+owner's account handle — so the rule now names the drive prefixes in words
+and the handle as `<HANDLE>`, and the token-estimate line's report path
+redacts its directory to `<HANDOFF-DIR>`, keeping the filename, per this
+table's own rule for a named report file. Where a prompt named a report file by name, the
 name is kept and only its directory is redacted, so the private record and the
 public one can be matched by anyone who holds both.
 

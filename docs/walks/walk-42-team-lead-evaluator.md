@@ -1,7 +1,7 @@
 # Walk 42 — LLM-persona evaluation read: the team-lead evaluator (v0.1.4)
 
 **Register entry:** 42 · **Ran:** 2026-09-15 · **Kit commit:** `e8b1a67`
-(tag `v0.1.4`) · **Findings, per the register:** 4 (1 minor, 2 nit), plus 1
+(tag `v0.1.4`) · **Findings, per the register:** 3 (1 minor, 2 nit), plus 1
 recorded non-defect · expected outcome reached
 
 A large language model was given the persona below and read the kit's
@@ -27,7 +27,7 @@ changed.
 Model tier: sonnet. Never request any other tier. Spawn no subagents.
 
 Token estimate: 120,000 per lane, cited against the ONEPAGER2 lane (sonnet,
-97,092 tokens, librarian/ONEPAGER2-report-20260915.md). Stop and report at
+97,092 tokens, <HANDOFF-DIR>/ONEPAGER2-report-20260915.md). Stop and report at
 240,000 tokens with whatever you have.
 
 HALT authority: at any point, if continuing is meaningless (the kit will not
@@ -58,7 +58,8 @@ Hard rules:
 8. In the report, write your lane directory as `<LANE>` and the kit clone as
    `<KIT>`. Write no other absolute path, drive letter, user folder, account
    handle or owner name anywhere in the report. Before you finish, search your
-   report for `C:/`, `C:\`, `Users`, and `guyot`; the count must be zero.
+   report for either Windows drive prefix, the user-folder segment, and
+   `<HANDLE>`; the count must be zero.
 
 Handoff, mandatory:
 1. Write your full report to `<LANE>/report.md`. Plain technical-writer prose:

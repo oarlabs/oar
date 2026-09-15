@@ -22,7 +22,7 @@ Before Step 1: `LEVEL-1.md` if you have not decided to adopt,
 ## Shell
 
 Every command block runs as-is in `pwsh`, `bash` and Git Bash except in eight
-places, each marked inline with a warning marker.
+places, each marked with a warning marker.
 
 1. One directory per `mkdir` line.
 2. No backslash line-continuations; long commands are single lines.
@@ -94,8 +94,8 @@ Skip a `cp` whose target exists; `cp` overwrites without asking. In `kit.config`
 `kit.config` is committed; `kit.config.local` is gitignored and holds the
 absolute paths.
 
-**Checkpoint:** the first line prints the five keys above plus
-`GATE_COMMAND`; the second prints nothing.
+**Checkpoint:** the first line prints the five keys the numbered list above
+fills, plus `GATE_COMMAND`; the second prints nothing.
 
 ```bash
 grep -nE '^(PROJECT_NAME|ORCHESTRATOR_TIER|LANE_TIER|SWEEP_TIER|FORBIDDEN_SPAWN_TIER|GATE_COMMAND) *=' kit.config
@@ -371,7 +371,7 @@ git add tools .claude kit.config .gitignore .gitattributes VERSION src tests doc
 python tools/verify.py                   # must print: VERIFY: PASS
 ```
 
-That line is the most dangerous command here. On a repository with other work
+That line is the most dangerous command. On a repository with other work
 in it, use the file-targeted form instead:
 
 ```bash
@@ -426,11 +426,11 @@ python tools/verify.py --only <your-gate> --nc "$env:TEMP/nc.json"
 ```
 
 **Checkpoint:** the summary line reads **`VERIFY: INSTRUMENTED`**, with your gate
-red on a floor breach. `ABORTED` also exits 2, and means it refused to start.
+red on a floor breach. `ABORTED` exits 2 too, meaning it refused to start.
 
 ---
 
-## Step 6 — Standing rules, and prove the hook (8 min; §4.4 already rendered CLAUDE.md)
+## Step 6 — Standing rules, and prove the hook (8 min; if you ran §4.4, it already rendered CLAUDE.md)
 
 ```bash
 # the first line is the NEW-FILE route. If you ALREADY HAVE a CLAUDE.md, do
@@ -486,7 +486,7 @@ Select-String -Path CLAUDE.md -Pattern '\{\{|DELETE THIS COMMENT BLOCK'
 
 ---
 
-## Step 7 — Start the ledgers empty (3 min; §4.4 already rendered them)
+## Step 7 — Start the ledgers empty (3 min; if you ran §4.4, it already rendered them)
 
 ```bash
 mkdir -p docs/reports
@@ -661,7 +661,7 @@ cycle.
    it into CI. It is the only check that covers *your* runner.
 7. Re-run `python tools/adoption_smoke.py` from the kit clone after a kit update.
    `--runner <path to your tools/verify.py>` points it at your copy, but only
-   while that copy still carries the shipped example gates.
+   while that copy carries the shipped example gates.
 
 ## Notes
 
