@@ -225,6 +225,25 @@ REPEAT_ID = re.compile(r'\bREPEAT\(([a-z0-9-]+)\)')
 # two artifacts, in the same way every `expectation_from: "inline"` row is.
 # Registered as `seenred:absent`.
 SEENRED_ID = re.compile(r'\bSEENRED\(([a-z0-9-]+)\)')
+# An ELEVENTH family, closing W4-1's sibling gap (round MAINT5, 2026-09-15):
+# a `selftest:` registry row like `selftest:hook-fixtures:project-dir` named a
+# SECTION of another tool's --selftest rather than a fixture, doctor check or
+# negative control, and none of the ten families above recover a selftest
+# section id from source - so a row of this shape was checked for presence and
+# shape only, the same blind spot the doctor and fixture families closed for
+# their own ids. The recoverable spelling is a function whose name ends
+# `_selftest`, called out of the tool's own `selftest()` to run one named
+# section (`def project_dir_selftest(check) -> None:` in hook_fixtures.py,
+# called from Section A3). The registry id dashes the function's own name and
+# prefixes it with the owning tool's slug: `project_dir_selftest` in
+# hook_fixtures.py becomes `selftest:hook-fixtures:project-dir`. The FAMILY
+# string carries the tool slug baked in (`selftest:hook-fixtures`, not bare
+# `selftest`) because the id has two parts after `selftest:` and a bare
+# `selftest:` prefix would also strip the ids of the TEN unrelated
+# `selftest:*` rows already in this registry (selftest:verify,
+# selftest:deident, ...), turning every one of them into a false "stale" find
+# the moment this family ran.
+SELFTEST_SECTION_ID = re.compile(r'^def ([a-z][a-z0-9_]*)_selftest\(', re.M)
 
 
 def coverage_gaps(fixtures_src: str, entries: list,
@@ -259,6 +278,10 @@ def coverage_gaps(fixtures_src: str, entries: list,
         # The recovered id is a roman numeral from an `NC(vii)` label; the
         # registry spells it `escape:nc-vii`.
         in_src = {"nc-" + i for i in in_src}
+    if family.startswith("selftest:"):
+        # The recovered id is the bare function name (underscores); the
+        # registry dashes it, e.g. `project_dir` -> `project-dir`.
+        in_src = {i.replace("_", "-") for i in in_src}
     return sorted(in_src - registered), sorted(registered - in_src)
 
 
@@ -278,6 +301,8 @@ FAMILIES = (
     ("tools/skim_lint.py", SKIM_ID, "skim"),
     ("tools/repeat_lint.py", REPEAT_ID, "repeat"),
     ("tools/expectation_lint.py", SEENRED_ID, "seenred"),
+    ("modules/02-enforcement/hook_fixtures.py", SELFTEST_SECTION_ID,
+     "selftest:hook-fixtures"),
 )
 
 
@@ -509,17 +534,44 @@ def selftest() -> int:
           coverage_gaps("", [{"id": "skim:gone", "subject": "s",
                               "expectation_from": "inline"}],
                         SKIM_ID, "skim")[1], ["gone"])
-    check("the cross-check runs over TEN families, and the list is the one "
+    check("the cross-check runs over ELEVEN families, and the list is the one "
           "the waiver reason names",
           [f for _, _, f in FAMILIES],
           ["fixture", "doctor", "escape", "golden", "citation", "count",
-           "quant", "skim", "repeat", "seenred"])
+           "quant", "skim", "repeat", "seenred", "selftest:hook-fixtures"])
     check("REPEAT-family: an unregistered repeat control is reported",
           coverage_gaps('    check("REPEAT(relocation): x",\n', [],
                         REPEAT_ID, "repeat")[0], ["relocation"])
     check("SEENRED-family: an unregistered seen-red control is reported",
           coverage_gaps('    check("SEENRED(absent): x",\n', [],
                         SEENRED_ID, "seenred")[0], ["absent"])
+    # The ELEVENTH family: a `_selftest`-named section function recoverable
+    # from another tool's source, the gap W4-1's sibling left open - a
+    # `selftest:` row was checked for presence and shape only.
+    check("SELFTEST-family: an unregistered selftest section is reported, "
+          "dashed from the function's own name",
+          coverage_gaps('def project_dir_selftest(check) -> None:\n', [],
+                        SELFTEST_SECTION_ID, "selftest:hook-fixtures")[0],
+          ["project-dir"])
+    check("...and a registered section with no function behind it is too",
+          coverage_gaps("", [{"id": "selftest:hook-fixtures:gone",
+                              "subject": "s", "expectation_from": "inline"}],
+                        SELFTEST_SECTION_ID, "selftest:hook-fixtures")[1],
+          ["gone"])
+    check("...and a registered section that IS in the source is clean",
+          coverage_gaps('def project_dir_selftest(check) -> None:\n',
+                        [{"id": "selftest:hook-fixtures:project-dir",
+                          "subject": "s", "expectation_from": "inline"}],
+                        SELFTEST_SECTION_ID, "selftest:hook-fixtures"),
+          ([], []))
+    check("...and the bare `selftest:` family is NOT swept in by a "
+          "colon-embedded family prefix (the ten unrelated selftest:* rows "
+          "already in this registry must not read as stale)",
+          coverage_gaps('def project_dir_selftest(check) -> None:\n',
+                        [{"id": "selftest:verify", "subject": "s",
+                          "expectation_from": "inline"}],
+                        SELFTEST_SECTION_ID, "selftest:hook-fixtures")[1],
+          [])
     check("...and the quantifier family recovers its own label shape, not the "
           "count family's",
           (coverage_gaps('    check("QUANT(f1-shape): x",\n', [],
