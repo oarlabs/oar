@@ -47,7 +47,9 @@ it and how much it costs:
 | **NEEDS-REPRO** | You could not reproduce it. Say exactly what you tried. |
 
 An honest NEEDS-REPRO is worth more than a confident guess. Guesses become
-charters, and charters become spent budget.
+charters, and charters become spent budget — check the harness's own
+total-token counter at the close of each numbered step, and halt right at
+your stop word with whatever is in hand.
 
 ## EVIDENCE STANDARD
 Every claim cites a primary source: `file:line`, a commit sha, a log line, a

@@ -131,14 +131,17 @@ short distillation of what the run did.
 
 The model family is **not** on that list, because withholding a name this
 repository prints on every adoption path would be a redaction that conceals
-nothing. All fourteen runs — seven walks, three evaluation reads, three
-recon reads, and the executed increment of entry 30 — are recorded in the
-distilled agent records as `model opus`:
-Anthropic's Claude, top tier. The increment is in this count and has no prompt
-page here: its prompt was built live around the recon consensus and is quoted,
-with its outputs, in `docs/CASE-STUDY-INCREMENT.md`. That is
-the single family `BLUEPRINT.md` §11 means when it states the evidence limit as
-"one AI family".
+nothing. Every run through entry 44 is Anthropic's Claude — the single
+family `BLUEPRINT.md` §11 means when it states the evidence limit as "one
+AI family" — though the tier is not one constant across all of them.
+Entries 1 to 30 — seven walks, three evaluation reads, three recon reads,
+and the executed increment of entry 30 — are recorded in the distilled
+agent records as `model opus`, top tier. The increment is in that count and
+has no prompt page here: its prompt was built live around the recon
+consensus and is quoted, with its outputs, in `docs/CASE-STUDY-INCREMENT.md`.
+Entries 39 to 44, the WALKS v0.1.4 round, ran at `sonnet`, per that round's
+own charter. Entries 34 to 38's tier is not recorded in this register; that
+absence is stated rather than assumed.
 
 ### What a reader can and cannot verify from this directory
 
