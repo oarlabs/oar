@@ -115,6 +115,17 @@ gate proves strictly more than CI.
 **Log the divergence as adoption debt** in your own `docs/FAILURE-FLOOR.md`, and
 close it when you adopt module 07.
 
+## 8. A program outside `src`/`tests` — Step 3
+
+Step 3 assumes the subject lives in `src/` and `tests/`. A repository laid
+out differently has nowhere the step names for the worksheet's one source
+file and one test file.
+
+**Name your own paths in the worksheet page and keep them.** `CERT_PATHS`
+and `JUDGE_PATHS` (Step 4) follow the paths you choose, not `src`/`tests`
+literally. Row 6 above is the same collision for an existing test suite;
+this row is the first oracle when no suite exists yet.
+
 ## Also measured, at Level 1
 
 `LEVEL-1.md` installs documents only, and two of its steps collide the same way.

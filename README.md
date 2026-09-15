@@ -173,10 +173,11 @@ shape.
 One person maintains this kit, working with AI agents, best-effort. No SLA.
 The bus factor is one.
 
-The evidence base: one reference build; seven LLM-persona adoption walks
+The evidence base: one reference build; sixteen LLM-persona adoption walks
 (a language model given a persona and a scratch repository, not a person);
-six LLM-persona evaluation reads (three of the shipped kit, three of the
-kit plus a brownfield host); one read by a practising engineer outside the
+eight LLM-persona evaluation and recon reads (three of the shipped kit,
+three of the kit plus a brownfield host, one pre-sales recon, one
+team-lead evaluator); one read by a practising engineer outside the
 program; one executed [brownfield](GLOSSARY.md) increment
 (`docs/CASE-STUDY-INCREMENT.md`). `KNOWN-ISSUES.md` records what each
 found; `docs/walks/` publishes the prompts and states exact coverage — the

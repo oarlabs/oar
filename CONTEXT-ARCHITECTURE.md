@@ -258,7 +258,7 @@ recoverable from disk. Guard the measured contract with a fixture so the rejecte
 output shape cannot return, and add a round-trip fixture for the relay itself.
 
 **Pipe-test both hooks** with a fixture table (BLUEPRINT §10, bootstrap rule 4):
-negative controls, a dead-man fixture, and an encoding regression. Then wire the
+[negative controls](GLOSSARY.md), a dead-man fixture, and an encoding regression. Then wire the
 armed-check and the suite's summary line into the verify runner, with a floor on the
 fixture count. A well-formed `0/0` from a runner that executed nothing must read as
 red.

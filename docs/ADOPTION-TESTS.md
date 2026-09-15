@@ -16,9 +16,9 @@ The hands that checked it here belonged to an LLM persona following a written
 charter, which is a weaker instrument than a person and is labelled as one.
 The unqualified claim returns when a re-test passes, not when the fixes land.
 
-Not yet walked: a persona whose agents run under a harness other than
-Claude Code. Its expected outcome, as shipped, is Level 1 and `QUICKSTART.md`
-Steps 0 to 3 completed unchanged, then module 02 and module 05's socket
-recorded `BLOCKED` at Step 4, module 06 after it, with `docs/PORTABILITY.md`
-in hand. That outcome is
-unmeasured until the walk runs.
+Walked once: a persona whose agents run under a harness other than Claude
+Code, against `v0.1.4` (register entry 39). Its declared outcome — the
+front door names `docs/PORTABILITY.md` before Step 4, and Steps 0 to 3
+complete unchanged — was reached: the walk stopped at Step 4 with
+`docs/PORTABILITY.md` in hand, as expected. One LLM persona, once; a
+second harness or a second persona could still find what this one did not.

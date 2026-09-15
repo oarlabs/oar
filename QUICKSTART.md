@@ -28,8 +28,8 @@ places, each marked inline with a warning marker.
 2. No backslash line-continuations; long commands are single lines.
 3. Forward slashes work everywhere, including Windows.
 4. `⚠ Debian/Ubuntu:` substitute `python3` for `python`.
-5. `⚠ Windows:` add a `.gitattributes` with `* text=auto` before your first
-   commit. [detail: appendix, Shell]
+5. `⚠ Windows:` add a `.gitattributes` with `* text=auto` before the
+   adoption commit. [detail: appendix, Shell]
 
 ---
 
@@ -94,8 +94,8 @@ Skip a `cp` whose target exists; `cp` overwrites without asking. In `kit.config`
 `kit.config` is committed; `kit.config.local` is gitignored and holds the
 absolute paths.
 
-**Checkpoint:** the first line prints the five keys plus `GATE_COMMAND`; the
-second prints nothing.
+**Checkpoint:** the first line prints the five keys above plus
+`GATE_COMMAND`; the second prints nothing.
 
 ```bash
 grep -nE '^(PROJECT_NAME|ORCHESTRATOR_TIER|LANE_TIER|SWEEP_TIER|FORBIDDEN_SPAWN_TIER|GATE_COMMAND) *=' kit.config
@@ -255,7 +255,7 @@ not in the tree. Refresh `VERSION` on every kit update [check: `doctor:version`]
 Dropping a module means deleting its gate from `GATES` and `RUN_ORDER`, and its
 constants. [detail: appendix, Step 4]
 
-### 4.3 Fill the settings template — four slots
+### 4.3 Fill the settings template — four slots (or render it: §4.4)
 
 1. `{{PYTHON_BIN}}`: the interpreter name you type at a prompt.
 2. `{{PROJECT_ROOT}}`: the absolute path to your repo root, forward slashes,
@@ -302,7 +302,7 @@ a second machine certification returns `VERIFY: FAIL — RED: judges, hooks`, an
 the kit ships no split.
 [record: `KNOWN-ISSUES.md`, "Whose settings file? — the team story"]
 
-### 4.6 Edit the runner: nine edits
+### 4.6 Edit the runner: nine edits (no render tool: `kit_render.py` skips `verify.py`, §4.4)
 
 The runner ships two example gates, `example_unit` and `example_lint`. They run
 against toy scripts in the kit's `modules/03-verification/examples/`. Both go,
@@ -430,7 +430,7 @@ red on a floor breach. `ABORTED` also exits 2, and means it refused to start.
 
 ---
 
-## Step 6 — Standing rules, and prove the hook (8 min)
+## Step 6 — Standing rules, and prove the hook (8 min; §4.4 already rendered CLAUDE.md)
 
 ```bash
 # the first line is the NEW-FILE route. If you ALREADY HAVE a CLAUDE.md, do
@@ -486,7 +486,7 @@ Select-String -Path CLAUDE.md -Pattern '\{\{|DELETE THIS COMMENT BLOCK'
 
 ---
 
-## Step 7 — Start the ledgers empty (3 min)
+## Step 7 — Start the ledgers empty (3 min; §4.4 already rendered them)
 
 ```bash
 mkdir -p docs/reports
