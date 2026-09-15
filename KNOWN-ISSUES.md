@@ -2941,3 +2941,21 @@ The release sets `VERSION`, the doctor's `KIT_VERSION` and the README footer
 to `0.1.3` in one commit before the tag, so the tag, the file and the
 documents agree. Use `v0.1.3`.
 
+## v0.1.4: maintenance release 3 (the harness line, 2026-09-15)
+
+`v0.1.4` is a docs-only release of one fix. An adopter whose agents run
+under a harness other than Claude Code reached the settings wiring at
+`QUICKSTART.md` Step 4 before any front-door document said that modules 02
+and 06, and module 05's status-line socket, assume a Claude Code-style
+harness; the requirement was stated only in `docs/PREREQUISITES.md`,
+`docs/PORTABILITY.md`, `DECISION-BRIEF.md` and module 02's README. The
+class is a fresh adoption blocked at a documented step. The fix states one
+disposition at each door: Level 1 and Steps 0 to 3 need no harness; read
+`docs/PORTABILITY.md` before Step 4. `README.md` carries it in the opening
+block, `QUICKSTART.md` at Step 0, `ONBOARD.md` in section 1 with a
+host-collision row in section 7, and `docs/ADOPTION-TESTS.md` names the
+non-Claude persona as a walk not yet run. No code changed. The punch items
+held from entries 34 to 38 for the next release are unchanged and move to
+`v0.1.5`. The release sets `VERSION`, the doctor's `KIT_VERSION` and the
+README footer to `0.1.4` in one commit before the tag. Use `v0.1.4`.
+

@@ -183,7 +183,7 @@ found; `docs/walks/` publishes the prompts and states exact coverage — the
 human read has no prompt to publish. A human adoption walk is planned and
 not yet on record. `docs/ADOPTION-TESTS.md` carries per-module results.
 
-Version `0.1.3`. Apache-2.0.
+Version `0.1.4`. Apache-2.0.
 
 ---
 
