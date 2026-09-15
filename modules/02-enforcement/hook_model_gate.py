@@ -367,8 +367,8 @@ def touches_protected(s: str) -> bool:
     and in point 4 of the module docstring:
 
       * CASE. On Windows and on default macOS the filesystem is
-        case-insensitive, so `C:/Users/OWNER/frozen-build/x` opens the same
-        file as a configured `C:/Users/owner/frozen-build` and this returns
+        case-insensitive, so `D:/Projects/frozen-build/x` opens the same
+        file as a configured `D:/projects/frozen-build` and this returns
         False. Folding here would be wrong on Linux, where the two really are
         different files, and a gate that asks about a path the owner did not
         protect is the false positive that gets gates deleted. So the rule is

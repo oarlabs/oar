@@ -87,9 +87,11 @@ def lint_file(root: Path, rel: str, budget: int, cfg: dict):
                 f"em-dash density: {dashes} in {words} words "
                 f"({density:.1f}/100 > {lim['emdash_per_100_words_max']})")
     if rel != "GLOSSARY.md":
+        # A plural of a listed term counts as the term: "negative controls"
+        # is the same jargon as "negative control", and the old literal
+        # \bterm\b missed it because "l" and "s" share no word boundary.
         used = [t for t in cfg["jargon_requires_glossary"]
-                if re.search(r"\b" + re.escape(t.replace('_', '_')) + r"\b",
-                             low)]
+                if re.search(r"\b" + re.escape(t) + r"(?:es|s)?\b", low)]
         if used and "glossary.md" not in raw.lower():
             findings.append(
                 "jargon without a GLOSSARY.md link: " + ", ".join(used))
@@ -176,6 +178,9 @@ def selftest() -> int:
                       ["banned phrase"]),
         "jargon.md": ("Short doc. The escape rate fell again this round.",
                       ["jargon without a GLOSSARY.md link"]),
+        "jargon-plural.md": (
+            "Short doc. The negative controls behaved as planned.",
+            ["jargon without a GLOSSARY.md link"]),
         "clean.md": ("Short doc. It passes. See GLOSSARY.md for terms.", []),
     }
     failures = []
@@ -190,7 +195,7 @@ def selftest() -> int:
             "budgets": {k: 100 for k in cases},
             "exempt": {},
             "banned_phrases": ["earned its keep"],
-            "jargon_requires_glossary": ["escape rate"],
+            "jargon_requires_glossary": ["escape rate", "negative control"],
         }
         (root / "prose-budgets.json").write_text(json.dumps(manifest),
                                                  encoding="utf-8")
