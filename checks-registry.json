@@ -1285,6 +1285,13 @@
    "reason": "THE LIVE HALF, and the answer to round 29's first objection to building this check at all - that its expectation would be 'a list this round wrote'. It is: REQUIRED is three hand-written paths in the tool, the specification, and it is deliberately NOT read from the door, because a check that took its list of artifacts out of README.md and then asserted README.md names them would be vacuous. This control runs the real scan over the real front door and requires all three reachable from inside the window. It went red on its first run - the round-30 front door named two of the three only past line 100 - and the fix was a link in the door list, not a wider window. When the door is not reachable (this tool copied out of a kit checkout) the section reports UNAVAILABLE rather than passing in silence."
   },
   {
+   "id": "check:selftest-family-registered",
+   "subject": "tools/expectation_lint.py:coverage_gaps",
+   "expectation_from": "modules/02-enforcement/hook_fixtures.py",
+   "seen_red": "2026-09-15",
+   "reason": "NOT a waiver - recorded because the eleventh family (round MAINT5, 2026-09-15) needed its own dated forced-red, which the umbrella `lint:expectation-source` row cannot carry on behalf of all eleven families under one seen_red left NEVER. The family recovers `selftest:`-section ids from a source function named `<name>_selftest` (hook_fixtures.py's `project_dir_selftest`) and cross-checks them against `checks-registry.json`'s `selftest:hook-fixtures:*` rows in coverage_gaps, both ways. Forced red observed 2026-09-15 on a copy of checks-registry.json with `selftest:hook-fixtures:project-dir`'s id misspelled to `project-di`: two SELF-REFERENCE lines (the real function reported unregistered; the misspelled id reported stale) and exit 1, before the family shipped registering the row correctly."
+  },
+  {
    "id": "lint:expectation-source",
    "subject": "checks-registry.json",
    "expectation_from": "checks-registry.json",

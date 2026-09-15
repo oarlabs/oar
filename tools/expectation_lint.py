@@ -254,7 +254,7 @@ def coverage_gaps(fixtures_src: str, entries: list,
     judge what is written in it, so the failure mode it cannot see is an entry
     that is simply absent. For a family whose ids are recoverable from the
     source, absence IS detectable, and this is that cross-check. The families
-    it runs over are FAMILIES below (ten of them) - that tuple is the
+    it runs over are FAMILIES below - that tuple is the
     authority, and
     `--selftest` asserts the prose agrees with it rather than restating a count
     here that would go stale (it already had: this paragraph said "three" while
