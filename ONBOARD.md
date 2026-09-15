@@ -24,6 +24,9 @@ route's numbers [§6].
 
 Establish all five before anything else.
 
+**Harness.** A host whose agents run outside Claude Code is a §7 collision,
+not a halt; Steps 0 to 3 proceed unchanged.
+
 | # | Precondition | How you establish it |
 |---|---|---|
 | P1 | A host repository exists and you can run `git` and `python` in it | `git -C <host> rev-parse --show-toplevel`, `python --version` (3.10 or newer — `QUICKSTART.md` Step 0) |
@@ -165,7 +168,7 @@ report.
 
 These are not all Step-1 keys. Treating them as such is the measured render-early
 defect `QUICKSTART.md` describes under "Substituting mechanically".
-`QUICKSTART.md`:77-89 is the authority: Step 1 fills `PROJECT_NAME`, the three
+`QUICKSTART.md`:79-91 is the authority: Step 1 fills `PROJECT_NAME`, the three
 tier names and `FORBIDDEN_SPAWN_TIER`, and "Four keys come back later, each at
 the step that needs it".
 
@@ -369,8 +372,9 @@ Add one row per collision the host presents, citing the kit document behind it.
 
 | Collision | Disposition |
 |---|---|
+| The host's agents run under a harness other than Claude Code | Modules 02 and 06, and module 05's status-line socket, are wired for Claude Code (`docs/PORTABILITY.md` prices the rewiring). Level 1 and `QUICKSTART.md` Steps 0 to 3 proceed unchanged; record module 02 and module 05's socket `BLOCKED` at Step 4 and module 06 at the following-week list, log the rewiring as adoption debt in the host's `docs/FAILURE-FLOOR.md`, and raise it as a punch item for the owner |
 | Ledger-name collision: an existing `LESSONS-LEARNED.md` or `TOKEN_LEDGER.md` | Rename, freeze, or move `LEDGERS_DIR` (`LEVEL-1.md` Step 3; `EXISTING-PROJECT.md`, "Also measured, at Level 1") |
-| Rules that conflict on merge | `QUICKSTART.md`:442-443 makes it an owner instruction: where the two rule sets conflict, "that is a decision to make now and write down, not a duplicate to leave standing" |
+| Rules that conflict on merge | `QUICKSTART.md`:444-445 makes it an owner instruction: where the two rule sets conflict, "that is a decision to make now and write down, not a duplicate to leave standing" |
 | CI weaker than the local gate | After Step 6 the local certification proves strictly more than the host's CI. Log it as adoption debt in the host's `docs/FAILURE-FLOOR.md` and close it when module 07 lands (`EXISTING-PROJECT.md` row 7). Do not modify the host's CI during an adoption |
 | More than one machine, or more than one person | `.claude/settings.json` is per-machine, committed and judged at once. Read `KNOWN-ISSUES.md`, "Whose settings file? — the team story", before committing that file, and raise the design as a punch item (`QUICKSTART.md` Step 4, "ONE MACHINE PER SETTINGS FILE") |
 | The de-identification token list | You can supply machine path fragments and the username from the environment. The owner's name and employer you cannot. A green scan over a list you assembled alone is labelled as one (`QUICKSTART.md` Step 9). With no path granted **for the token list itself** [§8], the scan is a punch item reading NOT RUN. Your report path is not one |

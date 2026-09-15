@@ -7,8 +7,7 @@ Budget: 90 minutes to two hours for Steps 0–2, 4–7 and 9, of which Step 4 is
 45–60; an afternoon of thinking for Step 3, which does not compress; 15 minutes
 for Step 8.
 
-Per-step detail (rationale, measured failure modes, existing-repository
-branches) is held in the maintainer's records, not shipped here; `[detail:
+Per-step detail is held in the maintainer's records; `[detail:
 appendix, Step N]` marks point at it; each step here carries everything the
 step needs. Terms: `GLOSSARY.md`.
 `[check: X]` names the mechanical layer that enforces a rule; the register of
@@ -37,6 +36,9 @@ places, each marked inline with a warning marker.
 ## Step 0 — Prove the tooling works before you configure anything (3 min)
 
 Run these in the kit clone, before you touch your own project.
+
+Steps 0 to 3 need no harness; on any harness but Claude Code, read
+`docs/PORTABILITY.md` before Step 4.
 
 ```bash
 git --version                           # any recent git; measured on 2.54
