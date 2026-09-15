@@ -635,6 +635,16 @@ def resolve_hook_script(raw: str, settings_path: Path):
     settings file implies (`<repo>/.claude/settings.json` -> `<repo>`), then
     relative to the working directory - which is the set of places a harness
     plausibly resolves it from."""
+    # The harness expands ${CLAUDE_PROJECT_DIR} (and the unbraced form) to
+    # the project root before it runs the command, so a settings file that
+    # uses the portable spelling names a script that really is there. Read
+    # literally the same command names <repo>/${CLAUDE_PROJECT_DIR}/...,
+    # which exists nowhere, and the arming check reported UNSTARTABLE for a
+    # hook the harness starts on every call. Expanded first, to the
+    # settings-implied root.
+    root = str(settings_path.resolve().parent.parent)
+    raw = raw.replace("${CLAUDE_PROJECT_DIR}", root)
+    raw = raw.replace("$CLAUDE_PROJECT_DIR", root)
     cand = Path(raw)
     tries = [cand] if cand.is_absolute() else [
         settings_path.resolve().parent.parent / raw,
@@ -869,6 +879,60 @@ def judge(rc: int, so: str, se: str, accept: set[str], expect_text=None):
     return ok, "silent", why
 
 
+def project_dir_selftest(check) -> None:
+    """Section A3. `${CLAUDE_PROJECT_DIR}` is the harness's own spelling for
+    the repo root, and a settings file may use it for every hook command.
+    Until resolve_hook_script expanded it, `--armed` read the
+    placeholder as a literal directory name, looked for
+    `<repo>/${CLAUDE_PROJECT_DIR}/tools/hook_model_gate.py`, found nothing, and
+    called the live gate UNSTARTABLE - the SB-A defect running backwards,
+    reporting a hook that starts on every call as one that never starts.
+
+    Run over throwaway trees rather than this repository's own settings, so
+    each check states its own premise: two spellings that must read ARMED,
+    and one expanded placeholder that must still read UNARMED - because the
+    fix must not turn "the placeholder was there" into "the file exists"."""
+    import shutil
+    import tempfile
+
+    def armed_over(command: str, with_script: bool):
+        root = Path(tempfile.mkdtemp(prefix="projdir-selftest-"))
+        try:
+            (root / ".claude").mkdir()
+            (root / "tools").mkdir()
+            named = root / "tools" / "hook_model_gate.py"
+            if with_script:
+                named.write_text("# a real, startable script\n",
+                                 encoding="utf-8")
+            settings = root / ".claude" / "settings.json"
+            settings.write_text(json.dumps({"hooks": {"PreToolUse": [{
+                "matcher": "Workflow|Agent|Bash|Edit",
+                "hooks": [{"type": "command", "command": command}],
+            }]}}), encoding="utf-8")
+            ok, notes = check_armed(settings, named)
+            tools = sorted(x.split("armed: ", 1)[1]
+                           for x in notes if x.startswith("armed: "))
+            unstartable = any(x.startswith("UNSTARTABLE:") for x in notes)
+            return ok, tools, unstartable
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    four = ["Agent", "Bash", "Edit", "Workflow"]
+    check("the braced ${CLAUDE_PROJECT_DIR} reads ARMED for all four tools",
+          armed_over('python "${CLAUDE_PROJECT_DIR}/tools/hook_model_gate.py"',
+                     True),
+          (True, four, False))
+    check("the unbraced $CLAUDE_PROJECT_DIR reads ARMED for all four tools",
+          armed_over('python "$CLAUDE_PROJECT_DIR/tools/hook_model_gate.py"',
+                     True),
+          (True, four, False))
+    check("an EXPANDED placeholder pointing at nothing still reads UNARMED "
+          "- expansion is not existence",
+          armed_over('python "${CLAUDE_PROJECT_DIR}/tools/hook_model_gate.py"',
+                     False),
+          (False, four, True))
+
+
 # ==========================================================================
 # --selftest : the harness's own pure layer, judged
 # ==========================================================================
@@ -920,6 +984,10 @@ def selftest() -> int:
           matcher_arms("^(Bash|PowerShell)$", "PowerShell"), True)
     check("invalid regex arms NOTHING rather than guessing",
           matcher_arms("Edit|[", "Edit"), False)
+
+    print("\n=== A3. ${CLAUDE_PROJECT_DIR}: the placeholder the harness expands "
+          "before it runs the command ===")
+    project_dir_selftest(check)
 
     print("\n=== B. cfg_get: NONE and empty mean UNSET ===")
     for placeholder in ("NONE", "none", "", "  ", "null", "TODO"):

@@ -422,6 +422,12 @@
    "seen_red": "NEVER"
   },
   {
+   "id": "selftest:hook-fixtures:project-dir",
+   "subject": "modules/02-enforcement/hook_fixtures.py:resolve_hook_script",
+   "expectation_from": "inline",
+   "seen_red": "2026-09-15"
+  },
+  {
    "id": "smoke:phase9-document-order",
    "subject": "QUICKSTART.md",
    "expectation_from": "tools/adoption_smoke.py",
