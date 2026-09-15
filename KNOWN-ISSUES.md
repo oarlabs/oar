@@ -2959,3 +2959,30 @@ held from entries 34 to 38 for the next release are unchanged and move to
 `v0.1.5`. The release sets `VERSION`, the doctor's `KIT_VERSION` and the
 README footer to `0.1.4` in one commit before the tag. Use `v0.1.4`.
 
+## v0.1.5: maintenance release 4 (the placeholder false red, 2026-09-15)
+
+`v0.1.5` is a code release of one fix in `modules/02-enforcement/hook_fixtures.py`.
+The arming check read a hook command literally. A settings file that names
+the hook by the harness's project-root placeholder, `${CLAUDE_PROJECT_DIR}`
+or its unbraced form, therefore resolved to a path that exists nowhere, and
+the check reported UNSTARTABLE for a hook the harness starts on every call.
+A false red, the SB-A defect running backwards. The fix expands the
+placeholder to the settings-implied root before resolving, and expansion
+is not existence: an expanded placeholder pointing at nothing still reads
+UNARMED. Lineage: the same fix landed first in the maintainers' private
+program repository, from which this is a port; the class is SB-A above.
+Shipped with it: selftest section A3, three checks, observed red on
+2026-09-15 against a copy of the file without the fix before it was
+registered green; registry row `selftest:hook-fixtures:project-dir` carries
+the date. The shipped template renders an absolute path, so a fresh
+adopter who follows it never saw the false red; an adopter who rewrote the
+command to the portable spelling did. No document changed except the
+seen-red label in `README.md` and `DECISION-BRIEF.md`, re-measured at this
+release. Residual: the repo root is inferred from the settings path as its
+grandparent, so a settings file that does not sit at `<repo>/.claude/` is
+judged against a guessed root; the relative branch already made that
+assumption. The punch items held
+from entries 34 to 38 move to `v0.1.6`. The release sets `VERSION`, the
+doctor's `KIT_VERSION` and the README footer to `0.1.5` in one commit
+before the tag. Use `v0.1.5`.
+
