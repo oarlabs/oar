@@ -10,6 +10,10 @@ Python, no dependencies, no service, nothing to install.
 OAR is not a runtime. It does not schedule, route, or execute agents. It
 composes with whatever framework does.
 
+**Harness.** Modules 02 and 06, and module 05's status-line socket, are
+built for Claude Code today; Level 1 and `QUICKSTART.md` Steps 0 to 3 need
+no harness. On any other harness, read `docs/PORTABILITY.md` before Step 4.
+
 **The problem:** an agent stack can tell you what the agents did. It cannot
 tell you whether the green was real: whether the checks actually ran, and
 whether anyone has watched one refuse. OAR makes the first answerable and

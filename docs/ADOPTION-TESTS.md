@@ -15,3 +15,10 @@ about code, and only someone else's hands can check the documentation half.
 The hands that checked it here belonged to an LLM persona following a written
 charter, which is a weaker instrument than a person and is labelled as one.
 The unqualified claim returns when a re-test passes, not when the fixes land.
+
+Not yet walked: a persona whose agents run under a harness other than
+Claude Code. Its expected outcome, as shipped, is Level 1 and `QUICKSTART.md`
+Steps 0 to 3 completed unchanged, then module 02 and module 05's socket
+recorded `BLOCKED` at Step 4, module 06 after it, with `docs/PORTABILITY.md`
+in hand. That outcome is
+unmeasured until the walk runs.
