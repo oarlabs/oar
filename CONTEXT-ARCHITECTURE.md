@@ -123,9 +123,11 @@ them. Two disciplines keep this sustainable:
   may condense repetitive material only if the elision is disclosed where it occurs,
   with a count and a pointer to the full list. Verdicts, per-item dispositions, and
   halts are never condensed.
-- **Evidence budgets.** Each charter states its expected proof-artifact volume.
-  On the reference build, unbudgeted lane evidence became the largest artifact class
-  in the repository by an order of magnitude.
+- **Evidence budgets.** Each charter states its expected proof-artifact volume,
+  and tells its lane to watch the running total the harness itself prints as
+  each numbered step closes, stopping at the declared word with what has been
+  produced so far. On the reference build, unbudgeted lane evidence became
+  the largest artifact class in the repository by an order of magnitude.
 
 **Transcripts are a cache, not the record.** On at least one harness, every lane's
 full transcript persists on disk indefinitely and nothing prunes it. The reference
@@ -258,7 +260,7 @@ recoverable from disk. Guard the measured contract with a fixture so the rejecte
 output shape cannot return, and add a round-trip fixture for the relay itself.
 
 **Pipe-test both hooks** with a fixture table (BLUEPRINT §10, bootstrap rule 4):
-negative controls, a dead-man fixture, and an encoding regression. Then wire the
+[negative controls](GLOSSARY.md), a dead-man fixture, and an encoding regression. Then wire the
 armed-check and the suite's summary line into the verify runner, with a floor on the
 fixture count. A well-formed `0/0` from a runner that executed nothing must read as
 red.

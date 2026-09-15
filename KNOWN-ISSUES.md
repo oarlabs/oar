@@ -324,6 +324,12 @@ note; the table is what the numbers mean.
 | 36 | **LLM-persona adoption walk** — the team-lead evaluator, doctrine read then hands-on then a second-machine simulation, against the tagged `v0.1.2` public release | 16 (4 major, 5 minor, 7 nit), plus 6 verified non-defects; no HALT | Same disposition as entry 34: MAINT2 closes items 1–3, 5–15, 17; item 4 (this entry's own F-5, the `--armed` cross-checkout finding) held for the owner's ruling; item 16 declined |
 | 37 | **LLM-persona adoption walk** — the thorough adopter, full walk plus end-state audit plus doctrine spot-checks, against the tagged `v0.1.2` public release | 11 (0 major, 4 minor, 7 nit); done state reached | Same disposition as entry 34: MAINT2 closes items 1–3, 5–15, 17; item 4 held; item 16 declined |
 | 38 | **Recon read** — a pre-sales solutions engineer evaluation read plus target recon, against the tagged `v0.1.2` public release | Verdict PILOT; front-door bounces on the version triple and the register's size, plus the repeated-hedge and over-written-front-matter observations that fed punch item 16 | The version-triple bounce is closed by items 1–3 and 5–15; the register-size and repeated-hedge observations (punch item 16) are declined as a judgment call for the owner, not a fix, per the punch list's own lean |
+| 39 | **LLM-persona adoption walk** — the other harness, a persona whose agents run under a harness other than Claude Code, against the tagged `v0.1.4` public release (`e8b1a67`) | DRY; expected outcome reached — stopped at Step 4 with `docs/PORTABILITY.md` in hand | MAINT5 has nothing to close for this lane; W1-0 (README's "socket" vs PORTABILITY's "board") RECORDED, no change — the lane classed it friction, not a finding |
+| 40 | **LLM-persona adoption walk** — Windows/pwsh, literal obedience (the plain path), against the tagged `v0.1.4` public release (`e8b1a67`) | DRY; done state reached — `VERIFY: PASS`, `DEIDENT SCAN: 0 hits` | MAINT5 has nothing to close for this lane |
+| 41 | **LLM-persona adoption walk** — the impatient skimmer, against the tagged `v0.1.4` public release (`e8b1a67`) | 7 (3 major, 4 minor, 0 nit); done state reached | MAINT5 closes W3-1, W3-3, W3-5 and W3-6 (joined with W6-3); W3-4 stays open, declined this release: the disposition's fix shape is a run numbered patch block or a rendered file, and building and test-running one for the nine `verify.py` edits was out of this pass's budget — the heading pointer this pass shipped instead is informative, not the fix; W3-2 and W3-7 rejected below the bar: the done state was reached and each cited step is thinking work, or prose by nature, and does not compress |
+| 42 | **LLM-persona evaluation read** — the team-lead evaluator, reads and does not adopt, against the tagged `v0.1.4` public release (`e8b1a67`) | 3 (0 major, 1 minor, 2 nit), plus 1 recorded non-defect; expected outcome reached (a claims table and a defensible decision) | MAINT5 closes W4-1 (a check fix, Lane B) and W4-4 (the README tally line); W4-2 already FIXED in v0.1.5; W4-3 RECORDED, not a defect — the lane's own scope disclosure |
+| 43 | **LLM-persona adoption walk** — the thorough adopter, existing repository, against the tagged `v0.1.4` public release (`e8b1a67`) | 3 (0 major, 3 minor, 0 nit); done state reached, uncommitted change preserved | MAINT5 closes W5-1, W5-2 and W5-3 (the last a check fix, Lane B) |
+| 44 | **LLM-persona adoption walk** — the agent door, `ONBOARD.md`, against the tagged `v0.1.4` public release (`e8b1a67`) | 3 (0 major, 2 minor, 1 nit); done state reached, one routing-gap qualification | MAINT5 closes W6-1, W6-2 and W6-3 (joined with W3-6) |
 
 Walks 1–7 were run against the kit as a whole by personas with some exposure to
 it. Walks 8–14 are **LLM-persona adoption walks**: a language model given a
@@ -2985,4 +2991,19 @@ assumption. The punch items held
 from entries 34 to 38 move to `v0.1.6`. The release sets `VERSION`, the
 doctor's `KIT_VERSION` and the README footer to `0.1.5` in one commit
 before the tag. Use `v0.1.5`.
+
+## v0.1.6: maintenance release 5 (the WALKS v0.1.4 round, 2026-09-15)
+
+`v0.1.6` closes most of the WALKS v0.1.4 round: six LLM-persona lanes
+walked or read the tagged `v0.1.4` public release, entries 39 to 44.
+MAINT5 closes W3-1, W3-3, W3-5, W3-6 (joined with W6-3), W4-4, W5-1, W5-2,
+W6-1 and W6-2 in the shipped documents, plus two check fixes, W4-1 and the
+expectation lint's selftest-id family — see the rows the conn folds in.
+W3-4 stays open, declined this release: reason at entry 41. W3-2 and W3-7
+stay rejected below the bar, reason recorded at entry 41; W5-3's
+neutral-path fix and its `deident_scan.py` confirmation are a check fix,
+held with the two above. The estimate miss is recorded honestly: the round
+ran six lanes for 1,394,523 tokens against an estimate of 720,000. The
+release sets `VERSION`, the doctor's `KIT_VERSION` and the README footer
+to `0.1.6` in one commit before the tag. Use `v0.1.6`.
 

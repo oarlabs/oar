@@ -222,6 +222,8 @@ git add CLAUDE.md kit.config .gitignore docs && git commit -m "adopt OAR at Leve
 2. Substitute your own `LEDGERS_DIR` if it is not `docs`.
 3. Drop `.gitignore` if you did not add the `*.kit-new` rule in Step 3.
    `doctor:l1-committed` does not read it.
+4. Drop `CLAUDE.md` if you did not take it — the conditional sixth, above.
+   The line as printed fails on its absence: exit 128, nothing staged.
 
 An untracked document is not adopted. [check: `doctor:l1-committed`]
 
