@@ -240,9 +240,10 @@ edits a file, and never writes a decision anywhere — the coordinator
 reads the line, decides, and logs the disposition themselves. Its
 keyword scans (`OUTWARD`, `AUTHORITY`) read text, not intent: a charter
 that *prohibits* a push reads identically to one that orders one. Two
-real instances calibrated in `librarian/READ-TRIAGE-report-20260916.md`
-show this in both directions — one where the disagreement was a known
-keyword false positive and one where it was not.
+real instances from the program that built this tool show this in both
+directions — one where the disagreement was a known keyword false
+positive and one where it was not; both are recorded in this file's own
+`read_triage.py` row of `KNOWN-ISSUES.md`.
 
 ## Adapting it
 

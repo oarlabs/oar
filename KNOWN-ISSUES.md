@@ -3066,7 +3066,7 @@ operationalizes the reviewer charter's own check 4
 (`modules/01-governance/charters/CHARTER-reviewer.md` lines 52–55,
 "gates, hooks, fixtures, CI config, cert tokens, thresholds") as the
 concrete file set `kit.config`'s `JUDGE_PATHS`/`CERT_PATHS` already
-enumerate, plus the containment scanner named in this seat's sibling
+enumerate, plus the containment scanner named in the program's sibling
 work, which the shipped kit does not carry. No external ancestor search
 was run this session for "score a diff's review-worthiness by a
 weighted keyword/size rule" as a whole composition — the nearest
@@ -3079,21 +3079,17 @@ second one. `--selftest`'s shape (forced red both ways, a comment
 proving the inversion rather than asserting it) follows `gate_line.py`'s
 own `--selftest` discipline in this module, not an external source.
 
-**The two real instances calibrated against the tool, both read-only,
-both reported rather than tuned:** the CONTAINMENT SCOPE charter and its
-diff (`8088aa7..e2643ea` in the PROGRAM box) read `OFFICER · score 8 ·
-JUDGE-SURFACE +3, OUTWARD +3, SIZE +2` — the expected verdict, but
-`OUTWARD` fired on the word "push" inside a quoted ruling
-("narrow the rule and push") rather than a step this charter's own build
-took, the known keyword-scan limitation stated in the tool's own
-docstring. The GAUGE BASIS charter and its diff (`a508ab4..14abf99` in
-the ready-room) read `OFFICER · score 5 · SIZE +3, AUTHORITY +2` against
-an expectation of `GATES-ONLY`: the diff range is the coordinator's
-whole merge (14 files, 1029 lines, several other charters' report and
-ledger rows riding the same commit), not an isolated diff of the gauge
-basis tool change, so `SIZE` capped out and `AUTHORITY` fired on
-"key"/"signed"/"envelope" appearing in unrelated CONN-LOG and intercom
-rows. Reported as a disagreement, not tuned away — see
-`librarian/READ-TRIAGE-report-20260916.md` item 3 for the full lines and
-the reading of why each fired.
+**Two real instances from the program that built this tool, both
+read-only, both reported rather than tuned:** one charter and its diff
+read `OFFICER · score 8 · JUDGE-SURFACE +3, OUTWARD +3, SIZE +2` — the
+expected verdict, but `OUTWARD` fired on the word "push" inside a quoted
+ruling ("narrow the rule and push") rather than a step that charter's
+own build took, the known keyword-scan limitation stated in the tool's
+own docstring. A second charter and its diff read `OFFICER · score 5 ·
+SIZE +3, AUTHORITY +2` against an expectation of `GATES-ONLY`: the diff
+range was the coordinator's whole merge (14 files, 1029 lines, several
+other charters' report and record rows riding the same commit), not an
+isolated diff of the tool change under review, so `SIZE` capped out and
+`AUTHORITY` fired on "key"/"signed"/"envelope" appearing in unrelated
+record rows. Reported as a disagreement, not tuned away.
 

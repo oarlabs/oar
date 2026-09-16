@@ -110,10 +110,14 @@ from pathlib import Path
 
 # JUDGE_SURFACE_PATTERNS: substrings matched against each changed file's
 # path (case-insensitive). Sourced from kit.config's own JUDGE_PATHS and
-# CERT_PATHS slots (read live where available; this literal list is the
-# fallback and the one exercised by --selftest, which runs with no
-# kit.config in scope) plus the containment addition. Each entry is
-# (category, substring, source).
+# CERT_PATHS slots. This is a literal, hand-kept list, not a live read of
+# kit.config -- selftest case (h) asserts every JUDGE_PATHS entry the
+# box's own kit.config lists today matches one of these patterns, so a
+# drift between the two would be caught there, not read live. (--selftest
+# itself passes an explicit --bar to every case, so its verdicts do not
+# depend on whichever kit.config happens to be found on the run's own
+# search path -- see get_bar/read_kit_config, used only for the real,
+# non-selftest bar.) Each entry is (category, substring, source).
 JUDGE_SURFACE_PATTERNS = [
     ("gate", "modules/03-verification/verify.py", "kit.config JUDGE_PATHS"),
     ("gate", "gate_line.py", "kit.config JUDGE_PATHS (examples/ dir it ships from)"),
@@ -129,7 +133,7 @@ JUDGE_SURFACE_PATTERNS = [
     ("cert-token", "checks-registry.json", "kit.config JUDGE_PATHS"),
     ("threshold", "kit.config", "kit.config JUDGE_PATHS (lists itself)"),
     ("settings", ".claude/settings.json", "kit.config JUDGE_PATHS"),
-    ("containment", "capsule_containment", "this charter's sibling work; not shipped in the kit"),
+    ("containment", "capsule_containment", "names a tool outside this kit; not shipped here"),
 ]
 
 # NEW_CLAIM_PATTERNS: a new (added) file matching one of these substrings
@@ -236,10 +240,20 @@ def load_diff_text(diff_range: str | None, repo: str | None, patch_file: str | N
         if ".." not in diff_range:
             raise UnreadableInput(f"diff range has no '..': {diff_range!r}")
         rev1, rev2 = diff_range.split("..", 1)
+        # Refuse a rev that begins with '-': git would read it as an
+        # option, not a revision (finding 1, round 1 review -- an
+        # "--output=<path>..HEAD" value reached git unguarded and wrote a
+        # file at <path>). Caught here, before any subprocess starts.
+        for rev in (rev1, rev2):
+            if rev.startswith("-"):
+                raise UnreadableInput(
+                    f"diff range revision refused, begins with '-': {rev!r} -- "
+                    "looks like a git option smuggled through the rev slot"
+                )
         cmd = ["git"]
         if repo:
             cmd += ["-C", repo]
-        cmd += ["diff", rev1, rev2]
+        cmd += ["diff", rev1, rev2, "--"]
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
         except OSError as e:
@@ -338,10 +352,15 @@ def score_new_claim(files: list[DiffFile]):
 
 
 def score_size(files: list[DiffFile]) -> int:
+    """+1 per 300 changed lines, floored: nothing under 300 changed lines
+    scores (finding 5, round 1 review -- ceiling division previously
+    awarded +1 to any non-empty diff). Selftest case (d)'s NEW_TOOL_DIFF
+    is sized to exactly 300 changed lines on purpose: its bar-1 assertion
+    (OFFICER) depends on this term's +1, pinned deliberately rather than
+    left incidental -- see case (g) for the analogous, deliberate test of
+    AUTHORITY's own crossing."""
     changed = sum(f.added + f.removed for f in files)
-    if changed <= 0:
-        return 0
-    return min(3, -(-changed // 300))  # ceil division
+    return min(3, changed // 300)  # floor division
 
 
 def score_outward(charter_text: str):
@@ -466,14 +485,35 @@ index 1111111..2222222 100644
 +new line
 """
 
-NEW_TOOL_DIFF = """diff --git a/tools/new_lint.py b/tools/new_lint.py
+# NEW_TOOL_DIFF is sized to exactly 300 changed lines on purpose, not by
+# accident: case (d)'s bar-1 assertion depends on SIZE's +1 (see the
+# comment beside score_size), and after finding 5's floor fix nothing
+# under 300 lines scores, so the padding below pins that dependency
+# deliberately instead of leaving it incidental.
+_NEW_TOOL_PADDING = "".join(
+    f"+# padding line {i:03d} to cross the SIZE floor at 300 changed lines\n"
+    for i in range(297)
+)
+NEW_TOOL_DIFF = (
+    "diff --git a/tools/new_lint.py b/tools/new_lint.py\n"
+    "new file mode 100644\n"
+    "index 0000000..3333333\n"
+    "--- /dev/null\n"
+    "+++ b/tools/new_lint.py\n"
+    "@@ -0,0 +1,300 @@\n"
+    "+#!/usr/bin/env python3\n"
+    "+# a new lint with a --selftest\n"
+    + _NEW_TOOL_PADDING +
+    "+def main(): pass\n"
+)
+
+NEW_FILE_SMALL_DIFF = """diff --git a/tools/tiny_lint.py b/tools/tiny_lint.py
 new file mode 100644
-index 0000000..3333333
+index 0000000..4444444
 --- /dev/null
-+++ b/tools/new_lint.py
-@@ -0,0 +1,3 @@
++++ b/tools/tiny_lint.py
+@@ -0,0 +1,2 @@
 +#!/usr/bin/env python3
-+# a new lint with a --selftest
 +def main(): pass
 """
 
@@ -484,6 +524,12 @@ CHARTER_PUSH = ("# PUSH CHARTER\n\nItem 3: push the branch to the remote and tag
 
 CHARTER_SUGGESTS = ("# SUGGESTS CHARTER\n\nThe component suggests, never routes; "
                      "it never runs a review and never edits anything.\n")
+
+CHARTER_AUTHORITY = ("# AUTHORITY CHARTER\n\nThis build requires an authorized, "
+                      "signed step before it proceeds.\n")
+
+CHARTER_AUTHORITY_STRIPPED = ("# AUTHORITY CHARTER\n\nThis build requires a step "
+                               "before it proceeds.\n")
 
 
 def _invert_judge_surface_case_a(tmp: Path) -> bool:
@@ -497,7 +543,7 @@ def _invert_judge_surface_case_a(tmp: Path) -> bool:
     saved = JUDGE_SURFACE_PATTERNS
     JUDGE_SURFACE_PATTERNS = []
     try:
-        result = run_score(str(charter), None, None, str(diff), None)
+        result = run_score(str(charter), None, None, str(diff), 3)
     finally:
         JUDGE_SURFACE_PATTERNS = saved
     return result["verdict"] != "OFFICER"
@@ -510,7 +556,7 @@ def selftest() -> int:
         # (a) a patch touching a hook file reads OFFICER
         charter = _mk(tmp_root, "charter_a.md", CHARTER_PLAIN)
         diff = _mk(tmp_root, "a.diff", HOOK_DIFF)
-        r = run_score(str(charter), None, None, str(diff), None)
+        r = run_score(str(charter), None, None, str(diff), 3)
         if r["verdict"] != "OFFICER":
             problems.append(f"case (a): expected OFFICER, got {r['verdict']} ({r})")
         term_names = [t["name"] for t in r["terms"]]
@@ -525,14 +571,14 @@ def selftest() -> int:
         # (b) a docs-only patch with no outward step reads GATES-ONLY
         charter = _mk(tmp_root, "charter_b.md", CHARTER_PLAIN)
         diff = _mk(tmp_root, "b.diff", DOCS_DIFF)
-        r = run_score(str(charter), None, None, str(diff), None)
+        r = run_score(str(charter), None, None, str(diff), 3)
         if r["verdict"] != "GATES-ONLY":
             problems.append(f"case (b): expected GATES-ONLY, got {r['verdict']} ({r})")
 
         # (c) a charter naming a push reads OFFICER on a one-line diff
         charter = _mk(tmp_root, "charter_c.md", CHARTER_PUSH)
         diff = _mk(tmp_root, "c.diff", ONE_LINE_DIFF)
-        r = run_score(str(charter), None, None, str(diff), None)
+        r = run_score(str(charter), None, None, str(diff), 3)
         if r["verdict"] != "OFFICER":
             problems.append(f"case (c): expected OFFICER, got {r['verdict']} ({r})")
         if "OUTWARD" not in [t["name"] for t in r["terms"]]:
@@ -542,7 +588,7 @@ def selftest() -> int:
         # reads GATES-ONLY at the default bar and OFFICER at bar 1
         charter = _mk(tmp_root, "charter_d.md", CHARTER_SUGGESTS)
         diff = _mk(tmp_root, "d.diff", NEW_TOOL_DIFF)
-        r_default = run_score(str(charter), None, None, str(diff), None)
+        r_default = run_score(str(charter), None, None, str(diff), 3)
         if r_default["verdict"] != "GATES-ONLY":
             problems.append(f"case (d) default bar: expected GATES-ONLY, got {r_default['verdict']} ({r_default})")
         r_bar1 = run_score(str(charter), None, None, str(diff), 1)
@@ -556,10 +602,60 @@ def selftest() -> int:
         charter = _mk(tmp_root, "charter_e.md", CHARTER_PLAIN)
         missing = tmp_root / "does_not_exist.diff"
         try:
-            run_score(str(charter), None, None, str(missing), None)
+            run_score(str(charter), None, None, str(missing), 3)
             problems.append("case (e): expected UnreadableInput, got a result")
         except UnreadableInput:
             pass
+
+        # (f) a --diff-range value that smuggles a git option into the rev
+        # slot is refused before git ever runs, and no file appears at the
+        # smuggled path (finding 1: previously "--output=<path>..HEAD"
+        # reached git unguarded and wrote a file there).
+        charter = _mk(tmp_root, "charter_f.md", CHARTER_PLAIN)
+        smuggled_target = tmp_root / "case_f_smuggled_output.txt"
+        smuggled_range = f"--output={smuggled_target}..HEAD"
+        try:
+            run_score(str(charter), smuggled_range, ".", None, 3)
+            problems.append("case (f): expected UnreadableInput, got a result")
+        except UnreadableInput:
+            pass
+        if smuggled_target.exists():
+            problems.append(f"case (f): a file appeared at the smuggled path: {smuggled_target}")
+
+        # (g) AUTHORITY: a charter naming an authorization and a signed
+        # word fires the term, and removing those words moves the verdict
+        # at the default bar (finding 2 -- AUTHORITY was, until this case,
+        # never exercised by --selftest at all; stubbing score_authority
+        # dead left the suite at 5/5 passed).
+        charter_auth = _mk(tmp_root, "charter_g.md", CHARTER_AUTHORITY)
+        charter_auth_stripped = _mk(tmp_root, "charter_g_stripped.md", CHARTER_AUTHORITY_STRIPPED)
+        diff_g = _mk(tmp_root, "g.diff", NEW_FILE_SMALL_DIFF)
+        r_with = run_score(str(charter_auth), None, None, str(diff_g), 3)
+        if "AUTHORITY" not in [t["name"] for t in r_with["terms"]]:
+            problems.append(f"case (g): AUTHORITY did not fire ({r_with})")
+        if r_with["verdict"] != "OFFICER":
+            problems.append(f"case (g) with authority words: expected OFFICER, got {r_with['verdict']} ({r_with})")
+        r_without = run_score(str(charter_auth_stripped), None, None, str(diff_g), 3)
+        if r_without["verdict"] != "GATES-ONLY":
+            problems.append(f"case (g) without authority words: expected GATES-ONLY, got {r_without['verdict']} ({r_without})")
+        if r_with["verdict"] == r_without["verdict"]:
+            problems.append("case (g): removing the authorization/signed words did not move the verdict")
+
+        # (h) every JUDGE_PATHS entry the box's own kit.config lists today
+        # is covered by some pattern in JUDGE_SURFACE_PATTERNS (finding 6:
+        # the pattern list is a hand-kept copy, not a live read, so a drift
+        # between the two would otherwise be silent).
+        cfg = read_kit_config(Path(__file__).resolve().parent)
+        configured = [p.strip() for p in cfg.get("JUDGE_PATHS", "").split(",") if p.strip()]
+        if not configured:
+            problems.append("case (h): kit.config's JUDGE_PATHS read empty -- nothing to check")
+        uncovered = []
+        for path in configured:
+            low = path.replace("\\", "/").lower()
+            if not any(pattern.lower() in low for _, pattern, _ in JUDGE_SURFACE_PATTERNS):
+                uncovered.append(path)
+        if uncovered:
+            problems.append(f"case (h): JUDGE_PATHS entries not covered by any pattern: {uncovered}")
     finally:
         shutil.rmtree(tmp_root, ignore_errors=True)
 
@@ -568,7 +664,7 @@ def selftest() -> int:
         for p in problems:
             print(f"  - {p}")
         return 1
-    print("READ TRIAGE SELFTEST: 5/5 cases passed (a-e), inversion proven on (a)")
+    print("READ TRIAGE SELFTEST: 8/8 cases passed (a-h), inversion proven on (a)")
     return 0
 
 
