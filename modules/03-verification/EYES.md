@@ -194,7 +194,7 @@ adoption.
   computed with CRLF normalized to LF at both write and check, so
   `core.autocrlf` (on by default for Git for Windows) does not turn a
   clean checkout into a false `STALE`. `.gitattributes` also pins every
-  file under `examples/**` to `text eol=lf`, so the committed example's
+  file under `examples/**` to `text=auto eol=lf`, so the committed example's
   own bytes stop moving across checkouts in the first place.
 - **A render fails outright:** any non-zero render (a timeout, a crash, a
   viewport whose PNG never gets written) exits 2 with the same three-part
@@ -209,5 +209,5 @@ adoption.
   after that is withheld outright.
 - **Model drift on the catalog:** the fixture with its four known yes-rows
   is the calibration instrument, available on demand via `look --fixture`,
-  and `--selftest` section I judges a reader's answers against it rather
+  and `--selftest` section H judges a reader's answers against it rather
   than comparing a constant to itself.
