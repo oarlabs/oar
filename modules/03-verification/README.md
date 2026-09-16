@@ -15,6 +15,11 @@ the checks that command runs when nothing comes free.
 | `examples/pytest_suites/` | The six fixture suites `gate_line.py --capture-golden` runs for real — all pass, pass with skips, failures, errors, a collapsed collection, a deselected subset. |
 | `examples/pytest-golden.json` | What pytest actually reported for those six, captured and committed. `gate_line.py --selftest` replays it. |
 | `ORACLE-WORKSHEET.md` | How to manufacture a check when no oracle comes free: five shapes, a per-check worksheet, five laws, the continuity gate, and the escape rate. |
+| `eyes.py` | A screenshot instrument and a look-quality loop, level 1. Stock Python, no dependency. `shot`/`ears` render an isolated, headless Chromium at named viewports and write PNGs plus a manifest; `look` prints a fixed ten-question catalog for a reader to answer; `gate` is what `verify.py`'s `eyes` entry runs. Never opens the owner's own browser or profile — see `EYES.md`. |
+| `EYES.md` | The page for the above: the three verbs, the gate line, decisions 5 and 6 (network-blocked-by-default, never the owner's own browser), and what a pixel check does not prove. |
+| `examples/eyes-page/index.html` | Example gate payload — a small, deliberately defect-free static page, the module's own render target for the `eyes` gate. Replace it with your own page on adoption. |
+| `examples/eyes-render/` | The committed render of the page above: two viewports' PNGs, manifests, console captures, and a hand-answered `look-report.json` — the fixture the shipped `eyes` gate reads. |
+| `examples/eyes-fixture/before-1280.png` | The calibration fixture: a real "before" screenshot with four known catalog defects (items 1, 2, 5, 7). `eyes.py look --fixture` prints the expected answers. |
 
 ## Adopt it — the commands, in a working order
 
@@ -35,8 +40,16 @@ cp /path/to/kit/modules/04-ledgers/JUDGMENT-LEDGER.md     docs/    # module 04 o
 cp /path/to/kit/kit.config.example                        kit.config
 # substitute the kit's modules/02-enforcement/settings.json.template
 # into .claude/settings.json           (module 02 only)
+cp /path/to/kit/modules/03-verification/eyes.py            tools/   # optional: the eyes gate
 python tools/verify.py --list
 ```
+
+**The `eyes` gate is optional and needs a real browser to render with**
+(Edge, Chrome or Chromium — see `EYES.md`'s discovery order). Point its
+`cmd` at your own page and rendered output, or delete the `eyes` entry from
+`GATES` and `RUN_ORDER` the same way an unwanted `hooks`/`escapes` entry is
+deleted (Step 0 of *Adapting it*, below) — it names no other module's
+files, so nothing else breaks if you drop it.
 
 **No module 02, or no module 04?** Then do Step 0 of *Adapting it* below
 first — the shipped `RUN_ORDER` names one gate that needs module 02's files

@@ -1480,6 +1480,20 @@
    "expectation_from": "prose-budgets.json",
    "seen_red": "2026-08-26",
    "reason": "Records (rationale, history) live in the private repo or the vault, never the public mirror (owner ruling 2026-08-26). With --public-root, a docs/records/ directory in the public tree fails. WIRING, stated honestly: kit CI cannot run this half (no public tree exists there); the call site is step 4 of the program's RELEASE-CHECKLIST.md (the program records repo docs/, minted at the prose-floor review) - a procedural layer, named as such. Selftest forces the red."
+  },
+  {
+   "id": "selftest:eyes",
+   "subject": "modules/03-verification/eyes.py:judging-layer",
+   "expectation_from": "inline",
+   "seen_red": "2026-09-16",
+   "reason": "NOT a waiver. The pure gate-judging layer (judge_state), the PNG decoder and blank check, the isolation-by-construction proof over build_shot_cmd/build_version_cmd, the network default, and the console extractor's exclusion of Chromium's own internal logging and of chrome-extension:// CONSOLE lines are each forced red on a planted bad input before the real path is registered - see eyes.py --selftest sections A-H."
+  },
+  {
+   "id": "gate:eyes",
+   "subject": "modules/03-verification/eyes.py",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "2026-09-16",
+   "reason": "A second, independent reading of the same required-line contract eyes.py itself prints, the same reason gate:hooks and gate:escapes carry this split. verify.py --selftest section B3 forces UNSEEN, STALE, NO-BROWSER and a zero-shots floor breach red against the live GATES[\"eyes\"] entry, each before the SEEN case is shown green."
   }
  ]
 }

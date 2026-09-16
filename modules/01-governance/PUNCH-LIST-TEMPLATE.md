@@ -94,6 +94,31 @@ mode with a cost column. See the standing rules, "WHEN THE LOOP ENDS".
 **Round totals:** items <n> · escapes <n> of <n> · halts raised <n> ·
 UNCHECKED closures <n>
 
+---
+
+## Part 5 — THE EYES CATALOG (any round that changed a rendered page)
+
+One row per question per viewport, from `eyes.py look` (module 03,
+`EYES.md`) against the PNG and the ears file. A yes is a punch item in
+Part 1's row shape, with the evidence column naming the PNG.
+
+| # | Question | Yes/No | Viewport | Locator | Punch item # |
+|---|---|---|---|---|---|
+| 1 | Cut-off text: an ellipsis, a clipped glyph at an edge, a first or last character missing. | | | | |
+| 2 | Overflow: a scrollbar where the design has none; content past the viewport edge. | | | | |
+| 3 | Overlap: one element drawn over another. | | | | |
+| 4 | Alignment: a row whose items do not share a baseline; a grid with a ragged column; a control block that does not line up with its label. | | | | |
+| 5 | Reflow on state change: rendered twice (idle and lit, empty and full), elements that moved between the two. | | | | |
+| 6 | Contrast: text or a state color unreadable against its ground. | | | | |
+| 7 | Indistinguishable labels: two elements that read the same after truncation. | | | | |
+| 8 | Empty regions: a panel with nothing in it; a blank render. | | | | |
+| 9 | The wrong state rendered: a lamp color that disagrees with the data the page claims. | | | | |
+| 10 | The ears: any JavaScript error, failed fetch or warning in the log. | | | | |
+
+A page shipped with no Part 5 filled in is a page nobody looked at. This is
+not optional evidence; it is the level-0 rule (render, read the PNG, write
+one line) given a fixed shape so every round answers the same list.
+
 Zero halts across a phase is a finding, not a success. Publish the escape rate
 in the stage report whether it moved or not.
 

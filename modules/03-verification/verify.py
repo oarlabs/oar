@@ -262,6 +262,11 @@ REPO, REPO_HOW = find_repo_root(
 JUDGE_PATHS = [
     "modules/03-verification/verify.py",
     "modules/03-verification/examples",
+    # eyes.py decides what green MEANS for the `eyes` gate below (the PNG
+    # existence/freshness/dimension/blank checks and the required-line
+    # shape all live there), the same reason hook_model_gate.py is listed
+    # for `hooks` rather than assumed covered by the examples entry above.
+    "modules/03-verification/eyes.py",
     "modules/02-enforcement/hook_model_gate.py",
     "modules/02-enforcement/hook_fixtures.py",
     ".claude/settings.json",
@@ -465,6 +470,35 @@ GATES = {
         head=lambda m: "0 FAIL",
         doc="EXAMPLE - replace with your linter",
     ),
+
+    # ---- MODULE 03's OWN eyes.py. No adaptation needed to try it: this
+    #      gate reads the module's own committed example render
+    #      (examples/eyes-render), the way example_unit/example_lint read
+    #      the module's own committed example scripts. Point it at your own
+    #      rendered output on adoption. -----------------------------------
+    # The mechanical half needs no model and runs first: the PNG exists, is
+    # fresh against the source's sha, has the requested dimensions, and is
+    # not blank. `eyes.py gate <dir>` computes that plus the catalog's
+    # answered/yes counts from a committed look-report.json and prints the
+    # one line below. NO-BROWSER and UNSEEN and STALE are vetoed the same
+    # way -- "the check did not run" and "the check passed" must never
+    # render alike, the same rule every other gate in this table follows.
+    "eyes": dict(
+        cmd=[sys.executable, "modules/03-verification/eyes.py", "gate",
+             "modules/03-verification/examples/eyes-render"],
+        timeout=60,
+        require=r"EYES:\s*state\s+(SEEN|UNSEEN|STALE|NO-BROWSER);"
+                r"\s*shots\s+(\d+);\s*viewports\s+([^;]*);"
+                r"\s*catalog\s+(\d+)/(\d+)\s+answered;\s*yes\s+(\d+)",
+        fail_pattern=r"state\s+(UNSEEN|STALE|NO-BROWSER)",
+        expect_min=1, min_group=2, min_label="shots",
+        head=lambda m: (f"{m.group(1)}, {m.group(2)} shots, catalog "
+                        f"{m.group(4)}/{m.group(5)}, yes {m.group(6)}"),
+        doc="a page was rendered, looked at against the ten-question "
+            "catalog, and the look is fresh against the source's sha -- or "
+            "the honest state word UNSEEN/STALE/NO-BROWSER, never silently "
+            "green",
+    ),
 }
 
 # Gates whose verdict is COMPUTED, not pattern-matched. --nc cannot doctor a
@@ -479,7 +513,7 @@ GIT_DEPENDENT_GATES = {"judges"}
 # RUN ORDER, and it is deliberate: cheap structural gates first (a red judge
 # means the expensive gates would be certifying the wrong tree anyway), then
 # fast checks, then slow ones, then anything that needs a screen or a device.
-RUN_ORDER = ["judges", "hooks", "escapes", "example_unit", "example_lint"]
+RUN_ORDER = ["judges", "hooks", "escapes", "example_unit", "example_lint", "eyes"]
 
 NC_KEYS = {"require", "fail_pattern", "expect_min"}
 
@@ -1128,6 +1162,42 @@ def selftest() -> int:
                   if "TREND" not in l))[0], False)
         check("escapes NC: an ABSENT required line fails",
               judge_gate(GATES["escapes"], "all good here!\n")[0], False)
+
+    # ---- the `eyes` gate -----------------------------------------------
+    # GUARDED the same way B2 is: eyes.py's own --selftest proves its pure
+    # judging layer (the state machine, the PNG decoder, the blank check,
+    # the console extractor); what belongs HERE is that this table's
+    # require/fail_pattern/expect_min actually judge the line eyes.py
+    # prints the way this file's own doctrine says every gate must be
+    # provable -- a second, independent reading of the same contract.
+    if "eyes" in GATES:
+        print(c(BOLD, "\n=== B3. the `eyes` gate: state word and counts ==="))
+        eyes_seen = ("EYES: state SEEN; shots 2; viewports 1280x720,"
+                     "1920x1080; catalog 20/20 answered; yes 0\n")
+        check("eyes: a SEEN line with a full catalog passes",
+              judge_gate(GATES["eyes"], eyes_seen)[0], True)
+        check("eyes: the headline carries the catalog and yes count",
+              judge_gate(GATES["eyes"], eyes_seen)[1],
+              "SEEN, 2 shots, catalog 20/20, yes 0")
+        check("eyes: UNSEEN is vetoed even though the line is well-formed",
+              judge_gate(GATES["eyes"],
+                         "EYES: state UNSEEN; shots 0; viewports ; "
+                         "catalog 0/0 answered; yes 0\n")[0], False)
+        check("eyes: STALE is vetoed",
+              judge_gate(GATES["eyes"],
+                         "EYES: state STALE; shots 2; viewports 1280x720; "
+                         "catalog 0/0 answered; yes 0\n")[0], False)
+        check("eyes: NO-BROWSER is vetoed, never a silent green",
+              judge_gate(GATES["eyes"],
+                         "EYES: state NO-BROWSER; shots 0; viewports ; "
+                         "catalog 0/0 answered; yes 0\n")[0], False)
+        check("eyes: zero shots breaches the floor even if state says SEEN "
+              "(a well-formed line describing nothing)",
+              judge_gate(GATES["eyes"],
+                         "EYES: state SEEN; shots 0; viewports ; "
+                         "catalog 0/0 answered; yes 0\n")[0], False)
+        check("eyes: an absent required line fails",
+              judge_gate(GATES["eyes"], "nothing rendered today\n")[0], False)
 
     print(c(BOLD, "\n=== C. the dirty-tree judge (the `judges` gate) ==="))
     check("a clean porcelain parses to nothing", parse_porcelain(""), [])
