@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!--
+EYES example page -- the module's own render target for the `eyes` gate in
+verify.py, the way `examples/fake_suite.py` and `examples/fake_lint.py` are
+the module's own targets for `example_unit` and `example_lint`. Deliberately
+small and defect-free, so the committed render honestly answers "no" to
+every catalog question and the gate's `yes` count stays at 0.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EYES example page</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #10151c; color: #e8edf2;
+               font-family: -apple-system, Segoe UI, sans-serif; }
+  .wrap { box-sizing: border-box; width: 100%; min-height: 100vh;
+          padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 12px 0; }
+  p { font-size: 14px; line-height: 1.5; max-width: 40em; }
+  .row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .card { border: 1px solid #33404d; border-radius: 6px; padding: 10px 14px;
+          background: #1b232c; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EYES example page</h1>
+  <p>A static page with no script, no network fetch, and no state change --
+  the module's own render target for the <code>eyes</code> gate in
+  <code>verify.py</code>. It carries no defect against the ten-question
+  catalog, on purpose, so the shipped example render's <code>yes</code>
+  count is honestly zero.</p>
+  <div class="row">
+    <div class="card">card one</div>
+    <div class="card">card two</div>
+    <div class="card">card three</div>
+  </div>
+</div>
+</body>
+</html>

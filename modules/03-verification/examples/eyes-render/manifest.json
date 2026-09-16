@@ -1,0 +1,32 @@
+{
+  "source": "modules/03-verification/examples/eyes-page/index.html",
+  "source_sha256": "a16bee6a235addf98566a4456e727dbfcd7f2c3cf3cd8d816a18adb02262258a",
+  "generated_at": "2026-09-16T16:02:59Z",
+  "scale": 1,
+  "network": {
+    "blocked_by_default": true,
+    "allowed_hosts": []
+  },
+  "viewports": [
+    {
+      "name": "1280x720",
+      "width": 1280,
+      "height": 720,
+      "png": "index-1280x720.png",
+      "rc": 0,
+      "console": "index-1280x720.console.txt"
+    },
+    {
+      "name": "1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "png": "index-1920x1080.png",
+      "rc": 0,
+      "console": "index-1920x1080.console.txt"
+    }
+  ],
+  "browser": {
+    "name": "msedge.exe",
+    "version": "153.0.4234.32"
+  }
+}

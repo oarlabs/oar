@@ -1,0 +1,13 @@
+{
+  "_comment": "Answered by hand, reading index-1280x720.png and index-1920x1080.png with a file-reading tool and index-*.console.txt for item 10. The example page is deliberately defect-free, so every answer is honestly 'no' and yes=0. See EYES.md for what this file's shape means and how the `eyes` gate reads it.",
+  "answers": {
+    "1280x720": {
+      "1": "no", "2": "no", "3": "no", "4": "no", "5": "no",
+      "6": "no", "7": "no", "8": "no", "9": "no", "10": "no"
+    },
+    "1920x1080": {
+      "1": "no", "2": "no", "3": "no", "4": "no", "5": "no",
+      "6": "no", "7": "no", "8": "no", "9": "no", "10": "no"
+    }
+  }
+}
