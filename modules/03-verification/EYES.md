@@ -18,9 +18,10 @@ blank checks running first and needing no model. See
 seen-red dates.
 
 Level 1 only. Level 2 (a caged, interactive browser with fixed verbs — open,
-click, type, read, shot) is held, WARDROOM-side, per
-`librarian/DESIGN-EYES-20260915.md` section 3 in the ready-room seat's own
-records. This module does not need it and does not build toward it.
+click, type, read, shot) is held, planned but not built, per a private
+design record ("EYES — a screenshot instrument and a look-quality loop,"
+2026-09-15, section 3). This module does not need it and does not build
+toward it.
 
 ## The three verbs, plus the gate
 
@@ -94,10 +95,13 @@ signatures, so the claim is checked, not merely stated.
 
 When the isolated path cannot do the job — a page behind a login, a session
 only the owner's own profile holds, a render the isolated path genuinely
-cannot produce — `shot` does not fall back. It stops (exit 2, when the
-source itself cannot be reached at all) and the finding is named to the
-owner, at his own prompt, by a person: which page, why the isolated render
-failed, what the local browser would expose. There is no
+cannot produce — `shot` does not fall back. It stops: exit 2, on the
+source itself not being reachable at all, and exit 2 again, with the same
+three-part ask, on any render that comes back non-zero (a timeout, a
+crash, a viewport that never wrote its PNG) — never a bare exit 1 with
+"see logs." Either way the ask names the page, why the isolated render
+failed, and what the local browser would expose, to the owner, at his own
+prompt, by a person. There is no
 `--use-local-profile` flag and there will not be one.
 
 ## The catalog
@@ -122,9 +126,8 @@ list.
 ## The fixture
 
 `examples/eyes-fixture/before-1280.png` is a real "before" screenshot from
-this seat's own PANEL board work (`librarian/lights-panel-2/before-1280.png`
-at the ready-room seat, copied in — not rendered by this tool, since it
-predates it). Its documented, known answers are **yes on items 1, 2, 5 and
+an earlier UI pass, copied in — not rendered by this tool, since it
+predates it. Its documented, known answers are **yes on items 1, 2, 5 and
 7** (a clipped readout line, tell-tales cut at the panel's bottom, a grid
 reflow, and nine plates reading the same word) — `look --fixture` prints
 exactly this set. A reader whose own reading of the fixture misses one of
@@ -187,5 +190,24 @@ adoption.
 - **A page stops being re-shot:** the manifest's source sha goes stale
   against the source file, the gate reports `STALE`, and `STALE` is
   vetoed — a rotted look never certifies as current.
+- **A checkout changes a source page's line endings:** `source_sha256` is
+  computed with CRLF normalized to LF at both write and check, so
+  `core.autocrlf` (on by default for Git for Windows) does not turn a
+  clean checkout into a false `STALE`. `.gitattributes` also pins every
+  file under `examples/**` to `text eol=lf`, so the committed example's
+  own bytes stop moving across checkouts in the first place.
+- **A render fails outright:** any non-zero render (a timeout, a crash, a
+  viewport whose PNG never gets written) exits 2 with the same three-part
+  ask decision 6 names — never a bare exit 1 with "see logs."
+- **A source is given outside the repository:** `shot` refuses before
+  writing anything — `EYES: state NOT-RUN; source outside the
+  repository; copy it under the repository and run again`, exit 2 — so a
+  public-kit manifest can never carry a workstation absolute path for the
+  source. The same class, for `ears`' console capture: a kept `CONSOLE`
+  line has the source's own directory replaced with `<source>`, and any
+  line that still matches a drive-letter or `/Users/`/`/home/` pattern
+  after that is withheld outright.
 - **Model drift on the catalog:** the fixture with its four known yes-rows
-  is the calibration instrument, available on demand via `look --fixture`.
+  is the calibration instrument, available on demand via `look --fixture`,
+  and `--selftest` section I judges a reader's answers against it rather
+  than comparing a constant to itself.

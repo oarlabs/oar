@@ -1,7 +1,7 @@
 {
   "source": "modules/03-verification/examples/eyes-page/index.html",
   "source_sha256": "a16bee6a235addf98566a4456e727dbfcd7f2c3cf3cd8d816a18adb02262258a",
-  "generated_at": "2026-09-16T16:02:59Z",
+  "generated_at": "2026-09-16T16:27:45Z",
   "scale": 1,
   "network": {
     "blocked_by_default": true,

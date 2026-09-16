@@ -95,6 +95,23 @@ CATALOG = [
 FIXTURE_EXPECTED_YES = {1, 2, 5, 7}
 FIXTURE_SOURCE_REL = "modules/03-verification/examples/eyes-fixture/before-1280.png"
 
+
+def judge_fixture_reading(look_report: dict) -> tuple:
+    """(ok, detail). PURE -- the fixture oracle DESIGN-EYES section 5
+    requires: a reader's own answers are JUDGED against the fixture's
+    known yes-rows, not compared to the constant that produced them.
+    `look_report` is look-report.json's own shape, keyed by viewport;
+    the fixture's answers live under the "fixture" viewport key. `ok` is
+    True only if every item in FIXTURE_EXPECTED_YES reads "yes"; a miss
+    is named in `detail`, not just failed silently -- a reader missing
+    item 5 and a reader missing item 1 are different miscalibrations."""
+    answers = (look_report.get("answers") or {}).get("fixture", {})
+    missed = sorted(i for i in FIXTURE_EXPECTED_YES
+                     if answers.get(str(i)) != "yes")
+    if missed:
+        return False, f"reading misses expected yes on item(s) {missed}"
+    return True, ""
+
 DEFAULT_VIEWPORT_SPEC = "1280x720,1920x1080,400x850"
 
 # ==========================================================================
@@ -454,18 +471,33 @@ def repo_root(start: Path) -> Path:
 
 
 def rel_to_repo(p: Path, root: Path) -> str:
-    try:
-        return str(Path(p).resolve().relative_to(root.resolve())).replace("\\", "/")
-    except ValueError:
-        return str(p)
+    """Repo-relative form of p under root. Raises ValueError when p is
+    not under root -- it no longer falls back to str(p). That fallback
+    was the leak: a source outside the repository produced a full
+    workstation absolute path (drive letter and all) in a public-kit
+    manifest. The caller (cmd_shot) decides what 'outside the
+    repository' means for a render request; this function stops
+    offering a path that means one."""
+    return str(Path(p).resolve().relative_to(root.resolve())).replace("\\", "/")
+
+
+def normalize_eol(data: bytes) -> bytes:
+    """CRLF -> LF, PURE. The manifest's source_sha256 must be stable
+    across any checkout of the same source, and `core.autocrlf` (on by
+    default in Git for Windows) means the same committed file is bytes-
+    different as CRLF here and LF elsewhere. Normalizing at both write
+    (cmd_shot) and check (compute_gate_line's staleness test) closes
+    that -- see --selftest section I."""
+    return data.replace(b"\r\n", b"\n")
 
 
 def sha256_file(p: Path) -> str:
-    h = hashlib.sha256()
-    with open(p, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
+    """Source hash with line endings normalized first (normalize_eol) --
+    a full read, not chunked, because the CRLF->LF substitution has to
+    see whole lines rather than a chunk boundary that might split a
+    \\r\\n pair. Source pages are small text files; this is not a bulk
+    hasher."""
+    return hashlib.sha256(normalize_eol(Path(p).read_bytes())).hexdigest()
 
 
 def parse_viewports(spec: str):
@@ -495,8 +527,16 @@ def parse_viewports(spec: str):
 CONSOLE_LINE = re.compile(
     r":CONSOLE:\d+\]\s+(?P<msg>.*?),\s+source:\s+(?P<source>\S+)\s+\((?P<line>\d+)\)\s*$")
 
+# A drive letter (C:\ or C:/) or a /Users/ or /home/ path -- the same
+# workstation-path shape the manifest leak (finding 2) closed for
+# `source`. A `file://` source's own CONSOLE line can carry this same
+# shape in its `source:` URL or its message text, and that is a second,
+# latent site for the same leak class.
+WORKSTATION_PATH_RE = re.compile(r"(?<![A-Za-z])[A-Za-z]:[\\/]|/Users/|/home/")
 
-def extract_console(log_path: Path, console_path: Path) -> list:
+
+def extract_console(log_path: Path, console_path: Path,
+                     source_dir: Path | None = None) -> list:
     """RESIDUAL, disclosed rather than hidden: this reliably surfaces a
     page's own console.error, console.warn and uncaught exceptions, because
     Chromium tags all three through the same CONSOLE line. It does NOT
@@ -505,14 +545,37 @@ def extract_console(log_path: Path, console_path: Path) -> list:
     printed a CONSOLE line in the planted probe unless the page's own
     script routed the failure to console itself. Catalog item 10 is
     therefore scoped to what Chromium actually reports, and EYES.md states
-    this rather than implying a fuller net than the tool casts."""
+    this rather than implying a fuller net than the tool casts.
+
+    Two redaction passes over every kept line, so a public-kit console
+    capture never carries a workstation path the way the manifest's
+    `source` field once could (finding 2):
+    1. `source_dir` (the rendered source's own absolute directory, given
+       by the caller) is replaced with the literal `<source>` wherever it
+       appears -- both path-separator forms, since a `file://` URL uses
+       forward slashes even on Windows.
+    2. Any line that STILL matches a drive-letter, /Users/ or /home/
+       pattern after that substitution is withheld outright, replaced by
+       `<line withheld: workstation path>`. This is a backstop for a path
+       this function was not told about (a browser cache dir, a temp
+       profile), not a claim the first pass catches everything."""
     text = (log_path.read_text(encoding="utf-8", errors="replace")
             if log_path.is_file() else "")
+    src_variants = []
+    if source_dir is not None:
+        resolved = str(Path(source_dir).resolve())
+        src_variants = [resolved, resolved.replace("\\", "/")]
     hits = []
     for ln in text.splitlines():
         m = CONSOLE_LINE.search(ln)
-        if m and not m.group("source").startswith("chrome-extension://"):
-            hits.append(ln)
+        if not m or m.group("source").startswith("chrome-extension://"):
+            continue
+        line = ln
+        for variant in src_variants:
+            line = line.replace(variant, "<source>")
+        if WORKSTATION_PATH_RE.search(line):
+            line = "<line withheld: workstation path>"
+        hits.append(line)
     console_path.write_text(
         ("\n".join(hits) + "\n") if hits else
         "no JavaScript error, failed resource load or warning captured\n",
@@ -534,8 +597,18 @@ def cmd_shot(args) -> int:
         print(f"EYES: source not found: {src}", file=sys.stderr)
         return 2
 
+    rel_source = None
+    if not is_url:
+        try:
+            rel_source = rel_to_repo(src_path, root)
+        except ValueError:
+            print("EYES: state NOT-RUN; source outside the repository; "
+                  "copy it under the repository and run again",
+                  file=sys.stderr)
+            return 2
+
     manifest = {
-        "source": src if is_url else rel_to_repo(src_path, root),
+        "source": src if is_url else rel_source,
         "source_sha256": None if is_url else sha256_file(src_path),
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "scale": args.scale,
@@ -572,6 +645,7 @@ def cmd_shot(args) -> int:
     target = src if is_url else str(src_path)
     stem = args.stem or (Path(src).stem if not is_url else "shot")
     ok_all = True
+    failed = []
     for name, w, h in parse_viewports(args.viewports):
         udd = out / "profiles" / f"{name}-{os.getpid()}-{int(time.time()*1000)}"
         udd.mkdir(parents=True, exist_ok=True)
@@ -590,16 +664,39 @@ def cmd_shot(args) -> int:
         entry = {"name": name, "width": w, "height": h, "png": png.name, "rc": rc}
         if args.ears:
             console_path = out / f"{stem}-{name}.console.txt"
-            extract_console(log_path, console_path)
+            extract_console(log_path, console_path,
+                             source_dir=None if is_url else src_path.parent)
             entry["console"] = console_path.name
         manifest["viewports"].append(entry)
-        ok_all = ok_all and rc == 0 and png.is_file()
+        viewport_ok = rc == 0 and png.is_file()
+        ok_all = ok_all and viewport_ok
+        if not viewport_ok:
+            why = f"timed out after {args.timeout}s" if rc == -1 else (
+                f"exit {rc}, no PNG written" if not png.is_file()
+                else f"exit {rc}")
+            failed.append(f"{name} ({why})")
 
     (out / "manifest.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8")
-    print(f"EYES: wrote {len(manifest['viewports'])} viewport(s) to {out} "
-          f"({'ok' if ok_all else 'one or more renders failed, see logs'})")
-    return 0 if ok_all else 1
+    if ok_all:
+        print(f"EYES: wrote {len(manifest['viewports'])} viewport(s) to "
+              f"{out} (ok)")
+        return 0
+    # Decision 6's three-part ask, not a bare "see logs": the render did
+    # not complete the isolated way; the ask is to the owner, at his own
+    # prompt, before anything falls back to a browser this tool does not
+    # control. A manifest is still written above -- the viewport entries
+    # and the rc are the evidence this message points at, not a silent
+    # gap.
+    print(
+        "EYES: state NOT-RUN; render failed for "
+        f"{manifest['source']}; the isolated render did not complete "
+        f"({'; '.join(failed)}); the local browser might reach what the "
+        "isolated profile could not (a login, a session, a cookie) -- "
+        "that is an ask to the owner, at his own prompt, never a "
+        "fallback this tool takes on its own; see EYES.md decision 6.",
+        file=sys.stderr)
+    return 2
 
 
 def cmd_ears(args) -> int:
@@ -889,7 +986,7 @@ def selftest() -> int:
         '[1:1:0916/000000.003:INFO:CONSOLE:5599] "extension console noise", '
         'source: chrome-extension://abc/background.js (5599)\n'
         '[1:1:0916/000000.004:INFO:CONSOLE:4] "a real page error", '
-        'source: file:///C:/site/page.html (4)\n'
+        'source: file:///site/page.html (4)\n'
         '[1:1:0916/000000.005:INFO:CONSOLE:9] "Uncaught TypeError: real", '
         'source: https://example.test/app.js (9)\n'
     )
@@ -908,10 +1005,98 @@ def selftest() -> int:
         check("...the chrome-extension:// CONSOLE line is excluded",
               any("extension console noise" in h for h in hits), False)
 
-    print("\n=== H. the fixture calibration set matches the plan's text ===")
-    check("fixture expected-yes is exactly {1, 2, 5, 7}",
-          FIXTURE_EXPECTED_YES, {1, 2, 5, 7})
+    print("\n=== H. the fixture oracle: a reader's own answers are judged, "
+          "not compared to a constant that produced them ===")
     check("the catalog has ten questions", len(CATALOG), 10)
+    correct_answers = {"answers": {"fixture": {
+        str(i): ("yes" if i in FIXTURE_EXPECTED_YES else "no")
+        for i, _ in CATALOG}}}
+    missing_answers = json.loads(json.dumps(correct_answers))  # deep copy
+    missing_answers["answers"]["fixture"]["5"] = "no"  # drops the reflow item
+    with tempfile.TemporaryDirectory(prefix="eyes-selftest-") as td:
+        correct_p = Path(td) / "look-report-correct.json"
+        missing_p = Path(td) / "look-report-missing.json"
+        correct_p.write_text(json.dumps(correct_answers), encoding="utf-8")
+        missing_p.write_text(json.dumps(missing_answers), encoding="utf-8")
+        ok_c, detail_c = judge_fixture_reading(
+            json.loads(correct_p.read_text(encoding="utf-8")))
+        check("a correct reading (yes on 1, 2, 5, 7) PASSES", ok_c, True)
+        check("...with no miss named", detail_c, "")
+        ok_m, detail_m = judge_fixture_reading(
+            json.loads(missing_p.read_text(encoding="utf-8")))
+        check("a reading missing item 5 REDS (RED, forced on a planted "
+              "miscalibration)", ok_m, False)
+        check("...names the missed item", "[5]" in detail_m, True)
+
+    print("\n=== I. content hashing is stable across line endings "
+          "(finding 1: the manifest's sha must not depend on "
+          "core.autocrlf) ===")
+    lf = b"<html>\n<body>same content</body>\n</html>\n"
+    crlf = lf.replace(b"\n", b"\r\n")
+    check("LF and CRLF forms of the same content normalize to the same "
+          "bytes", normalize_eol(crlf), lf)
+    check("...and therefore hash equal (RED case: a naive sha256 over raw "
+          "bytes would differ here)",
+          hashlib.sha256(normalize_eol(crlf)).hexdigest(),
+          hashlib.sha256(normalize_eol(lf)).hexdigest())
+    with tempfile.TemporaryDirectory(prefix="eyes-selftest-") as td:
+        lf_p, crlf_p = Path(td) / "lf.html", Path(td) / "crlf.html"
+        lf_p.write_bytes(lf)
+        crlf_p.write_bytes(crlf)
+        check("sha256_file agrees on an LF file and its CRLF twin",
+              sha256_file(lf_p), sha256_file(crlf_p))
+
+    print("\n=== J. rel_to_repo refuses a source outside the repository "
+          "(finding 2: no more falling back to a workstation absolute "
+          "path) ===")
+    with tempfile.TemporaryDirectory(prefix="eyes-selftest-repo-") as rd, \
+         tempfile.TemporaryDirectory(prefix="eyes-selftest-outside-") as od:
+        root = Path(rd)
+        inside = root / "inside.html"
+        inside.write_text("x", encoding="utf-8")
+        check("a source under the repo root resolves to a repo-relative "
+              "path", rel_to_repo(inside, root), "inside.html")
+        outside = Path(od) / "outside.html"
+        outside.write_text("x", encoding="utf-8")
+        raised = False
+        try:
+            rel_to_repo(outside, root)
+        except ValueError:
+            raised = True
+        check("a source outside the repo root RAISES (RED, forced) rather "
+              "than falling back to str(p)", raised, True)
+
+    print("\n=== K. extract_console redacts a workstation path in two "
+          "passes (finding 2, the latent console-capture leak) ===")
+    leaky_log = (
+        '[1:1:0916/000000.000:INFO:CONSOLE:2] "cannot load asset", '
+        'source: file:///C:/Users/somebody/proj/page.html (2)\n'
+        '[1:1:0916/000000.001:INFO:CONSOLE:3] "an ordinary page error", '
+        'source: https://example.test/app.js (3)\n'
+    )
+    with tempfile.TemporaryDirectory(prefix="eyes-selftest-") as td:
+        log_p = Path(td) / "k.stderr.log"
+        con_p = Path(td) / "k.console.txt"
+        log_p.write_text(leaky_log, encoding="utf-8")
+        hits_k = extract_console(log_p, con_p,
+                                  source_dir=Path(r"C:\Users\somebody\proj"))
+        check("the source's own directory is replaced with <source>",
+              "<source>/page.html" in hits_k[0], True)
+        check("...no drive letter or /Users/ survives in that line",
+              WORKSTATION_PATH_RE.search(hits_k[0]) is None, True)
+        check("the ordinary page-error line is untouched",
+              "an ordinary page error" in hits_k[1], True)
+    with tempfile.TemporaryDirectory(prefix="eyes-selftest-") as td:
+        log_p = Path(td) / "k2.stderr.log"
+        con_p = Path(td) / "k2.console.txt"
+        # No source_dir given (e.g. a URL source): the first pass cannot
+        # run, so the second pass -- the backstop -- must still withhold a
+        # line that carries an unrelated workstation path.
+        log_p.write_text(leaky_log, encoding="utf-8")
+        hits_k2 = extract_console(log_p, con_p, source_dir=None)
+        check("with no source_dir, the backstop still withholds a line "
+              "carrying a drive-letter path (RED, forced)",
+              hits_k2[0], "<line withheld: workstation path>")
 
     print(f"\n{n} checks; {'ALL PASS' if ok_all else 'FAILURES ABOVE'}")
     return 0 if ok_all else 1
