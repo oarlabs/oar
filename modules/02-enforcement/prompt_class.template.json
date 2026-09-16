@@ -1,0 +1,107 @@
+{
+  "__comment__": [
+    "TEMPLATE - the neutral default class lists and fixtures for",
+    "hook_prompt_class.py. Every word and every fixture phrase here is",
+    "invented for this file: no owner's words, no seat's shorthand.",
+    "",
+    "SHAPE: classes.<LABEL>.words (or .openers for QUESTION) is what tier 1",
+    "matches against a prompt. fixtures.<LABEL> is a list of {text, reason}",
+    "objects: ten neutral phrases per class, used by --selftest to grade",
+    "tier-1 accuracy and to build the tier-2 few-shot block.",
+    "",
+    "Copy this file's shape (not its words) into the path named by",
+    "kit.config's PROMPT_CLASS_FIXTURES to overlay or replace a class's",
+    "words or fixtures with your own -- see that key's comment in",
+    "kit.config. tools/hook_prompt_class.py --build-fixtures <ledger>",
+    "writes the RULING half of that overlay for you, from your own",
+    "JUDGMENT-LEDGER.md."
+  ],
+
+  "classes": {
+    "RULING": {
+      "words": ["adopt", "merge", "launch", "charter", "ratify", "approve",
+                "authorize", "go ahead", "sign off", "fund", "proceed with",
+                "commit to"]
+    },
+    "DESIGN": {
+      "words": ["does that make sense", "does that track",
+                "give me your read", "i am thinking", "just thought",
+                "what if we"]
+    },
+    "CAPTURE": {
+      "words": ["capture", "save this", "make a note", "log this",
+                "record this"]
+    },
+    "PRESENCE": {
+      "words": ["status", "you there", "still there", "report", "check in"]
+    },
+    "QUESTION": {
+      "openers": ["who", "what", "when", "where", "why", "how", "is", "are",
+                  "can", "could", "would", "should", "do", "does", "did",
+                  "will"]
+    }
+  },
+
+  "fixtures": {
+    "RULING": [
+      {"text": "Adopt the new logging module.", "reason": "go-word: adopt"},
+      {"text": "Merge the feature branch into main.", "reason": "go-word: merge"},
+      {"text": "Launch the nightly build now.", "reason": "go-word: launch"},
+      {"text": "Charter a new investigation lane.", "reason": "go-word: charter"},
+      {"text": "Ratify the vendor contract.", "reason": "go-word: ratify"},
+      {"text": "Approve the deployment plan.", "reason": "go-word: approve"},
+      {"text": "Authorize the purchase order.", "reason": "go-word: authorize"},
+      {"text": "Go ahead and start the migration.", "reason": "go-word: go ahead"},
+      {"text": "Sign off on the budget.", "reason": "go-word: sign off"},
+      {"text": "Fund the pilot program.", "reason": "go-word: fund"}
+    ],
+    "DESIGN": [
+      {"text": "I am thinking we should redesign the schema.", "reason": "tell: i am thinking"},
+      {"text": "Does that make sense given the constraints?", "reason": "tell: does that make sense"},
+      {"text": "Give me your read on the two options.", "reason": "tell: give me your read"},
+      {"text": "Just thought we could try a different layout.", "reason": "tell: just thought"},
+      {"text": "What if we split the service in two?", "reason": "tell: what if we"},
+      {"text": "Does that track with what you saw yesterday?", "reason": "tell: does that track"},
+      {"text": "I am thinking about splitting this into two services.", "reason": "tell: i am thinking"},
+      {"text": "Does that make sense as a first pass?", "reason": "tell: does that make sense"},
+      {"text": "What if we tried caching the results instead?", "reason": "tell: what if we"},
+      {"text": "Just thought I would mention the timeline risk.", "reason": "tell: just thought"}
+    ],
+    "CAPTURE": [
+      {"text": "Capture this requirement before the meeting ends.", "reason": "word: capture"},
+      {"text": "Capture the error message for the ticket.", "reason": "word: capture"},
+      {"text": "Save this diagram to the shared drive.", "reason": "word: save this"},
+      {"text": "Save this snippet in case we need it again.", "reason": "word: save this"},
+      {"text": "Make a note about the schedule slip.", "reason": "word: make a note"},
+      {"text": "Make a note of the customer's request.", "reason": "word: make a note"},
+      {"text": "Log this decision in the project record.", "reason": "word: log this"},
+      {"text": "Log this outage for the postmortem.", "reason": "word: log this"},
+      {"text": "Record this outcome before we move on.", "reason": "word: record this"},
+      {"text": "Record this conversation's action items.", "reason": "word: record this"}
+    ],
+    "PRESENCE": [
+      {"text": "Status update, please.", "reason": "word: status"},
+      {"text": "Status on the deployment, please.", "reason": "word: status"},
+      {"text": "You there, ready to continue.", "reason": "word: you there"},
+      {"text": "You there and ready to proceed.", "reason": "word: you there"},
+      {"text": "Still there after the network blip.", "reason": "word: still there"},
+      {"text": "Still there, standing by.", "reason": "word: still there"},
+      {"text": "Report at the top of the hour.", "reason": "word: report"},
+      {"text": "Report to the channel when done.", "reason": "word: report"},
+      {"text": "Check in once you land.", "reason": "word: check in"},
+      {"text": "Check in when the build finishes.", "reason": "word: check in"}
+    ],
+    "QUESTION": [
+      {"text": "What time does the build finish?", "reason": "opener: what"},
+      {"text": "How long will the migration take?", "reason": "opener: how"},
+      {"text": "Who owns this repository?", "reason": "opener: who"},
+      {"text": "Where is the configuration file kept?", "reason": "opener: where"},
+      {"text": "Why did the deployment fail?", "reason": "opener: why"},
+      {"text": "When does the next version come out?", "reason": "opener: when"},
+      {"text": "Is the server still running?", "reason": "opener: is"},
+      {"text": "Are the tests passing right now?", "reason": "opener: are"},
+      {"text": "Can you check the latest logs?", "reason": "opener: can"},
+      {"text": "Will this change break backward compatibility?", "reason": "opener: will"}
+    ]
+  }
+}
