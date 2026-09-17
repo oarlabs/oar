@@ -4,6 +4,11 @@
 # that carries absolute paths and the protected location.
 kit.config.local
 
+# hook_prompt_class.py's class-list/fixtures overlay -- the path named by
+# kit.config's PROMPT_CLASS_FIXTURES. Never the shipped
+# prompt_class.template.json, only the adopter's own overlay.
+prompt_class.local.json
+
 # Never commit a real de-identification token list: it is a tidy, greppable
 # index of exactly the words someone did not want published. The empty
 # instructional deident.tokens IS committed (it is force-added if needed).

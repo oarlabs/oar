@@ -8,7 +8,9 @@ The layer that makes a rule fire instead of merely being written down.
 |---|---|
 | `hook_model_gate.py` | A PreToolUse gate with four enforcement points: model tier on workflow `agent()` calls, model tier on agent spawns (plus a ban on naming the orchestrator tier), blanket-staging denial (`git add`/`stage` with `-A`, `-u`, `.`, `:/`, `*`, `git commit -a`, behind `git -C`, or indented in a block), and an optional protected-path tripwire with cert-green pre-authorisation. Three of the four are string heuristics with both error directions disclosed in the source. **Reads everything from `kit.config`; needs no editing.** |
 | `hook_fixtures.py` | The harness that judges the gate. Synthesised stdin payloads, an "is it armed?" settings check, an "does an unstartable hook BLOCK?" check (`--unstartable`), the dead-man clause, and `--make-deadman` so you can prove the clause fires before you trust it. |
-| `settings.json.template` | The harness wiring: `permissions.ask` for the protected path, one hook file at three PreToolUse matcher blocks (seven tool names), and the status-line command. Valid JSON with the slots inside strings, so `--armed` works on it unsubstituted. |
+| `settings.json.template` | The harness wiring: `permissions.ask` for the protected path, one hook file at three PreToolUse matcher blocks (seven tool names), one `UserPromptSubmit` entry for the classifier, and the status-line command. Valid JSON with the slots inside strings, so `--armed` works on it unsubstituted. |
+| `hook_prompt_class.py` | A `UserPromptSubmit` hook that tags each prompt with a class (RULING, DESIGN, CAPTURE, PRESENCE, QUESTION, or MIXED) and a suggested route, printed as one `PROMPT-CLASS:` line. It suggests; it never routes, blocks, or edits the prompt. See "The prompt classifier" below. |
+| `prompt_class.template.json` | The neutral, shipped class word-lists and ten example fixtures per class. No owner's or seat's words — this is the file `tools/deident_scan.py` is built to find nothing in. |
 
 ## Adopt it — the commands, in a working order
 
@@ -327,6 +329,78 @@ build a suite that reports green about nothing.
   would produce a *fuller* green than a correctly-disabled one.
 
   No path, tier or protected location is hard-coded in the hook.
+
+## The prompt classifier (`hook_prompt_class.py`)
+
+A `UserPromptSubmit` hook, not a `PreToolUse` gate — it runs on the prompt
+itself, before anything is read, and its only output is one advisory line:
+`PROMPT-CLASS: <label> · route <text> · by <rules|local:<model>> · <ms|cold>`.
+It never blocks, so its wiring in `settings.json.template` carries no
+`|| exit 2` — there is nothing to fail closed on.
+
+**Tier 1, always.** Deterministic word/phrase matching, case-insensitive,
+whole-word, against class lists that are DATA, never constants in this
+source file: `prompt_class.template.json` (shipped, neutral, ten fixtures
+per class) is the default, and `kit.config`'s `PROMPT_CLASS_FIXTURES` slot
+names a `kit.config.local` overlay that replaces a class's words or
+fixtures per class key — the same committed/gitignored split `kit.config`
+itself uses. A single class match is that label; two or more is `MIXED`;
+none is residue.
+
+**Tier 2, only on residue, only if configured.** `kit.config`'s `LOCAL_TIER`
+slot is `NONE` (tier 1 only, no call ever attempted) or `host:port/model`,
+no scheme. Any host that is not `127.0.0.1`, `localhost` or the bracketed
+IPv6 loopback (`[::1]`) is refused **by code**, before a single byte leaves
+the process — never merely by convention, and validated against the exact
+URL that would be requested (`urlsplit(url).hostname`), never a first-colon
+split on `host:port`, which is what let the userinfo form
+(`localhost:11434@<foreign-host>`) slip through before this fix pass. A
+`host:port` carrying an at-sign, a slash, a backslash or whitespace is
+refused outright, before a URL is even built. A `LOCAL_TIER` that is set
+but unusable (a scheme prefix, userinfo syntax, a non-loopback host, or
+otherwise malformed) prints one stderr line naming the reason, rather than
+degrading silently. On any failure (refused host, no server, timeout, an
+unparseable answer) the hook fails open to `UNSURE`, never guessing.
+`keep_alive: 30m` keeps a local model warm after the first (cold) call.
+
+**Adopt both files.** Copying `hook_prompt_class.py` alone is not enough:
+`prompt_class.template.json` must sit beside it (`TEMPLATE_FILE`, resolved
+relative to the hook's own directory) or every prompt reads `UNSURE`
+forever, silently — the floor check below (five classes, ten fixtures each)
+is what turns a missing template into a `FAIL` instead of a vacuous `PASS`.
+
+**The generator.** `hook_prompt_class.py --build-fixtures <ledger>` reads a
+`JUDGMENT-LEDGER.md`-shaped table, pulls the quoted ruling cell of each row
+(a row with no quotation — an `ORACLE-DECLINED` row, a lineage citation —
+is silently skipped), and writes them as `RULING` fixtures to the
+`PROMPT_CLASS_FIXTURES` path. Never into the repository, and never
+clobbering another class's overlay already written there.
+
+**`--selftest` runs 33 checks**, not just a green: every template fixture
+labels correctly; inverting the RULING word list into DESIGN's slot reds
+RULING's own accuracy (proof the accuracy check is live); five host:port
+forms that must all be refused before any call — a plain foreign host, the
+userinfo form, a non-loopback bracketed IPv6 literal, a trailing-dot host
+and a scheme-prefixed value — each asserted against the call counter, not
+just the returned label; the bracketed IPv6 loopback is admitted by the
+predicate and the bare, unbracketed form cannot be (fail-closed, not a
+defect); `LOCAL_TIER = NONE` never attempts a call (same counter); an empty
+prompt, non-JSON garbage and residue each read `UNSURE`, exit 0 — driven
+through `main()` itself with stubbed stdin, not just through `classify()`;
+the generator on a synthetic ledger writes the expected count to a temp
+path and touches neither this module's own directory nor the box's tracked
+tree (`git status --porcelain`); a mistyped `LOCAL_TIER` is diagnosed by
+name (scheme, userinfo, non-loopback, malformed); and a FLOOR — five
+classes present, ten fixtures each, a minimum check count — so a missing or
+empty template reads `FAIL`, never a vacuous `PASS`.
+
+`hook_fixtures.py`'s `--armed` check reads only the `PreToolUse` block, by
+its own design (`check_armed()`'s scope), so it does not — and is not
+extended here to — cover this `UserPromptSubmit` hook. There is no
+`--armed`-equivalent claim for this hook yet; its own `--selftest` is the
+only proof that exists today that it decides correctly, and nothing proves
+it is wired into a live settings file the way `--armed` proves for the
+`PreToolUse` gate.
 
 ## What breaks if you adopt this module alone
 
