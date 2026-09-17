@@ -58,7 +58,7 @@ import sys
 import time
 import urllib.request
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE_FILE = HERE / "prompt_class.template.json"
@@ -286,8 +286,9 @@ CALL_ATTEMPTS = [0]
 def parse_local_tier(raw: str | None) -> tuple[str, str] | None:
     """(host:port, model), or None when LOCAL_TIER is unset/NONE -- the
     kit.config comment's own words: "a local tier is a loopback endpoint
-    and a model name, host:port/model". Split on the FIRST slash only: a
-    model name may itself contain one (registry/name style)."""
+    and a model name, host:port/model, no scheme". Split on the FIRST
+    slash only: a model name may itself contain one (registry/name
+    style)."""
     if not raw or "/" not in raw:
         return None
     host_port, model = raw.split("/", 1)
@@ -297,16 +298,77 @@ def parse_local_tier(raw: str | None) -> tuple[str, str] | None:
     return host_port, model
 
 
-LOCAL_TIER = parse_local_tier(LOCAL_TIER_RAW)
-LOCAL_ENABLED = LOCAL_TIER is not None
+_HOSTPORT_BAD_CHARS = ("@", "/", "\\")
+
+
+def _host_port_is_wellformed(host_port: str) -> bool:
+    """Refused OUTRIGHT, before any URL is built: an at-sign, a slash, a
+    backslash or any whitespace inside `host_port` is credential or path
+    syntax that has no business in a bare `host:port` pair -- and an
+    at-sign is exactly what let finding 1's userinfo form (
+    `localhost:11434@<foreign-host>`) slip past a first-colon split, since
+    URL syntax takes the host to be everything after the LAST at-sign,
+    never the first colon."""
+    if not host_port:
+        return False
+    if any(c in host_port for c in _HOSTPORT_BAD_CHARS):
+        return False
+    return not any(c.isspace() for c in host_port)
+
+
+def _is_loopback_url(url: str) -> bool:
+    """The refusal that matters: parse the exact URL that would be
+    requested with `urlsplit` -- the way `urllib.request` itself resolves
+    a host, LAST at-sign wins, brackets strip for an IPv6 literal -- and
+    check the hostname it resolves to against `LOOPBACK_HOSTS`. Never a
+    first-colon split on the raw `host_port` string (finding 1)."""
+    try:
+        hostname = urlsplit(url).hostname
+    except ValueError:
+        return False
+    return hostname is not None and hostname.lower() in LOOPBACK_HOSTS
 
 
 def _is_loopback_host_port(host_port: str) -> bool:
-    try:
-        host = host_port.split(":", 1)[0].lower()
-        return host in LOOPBACK_HOSTS
-    except Exception:
+    """Fail-closed at two layers, both required: `host_port` carries no
+    credential/path syntax (checked first, before any URL is built), AND
+    the URL that would actually be requested parses to a loopback
+    hostname (checked second, on the assembled URL, never on `host_port`
+    alone)."""
+    if not _host_port_is_wellformed(host_port):
         return False
+    return _is_loopback_url(f"http://{host_port}/api/generate")
+
+
+def _diagnose_local_tier(raw: str | None) -> str | None:
+    """Why a SET `LOCAL_TIER` will never be reached, one line naming the
+    reason -- printed once by `main()` so a mistyped value degrades LOUDLY
+    to stderr instead of silently to `by rules` on every prompt forever
+    (finding 6). Returns None when `LOCAL_TIER` is unset, NONE, or usable.
+    The four reasons named, in the order checked: malformed, userinfo,
+    scheme, non-loopback."""
+    if not raw:
+        return None
+    parsed = parse_local_tier(raw)
+    if parsed is None:
+        return f"malformed: want host:port/model, no scheme (got {raw!r})"
+    host_port, _model = parsed
+    if "@" in host_port:
+        return ("userinfo syntax in host:port is refused outright "
+                 f"(got {host_port!r})")
+    last = host_port.rsplit(":", 1)[-1]
+    if not last.isdigit():
+        return ("a scheme prefix, not a bare host:port -- want "
+                 f"host:port/model, no scheme (got {host_port!r})")
+    if not _is_loopback_host_port(host_port):
+        return ("non-loopback host: "
+                 f"{host_port!r} is not 127.0.0.1, localhost, or ::1")
+    return None
+
+
+LOCAL_TIER = parse_local_tier(LOCAL_TIER_RAW)
+LOCAL_ENABLED = LOCAL_TIER is not None
+LOCAL_TIER_DIAGNOSTIC = _diagnose_local_tier(LOCAL_TIER_RAW)
 
 
 def _few_shot_block(class_data: dict | None = None) -> str:
@@ -476,6 +538,9 @@ def main(argv: list[str] | None = None) -> int:
             print("usage: --build-fixtures <ledger-path>", file=sys.stderr)
             return 2
         return cmd_build_fixtures(argv[i + 1])
+    if LOCAL_TIER_DIAGNOSTIC:
+        print(f"PROMPT-CLASS: LOCAL_TIER is set but unusable: "
+              f"{LOCAL_TIER_DIAGNOSTIC}", file=sys.stderr)
     use_local = "--no-local" not in argv
     try:
         payload = json.loads(sys.stdin.read() or "{}")
@@ -516,8 +581,10 @@ def _tier1_accuracy(class_data: dict) -> tuple[dict, list]:
 
 def selftest() -> int:
     ok = [True]
+    ran = [0]
 
     def check(name, cond, detail=""):
+        ran[0] += 1
         mark = "pass" if cond else "FAIL"
         print(f"  {mark}  {name}" + (f"  {detail}" if detail and not cond else ""))
         if not cond:
@@ -548,13 +615,41 @@ def selftest() -> int:
           "reds RULING accuracy",
           (r_hits / r_total if r_total else 0.0) < 1.0, f"{r_hits}/{r_total}")
 
-    # (c) a LOCAL_TIER naming a non-loopback host is refused before any call.
-    before = CALL_ATTEMPTS[0]
-    bad_label, _, _ = tier2_classify("approve the plan", "10.0.0.5:11434",
-                                      "some-model")
-    check("(c) forced red: a non-loopback host is refused before any call",
-          bad_label == "UNSURE" and CALL_ATTEMPTS[0] == before,
-          (bad_label, CALL_ATTEMPTS[0] - before))
+    # (c) a LOCAL_TIER naming a non-loopback host is refused before any
+    # call -- widened past one plain foreign host (finding 2): the
+    # userinfo form (finding 1's own failing input, a placeholder host),
+    # a non-loopback bracketed IPv6 literal, a trailing-dot host and a
+    # scheme-prefixed value. Each must be refused with zero call attempts.
+    c_cases = {
+        "a plain foreign host": "10.0.0.5:11434",
+        "the userinfo form (finding 1's failing input)":
+            "localhost:11434@foreign-host.invalid",
+        "a non-loopback bracketed IPv6 literal": "[2001:db8::1]:11434",
+        "a trailing-dot host": "localhost.:11434",
+        "a scheme-prefixed value": "http:",  # what parse_local_tier leaves
+                                              # of "http://127.0.0.1:11434"
+    }
+    for case_name, host_port in c_cases.items():
+        before = CALL_ATTEMPTS[0]
+        bad_label, _, _ = tier2_classify("approve the plan", host_port,
+                                          "some-model")
+        check(f"(c) forced red: {case_name} is refused before any call",
+              bad_label == "UNSURE" and CALL_ATTEMPTS[0] == before,
+              (host_port, bad_label, CALL_ATTEMPTS[0] - before))
+    print(f"  (c) case count: {len(c_cases)}")
+
+    # (3) the URL parse admits the bracketed IPv6 loopback form, which the
+    # old first-colon split could not (README's own claim); the bare,
+    # unbracketed form is not admitted, because "::1:11434" is ambiguous
+    # host:port syntax that no URL parser can split -- fail-closed, not a
+    # defect, and the README says "bracketed" for exactly this reason.
+    # Predicate only, never a connection (the network rule): admission is
+    # proved by the predicate and by `urlsplit`, exactly like a refusal.
+    check("(3) the bracketed IPv6 loopback is admitted by the predicate",
+          _is_loopback_host_port("[::1]:11434"))
+    check("(3) the bare, unbracketed IPv6 loopback cannot be expressed as "
+          "host:port and is refused fail-closed, never admitted",
+          not _is_loopback_host_port("::1:11434"))
 
     # (d) LOCAL_TIER NONE never attempts a call (assert by the counter).
     before = CALL_ATTEMPTS[0]
@@ -568,15 +663,57 @@ def selftest() -> int:
     check("(d) LOCAL_TIER NONE never attempts a call",
           CALL_ATTEMPTS[0] == before, CALL_ATTEMPTS[0] - before)
 
-    # (e) an empty prompt reads UNSURE, exit 0.
-    label, route, by, elapsed, _cold = classify("", use_local=False)
-    check("(e) an empty prompt is UNSURE by rules",
-          label == "UNSURE" and by == "rules", (label, by))
+    # (e) an empty prompt, non-JSON garbage and residue each read UNSURE
+    # and exit 0 -- driven through main() itself with stubbed stdin, not
+    # just through classify(), so the exit code main() actually returns
+    # is the thing asserted (finding 4: the old check never executed
+    # main()'s empty-prompt branch at all).
+    import contextlib
+    import io
+
+    def _run_main(stdin_text: str) -> tuple[int, str]:
+        buf = io.StringIO()
+        old_stdin = sys.stdin
+        sys.stdin = io.StringIO(stdin_text)
+        try:
+            with contextlib.redirect_stdout(buf):
+                rc = main(["--no-local"])
+        finally:
+            sys.stdin = old_stdin
+        return rc, buf.getvalue()
+
+    for case_name, stdin_text in (
+        ("an empty prompt", '{"prompt": ""}'),
+        ("non-JSON garbage", "not json at all {{{"),
+        ("residue (no tier-1 class matches)",
+         '{"prompt": "this residue prompt matches no tier-1 class at all"}'),
+    ):
+        rc, out = _run_main(stdin_text)
+        check(f"(e) {case_name} through main(): exit 0, UNSURE",
+              rc == 0 and "PROMPT-CLASS: UNSURE" in out, (rc, out.strip()))
 
     # (f) the generator on a synthetic ledger writes the expected count to
     # a temp .local path and nothing into the tree.
     import shutil
+    import subprocess
     import tempfile
+
+    def _git_porcelain(root: Path) -> str | None:
+        """A snapshot, not an assertion by itself: `git status --porcelain`
+        read from CFG_DIR, the box's own root, so this floor holds whether
+        or not the module directory is the only place a regression could
+        write (finding 5: the old check watched only `HERE`, never the
+        directory the generator's real default target resolves against).
+        Any failure to read one (not a repo, git missing) returns None,
+        treated by the caller as "cannot prove it," never as a pass."""
+        try:
+            result = subprocess.run(
+                ["git", "status", "--porcelain"], cwd=str(root),
+                capture_output=True, text=True, timeout=10)
+        except Exception:
+            return None
+        return result.stdout if result.returncode == 0 else None
+
     scratch = Path(tempfile.mkdtemp(prefix="promptclass-selftest-"))
     try:
         ledger = scratch / "JUDGMENT-LEDGER.md"
@@ -591,16 +728,60 @@ def selftest() -> int:
             encoding="utf-8")
         out_path = scratch / "prompt_class.local.json"
         before_listing = sorted(p.name for p in HERE.iterdir())
+        before_git = _git_porcelain(CFG_DIR)
         count = build_fixtures(ledger, out_path)
         after_listing = sorted(p.name for p in HERE.iterdir())
+        after_git = _git_porcelain(CFG_DIR)
         check("(f) the generator writes the expected count (2, skipping "
               "the ORACLE-DECLINED and placeholder rows)", count == 2, count)
         check("(f) the generator wrote to the temp .local path",
               out_path.is_file())
         check("(f) nothing changed in this module's own directory",
               before_listing == after_listing)
+        check("(f) nothing changed in the box's tracked tree "
+              "(git status --porcelain, read from CFG_DIR)",
+              before_git is not None and before_git == after_git,
+              (before_git, after_git))
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
+
+    # (6) a mistyped LOCAL_TIER is diagnosed by name, never dropped silently.
+    diag_cases = {
+        "malformed": ("no-slash-here", "malformed"),
+        "userinfo": ("localhost:11434@foreign-host.invalid/some-model",
+                     "userinfo"),
+        "scheme": ("http://127.0.0.1:11434/llama3", "scheme"),
+        "non-loopback": ("10.0.0.5:11434/some-model", "non-loopback"),
+    }
+    for reason, (raw, keyword) in diag_cases.items():
+        got = _diagnose_local_tier(raw)
+        check(f"(6) LOCAL_TIER diagnostic names the reason: {reason}",
+              bool(got) and keyword in got, got)
+    check("(6) a usable LOCAL_TIER has no diagnostic",
+          _diagnose_local_tier("127.0.0.1:11434/llama3") is None)
+    check("(6) LOCAL_TIER unset/NONE has no diagnostic",
+          _diagnose_local_tier(None) is None)
+
+    # (7) FLOOR, the kit's own vacuous-gate rule: a missing or empty
+    # template reads FAIL here, never PASS, because `_read_json` swallows
+    # every failure and would otherwise let (a) simply vanish with nothing
+    # red to show for it. Observed floor today: five classes, ten fixtures
+    # each -- a number that should only ever rise.
+    fixtures = CLASS_DATA.get("fixtures") or {}
+    classes_present = sorted(set(CLASS_ORDER) & set(fixtures))
+    check(f"(7) FLOOR: five classes present ({len(classes_present)}/5)",
+          len(classes_present) == 5, classes_present)
+    for label in CLASS_ORDER:
+        n = len(fixtures.get(label) or [])
+        check(f"(7) FLOOR: {label} carries at least ten fixtures ({n})",
+              n >= 10, n)
+
+    # (7) FLOOR: a minimum check count, so a collapsed run (an import that
+    # silently skips a whole section) cannot read PASS over near-nothing.
+    # Observed 33 today; this number should only ever rise.
+    MIN_CHECKS = 30
+    check(f"(7) FLOOR: at least {MIN_CHECKS} checks ran ({ran[0]})",
+          ran[0] >= MIN_CHECKS, ran[0])
 
     print()
     print(f"PROMPT CLASS SELFTEST: {'PASS' if ok[0] else 'FAIL'}")

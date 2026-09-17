@@ -348,12 +348,26 @@ itself uses. A single class match is that label; two or more is `MIXED`;
 none is residue.
 
 **Tier 2, only on residue, only if configured.** `kit.config`'s `LOCAL_TIER`
-slot is `NONE` (tier 1 only, no call ever attempted) or `host:port/model`.
-Any host that is not `127.0.0.1`, `localhost` or `::1` is refused **by
-code**, before a single byte leaves the process — never merely by
-convention. On any failure (refused host, no server, timeout, an
+slot is `NONE` (tier 1 only, no call ever attempted) or `host:port/model`,
+no scheme. Any host that is not `127.0.0.1`, `localhost` or the bracketed
+IPv6 loopback (`[::1]`) is refused **by code**, before a single byte leaves
+the process — never merely by convention, and validated against the exact
+URL that would be requested (`urlsplit(url).hostname`), never a first-colon
+split on `host:port`, which is what let the userinfo form
+(`localhost:11434@<foreign-host>`) slip through before this fix pass. A
+`host:port` carrying an at-sign, a slash, a backslash or whitespace is
+refused outright, before a URL is even built. A `LOCAL_TIER` that is set
+but unusable (a scheme prefix, userinfo syntax, a non-loopback host, or
+otherwise malformed) prints one stderr line naming the reason, rather than
+degrading silently. On any failure (refused host, no server, timeout, an
 unparseable answer) the hook fails open to `UNSURE`, never guessing.
 `keep_alive: 30m` keeps a local model warm after the first (cold) call.
+
+**Adopt both files.** Copying `hook_prompt_class.py` alone is not enough:
+`prompt_class.template.json` must sit beside it (`TEMPLATE_FILE`, resolved
+relative to the hook's own directory) or every prompt reads `UNSURE`
+forever, silently — the floor check below (five classes, ten fixtures each)
+is what turns a missing template into a `FAIL` instead of a vacuous `PASS`.
 
 **The generator.** `hook_prompt_class.py --build-fixtures <ledger>` reads a
 `JUDGMENT-LEDGER.md`-shaped table, pulls the quoted ruling cell of each row
@@ -362,14 +376,23 @@ is silently skipped), and writes them as `RULING` fixtures to the
 `PROMPT_CLASS_FIXTURES` path. Never into the repository, and never
 clobbering another class's overlay already written there.
 
-**`--selftest` forces six reds**, not just a green: every template fixture
+**`--selftest` runs 33 checks**, not just a green: every template fixture
 labels correctly; inverting the RULING word list into DESIGN's slot reds
-RULING's own accuracy (proof the accuracy check is live); a non-loopback
-`LOCAL_TIER` host is refused before any call (asserted against a call
-counter, not just the returned label); `LOCAL_TIER = NONE` never attempts a
-call (same counter); an empty prompt reads `UNSURE`, exit 0; the generator
-on a synthetic ledger writes the expected count to a temp path and touches
-nothing else in the tree.
+RULING's own accuracy (proof the accuracy check is live); five host:port
+forms that must all be refused before any call — a plain foreign host, the
+userinfo form, a non-loopback bracketed IPv6 literal, a trailing-dot host
+and a scheme-prefixed value — each asserted against the call counter, not
+just the returned label; the bracketed IPv6 loopback is admitted by the
+predicate and the bare, unbracketed form cannot be (fail-closed, not a
+defect); `LOCAL_TIER = NONE` never attempts a call (same counter); an empty
+prompt, non-JSON garbage and residue each read `UNSURE`, exit 0 — driven
+through `main()` itself with stubbed stdin, not just through `classify()`;
+the generator on a synthetic ledger writes the expected count to a temp
+path and touches neither this module's own directory nor the box's tracked
+tree (`git status --porcelain`); a mistyped `LOCAL_TIER` is diagnosed by
+name (scheme, userinfo, non-loopback, malformed); and a FLOOR — five
+classes present, ten fixtures each, a minimum check count — so a missing or
+empty template reads `FAIL`, never a vacuous `PASS`.
 
 `hook_fixtures.py`'s `--armed` check reads only the `PreToolUse` block, by
 its own design (`check_armed()`'s scope), so it does not — and is not
