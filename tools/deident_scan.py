@@ -36,10 +36,17 @@ THE CONTRACT
 ============
     exit 0   clean - no token from the list appears anywhere in the scanned tree
     exit 1   HITS - at least one token was found; every hit is printed
-    exit 2   ABORT - bad usage, unreadable token file, empty token list with
-             --strict. "The scan did not run" and "the scan found nothing" must
-             never share an exit code (this is the same rule the verify runner
-             in modules/03-verification is built on).
+    exit 2   ABORT - bad usage, unreadable token file, or an EMPTY TOKEN LIST.
+             An empty list is now an ABORT BY DEFAULT, not only under
+             --strict: QUICKSTART Step 9 exists to "prove nothing personal is
+             about to be published," and a scan that ran over zero tokens has
+             proven nothing - reporting that as a clean pass is the vacuous
+             oracle this scanner exists not to be. "The scan did not run" and
+             "the scan found nothing" must never share an exit code (the same
+             rule the verify runner in modules/03-verification is built on).
+             Pass --allow-empty to opt back into the old permissive behaviour
+             (WARNING, then a vacuous clean) when that is genuinely what you
+             want; --strict still wins over --allow-empty if both are given.
 
 USAGE
 =====
@@ -48,7 +55,8 @@ USAGE
     python tools/deident_scan.py --tokens <file>        # one token per line, # comments
     python tools/deident_scan.py --token alice --token acme-corp
     python tools/deident_scan.py --case-sensitive
-    python tools/deident_scan.py --strict               # empty token list is an ABORT
+    python tools/deident_scan.py --strict               # belt-and-suspenders: empty is ABORT
+    python tools/deident_scan.py --allow-empty          # opt into the old vacuous-clean behaviour
     python tools/deident_scan.py --selftest             # prove the scanner FIRES
 
 THE TOKEN LIST IS NOT SHIPPED WITH TOKENS IN IT
@@ -265,6 +273,28 @@ def scan(root: Path, tokens: list[str], case_sensitive: bool,
     return hits, unscanned, n_files
 
 
+def no_tokens_decision(strict: bool, allow_empty: bool) -> tuple[bool, str]:
+    """Pure. (abort, message) for the case where the token list is empty.
+
+    Default (neither flag): ABORT. A scan run over zero tokens finds nothing
+    by construction, and reporting that as a clean pass is the vacuous-oracle
+    failure QUICKSTART Step 9 ("Prove nothing personal is about to be
+    published") exists to prevent - a scan that proves nothing must never
+    render like a scan that proved a negative.
+
+    --allow-empty (and not --strict): continue, with a WARNING - the caller
+    asked for the old permissive behaviour explicitly, out loud.
+
+    --strict wins over --allow-empty when both are given: the more paranoid
+    ask does not get silently downgraded by the more permissive one."""
+    if allow_empty and not strict:
+        return False, ("WARNING: no tokens supplied - this scan would pass "
+                        "vacuously. Pass --token/--tokens, or fill a PRIVATE "
+                        "token list. Continuing because --allow-empty was "
+                        "passed.")
+    return True, "DEIDENT SCAN: NO TOKENS LOADED"
+
+
 def selftest() -> int:
     """Prove the scanner FIRES. A scanner that has only ever returned clean is
     indistinguishable from a scanner that cannot find anything - the negative
@@ -333,6 +363,16 @@ def selftest() -> int:
         h, u, n = scan(root, ["plantedname"], False, ["sub/*"], tokfile)
         check("the token file does not hit itself", len(h), 0)
 
+    abort, msg = no_tokens_decision(False, False)
+    check("no tokens, no flags: ABORT by default", abort, True)
+    check("...with the exact message", msg, "DEIDENT SCAN: NO TOKENS LOADED")
+    abort, msg = no_tokens_decision(True, False)
+    check("no tokens, --strict alone: still ABORT", abort, True)
+    abort, msg = no_tokens_decision(False, True)
+    check("no tokens, --allow-empty alone: continues", abort, False)
+    abort, msg = no_tokens_decision(True, True)
+    check("--strict beats --allow-empty when both are given", abort, True)
+
     print()
     print("DEIDENT SELFTEST: " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
@@ -359,8 +399,16 @@ def main() -> int:
                          "decision you make out loud. If git cannot answer, "
                          "this falls back to a full walk and SAYS SO.")
     ap.add_argument("--strict", action="store_true",
-                    help="an EMPTY token list aborts (exit 2) instead of "
-                         "reporting a vacuous clean. Use this in CI.")
+                    help="belt-and-suspenders: an EMPTY token list aborts "
+                         "(exit 2) even if --allow-empty is also given. "
+                         "This is now the DEFAULT behaviour for an empty "
+                         "list; --strict only matters combined with "
+                         "--allow-empty.")
+    ap.add_argument("--allow-empty", action="store_true",
+                    help="opt back into the old permissive behaviour: an "
+                         "EMPTY token list prints a WARNING and reports a "
+                         "vacuous clean (exit 0) instead of aborting. "
+                         "Overridden by --strict.")
     ap.add_argument("--selftest", action="store_true",
                     help="prove the scanner fires on a planted token")
     a = ap.parse_args()
@@ -379,12 +427,11 @@ def main() -> int:
         return 2
 
     if not tokens:
-        msg = ("no tokens supplied - this scan would pass vacuously. "
-               "Pass --token/--tokens, or fill a PRIVATE token list.")
-        if a.strict:
-            print(f"ABORT: {msg}", file=sys.stderr)
+        abort, msg = no_tokens_decision(a.strict, a.allow_empty)
+        if abort:
+            print(msg, file=sys.stderr)
             return 2
-        print(f"WARNING: {msg}")
+        print(msg)
 
     tokfile = None
     if a.tokens:

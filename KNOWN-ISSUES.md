@@ -3093,3 +3093,60 @@ isolated diff of the tool change under review, so `SIZE` capped out and
 `AUTHORITY` fired on "key"/"signed"/"envelope" appearing in unrelated
 record rows. Reported as a disagreement, not tuned away.
 
+
+## BOX MAINT (2026-09-16): four maintenance rows, forced red and lineage each
+
+Four fixes from the box's own maintenance list, each carrying a forced red
+observed by the fixing lane and a lineage line, per module 01's SHIP
+REQUIREMENTS.
+
+**1. `kit.config`'s `JUDGE_PATHS` gains `modules/03-verification/eyes.py`.**
+`verify.py` already judges it; `kit.config` did not name it, so
+`doctor:judge-paths-agree` read ATTENTION. Forced red, observed 2026-09-16:
+while the edit was uncommitted, `verify.py --only judges` printed `RED
+judges judges 1 dirty, tree clean` / `judge-paths 1 dirty; cert-paths
+clean`. Lineage: the check itself, `tools/kit_doctor.py`'s
+`doctor:judge-paths-agree` row, "verify.py is authoritative."
+
+**2. Six `docs/ORACLE-<gate>.md` pages, one per `verify.py` gate.**
+`doctor:vacuous-gate` read ATTENTION on all six for a missing page; each
+page now names what its gate catches, a forced red observed 2026-09-16 (the
+`judges` gate via its own dirty-tree state above; the other five via the
+runner's own `--nc` negative-control facility, kept outside the
+repository), and a lineage line. Full detail lives on each page rather than
+duplicated here: `docs/ORACLE-judges.md`, `-hooks.md`, `-escapes.md`,
+`-example_unit.md`, `-example_lint.md`, `-eyes.md`. Residual, stated on
+`docs/ORACLE-eyes.md`: `doctor:vacuous-gate` still reads ATTENTION after
+this fix, for two reasons this lane's TOUCHES did not permit fixing —
+`example_unit`/`example_lint`'s shipped EXAMPLE-gate marker, and the `eyes`
+gate's `expect_min=1` floor (the page names 3, the tool's own default
+viewport count, as the README-recommended value) — both live in
+`verify.py`'s `GATES` table, outside this lane's touched files.
+
+**3. `tools/deident_scan.py`: an empty token list is now an ABORT by
+default.** Previously a run with zero tokens printed a WARNING and reported
+a vacuous clean (exit 0) unless `--strict` was passed. Forced red, observed
+2026-09-16: `python tools/deident_scan.py --root . --tracked-only` (the
+shipped, empty `deident.tokens`) now prints `DEIDENT SCAN: NO TOKENS
+LOADED` and exits 2; the same command with two real tokens on the command
+line (never written to a file) prints `DEIDENT SCAN: 0 hits - exit 0`. A
+new `--allow-empty` flag opts back into the old behaviour; `--strict`
+overrides `--allow-empty` when both are given. Lineage: QUICKSTART Step 9,
+"Prove nothing personal is about to be published" — a scan over zero
+tokens proves nothing and must not read like a scan that proved a
+negative, the same rule the runner's own exit-code contract states for
+itself.
+
+**4. `kit.config.example` gains `LOCAL_TIER`, `PROMPT_CLASS_FIXTURES` and
+`READ_TRIAGE_BAR`.** Forced red: before this edit, a completeness check
+(every key in `kit.config` present in `kit.config.example`) named exactly
+these three keys missing, matching the box's own diagnosis. After: `python
+-c "..." ` over both files reports `kit.config keys: 48`, `kit.config.example
+keys: 48`, `missing from example: []`. No mechanical check owns this
+comparison yet in either direction the kit's own tools read live — the
+nearest existing check, `tools/kit_doctor.py`'s `doctor:l1-config-complete`,
+compares an *adopting* repository's `kit.config` against the shipped
+`kit.config.example`, not this kit's own two files against each other.
+Building that check belongs in `tools/kit_doctor.py` or
+`modules/03-verification/verify.py`'s selftests, both outside this lane's
+TOUCHES; recorded here rather than built.

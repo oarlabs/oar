@@ -36,18 +36,18 @@ source does not silently orphan this file
   OPERATIONALIZED here as the file set `kit.config`'s own `JUDGE_PATHS`
   and `CERT_PATHS` slots already enumerate (verify.py, the examples
   fixtures, the two hooks, the settings file, kit.config itself, the
-  checks registry, and the cert-green token file) plus the containment
-  scanner this charter's sibling work named
-  (`tools/capsule_containment.py`), which the shipped kit does not carry
-  and the reviewer's list therefore could not have named. "Settings
-  file" is NOT in the reviewer charter's literal six-item list (gates,
-  hooks, fixtures, CI config, cert tokens, thresholds) -- it enters here
-  because `kit.config`'s own `JUDGE_PATHS` lists `.claude/settings.json`
-  as a judge path, and the reviewer's abstract categories fold through
-  that concrete list. This is flagged in the READ TRIAGE report as a
-  finding: naming it "the reviewer charter's own list, plus containment"
-  undercounts by one category (settings file) unless the fold-through is
-  made explicit, which this paragraph now does.
+  checks registry, and the cert-green token file) plus a containment
+  scanner named `tools/capsule_containment.py`, an adopter-side tool
+  that the shipped kit does not carry and that the reviewer charter's own
+  six-item list therefore could not have named. "Settings file" is NOT
+  in the reviewer charter's literal six-item list (gates, hooks,
+  fixtures, CI config, cert tokens, thresholds) -- it enters here because
+  `kit.config`'s own `JUDGE_PATHS` lists `.claude/settings.json` as a
+  judge path, and the reviewer's abstract categories fold through that
+  concrete list. Naming the source list as only "the reviewer charter's
+  own list, plus containment" would undercount by one category (settings
+  file) unless the fold-through is stated explicitly, which this
+  paragraph does.
 - The punch-list triage vocabulary (`modules/01-governance/PUNCH-LIST-TEMPLATE.md`
   Part 2) is a per-item human verdict table; this tool is not that table
   and does not reuse its vocabulary (OFFICER/GATES-ONLY is a routing
@@ -111,13 +111,17 @@ from pathlib import Path
 # JUDGE_SURFACE_PATTERNS: substrings matched against each changed file's
 # path (case-insensitive). Sourced from kit.config's own JUDGE_PATHS and
 # CERT_PATHS slots. This is a literal, hand-kept list, not a live read of
-# kit.config -- selftest case (h) asserts every JUDGE_PATHS entry the
-# box's own kit.config lists today matches one of these patterns, so a
-# drift between the two would be caught there, not read live. (--selftest
-# itself passes an explicit --bar to every case, so its verdicts do not
-# depend on whichever kit.config happens to be found on the run's own
-# search path -- see get_bar/read_kit_config, used only for the real,
-# non-selftest bar.) Each entry is (category, substring, source).
+# kit.config -- selftest case (h) asserts every JUDGE_PATHS entry in
+# whichever kit.config read_kit_config() finds first matches one of these
+# patterns, so a drift between the two would be caught there, not read live.
+# NOT necessarily "the box's own" kit.config -- read_kit_config()'s search
+# order checks the current working directory before this file's own
+# directory (see read_kit_config below). (--selftest itself passes an
+# explicit --bar to every OFFICER/GATES-ONLY case, so those verdicts do not
+# depend on whichever kit.config happens to be found on the run's own search
+# path -- see get_bar/read_kit_config; case (h) still does its own live
+# read_kit_config() call and is subject to the same search order.) Each entry
+# is (category, substring, source).
 JUDGE_SURFACE_PATTERNS = [
     ("gate", "modules/03-verification/verify.py", "kit.config JUDGE_PATHS"),
     ("gate", "gate_line.py", "kit.config JUDGE_PATHS (examples/ dir it ships from)"),
@@ -160,8 +164,9 @@ AUTHORITY_KEYWORDS = ["authoriz", "authoris", "signed word", r"\bsigned\b", "env
 # charter that PROHIBITS a push ("no push, no tag, no release") or that
 # quotes someone else's push in reported speech reads identically to a
 # charter that ORDERS one. --selftest proves the tool's own arithmetic;
-# it does not prove the scan tells "no push" from "push". Item 3's real
-# instances exercise this limitation and the report names the result.
+# it does not prove the scan tells "no push" from "push". This is an
+# accepted, named gap in the heuristic, not a claim that every real
+# charter's outward language has been checked against it.
 OUTWARD_KEYWORDS = [r"\bpush\b", r"\btag\b", r"\brelease\b", r"\bsend\b", r"\bpublish\b"]
 
 SUGGEST_ONLY_PHRASE = "suggests, never routes"
@@ -447,7 +452,11 @@ def format_line(result: dict) -> str:
 
 # ==========================================================================
 # --selftest -- forced red both ways, on synthetic charters/patches under
-# a temp folder. See item 2 of the charter for the five cases.
+# a temp folder. Cases (a) through (h) below prove the scoring surface in
+# both directions: a clean baseline, a real diff-range read and a
+# search-path-smuggling refusal, and the JUDGE-SURFACE / OUTWARD /
+# AUTHORITY terms each firing and un-firing on the same charter with one
+# keyword added or removed.
 # ==========================================================================
 
 def _mk(tmp: Path, name: str, content: str) -> Path:
@@ -641,10 +650,17 @@ def selftest() -> int:
         if r_with["verdict"] == r_without["verdict"]:
             problems.append("case (g): removing the authorization/signed words did not move the verdict")
 
-        # (h) every JUDGE_PATHS entry the box's own kit.config lists today
-        # is covered by some pattern in JUDGE_SURFACE_PATTERNS (finding 6:
-        # the pattern list is a hand-kept copy, not a live read, so a drift
-        # between the two would otherwise be silent).
+        # (h) every JUDGE_PATHS entry in whichever kit.config read_kit_config()
+        # finds first is covered by some pattern in JUDGE_SURFACE_PATTERNS
+        # (finding 6: the pattern list is a hand-kept copy, not a live read, so
+        # a drift between the two would otherwise be silent). NOT necessarily
+        # "the box's own" kit.config: read_kit_config()'s four-step search
+        # order checks the current working directory BEFORE this file's own
+        # directory, so a run from a different cwd with its own kit.config on
+        # that search path checks THAT file, not this box's. If you add a new
+        # entry to JUDGE_PATHS, add a matching substring to
+        # JUDGE_SURFACE_PATTERNS in the same change, or this case goes red
+        # naming the uncovered entry.
         cfg = read_kit_config(Path(__file__).resolve().parent)
         configured = [p.strip() for p in cfg.get("JUDGE_PATHS", "").split(",") if p.strip()]
         if not configured:
