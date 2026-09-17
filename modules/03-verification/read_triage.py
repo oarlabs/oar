@@ -124,6 +124,7 @@ from pathlib import Path
 # is (category, substring, source).
 JUDGE_SURFACE_PATTERNS = [
     ("gate", "modules/03-verification/verify.py", "kit.config JUDGE_PATHS"),
+    ("gate", "modules/03-verification/eyes.py", "kit.config JUDGE_PATHS (the look-quality gate)"),
     ("gate", "gate_line.py", "kit.config JUDGE_PATHS (examples/ dir it ships from)"),
     ("gate", "_gate.py", "generic gate-file naming convention"),
     ("hook", "hook_model_gate.py", "kit.config JUDGE_PATHS"),
