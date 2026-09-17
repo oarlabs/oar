@@ -147,6 +147,15 @@ MODEL_EXEMPT_TYPES = fork
 # orchestrator under a different identifier than the one you would type.
 FORBIDDEN_SPAWN_TIER = your-top-tier-model
 
+# A local tier is a loopback endpoint and a model name, host:port/model, no
+# scheme (no "http://" prefix); any other host is refused by code
+# (hook_prompt_class.py's tier-2 call, validated against the assembled URL,
+# not a first-colon split). A value that is set but unusable (a scheme
+# prefix, userinfo syntax, a non-loopback host, or otherwise malformed)
+# prints one stderr reason rather than degrading silently. NONE means tier 1
+# only -- the local call is never attempted, not merely refused.
+LOCAL_TIER = NONE
+
 
 # --------------------------------------------------------------------------
 # 3. CERTIFICATION
@@ -236,6 +245,12 @@ PROTECTED_PATH = NONE
 # and only while CERT_PATHS is clean in `git status`. Certification is a
 # property of a TREE, not of a commit.
 CERT_TOKEN_FILE = .claude/cert-green.json
+
+# hook_prompt_class.py's class-list/fixtures overlay. A repo-relative
+# filename here is a shareable default; the real, machine-specific value
+# (if it differs) belongs in kit.config.local, exactly like PROTECTED_PATH
+# above. `--build-fixtures <ledger>` writes RULING fixtures to this path.
+PROMPT_CLASS_FIXTURES = prompt_class.local.json
 
 
 # How the harness invokes an interpreter. Used in the settings template's hook
@@ -343,6 +358,16 @@ RATIO_CEILING = derive-from-your-own-data
 
 # Stages without a fired rule before that rule faces demotion review.
 DEMOTION_REVIEW_STAGES = 3
+
+
+# --------------------------------------------------------------------------
+# 7b. REVIEW ROUTING
+# --------------------------------------------------------------------------
+
+# `modules/03-verification/read_triage.py` scores a charter and its diff and
+# suggests OFFICER (spec-side review) or GATES-ONLY; OFFICER fires at or above
+# this bar. It suggests, never routes - the coordinator decides and logs it.
+READ_TRIAGE_BAR = 3
 
 
 # --------------------------------------------------------------------------
