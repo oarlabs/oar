@@ -20,6 +20,7 @@ the checks that command runs when nothing comes free.
 | `examples/eyes-page/index.html` | Example gate payload — a small, deliberately defect-free static page, the module's own render target for the `eyes` gate. Replace it with your own page on adoption. |
 | `examples/eyes-render/` | The committed render of the page above: two viewports' PNGs, manifests, console captures, and a hand-answered `look-report.json` — the fixture the shipped `eyes` gate reads. |
 | `examples/eyes-fixture/before-1280.png` | The calibration fixture: a real "before" screenshot with four known catalog defects (items 1, 2, 5, 7). `eyes.py look --fixture` prints the expected answers. |
+| `read_triage.py` | Scores a charter and its diff, suggests `OFFICER` (spec-side review) or `GATES-ONLY`, and never runs a review or edits anything. See "Read triage" below. |
 
 ## Adopt it — the commands, in a working order
 
@@ -210,6 +211,39 @@ now guards against it three times over:
 Three mechanisms because they catch three different things: the first catches
 "there is no repository", the second catches "git will never mention this path",
 and the third catches "git broke just now".
+
+## Read triage — officer or gates-only
+
+`read_triage.py --charter <file> --patch <diff-file>` (or `--diff-range
+<rev1>..<rev2> --repo <dir>`) prints one line:
+
+    READ TRIAGE: <OFFICER|GATES-ONLY> · score <n> · <reasons>
+
+and exits 0 for a decision, 3 when the charter or the diff could not be
+read. `--json` prints the same result as a machine-readable object.
+
+Six terms, each printed only when it fires: `JUDGE-SURFACE` (+3, the diff
+touches a gate, hook, fixture, CI config, cert token, threshold/settings
+file, or a containment scanner — the reviewer charter's own check 4,
+operationalized as `kit.config`'s `JUDGE_PATHS`/`CERT_PATHS`, plus
+containment); `OUTWARD` (+3, the charter names a push, tag, release,
+send or publish as a step); `NEW-CLAIM` (+2, the diff adds a new
+lint/gate/tool-with-selftest/claim-bearing page); `SIZE` (+1 per 300
+changed lines, capped at +3); `AUTHORITY` (+2, the charter or the diff
+names an authorization, a signed word, an envelope or a key);
+`SUGGEST-ONLY` (−2, the charter itself says "suggests, never routes").
+`OFFICER` at or above `READ_TRIAGE_BAR` (`kit.config`, shipped at `3`);
+`GATES-ONLY` below it.
+
+**It suggests, never routes.** The tool never runs a review, never
+edits a file, and never writes a decision anywhere — the coordinator
+reads the line, decides, and logs the disposition themselves. Its
+keyword scans (`OUTWARD`, `AUTHORITY`) read text, not intent: a charter
+that *prohibits* a push reads identically to one that orders one. Two
+real instances from the program that built this tool show this in both
+directions — one where the disagreement was a known keyword false
+positive and one where it was not; both are recorded in this file's own
+`read_triage.py` row of `KNOWN-ISSUES.md`.
 
 ## Adapting it
 
