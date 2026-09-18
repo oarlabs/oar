@@ -188,12 +188,14 @@ shape.
 One person maintains this kit, working with AI agents, best-effort. No SLA.
 The bus factor is one.
 
-The evidence base: one reference build; sixteen LLM-persona adoption walks
-(a language model given a persona and a scratch repository, not a person);
-eight LLM-persona evaluation and recon reads (three of the shipped kit,
+The evidence base: one reference build, sixteen LLM-persona adoption walks
+(a language model given a persona and a scratch repository, not a person),
+and nine LLM-persona evaluation and recon reads (three of the shipped kit,
 three of the kit plus a brownfield host, one pre-sales recon, one
-team-lead evaluator); one read by a practising engineer outside the
-program; one executed [brownfield](GLOSSARY.md) increment
+team-lead evaluator, one cold reconstruction by a non-Claude model,
+2026-09-18, every checked claim matching the tree). One read by a
+practising engineer outside the program. One executed
+[brownfield](GLOSSARY.md) increment
 (`docs/CASE-STUDY-INCREMENT.md`). `KNOWN-ISSUES.md` records what each
 found; `docs/walks/` publishes the prompts and states exact coverage — the
 human read has no prompt to publish. A human adoption walk is planned and
