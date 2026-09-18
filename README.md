@@ -144,6 +144,14 @@ the kit ships.
 
 ## Module map
 
+Four modules do the load-bearing work, as layers. Enforcement prevents.
+Verification proves. Ledgers learn. CI anchors outside the agents' reach.
+Governance, statusboard, sidequest and collaboration wrap those four:
+they set the rules the other layers enforce, show their state, bound a
+detour, and carry the standing agreements between the people and agents
+involved. A newcomer reads governance first, at Level 1; see
+`docs/ADOPTION-LEVELS.md`.
+
 | Module | What it gives you | Runs on day one? |
 |---|---|---|
 | **01-governance** | The standing-rules document (tiering, HALT authority, hygiene, stage-close checklist, oracle manufacture, promotion/demotion) and five charter templates: implementer, spec-side reviewer, scout, synthesis writer, hostile reader (the Principal Skeptic evaluation persona). | Documents only |
