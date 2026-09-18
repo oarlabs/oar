@@ -27,7 +27,7 @@ instead of a number frozen in prose, the R28-3 lesson (`KNOWN-ISSUES.md`).
 A check moves through four states. It can exist as a written expectation.
 It can have run. It can have been seen red, meaning someone observed it
 refuse on a real instance. It can never have been seen red. Only the
-third state is evidence that the check catches what it claims; the first
+third state is evidence that the check catches what it claims. The first
 two states are evidence only that the check is present and executes.
 
 **What it is not:** a security boundary (`docs/SECURITY-SCOPE.md` states
@@ -149,7 +149,7 @@ Verification proves. Ledgers learn. CI anchors outside the agents' reach.
 Governance, statusboard, sidequest and collaboration wrap those four:
 they set the rules the other layers enforce, show their state, bound a
 detour, and carry the standing agreements between the people and agents
-involved. A newcomer reads governance first, at Level 1; see
+involved. A newcomer reads governance first, at Level 1. See
 `docs/ADOPTION-LEVELS.md`.
 
 | Module | What it gives you | Runs on day one? |
