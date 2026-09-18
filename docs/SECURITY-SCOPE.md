@@ -10,6 +10,16 @@ whether the agents it governs could rewrite it, and that the money and rework
 are written down. Those are the failure modes of an honest agent doing
 competent work badly.
 
+Four agent behaviors are worth separating, because the kit answers each one
+differently.
+
+| Agent | What the kit does | What it does not |
+|---|---|---|
+| **Accidental** (an honest mistake, no intent) | Governs the failure modes of an honest agent doing competent work badly: that the checks a project trusts exist, that they ran, and that they have been seen red (this file, lines 6 to 11). | Scan for a leaked secret or credential beyond the tokens you enumerate yourself. The general secret class belongs to `gitleaks` and `TruffleHog` (this file, lines 35 to 47). |
+| **Overconfident** (asserts a verdict that did not run) | Makes a narrated verdict askable. The demonstration gate cannot certify a behavioral suite that executed zero of its assertions, and the kit's escape rate is computed rather than narrated (`README.md`, the five-states table, and `BLUEPRINT.md`, line 371). | Always confirm a harness is wired correctly. The armed check is only half-closable, because no second source exists for a harness's own intent (`KNOWN-ISSUES.md`, lines 409 to 410). |
+| **Optimizing for green** (weakens a check to pass it) | Invalidates certification on an uncommitted edit to a judge, the judge-paths-clean check (`BLUEPRINT.md`, lines 94 to 98). A defect that got through a check that existed and passed anyway counts against the published escape rate (`KNOWN-ISSUES.md`, line 51). | Stop a committed change to a check's own source. That needs a human reader of meaning, which is code ownership and required review on judgment-bearing paths (`BLUEPRINT.md`, lines 82 to 84). |
+| **Malicious** (routes around the gate on purpose) | Labels the gate honestly. Every control here runs with the same privileges as the thing it governs, and the enforcement hook is Zone B, useful friction, honestly labeled (this file, lines 25 to 30). | Serve as the security boundary. The boundary is a sandbox or container the agent cannot escape, separate credentials, egress rules, server-side CI on a protected branch, and review at the merge point by someone the agent cannot be (this file, lines 75 to 78, and `BLUEPRINT.md`, lines 77 to 80). |
+
 What it does **not** defend against:
 
 - **A malicious or hostile agent**. Every control here runs with the same
