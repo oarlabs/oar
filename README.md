@@ -19,9 +19,10 @@ tell you whether the green was real: whether the checks actually ran, and
 whether anyone has watched one refuse. OAR makes the first answerable and
 the second askable per check. Every check declares where its expectation
 comes from and carries a `seen_red` field: the date of its last recorded
-forced red, or NEVER. At version 0.1.6, 45 of the 219 rows in the check
-registry (`checks-registry.json`) carry a date and 174 are NEVER;
-`python tools/expectation_lint.py` prints that ratio on every run.
+forced red, or NEVER. Most rows in the check registry
+(`checks-registry.json`) are still NEVER, and `python
+tools/expectation_lint.py` prints the live count and ratio on every run
+instead of a number frozen in prose, the R28-3 lesson (`KNOWN-ISSUES.md`).
 
 **What it is not:** a security boundary (`docs/SECURITY-SCOPE.md` states
 this in full),
