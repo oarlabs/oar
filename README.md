@@ -24,6 +24,12 @@ forced red, or NEVER. Most rows in the check registry
 tools/expectation_lint.py` prints the live count and ratio on every run
 instead of a number frozen in prose, the R28-3 lesson (`KNOWN-ISSUES.md`).
 
+A check moves through four states. It can exist as a written expectation.
+It can have run. It can have been seen red, meaning someone observed it
+refuse on a real instance. It can never have been seen red. Only the
+third state is evidence that the check catches what it claims; the first
+two states are evidence only that the check is present and executes.
+
 **What it is not:** a security boundary (`docs/SECURITY-SCOPE.md` states
 this in full),
 an agent framework, or a finished enterprise product. It is single-owner
