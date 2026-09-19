@@ -104,6 +104,13 @@ failed, and what the local browser would expose, to the owner, at his own
 prompt, by a person. There is no
 `--use-local-profile` flag and there will not be one.
 
+A `--src` URL is only ever served on the `http` or `https` scheme; a
+`file://` URL (or any other scheme) is refused with the same NOT-RUN state
+the repository-boundary check uses, naming the scheme — including a
+`file://` URL that happens to resolve inside the repository, because a
+served page's own address, not a `file://` path, is what the manifest may
+record.
+
 ## The catalog
 
 | # | Question |
