@@ -591,7 +591,29 @@ def cmd_shot(args) -> int:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     src = args.src
-    is_url = re.match(r"^[a-zA-Z][a-zA-Z0-9+.\-]*://", src) is not None
+    url_match = re.match(r"^([a-zA-Z][a-zA-Z0-9+.\-]*)://", src)
+    is_url = url_match is not None
+    if is_url:
+        # EYES-BOUNDARY-FIX: a URL is served only on the http/https branch.
+        # A `file://` URL (or any other scheme) is refused here, before any
+        # repository-boundary check runs -- the boundary check exists to
+        # keep a workstation path out of the manifest, a shipped artifact;
+        # a `file://` source puts one there exactly the way a bare local
+        # path would, whether or not it happens to resolve inside the
+        # repository. See EYES.md's boundary decision.
+        scheme = url_match.group(1).lower()
+        if scheme not in ("http", "https"):
+            print(
+                f"EYES: state NOT-RUN; source scheme {scheme!r} is not "
+                "served; only http and https URLs are rendered as a page; "
+                "a file:// URL is refused the same as a workstation path "
+                "outside the repository, whether or not it resolves inside "
+                "the repository, because a served-page path -- not a "
+                "file:// path -- is the one the manifest may record; copy "
+                "a local source under the repository and pass it as a "
+                "path instead",
+                file=sys.stderr)
+            return 2
     src_path = None if is_url else Path(src).resolve()
     if not is_url and not src_path.is_file():
         print(f"EYES: source not found: {src}", file=sys.stderr)
@@ -1097,6 +1119,57 @@ def selftest() -> int:
         check("with no source_dir, the backstop still withholds a line "
               "carrying a drive-letter path (RED, forced)",
               hits_k2[0], "<line withheld: workstation path>")
+
+    print("\n=== L. the URL scheme boundary: file:// is refused regardless "
+          "of where it resolves (EYES BOUNDARY FIX; real subprocess calls, "
+          "this file run as `shot`) ===")
+    this_file = Path(__file__).resolve()
+    root_for_scheme = repo_root(this_file)
+
+    def run_shot(src_arg, out_dir, extra_args=None):
+        cmd = [sys.executable, str(this_file), "shot", "--src", src_arg,
+               "--out", str(out_dir)]
+        if extra_args:
+            cmd += extra_args
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+    with tempfile.TemporaryDirectory(prefix="eyes-selftest-scheme-") as td, \
+         tempfile.TemporaryDirectory(prefix="eyes-selftest-scheme-outside-"
+                                      ) as od:
+        outside_file = Path(od) / "outside.html"
+        outside_file.write_text("<html>outside</html>", encoding="utf-8")
+        outside_url = outside_file.resolve().as_uri()
+        r1 = run_shot(outside_url, Path(td) / "out1")
+        check("file:// URL to a path OUTSIDE the repository -> exit 2 "
+              "(RED, forced, real subprocess)", r1.returncode, 2)
+        check("...stderr states NOT-RUN and names the scheme",
+              "state NOT-RUN" in r1.stderr and "scheme 'file'" in r1.stderr,
+              True)
+
+        inside_abs = root_for_scheme / FIXTURE_SOURCE_REL
+        inside_url = inside_abs.resolve().as_uri()
+        r2 = run_shot(inside_url, Path(td) / "out2")
+        check("file:// URL to a path INSIDE the repository is STILL "
+              "refused (RED, forced, real subprocess) -- a served-page "
+              "path, not a file:// path, is the one the manifest may "
+              "record", r2.returncode, 2)
+        check("...stderr states NOT-RUN and names the scheme",
+              "state NOT-RUN" in r2.stderr and "scheme 'file'" in r2.stderr,
+              True)
+
+        no_browser = str(Path(tempfile.gettempdir())
+                          / "eyes-selftest-no-such-browser.exe")
+        r3 = run_shot("http://127.0.0.1:1/no-such-server", Path(td) / "out3",
+                       extra_args=["--browser", no_browser])
+        check("http:// URL clears the scheme check (FORCED ALLOW, real "
+              "subprocess): no local server is started in --selftest, so "
+              "the allow is asserted at the scheme check alone -- the "
+              "failure that follows is NO-BROWSER, never the scheme's own "
+              "NOT-RUN line",
+              "state NOT-RUN; source scheme" in (r3.stdout + r3.stderr),
+              False)
+        check("...and it is in fact NO-BROWSER, proving execution reached "
+              "past the scheme check", "NO-BROWSER" in r3.stdout, True)
 
     print(f"\n{n} checks; {'ALL PASS' if ok_all else 'FAILURES ABOVE'}")
     return 0 if ok_all else 1
