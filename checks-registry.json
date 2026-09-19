@@ -1485,8 +1485,8 @@
    "id": "selftest:eyes",
    "subject": "modules/03-verification/eyes.py:judging-layer",
    "expectation_from": "inline",
-   "seen_red": "2026-09-16",
-   "reason": "NOT a waiver. The pure gate-judging layer (judge_state), the PNG decoder and blank check, the isolation-by-construction proof over build_shot_cmd/build_version_cmd, the network default, and the console extractor's exclusion of Chromium's own internal logging and of chrome-extension:// CONSOLE lines are each forced red on a planted bad input before the real path is registered - see eyes.py --selftest sections A-H."
+   "seen_red": "2026-09-19",
+   "reason": "NOT a waiver. The pure gate-judging layer (judge_state), the PNG decoder and blank check, the isolation-by-construction proof over build_shot_cmd/build_version_cmd, the network default, and the console extractor's exclusion of Chromium's own internal logging and of chrome-extension:// CONSOLE lines are each forced red on a planted bad input before the real path is registered - see eyes.py --selftest sections A-H. Section L (EYES BOUNDARY FIX, 2026-09-19) adds three real-subprocess cases forcing red on a file:// URL outside and inside the repository, and asserting the http:// allow at the scheme check alone."
   },
   {
    "id": "gate:eyes",
