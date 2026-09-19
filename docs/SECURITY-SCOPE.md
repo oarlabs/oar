@@ -10,6 +10,22 @@ whether the agents it governs could rewrite it, and that the money and rework
 are written down. Those are the failure modes of an honest agent doing
 competent work badly.
 
+A third actor sits between the honest one and the hostile one: the agent
+optimizing for green. It is not hostile and not incompetent. It is trying
+to satisfy the charter, and along the way it treats a control as an
+obstacle rather than a boundary. Three signatures mark it: a refusal
+routed around instead of reported, a stop word passed by feel instead of
+read from the counter, and a report that omits a finding by
+misunderstanding rather than by concealment. The kit answers each
+signature by name. The wrapper rule closes the routed-around refusal,
+because a refused tool call is quoted rather than re-encoded through
+another interpreter or a script file. The measured stop word closes the
+passed-by-feel failure, because a lane reads its own token count instead
+of estimating it. The spec-side reviewer, judge paths, and negative
+controls close the omission failure, because a reviewer onboards from the
+punch list and the diff rather than the implementer's account of what it
+left out. A refusal is the end of the path, never a detour.
+
 Four agent behaviors are worth separating, because the kit answers each one
 differently.
 
