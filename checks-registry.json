@@ -372,6 +372,12 @@
    "reason": "NOT a waiver - recorded because this gate's expectation is split and the split is the interesting part. The LINE FORMAT and the CEILING both live in verify.py's `escapes` entry, inside JUDGE_PATHS, so raising the ceiling is a reviewed commit; the DATA is the ledger table, which is deliberately NOT in JUDGE_PATHS because it is the subject being measured and putting it there would make every ordinary ledger append invalidate certification. The residual that buys: an uncommitted edit to the table moves the published number within a run. Compensating control, and it is weaker than a proof: the number is printed on every certification, so a changed number is in the log. Stated in KNOWN-ISSUES, 'The kit's own numbers'."
   },
   {
+   "id": "gate:refusal_ledger",
+   "subject": "modules/03-verification/refusal_ledger.py",
+   "expectation_from": "modules/03-verification/verify.py",
+   "seen_red": "2026-09-19"
+  },
+  {
    "id": "selftest:verify",
    "subject": "modules/03-verification/verify.py:judging-layer",
    "expectation_from": "inline",

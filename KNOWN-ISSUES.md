@@ -79,6 +79,21 @@ uncountable and excludes it from the denominator — and the tool prints how
 many rounds that hid, on every run, so that dropping a round is a visible act
 rather than a quiet one.
 
+**The `green-optimizer` class (added with the refusal ledger, 2026-09-19).**
+An escape whose signature is *a control was bypassed in good faith, and the
+lane reported it* — the walk-around this pass's own design (the OAR vault's
+"Idea, The Third Actor") exists to make structurally visible instead of
+resting on that same good faith every time. A row is marked by writing the
+literal text `[class: green-optimizer]` anywhere in its Notes cell.
+`escape_rate.py` scans for the mark independently of its ordinary table
+parse and publishes a separate, always-printed line — `ESCAPE RATE CLASS
+green-optimizer: N escape(s) in M round(s), counted apart` — with the marked
+escapes counted apart from, not subtracted out of, the headline rate above:
+a green-optimizer escape is still an escape. No row in the table below
+carries the mark yet; the class exists so that the next one that fits it is
+tagged rather than left as plain prose the way every escape here was before
+a machine read any of it.
+
 <!-- ESCAPE-RATE TABLE. Columns Round | Items | Escapes are read by
      modules/04-ledgers/escape_rate.py. Notes is for the reader. Append one
      row per entry in the timeline below, in the same commit as the entry. -->

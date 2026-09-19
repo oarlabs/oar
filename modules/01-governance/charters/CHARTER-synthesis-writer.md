@@ -73,6 +73,12 @@ this sentence in a live prompt, the interpolation did not happen: HALT.>
 - Never commit.
 - Helpers inherit your tier; never `{{FORBIDDEN_SPAWN_TIER}}`; restate these
   constraints in their prompt.
+- **A refused tool call is quoted, never re-encoded.** A refused tool call is
+  quoted in the report. The same effect is not obtained by another
+  interpreter, a wrapper, a script file, an argument file, a different tool,
+  or a retry. A wrapper is used only when the charter names it in advance.
+  Every wrapped call is quoted. The path rule governs lines added to the box
+  and any artifact. A report quotes refusal lines verbatim, paths included.
 
 ## RETURN SHAPE
 ```
@@ -80,4 +86,7 @@ verdict: COMPOSED | HALT
 ```
 - On HALT: the reason, the specific empty or placeholder input, and nothing else.
 - On COMPOSED: the document body, then a short **SOURCE MAP** — which input fed
-  which section, so a reader can audit the synthesis rather than trust it.
+  which section, so a reader can audit the synthesis rather than trust it. Then
+  **`REFUSALS: n`** — state the count, quote each refusal's reason line
+  verbatim beneath it, write `REFUSALS: 0` when there were none; an absent
+  section is never read as zero.

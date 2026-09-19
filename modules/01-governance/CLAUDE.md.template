@@ -109,6 +109,15 @@ lane's budget to produce and a full reviewer's budget to disbelieve.
   Placeholder text runs the writer dataless. Re-read every synthesis prompt for
   a live interpolation before launch — this is a pre-launch check, not a hope.
 
+## The wrapper rule
+
+**A refused tool call is quoted, never re-encoded.** A refused tool call is
+quoted in the report. The same effect is not obtained by another
+interpreter, a wrapper, a script file, an argument file, a different tool,
+or a retry. A wrapper is used only when the charter names it in advance.
+Every wrapped call is quoted. The path rule governs lines added to the box
+and any artifact. A report quotes refusal lines verbatim, paths included.
+
 ## Certification
 
 **Certification is `{{GATE_COMMAND}}`.** *(module 03 — if you have not adopted
