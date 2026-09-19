@@ -305,6 +305,16 @@ HOOK_SETTINGS = ".claude/settings.json"
 # the number is printed on every certification, not that it is proven.
 ESCAPE_TOOL = "modules/04-ledgers/escape_rate.py"
 ESCAPE_LEDGER = "KNOWN-ISSUES.md"
+
+# The refusal-ledger judge (modules 02+03), for the `refusals` gate. OFF BY
+# DEFAULT - see the `refusals` entry in GATES below for why - so these two
+# are left empty rather than pointed at a real file the way every sibling
+# constant above is. Fill REFUSAL_LEDGER_SESSION and REFUSAL_LEDGER_REPORT
+# for the run being certified, then add "refusals" to RUN_ORDER, to turn it
+# on.
+REFUSAL_LEDGER_TOOL = "modules/03-verification/refusal_ledger.py"
+REFUSAL_LEDGER_SESSION = ""
+REFUSAL_LEDGER_REPORT = ""
 # --------------------------------------------------------------------------
 
 RESET, RED, GREEN, YELLOW, CYAN, BOLD = (
@@ -446,6 +456,27 @@ GATES = {
         doc="the loop publishes its own escape rate and the latest round is "
             "under the ceiling - or under the gate's derived denominator "
             "floor (state SMALL-N), where the ceiling was not tested",
+    ),
+
+    # ---- OFF BY DEFAULT. Not in RUN_ORDER; see REFUSAL_LEDGER_SESSION /
+    #      REFUSAL_LEDGER_REPORT above. Every other gate in this table judges
+    #      a STATIC repo file; this one judges a per-run pair (a session id,
+    #      a lane's own report), and there is no session or report during an
+    #      ordinary certification run - wiring it into RUN_ORDER unconditionally
+    #      would abort startup_problems() on an empty path every time. Add
+    #      "refusals" to RUN_ORDER and fill both constants above only when
+    #      certifying a SPECIFIC lane's session against its ledger. -------
+    "refusals": dict(
+        cmd=[sys.executable, REFUSAL_LEDGER_TOOL,
+             "--session", REFUSAL_LEDGER_SESSION,
+             "--report", REFUSAL_LEDGER_REPORT],
+        timeout=60,
+        require=r"REFUSAL LEDGER:.*state (PASS|FAIL|INSTRUMENTED)",
+        fail_pattern=r"state (FAIL|INSTRUMENTED)",
+        head=lambda m: m.group(1),
+        doc="every hook refusal in this session's ledger appears, quoted "
+            "verbatim, in the lane's own REFUSALS: n report section - the "
+            "walk-around, made structurally red",
     ),
 
     # ---- REPLACE BOTH OF THESE ----------------------------------------

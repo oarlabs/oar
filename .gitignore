@@ -20,6 +20,13 @@ deident.tokens.local
 .claude/cert-green.json
 .claude/settings.local.json
 
+# The refusal ledger (modules/02-enforcement/refusal_line.py): one JSONL
+# line per hook deny, appended beside the cert-green token above. A record
+# OF a session, not a record IN the tree - the dock judge
+# (modules/03-verification/refusal_ledger.py) reads it against a lane's own
+# report, and neither file belongs in a commit.
+.claude/refusal-ledger.jsonl
+
 # Verification artefacts. The runner refuses an --out inside the repo, but a
 # stray one should never be committed either.
 verify-out/

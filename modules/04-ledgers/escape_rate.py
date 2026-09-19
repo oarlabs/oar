@@ -358,6 +358,69 @@ def parse_rounds(text: str) -> list:
     return rounds
 
 
+# ---- THE green-optimizer CLASS, counted apart -----------------------------
+# An escape whose signature is "a control was bypassed IN GOOD FAITH, and the
+# lane reported it" - the shape this whole ledgering pass (the design's own
+# name is "the third actor") exists to make structurally visible instead of
+# depending on that same good faith every time. A row is tagged by writing
+# the marker anywhere in its Notes cell; nothing else about the table format
+# changes, and a ledger with no tagged rows behaves exactly as it did before
+# this class existed - the count is 0 and the line still prints, the same
+# "printed even when it is zero" rule every other line in this tool follows.
+#
+# WHY THIS IS A SEPARATE SCAN, NOT A FOURTH ELEMENT ON parse_rounds()'S
+# TUPLES: parse_rounds() returns (label, items, escapes), and `report()`,
+# `counted()`, `trend()` and a large existing --selftest section all consume
+# and construct that exact shape, several of them by exact tuple-literal
+# comparison. Widening it to four elements would touch every one of those
+# call sites for a count that only a minority of rows ever carry. This scan
+# re-walks the same table body independently and is additive: it cannot
+# change what parse_rounds() computes, and a malformed table is still caught
+# by parse_rounds() first, before main() ever reaches this function.
+GREEN_OPTIMIZER_MARK = "[class: green-optimizer]"
+
+
+def green_optimizer_escapes(text: str) -> tuple[int, int]:
+    """(marked_rounds, escapes_attributed). Scans the escape-rate table's
+    body for rows whose Notes cell (the 4th cell, when present) contains
+    GREEN_OPTIMIZER_MARK, and sums their Escapes counts. Never raises: if
+    the table is malformed, parse_rounds() is the function that says so; a
+    row this scan cannot read cleanly is simply not counted, the same
+    "additive, not authoritative" stance that makes it safe to call even on
+    text parse_rounds() has not yet validated."""
+    lines = text.splitlines()
+    starts = [i for i, ln in enumerate(lines) if is_header(split_row(ln))]
+    if not starts:
+        return 0, 0
+    i = starts[0]
+    n_rounds = 0
+    n_escapes = 0
+    for n in range(i + 2, len(lines)):
+        cells = split_row(lines[n])
+        if not cells:
+            break
+        if len(cells) < 4 or GREEN_OPTIMIZER_MARK not in cells[3]:
+            continue
+        try:
+            esc = parse_count(cells[2], "Escapes", f"line {n + 1}")
+        except LedgerError:
+            continue
+        if esc:
+            n_rounds += 1
+            n_escapes += esc
+    return n_rounds, n_escapes
+
+
+def green_optimizer_line(text: str) -> str:
+    """Always printed, including the zero - see the module-level rule this
+    tool applies to every other line."""
+    n_rounds, n_escapes = green_optimizer_escapes(text)
+    return (f"ESCAPE RATE CLASS green-optimizer: {n_escapes} escape(s) in "
+            f"{n_rounds} round(s), counted apart (a control bypassed in "
+            f"good faith and reported; included in the headline rate above, "
+            f"not subtracted from it)")
+
+
 def gate_ceiling(runner_src: str):
     """The `--ceiling` literal from the runner's `escapes` gate, or None.
 
@@ -888,6 +951,42 @@ def selftest() -> int:
           alternation(r"state\s+(MEASURED|NO-ROUNDS-RECORDED)") == tool_alt,
           False)
 
+    print(f"\n{BOLD}=== G. THE green-optimizer CLASS, counted apart ==={RESET}")
+    check("an unmarked table counts zero, and the line still prints",
+          green_optimizer_escapes(TBL + "| r1 | 8 | 1 | ordinary notes |\n"),
+          (0, 0))
+    check("a marked row's escapes are attributed to the class",
+          green_optimizer_escapes(
+              TBL + "| r1 | 8 | 3 | a bypass, reported "
+              + GREEN_OPTIMIZER_MARK + " |\n"),
+          (1, 3))
+    check("two marked rows accumulate across rounds",
+          green_optimizer_escapes(
+              TBL + "| r1 | 8 | 3 | " + GREEN_OPTIMIZER_MARK + " |\n"
+              "| r2 | 4 | 1 | " + GREEN_OPTIMIZER_MARK + " |\n"),
+          (2, 4))
+    check("a marked row with zero escapes contributes nothing to either "
+          "count",
+          green_optimizer_escapes(
+              TBL + "| r1 | 8 | 0 | " + GREEN_OPTIMIZER_MARK + " |\n"),
+          (0, 0))
+    mixed = TBL + ("| r1 | 8 | 3 | " + GREEN_OPTIMIZER_MARK + " |\n"
+                    "| r2 | 4 | 1 | an ordinary escape, no mark |\n")
+    check("the class is ADDITIVE: the headline rate still counts every "
+          "escape, marked or not",
+          report(parse_rounds(mixed), 35.0)["escapes"], 4)
+    check("...and the class total is a subset of that same headline count",
+          green_optimizer_escapes(mixed)[1], 3)
+    check("the always-printed line carries the zero honestly",
+          green_optimizer_line(TBL + "| r1 | 8 | 1 | no mark here |\n"),
+          "ESCAPE RATE CLASS green-optimizer: 0 escape(s) in 0 round(s), "
+          "counted apart (a control bypassed in good faith and reported; "
+          "included in the headline rate above, not subtracted from it)")
+    check("a table with no header at all is handled without raising - this "
+          "scan is additive and must never be the reason main() crashes "
+          "before parse_rounds() gets to report the real problem",
+          green_optimizer_escapes("no table here\n"), (0, 0))
+
     print()
     print((GREEN if ok_all else RED)
           + f"ESCAPE RATE SELFTEST: {'PASS' if ok_all else 'FAIL'} "
@@ -928,6 +1027,8 @@ def main() -> int:
         return abort(f"{path.as_posix()}: {e}")
 
     rep = report(rounds, a.ceiling)
+    go_rounds, go_escapes = green_optimizer_escapes(text)
+    rep["green_optimizer"] = {"rounds": go_rounds, "escapes": go_escapes}
 
     # UNDER --json, STDOUT IS JSON AND NOTHING ELSE. It used to carry the JSON
     # document followed by the four human lines on the same stream, so the
@@ -942,6 +1043,7 @@ def main() -> int:
     print(f"ledger    : {path.as_posix()}", file=out)
     print(uncounted_line(rep), file=out)
     print(trend_line(rep), file=out)
+    print(green_optimizer_line(text), file=out)
     if rep["state"] == "NO-ROUNDS-RECORDED":
         print(YELLOW + "ESCAPE RATE: no rounds recorded in this ledger yet. "
               "This is the true state of a new project and it is printed on "
