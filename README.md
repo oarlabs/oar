@@ -197,9 +197,11 @@ team-lead evaluator, one cold reconstruction by a non-Claude model,
 practising engineer outside the program. One executed
 [brownfield](GLOSSARY.md) increment
 (`docs/CASE-STUDY-INCREMENT.md`). `KNOWN-ISSUES.md` records what each
-found; `docs/walks/` publishes the prompts and states exact coverage — the
-human read has no prompt to publish. A human adoption walk is planned and
-not yet on record. `docs/ADOPTION-TESTS.md` carries per-module results.
+found. `docs/walks/` publishes the prompts and states exact coverage for
+the LLM-persona reads. The human read and the ninth read, the cold
+reconstruction, have no prompt to publish. A human adoption walk is
+planned and not yet on record. `docs/ADOPTION-TESTS.md` carries
+per-module results.
 
 Version `0.1.7`. Apache-2.0.
 

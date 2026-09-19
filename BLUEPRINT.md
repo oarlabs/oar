@@ -92,7 +92,8 @@ it is reachable by the agents it binds:
 Five rungs, in ascending trust order:
 
 1. Local hook. Runs in the agent's own session from a file the agent can
-   rewrite before its next run (line 84, above).
+   rewrite before its next run (above: "a local hook never can, because the
+   process can rewrite the hook before it next runs").
 2. Committed verifier. `tools/verify.py`, the certification runner. Its own
    gates sit in `JUDGE_PATHS`, so an uncommitted edit to a judge invalidates
    certification (lines 113 to 115, below, and `README.md`, line 159).

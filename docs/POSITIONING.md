@@ -36,10 +36,10 @@ of the forced-red and ledger disciplines. `COMPARISON.md` has the row-by-row.
 (`microsoft/agent-governance-toolkit`) is a runtime control plane with an SRE
 package: SLOs, error budgets, circuit breakers. It aims at the hostile agent
 this kit explicitly declines to defend against (see `docs/SECURITY-SCOPE.md`).
-The hostile agent is the reader's sandbox and CI. This kit governs the
-agent the reader actually runs, the one trying to satisfy the checks and
-willing to walk around a control to do it.
 It ships an `agt doctor` command. That is a name collision with this kit's
 `kit_doctor.py`, disclosed here so nobody has to discover it, and the two tools
 do different jobs. `COMPARISON.md` carries the full claim-by-claim table,
-including the claims where an incumbent does the job better.
+including the claims where an incumbent does the job better. The hostile
+agent is the reader's sandbox and CI. This kit governs the agent the reader
+actually runs, the one trying to satisfy the checks and willing to walk
+around a control to do it.
