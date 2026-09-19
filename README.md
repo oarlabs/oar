@@ -203,7 +203,7 @@ reconstruction, have no prompt to publish. A human adoption walk is
 planned and not yet on record. `docs/ADOPTION-TESTS.md` carries
 per-module results.
 
-Version `0.1.7`. Apache-2.0.
+Version `0.1.8`. Apache-2.0.
 
 ---
 
