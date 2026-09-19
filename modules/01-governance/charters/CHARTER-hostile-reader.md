@@ -50,7 +50,15 @@ The persona's unfairness is the instrument. Do not soften it to be fair.
   Some sneers are the persona operating as designed; the yield is the
   pattern, not any single complaint.
 - Report body lands by the lane-report protocol (bytes, hash, verdict,
-  bounded summary).
+  bounded summary). It ends with `REFUSALS: n` — state the count, quote each
+  refusal's reason line verbatim beneath it, write `REFUSALS: 0` when there
+  were none; an absent section is never read as zero.
+- **A refused tool call is quoted, never re-encoded.** A refused tool call is
+  quoted in the report. The same effect is not obtained by another
+  interpreter, a wrapper, a script file, an argument file, a different tool,
+  or a retry. A wrapper is used only when the charter names it in advance.
+  Every wrapped call is quoted. The path rule governs lines added to the box
+  and any artifact. A report quotes refusal lines verbatim, paths included.
 
 ## Provenance
 

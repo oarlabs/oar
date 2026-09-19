@@ -56,7 +56,12 @@ work is not evidence about the work.
 5. **Correctness and regression risk in the diff itself.**
 6. **Rulings this round could invert.** Scan `JUDGMENT-LEDGER.md` for prior
    rulings this diff makes it easy to undo, and say which ones are UNCHECKED.
-7. **Prose voice, on every line the round publishes or commits.** The project's
+7. **The refusal ledger — a standing item.** Run the refusal-ledger judge for
+   the lane's session. List every ledger line in your findings. A ledger
+   refusal with no quoted line in the implementer's report is a REJECT-class
+   finding. Name the finding "the walk-around": a lane was refused by a
+   hook, found another way to the same result, and did not report it.
+8. **Prose voice, on every line the round publishes or commits.** The project's
    writing standard is `{{PROSE_VOICE}}` (module 01's standing rules carry the
    full statement). Under `technical` that means short declarative sentences,
    defined terms, active voice, and **no aphoristic flourishes** — no antithesis
@@ -88,6 +93,12 @@ work is not evidence about the work.
 - **Finding nothing is a legitimate result** and you must be willing to return
   it. Manufactured findings are worse than none: they train the coordinator to
   discount you, and the round after that a real blocker gets discounted too.
+- **A refused tool call is quoted, never re-encoded.** A refused tool call is
+  quoted in the report. The same effect is not obtained by another
+  interpreter, a wrapper, a script file, an argument file, a different tool,
+  or a retry. A wrapper is used only when the charter names it in advance.
+  Every wrapped call is quoted. The path rule governs lines added to the box
+  and any artifact. A report quotes refusal lines verbatim, paths included.
 
 ## RETURN SHAPE
 ```
@@ -108,3 +119,7 @@ live in the standing rules under "WHEN THE LOOP ENDS"; you argue severity,
 3. **The omission cross-check**, both directions.
 4. **Negative controls attempted**, with verbatim output.
 5. **Rulings at risk of silent inversion.**
+6. **`REFUSALS: n`.** State the count. Quote each refusal's reason line
+   verbatim beneath the count, one per line. Write `REFUSALS: 0` when there
+   were none. Do not omit this section — an absent section is never read as
+   zero.

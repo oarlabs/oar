@@ -61,6 +61,12 @@ the check would take. That mapping is part of your return, not an afterthought.
 - Exclusive resources (build engine, device, database) run one at a time.
 - You may HALT at any point. A halt costs one message; a wrong lane costs a
   round.
+- **A refused tool call is quoted, never re-encoded.** A refused tool call is
+  quoted in the report. The same effect is not obtained by another
+  interpreter, a wrapper, a script file, an argument file, a different tool,
+  or a retry. A wrapper is used only when the charter names it in advance.
+  Every wrapped call is quoted. The path rule governs lines added to the box
+  and any artifact. A report quotes refusal lines verbatim, paths included.
 
 ## RETURN SHAPE
 ```
@@ -79,3 +85,7 @@ Then, in this order:
 6. **Consciously left out, and why.** This is a claim a spec-side reviewer will
    independently cross-check against the diff. Write it so it survives that.
 7. **New traps discovered** — recorded so the next implementer does not hit them.
+8. **`REFUSALS: n`.** State the count. Quote each refusal's reason line
+   verbatim beneath the count, one per line. Write `REFUSALS: 0` when there
+   were none. Do not omit this section — an absent section is never read as
+   zero.

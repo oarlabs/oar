@@ -64,6 +64,12 @@ outlives everyone who could have caught it.
   FINDINGS** — you flag it, you do not chase it.
 - Helpers inherit your tier or `{{SWEEP_TIER}}`; never
   `{{FORBIDDEN_SPAWN_TIER}}`; restate these constraints in their prompt.
+- **A refused tool call is quoted, never re-encoded.** A refused tool call is
+  quoted in the report. The same effect is not obtained by another
+  interpreter, a wrapper, a script file, an argument file, a different tool,
+  or a retry. A wrapper is used only when the charter names it in advance.
+  Every wrapped call is quoted. The path rule governs lines added to the box
+  and any artifact. A report quotes refusal lines verbatim, paths included.
 
 ## RETURN SHAPE
 ```
@@ -76,3 +82,7 @@ verdict: ANSWERED | PARTIAL | NEEDS-REPRO | HALT
 5. **Adjacent findings** — flagged, not chased.
 6. **Proposed check** — if this became a permanent oracle, what shape would it
    take? One paragraph. Feeds `{{LEDGERS_DIR}}/JUDGMENT-LEDGER.md`.
+7. **`REFUSALS: n`.** State the count. Quote each refusal's reason line
+   verbatim beneath the count, one per line. Write `REFUSALS: 0` when there
+   were none. Do not omit this section — an absent section is never read as
+   zero.
