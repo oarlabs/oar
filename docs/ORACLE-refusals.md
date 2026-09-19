@@ -58,3 +58,15 @@ unverified here - `refusal_ledger.py` trusts the `--session` argument it is
 given and the `session_id` field the hook read from its own stdin payload;
 nothing in this gate cross-checks that value against the harness's own
 record of which session ran which lane.
+
+## The failure floor row
+
+The shipped `modules/04-ledgers/FAILURE-FLOOR.md` is a template of prompts;
+`kit_doctor.py --selftest` requires it to parse to zero judged rules, so the
+row for this control lives here and an adopter copies it into their own
+`docs/FAILURE-FLOOR.md`. The 0.1.7 tag carried the row inside the template
+and its CI was red on that check on both runners; this page is the fix.
+
+| Rule | Layer | Zone | Status | Last fired | Failure mode covered / residual |
+|---|---|---|---|---|---|
+| The wrapper rule: a refused tool call is quoted, never re-encoded through another interpreter, a wrapper, a script file, an argument file, a different tool, or a retry | HOOK (`hook_model_gate.py`'s four deny points, ledgered) + CHECKLIST (`refusal_ledger.py`, the dock judge, off by default in `verify.py` until configured) | B | **STRUCTURAL** | 2026-09-19 (FORCED RED 1, `docs/ORACLE-refusals.md`) | Covered: a lane refused by a hook that walked around it without reporting the walk-around - the ledger and the report's `REFUSALS: n` section are read against each other, and any mismatch is red. Residual, ACCEPTED for now: the ledger is Zone B (an ordinary gitignored file a lane can edit or delete before the dock judge runs); a harness or sandbox refusal that never reaches `hook_model_gate.py`'s four deny points appends no ledger line, so that class is covered by the wrapper rule's prose alone, not by this gate; and the gate trusts the `--session` value it is given with no independent cross-check against the harness's own session record. |
