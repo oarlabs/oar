@@ -108,9 +108,70 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+
+
+# --------------------------------------------------------------------------
+# THE REFUSAL LEDGER - COPIED BY VALUE from refusal_line.py, keep identical.
+#
+# Why copied rather than imported: this file's own docstring says "THIS FILE
+# NEEDS NO EDITING", and module 02's README tells an adopter to copy ONLY
+# this one file (`cp .../hook_model_gate.py tools/`) and run it standalone,
+# reading nothing but kit.config. An `import refusal_line` here would break
+# the moment the sibling file is not copied alongside it, and nothing in the
+# adopt instructions says to copy two files - so the zero-import discipline
+# wins and the four functions below are duplicated verbatim. See
+# refusal_line.py's own docstring for the line shape, the --selftest that
+# proves this code, and why the "made read-only" case is simulated by
+# occupying the path with a file rather than by chmod (measured: chmod
+# read-only does not block a directory write on Windows).
+# --------------------------------------------------------------------------
+def _refusal_iso_now() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%S%z")
+
+
+def _refusal_record(session_id, agent_id, hook, tool, target, reason) -> dict:
+    return {
+        "ts": _refusal_iso_now(),
+        "session_id": session_id or "",
+        "agent_id": agent_id if agent_id else None,
+        "hook": hook or "",
+        "tool": tool or "",
+        "target": (target or "")[:120],
+        "reason": reason or "",
+    }
+
+
+def _refusal_ledger_path() -> Path:
+    tok = Path(TOKEN_FILE or ".claude/cert-green.json")
+    if not tok.is_absolute():
+        tok = Path(PROJECT_ROOT or ".") / tok
+    return tok.parent / "refusal-ledger.jsonl"
+
+
+def _append_refusal(path: Path, record: dict) -> bool:
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+        return True
+    except OSError:
+        return False
+
+
+def log_refusal(session_id, agent_id, hook, tool, target, reason) -> None:
+    """Called at every deny point, before `out()`. A failed write NEVER
+    changes the decision - the hook denies as before, and this prints one
+    warning line to stderr, never to stdout (stdout is the JSON decision the
+    harness parses; a warning line on it would corrupt that contract)."""
+    record = _refusal_record(session_id, agent_id, hook, tool, target, reason)
+    if not _append_refusal(_refusal_ledger_path(), record):
+        print(f"REFUSAL LEDGER WARNING: could not append to "
+              f"{_refusal_ledger_path()} - the deny above still stands.",
+              file=sys.stderr)
 
 
 # --------------------------------------------------------------------------
@@ -720,6 +781,8 @@ def main() -> None:
         return                     # fail open: see the module docstring
     tool = d.get("tool_name") or ""
     ti = d.get("tool_input") or {}
+    session_id = d.get("session_id") or ""
+    agent_id = d.get("agent_id") or None
 
     # ---- 1. workflow scripts -------------------------------------------
     if tool == "Workflow":
@@ -735,13 +798,16 @@ def main() -> None:
         n_agent = len(re.findall(r"\bagent\s*\(", code))
         n_model = len(re.findall(r"\bmodel\s*:", code))
         if n_agent > n_model:
-            out("deny",
+            reason = (
                 f"LOUD FAILURE - model-tiering rule: {n_agent} agent() call "
                 f"site(s) but only {n_model} model: declaration(s). Every "
                 f"agent() must declare an explicit tier (e.g. "
                 f"{{model: '{LANE_TIER}'}}); omitting it silently inherits the "
                 f"session model, which is the orchestrator tier. Fix and "
-                f"relaunch.",
+                f"relaunch.")
+            log_refusal(session_id, agent_id, "workflow-tier", tool,
+                        ti.get("scriptPath") or "<inline script>", reason)
+            out("deny", reason,
                 "Workflow blocked: agent() without an explicit model tier.")
         return
 
@@ -750,23 +816,27 @@ def main() -> None:
         model = (ti.get("model") or "").strip()
         stype = (ti.get("subagent_type") or "").strip()
         if FORBIDDEN_TIER and model and model.lower() == FORBIDDEN_TIER.lower():
-            out("deny",
+            reason = (
                 f"LOUD FAILURE - a spawn may never request '{FORBIDDEN_TIER}' "
                 f"by name. That tier orchestrates; it does not execute. Use "
                 f"'{LANE_TIER}' for lane work or '{SWEEP_TIER}' for mechanical "
-                f"sweeps.",
+                f"sweeps.")
+            log_refusal(session_id, agent_id, "forbidden-tier", tool,
+                        stype or model, reason)
+            out("deny", reason,
                 "Agent spawn blocked: orchestrator tier requested by name.")
             return
         if model:
             return
         if stype in EXEMPT_TYPES:
             return                 # the type carries its own model
-        out("deny",
+        reason = (
             f"LOUD FAILURE - model-tiering rule: this Agent spawn declares no "
             f"model, so it would inherit the session model (the orchestrator "
             f"tier). Add model: '{LANE_TIER}' / '{SWEEP_TIER}', or use an "
-            f"exempt agent type ({', '.join(sorted(EXEMPT_TYPES)) or 'none configured'}).",
-            "Agent spawn blocked: no explicit model tier.")
+            f"exempt agent type ({', '.join(sorted(EXEMPT_TYPES)) or 'none configured'}).")
+        log_refusal(session_id, agent_id, "agent-tier", tool, stype, reason)
+        out("deny", reason, "Agent spawn blocked: no explicit model tier.")
         return
 
     # ---- 3/4. shell ------------------------------------------------------
@@ -784,14 +854,15 @@ def main() -> None:
                         sweep = sweep_preview(p.stdout)
                 except Exception:
                     sweep = ""          # never let the preview become the story
-            out("deny",
+            reason = (
                 f"LOUD FAILURE - blanket staging is banned in this repo (it "
                 f"once swept an in-flight agent's scratch file into a commit). "
                 f"Matched: {form!r}. Stage targeted paths: "
                 f"git add <file> <file>.{sweep} `python tools/kit_doctor.py` "
                 f"names the same files on demand, and `git add --dry-run` is "
-                f"not blocked.",
-                "Blocked: blanket staging - use targeted paths.")
+                f"not blocked.")
+            log_refusal(session_id, agent_id, "blanket-add", tool, cmd, reason)
+            out("deny", reason, "Blocked: blanket staging - use targeted paths.")
             return
         if touches_protected(cmd):
             protected_verdict("command")
@@ -808,5 +879,96 @@ def main() -> None:
         return
 
 
+# --------------------------------------------------------------------------
+# --selftest : the refusal ledger's two live cases, end to end through a
+# real subprocess (the same way hook_fixtures.py proves the hook's other
+# decisions) - not the pure layer alone, because THE CLAIM being proved is
+# "the deny still stands and the warning is the only visible effect", which
+# is a claim about main()'s control flow, not about log_refusal() in
+# isolation. The pure shape (every field present, JSON round-trips, target
+# truncation, the portable read-only stand-in) is proved once, by
+# refusal_line.py's own --selftest - this is the seam-crossing proof that
+# the copy inside THIS file behaves the same way live.
+# --------------------------------------------------------------------------
+def _gate_selftest() -> int:
+    import json as _json
+    import tempfile
+
+    ok_all = True
+    n = 0
+
+    def check(label, got, want):
+        nonlocal ok_all, n
+        n += 1
+        good = got == want
+        ok_all = ok_all and good
+        print(f"  [{'PASS' if good else 'FAIL'}] {label}"
+              + ("" if good else f"\n        got  {got!r}\n        want {want!r}"))
+
+    def run_hook(root: Path, env_extra: dict) -> tuple[str, str, int]:
+        cfg = (f"PROJECT_ROOT = {root.as_posix()}\n"
+               f"LANE_TIER = lane-tier\nSWEEP_TIER = sweep-tier\n"
+               f"CERT_TOKEN_FILE = .claude/cert-green.json\n")
+        cfg_path = root / "selftest-kit.config"
+        cfg_path.write_text(cfg, encoding="utf-8")
+        env = dict(os.environ)
+        env["KIT_CONFIG"] = str(cfg_path)
+        env.update(env_extra)
+        payload = _json.dumps({
+            "tool_name": "Bash",
+            "tool_input": {"command": "git add -A"},
+            "session_id": "selftest-session",
+            "agent_id": "selftest-agent",
+        })
+        p = subprocess.run([sys.executable, str(Path(__file__).resolve())],
+                            input=payload, capture_output=True, text=True,
+                            env=env, timeout=30)
+        return p.stdout, p.stderr, p.returncode
+
+    print("=== the gate's own selftest: the refusal ledger, live ===")
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        out_s, err_s, rc = run_hook(root, {})
+        check("a deny is still delivered on stdout",
+              '"permissionDecision": "deny"' in out_s, True)
+        ledger = root / ".claude" / "refusal-ledger.jsonl"
+        check("the ledger file was created with exactly one line",
+              ledger.is_file() and len(ledger.read_text(encoding="utf-8")
+                                        .splitlines()), 1)
+        if ledger.is_file():
+            rec = _json.loads(ledger.read_text(encoding="utf-8").splitlines()[0])
+            check("the line carries every documented field",
+                  sorted(rec.keys()),
+                  sorted(["ts", "session_id", "agent_id", "hook", "tool",
+                          "target", "reason"]))
+            check("session_id and agent_id came from the stdin payload",
+                  (rec["session_id"], rec["agent_id"]),
+                  ("selftest-session", "selftest-agent"))
+            check("hook names the deny point that fired",
+                  rec["hook"], "blanket-add")
+
+    print("\n=== the ledger location cannot be written: the deny still "
+          "stands, the warning is on stderr, nothing is on stdout but the "
+          "decision ===")
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        # Occupy `.claude` with a FILE so the ledger's parent cannot be made
+        # a directory - the portable read-only stand-in; see
+        # refusal_line.py's docstring for why chmod does not serve here.
+        (root / ".claude").write_text("occupying this name", encoding="utf-8")
+        out_s, err_s, rc = run_hook(root, {})
+        check("a deny is STILL delivered on stdout despite the ledger being "
+              "unwritable", '"permissionDecision": "deny"' in out_s, True)
+        check("the warning line is observed on stderr",
+              "REFUSAL LEDGER WARNING" in err_s, True)
+        check("stdout carries no warning text (the JSON contract is not "
+              "corrupted)", "REFUSAL LEDGER WARNING" in out_s, False)
+
+    print(f"\nGATE SELFTEST: {'PASS' if ok_all else 'FAIL'} — {n} checks")
+    return 0 if ok_all else 1
+
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        sys.exit(_gate_selftest())
     main()
