@@ -38,7 +38,7 @@ mechanisms aim at it, making the honest states cheaper than the dishonest ones.
 | **The escape rate** | The share of findings an existing check should have caught, computed from the judgment ledger by `escape_rate.py`, printed on every certifying run, held to a ceiling. |
 
 A later review narrowed this. At 0.1.6 the registry's per-check
-[`seen_red`](GLOSSARY.md) field has 45 dated rows of 219 and 174 NEVER. The claim
+[`seen_red`](GLOSSARY.md) field has 47 dated rows of 221 and 174 NEVER. The claim
 over every check is withdrawn until the backfill supports it.
 
 ## What certifies per level, and what it costs

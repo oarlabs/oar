@@ -26,11 +26,29 @@ override lived outside the repository; the unmodified run reads green
 floor breach forced by `verify.py --selftest` section B3 on 2026-09-16 —
 the same class of red, forced by a different, in-process route.)
 
+**The scheme boundary (EYES BOUNDARY FIX, 2026-09-19).** `cmd_shot`'s `is_url`
+branch used to treat every URL scheme alike, so a `file://` URL to any
+workstation path was shot as if it were a served page — the boundary check
+existed to keep a workstation path out of the manifest, and a `file://`
+source put one there anyway. Observed red, real subprocess call, a
+`file://` URL to a path outside the repository (exit 2):
+
+```
+EYES: state NOT-RUN; source scheme 'file' is not served; only http and https URLs are rendered as a page; a file:// URL is refused the same as a workstation path outside the repository, whether or not it resolves inside the repository, because a served-page path -- not a file:// path -- is the one the manifest may record; copy a local source under the repository and pass it as a path instead
+```
+
+The same line, unchanged, is what a `file://` URL that resolves *inside*
+the repository also gets — the scheme check runs before any boundary
+check, so location does not matter. `--selftest` section L forces both
+cases plus the `http://` allow case as real subprocess calls (not
+in-process calls), and `selftest:eyes`'s registry row carries the new
+seen-red date.
+
 **Lineage.** Named in `EYES.md`'s own lineage paragraph: "Chromium headless
 screenshot (the render mechanism itself); pixel-diff visual regression (the
 shape of gating a render — compare against a stored image, fail on
-change)," with the ten-question catalog answered by a reader named as this
-module's own addition.
+change)." The ten-question catalog answered by a reader is named there as
+this module's own addition.
 
 **The floor — a finding, not enacted here.** `kit_doctor.py`'s
 `doctor:vacuous-gate` check flags the `eyes` gate's `expect_min=1` in
