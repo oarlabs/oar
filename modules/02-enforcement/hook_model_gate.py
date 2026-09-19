@@ -115,7 +115,8 @@ HERE = Path(__file__).resolve().parent
 
 
 # --------------------------------------------------------------------------
-# THE REFUSAL LEDGER - COPIED BY VALUE from refusal_line.py, keep identical.
+# THE REFUSAL LEDGER - COPIED BY VALUE from refusal_line.py. The names differ
+# (a leading underscore here); the behavior is the same, proved by both selftests.
 #
 # Why copied rather than imported: this file's own docstring says "THIS FILE
 # NEEDS NO EDITING", and module 02's README tells an adopter to copy ONLY

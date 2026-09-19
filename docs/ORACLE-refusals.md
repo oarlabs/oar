@@ -25,7 +25,7 @@ UNQUOTED REFUSAL (in the ledger, not in the report): 'LOUD FAILURE - blanket sta
 
 Exit code 1. Observed 2026-09-19. Restore: nothing to revert - the scratch
 ledger and report files were never inside the repository, so no repo file
-changed; `refusal_ledger.py --selftest` runs this exact case (FORCED RED 1)
+changed; `refusal_ledger.py --selftest` runs the same case (FORCED RED 1) on different scratch literals
 as a real subprocess call on scratch files and passes, alongside FORCED RED
 2, FORCED RED 3, FORCED ALLOW 4, and INSTRUMENTED 5-7.
 

@@ -19,7 +19,8 @@ file is where that duplicated code is authored once, so `refusal_ledger.py`
 shape without spawning a hook subprocess, and so a reader auditing the
 duplication has a diff target. Whenever the copy inside `hook_model_gate.py`
 changes, this file changes in the same commit, and the reverse - both carry a
-`# COPIED BY VALUE from refusal_line.py - keep identical` marker comment at
+`# COPIED BY VALUE from refusal_line.py` marker comment (the names differ, the
+behavior is the same, proved by both selftests) at
 the seam.
 
 THE LINE

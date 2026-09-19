@@ -96,13 +96,14 @@ Five rungs, in ascending trust order:
    process can rewrite the hook before it next runs").
 2. Committed verifier. `tools/verify.py`, the certification runner. Its own
    gates sit in `JUDGE_PATHS`, so an uncommitted edit to a judge invalidates
-   certification (lines 113 to 115, below, and `README.md`, line 159).
+   certification (the judge-paths-clean check under Zone B hardening, below, and the
+   `README.md` module map's 03-verification row).
 3. Server-side CI. Re-judges the resulting tree on every push, the first
-   control an agent genuinely cannot edit (lines 79 to 81, above).
+   control an agent genuinely cannot edit (Zone A, item 2, above).
 4. Protected branch. Pairs with server-side CI so the tree that merges is
-   the tree CI judged (line 79, above).
-5. The human at a gate. Unforgeable, expensive, spent sparingly (line 78,
-   above).
+   the tree CI judged (Zone A, item 2, above).
+5. The human at a gate. Unforgeable, expensive, spent sparingly (Zone A,
+   item 1, above).
 
 The final anchor sits outside the agents' reach, which is why Zone A ranks
 above Zone B.
