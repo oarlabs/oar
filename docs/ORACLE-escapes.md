@@ -24,7 +24,9 @@ override lived outside the repository; the unmodified run reads green
 (`GREEN escapes 37/243 (15.2%)`), confirmed above.
 
 **Lineage.** Named in `BLUEPRINT.md` §12: "Defect escape rate, a standard QA
-and delivery metric... with published benchmark bands" — search-result
+and delivery metric: the share of defects that reached the user because the
+process that should have caught them did not, with published benchmark
+bands" — search-result
 sources `https://dzone.com/articles/how-to-measure-defect-escape-rate-to-keep-bugs-out`
 and `https://plandek.com/blog/escaped-defects`. What this kit adds, per the
 same row: the denominator is computed from the judgment ledger rather than a
