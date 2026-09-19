@@ -218,6 +218,29 @@ def _tracked(cwd) -> set:
         else set()
 
 
+def _delete_gate_dict_entry(text: str, key: str, required: bool) -> str:
+    """Remove GATES[key]'s whole `"key": dict(...),` entry, the same
+    mechanical way the original code removed `example_lint` by hand. Shared
+    so a second gate that needs the same treatment (see `eyes` below) does
+    not grow a second hand-rolled copy of the boundary logic.
+
+    `required` distinguishes a document step (Step 4.3 deletes
+    `example_lint` and MUST find it, or the runner changed shape under this
+    script) from an opportunistic drop (`eyes` may simply not be there in a
+    future verify.py, and that absence is not this script's problem)."""
+    marker = f'    "{key}": dict('
+    if marker not in text:
+        if required:
+            raise SystemExit(
+                f"ADOPTION SMOKE ABORT: could not find the {key!r} gate "
+                f"entry to delete (marker {marker!r} not found); the "
+                f"runner changed shape; update this script.")
+        return text
+    start = text.index(marker)
+    end = text.index("\n    ),\n", start) + len("\n    ),\n")
+    return text[:start] + text[end:]
+
+
 # --------------------------------------------------------------------------
 # phase 2: the mechanical adoption
 # --------------------------------------------------------------------------
@@ -278,9 +301,22 @@ def adapt_runner(text: str) -> str:
     # its key, its patterns and its selftest references in one pass), and
     # `example_lint` is removed outright.
     text = text.replace("example_unit", "unit_suite")
-    start = text.index('    "example_lint": dict(')
-    end = text.index("\n    ),\n", start) + len("\n    ),\n")
-    text = text[:start] + text[end:]
+    text = _delete_gate_dict_entry(text, "example_lint", required=True)
+
+    # THE SAME LESSON, ONE MORE GATE. Module 03's own `eyes` gate joined
+    # RUN_ORDER on commit fc1e932 (the EYES module) - verify.py's own header
+    # says it needs "no adaptation to TRY it", because it reads the module's
+    # committed example render exactly the way example_unit/example_lint
+    # read the module's example scripts, and "point it at your own rendered
+    # output on adoption" once you have one. This scaffold is a throwaway
+    # synthetic project with no rendered UI to point it at - the same reason
+    # it has no browser - so `eyes` is dropped here the same mechanical way
+    # example_lint is. verify.py's own selftest guards this gate exactly like
+    # example_unit/example_lint ("if 'eyes' in GATES:" at section C), so a
+    # scaffold missing it is an anticipated, not a broken, shape.
+    # NOT required: a future verify.py that ships with no `eyes` gate at all
+    # must not abort this script over a gate that is already absent.
+    text = _delete_gate_dict_entry(text, "eyes", required=False)
     return text
 
 
@@ -350,7 +386,11 @@ def adapt_runner_finish(text: str) -> str:
             "ADOPTION SMOKE ABORT: RUN_ORDER changed shape; expected "
             "'example_lint' present among the gate names (QUICKSTART Step "
             f"4.3 deletes it); found {names!r}; update this script.")
-    new_names = [n for n in names if n != "example_lint"]
+    # `eyes` is dropped alongside `example_lint` when present - see the long
+    # comment in adapt_runner(). Its absence is NOT a shape change worth an
+    # abort: a future verify.py may ship with no `eyes` gate at all.
+    drop = {"example_lint", "eyes"}
+    new_names = [n for n in names if n not in drop]
     new_literal = "[" + ", ".join(f'"{n}"' for n in new_names) + "]"
     text = text[:match.start(1)] + new_literal + text[match.end(1):]
     anchor = '    print(c(BOLD, "\\n=== I. every gate in RUN_ORDER'
