@@ -24,8 +24,8 @@ override lived outside the repository; the unmodified run reads green
 **Lineage.** No row in `BLUEPRINT.md` §12 names static linting itself.
 General-knowledge, unfetched this session: rule-based static analysis
 linters (Lint, 1978; ESLint and its many successors) are the conventional
-ancestor of "N rules, 0 hard failures, warnings visible but not fatal."
-Stated as an honest, unfetched analogy, not a citation.
+ancestor of the shape N rules, 0 hard failures, warnings visible but not
+fatal. Stated as an honest, unfetched analogy, not a citation.
 
 **Residual.** This is one of the kit's shipped EXAMPLE gates — QUICKSTART
 Step 4.6 tells an adopter to replace it. Like `example_unit`, the oracle it

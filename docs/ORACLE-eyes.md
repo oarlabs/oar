@@ -29,8 +29,8 @@ the same class of red, forced by a different, in-process route.)
 **Lineage.** Named in `EYES.md`'s own lineage paragraph: "Chromium headless
 screenshot (the render mechanism itself); pixel-diff visual regression (the
 shape of gating a render — compare against a stored image, fail on
-change)," with the ten-question catalog answered by a reader named as this
-module's own addition.
+change)." The ten-question catalog answered by a reader is named there as
+this module's own addition.
 
 **The floor — a finding, not enacted here.** `kit_doctor.py`'s
 `doctor:vacuous-gate` check flags the `eyes` gate's `expect_min=1` in
