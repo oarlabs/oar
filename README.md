@@ -19,9 +19,16 @@ tell you whether the green was real: whether the checks actually ran, and
 whether anyone has watched one refuse. OAR makes the first answerable and
 the second askable per check. Every check declares where its expectation
 comes from and carries a `seen_red` field: the date of its last recorded
-forced red, or NEVER. At version 0.1.7, 47 of the 221 rows in the check
-registry (`checks-registry.json`) carry a date and 174 are NEVER;
-`python tools/expectation_lint.py` prints that ratio on every run.
+forced red, or NEVER. Most rows in the check registry
+(`checks-registry.json`) are still NEVER, and `python
+tools/expectation_lint.py` prints the live count and ratio on every run
+instead of a number frozen in prose, the R28-3 lesson (`KNOWN-ISSUES.md`).
+
+A check moves through four states. It can exist as a written expectation.
+It can have run. It can have been seen red, meaning someone observed it
+refuse on a real instance. It can never have been seen red. Only the
+third state is evidence that the check catches what it claims. The first
+two states are evidence only that the check is present and executes.
 
 **What it is not:** a security boundary (`docs/SECURITY-SCOPE.md` states
 this in full),
@@ -137,6 +144,14 @@ the kit ships.
 
 ## Module map
 
+Four modules do the load-bearing work, as layers. Enforcement prevents.
+Verification proves. Ledgers learn. CI anchors outside the agents' reach.
+Governance, statusboard, sidequest and collaboration wrap those four:
+they set the rules the other layers enforce, show their state, bound a
+detour, and carry the standing agreements between the people and agents
+involved. A newcomer reads governance first, at Level 1. See
+`docs/ADOPTION-LEVELS.md`.
+
 | Module | What it gives you | Runs on day one? |
 |---|---|---|
 | **01-governance** | The standing-rules document (tiering, HALT authority, hygiene, stage-close checklist, oracle manufacture, promotion/demotion) and five charter templates: implementer, spec-side reviewer, scout, synthesis writer, hostile reader (the Principal Skeptic evaluation persona). | Documents only |
@@ -173,16 +188,20 @@ shape.
 One person maintains this kit, working with AI agents, best-effort. No SLA.
 The bus factor is one.
 
-The evidence base: one reference build; sixteen LLM-persona adoption walks
-(a language model given a persona and a scratch repository, not a person);
-eight LLM-persona evaluation and recon reads (three of the shipped kit,
+The evidence base: one reference build, sixteen LLM-persona adoption walks
+(a language model given a persona and a scratch repository, not a person),
+and nine LLM-persona evaluation and recon reads (three of the shipped kit,
 three of the kit plus a brownfield host, one pre-sales recon, one
-team-lead evaluator); one read by a practising engineer outside the
-program; one executed [brownfield](GLOSSARY.md) increment
+team-lead evaluator, one cold reconstruction by a non-Claude model,
+2026-09-18, every checked claim matching the tree). One read by a
+practising engineer outside the program. One executed
+[brownfield](GLOSSARY.md) increment
 (`docs/CASE-STUDY-INCREMENT.md`). `KNOWN-ISSUES.md` records what each
-found; `docs/walks/` publishes the prompts and states exact coverage — the
-human read has no prompt to publish. A human adoption walk is planned and
-not yet on record. `docs/ADOPTION-TESTS.md` carries per-module results.
+found. `docs/walks/` publishes the prompts and states exact coverage for
+the LLM-persona reads. The human read and the ninth read, the cold
+reconstruction, have no prompt to publish. A human adoption walk is
+planned and not yet on record. `docs/ADOPTION-TESTS.md` carries
+per-module results.
 
 Version `0.1.7`. Apache-2.0.
 

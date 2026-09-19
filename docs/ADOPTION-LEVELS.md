@@ -19,9 +19,9 @@ it is the reversible one. Start here unless you have a specific reason not to.
 
 Add **03-verification**: one command, one exit code, real floors, and a real
 [negative control](../GLOSSARY.md). Add **02-enforcement** after a governance
-rule has failed at least once. The failure tells you which rule to promote
-first. Promoting rules that have never failed grows the rule set until people
-route around it.
+rule has failed at least once, because the failure tells you which rule to
+promote first. Promoting rules that have never failed grows the rule set
+until people route around it.
 
 ## Level 3 — full (a week, mostly spent on your own gates)
 

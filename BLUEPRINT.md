@@ -89,6 +89,24 @@ it is reachable by the agents it binds:
 5. Topology (read-only stages can't collide; serial stages can't race a shared resource).
 6. Checklists. 7. Prose.
 
+Five rungs, in ascending trust order:
+
+1. Local hook. Runs in the agent's own session from a file the agent can
+   rewrite before its next run (above: "a local hook never can, because the
+   process can rewrite the hook before it next runs").
+2. Committed verifier. `tools/verify.py`, the certification runner. Its own
+   gates sit in `JUDGE_PATHS`, so an uncommitted edit to a judge invalidates
+   certification (lines 113 to 115, below, and `README.md`, line 159).
+3. Server-side CI. Re-judges the resulting tree on every push, the first
+   control an agent genuinely cannot edit (lines 79 to 81, above).
+4. Protected branch. Pairs with server-side CI so the tree that merges is
+   the tree CI judged (line 79, above).
+5. The human at a gate. Unforgeable, expensive, spent sparingly (line 78,
+   above).
+
+The final anchor sits outside the agents' reach, which is why Zone A ranks
+above Zone B.
+
 Know which zone each rule lives in and write it down. Until CI exists, the minimum
 hardening for Zone B judges: hook fixtures inside the verify run (synthesized inputs,
 expected verdicts), a **dead-man check** (a silently dead gate reads as failure — and

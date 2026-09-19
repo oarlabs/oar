@@ -274,11 +274,11 @@ story. This failure was found by adopting the kit into a scratch project.
 ## Conditional fixtures
 
 Four fixtures only mean something once `kit.config` configures the feature
-they test (exempt agent types, the forbidden tier, the protected path).
-Unconfigured, they print `[SKIP]` with the reason and are counted separately —
-never silently passed. `--strict` turns a skip into a failure; use it in CI
-once your config is complete. Skipped-as-passed is the single easiest way to
-build a suite that reports green about nothing.
+they test (exempt agent types, the forbidden tier, the protected path), and
+unconfigured, they print `[SKIP]` with the reason and are counted
+separately, never silently passed. `--strict` turns a skip into a failure,
+so use it in CI once your config is complete. Skipped-as-passed is the
+single easiest way to build a suite that reports green about nothing.
 
 ## File contract with other modules
 
@@ -434,8 +434,8 @@ The fixture harness reports the difference explicitly:
 spawns denied exactly, the common forms of blanket staging denied
 heuristically, an optional protected-path tripwire that is also a heuristic —
 plus a fixture harness that can prove the gate decides correctly, is armed in
-your settings, and is not a corpse. That is real, and for many projects it is the
-single highest-value hour in the kit.
+your settings, and is not a corpse. That is real, and it takes about an hour to
+set up for most projects.
 
 What it does **not** give you is any of that *at certification time*. Nothing
 runs the fixtures unless you run them; nothing notices when someone edits the

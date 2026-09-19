@@ -13,8 +13,8 @@ is derived per project rather than set centrally.
 
 The mechanisms are not novel at that scale. Organisations already run
 file-based, check-based, ledger-based control programs globally. The internal
-controls function under SOX, COSO or ISO is that shape. This kit asks for
-nothing that machinery does not already ask for. It applies the discipline to
+controls function under SOX, COSO or ISO is that shape, and this kit asks
+for nothing that machinery does not already ask for. It applies the discipline to
 the record of AI-assisted work. That is an existence proof for the mechanisms
 at organisational scale. It is not evidence about this kit, and no audit
 function has consumed anything this kit produces.

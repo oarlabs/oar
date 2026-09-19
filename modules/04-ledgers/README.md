@@ -85,10 +85,10 @@ which.
 
 Nothing. Four markdown skeletons and their maintenance rules work as documents
 in any project, with any tooling, with no agents involved at all. This is the
-cheapest module to adopt and — measured by how much it changes what a team
-notices about itself — plausibly the highest-yield. `escape_rate.py` runs
-standalone too: `python escape_rate.py --ledger <your ledger>` needs nothing
-but stock Python and prints the same number a gate would.
+cheapest module to adopt, measured by how much it changes what a team notices
+about itself. `escape_rate.py` runs standalone too: `python escape_rate.py
+--ledger <your ledger>` needs nothing but stock Python and prints the same
+number a gate would.
 
 The coupling only appears when you *also* have module 03: then check names
 become load-bearing, and the ledger stops being a diary and starts being an
