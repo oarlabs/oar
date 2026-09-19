@@ -59,6 +59,7 @@ is something real to break.
 from __future__ import annotations
 
 import argparse
+import ast
 import difflib
 import importlib.util
 import json
@@ -283,17 +284,75 @@ def adapt_runner(text: str) -> str:
     return text
 
 
+# WHY A READER, NOT AN EXACT STRING. The previous version matched the whole
+# `RUN_ORDER = [...]` line character-for-character and aborted the instant one
+# more gate name joined the tuple - which is exactly what commit fc1e932 (the
+# EYES module) did: it added "eyes" to RUN_ORDER on the release tree, and the
+# hard-coded pair no longer appeared anywhere in the file. The abort fired
+# correctly - the shape HAD changed - but it named neither shape, so the next
+# reader had to open this file and re-derive both sides by hand. The reader
+# below PARSES the assignment instead of pattern-matching it, so a gate being
+# added or reordered does not require an edit here at all; it aborts only
+# when the assignment itself stops being a plain list of quoted gate names,
+# and when it does, both shapes are in the message.
+def _run_order_found_shape(text: str) -> str:
+    """The text actually at RUN_ORDER's assignment (one line, capped), for an
+    abort message that SHOWS what changed instead of only announcing that it
+    did."""
+    m = re.search(r"RUN_ORDER\s*=\s*[^\n]*", text)
+    return m.group(0).strip()[:200] if m else "<no RUN_ORDER assignment found>"
+
+
+_RUN_ORDER_EXPECTED = ('RUN_ORDER = [...] on one line - a python list '
+                       'literal of quoted gate-name strings, e.g. '
+                       '\'RUN_ORDER = ["judges", "hooks", "escapes"]\'')
+
+
+def read_run_order(text: str):
+    """Parse RUN_ORDER's gate-name list in whatever shape the runner
+    currently ships it. Returns (the regex match over the assignment's
+    `[...]` half, the parsed list of gate names).
+
+    Aborts (SystemExit) naming BOTH the shape this reader expects and the
+    shape it found - the diagnosability item 1 asks for - rather than the
+    bare "RUN_ORDER changed shape; update this script." the exact-string
+    matcher printed no matter which of the three ways below it failed."""
+    m = re.search(r"RUN_ORDER = (\[[^\]]*\])", text, flags=re.S)
+    if not m:
+        raise SystemExit(
+            "ADOPTION SMOKE ABORT: RUN_ORDER changed shape; expected "
+            f"{_RUN_ORDER_EXPECTED}; found {_run_order_found_shape(text)!r}; "
+            "update this script.")
+    try:
+        names = ast.literal_eval(m.group(1))
+    except Exception as e:
+        raise SystemExit(
+            "ADOPTION SMOKE ABORT: RUN_ORDER changed shape; expected "
+            f"{_RUN_ORDER_EXPECTED}; found {m.group(1)!r}, which does not "
+            f"parse as a python literal ({e}); update this script.")
+    if not isinstance(names, list) or not all(isinstance(n, str) for n in names):
+        raise SystemExit(
+            "ADOPTION SMOKE ABORT: RUN_ORDER changed shape; expected "
+            f"{_RUN_ORDER_EXPECTED}; found {names!r}, which is not a flat "
+            "list of strings; update this script.")
+    return m, names
+
+
 def adapt_runner_finish(text: str) -> str:
-    sub_pairs = [
-        ('RUN_ORDER = ["judges", "hooks", "escapes", "unit_suite", '
-         '"example_lint"]',
-         'RUN_ORDER = ["judges", "hooks", "escapes", "unit_suite"]'),
-    ]
-    for a, b in sub_pairs:
-        if a not in text:
-            raise SystemExit("ADOPTION SMOKE ABORT: RUN_ORDER changed shape; "
-                             "update this script.")
-        text = text.replace(a, b)
+    match, names = read_run_order(text)
+    # Step 4.3 deletes `example_lint` outright (see adapt_runner above); the
+    # rename of `example_unit` to `unit_suite` already happened, text-wide,
+    # before this function is ever called. If `example_lint` is not among the
+    # parsed names, that is itself a shape change worth naming rather than a
+    # silent no-op that quietly stops deleting anything.
+    if "example_lint" not in names:
+        raise SystemExit(
+            "ADOPTION SMOKE ABORT: RUN_ORDER changed shape; expected "
+            "'example_lint' present among the gate names (QUICKSTART Step "
+            f"4.3 deletes it); found {names!r}; update this script.")
+    new_names = [n for n in names if n != "example_lint"]
+    new_literal = "[" + ", ".join(f'"{n}"' for n in new_names) + "]"
+    text = text[:match.start(1)] + new_literal + text[match.end(1):]
     anchor = '    print(c(BOLD, "\\n=== I. every gate in RUN_ORDER'
     if anchor not in text:
         raise SystemExit("ADOPTION SMOKE ABORT: selftest section I moved; "
@@ -1510,6 +1569,66 @@ def render_agrees(tmp: Path, py: str, verbose: bool = False):
     return all(ok for _, ok, _ in res), res
 
 
+def _run_order_selftest() -> int:
+    """Prove the RUN_ORDER shape reader (`read_run_order`) two ways:
+
+    1. it parses the REAL, CURRENT verifier - whatever gates RUN_ORDER
+       carries today, including any added since this script was last
+       touched - and finds `example_lint` to remove;
+    2. it ABORTS - naming BOTH the shape it expected and the shape it
+       found - against a scratch copy whose RUN_ORDER assignment has been
+       mutated into something that is no longer a plain list literal on
+       one line. This is THE FORCED RED: a reader that has never been
+       shown failing on a changed shape has not been shown to notice one.
+
+    No scaffold, no subprocess, no repo mutation - this reads the runner's
+    own text and rewrites a copy of it in memory."""
+    print(f"{BOLD}adoption smoke --selftest — the RUN_ORDER shape reader"
+          f"{RESET}")
+    ok_all = True
+
+    def check(label, ok, detail=""):
+        nonlocal ok_all
+        ok_all = ok_all and ok
+        tag = f"{GREEN}PASS{RESET}" if ok else f"{RED}FAIL{RESET}"
+        print(f"  [{tag}] {label}" + (f"\n        {detail}" if detail else ""))
+
+    real = RUNNER.read_text(encoding="utf-8")
+
+    try:
+        _, names = read_run_order(real)
+        ok = "example_lint" in names
+        check("the reader parses the real verifier's CURRENT RUN_ORDER and "
+              "finds 'example_lint' to remove", ok, f"parsed {names!r}")
+    except SystemExit as e:
+        check("the reader parses the real verifier's CURRENT RUN_ORDER",
+              False, f"unexpectedly aborted: {e}")
+
+    mutated = re.sub(r"RUN_ORDER = \[[^\]]*\]",
+                     'RUN_ORDER = tuple(["judges", "hooks"])',
+                     real, count=1, flags=re.S)
+    changed = mutated != real
+    check("a scratch copy with a MUTATED RUN_ORDER shape was constructed",
+          changed, "" if changed else "no RUN_ORDER assignment found to mutate")
+    if changed:
+        try:
+            read_run_order(mutated)
+            check("the reader ABORTS on the mutated shape (the forced red)",
+                  False, "it did NOT abort - a changed RUN_ORDER shape went "
+                  "undetected")
+        except SystemExit as e:
+            msg = str(e)
+            names_both = "expected" in msg and "found" in msg
+            check("the reader ABORTS on the mutated shape (the forced red), "
+                  "naming both the expected and the found shape",
+                  names_both, msg)
+
+    verdict = "PASS" if ok_all else "FAIL"
+    print((GREEN if verdict == "PASS" else RED)
+          + f"ADOPTION SMOKE SELFTEST: {verdict}" + RESET)
+    return 0 if ok_all else 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Gate the kit's adoption path.")
     ap.add_argument("--keep", action="store_true",
@@ -1532,6 +1651,13 @@ def main() -> int:
                          "expected outcome is FAIL. A green run under this flag "
                          "means this smoke has stopped detecting the thing it "
                          "was written for.")
+    ap.add_argument("--selftest", action="store_true",
+                    help="prove the RUN_ORDER shape reader (read_run_order): "
+                         "it must parse the real verifier's CURRENT shape, "
+                         "and it must ABORT - naming both the expected and "
+                         "the found shape - against a scratch copy whose "
+                         "RUN_ORDER assignment has been mutated. No "
+                         "scaffold, no subprocess, no repo mutation.")
     a = ap.parse_args()
 
     global RUNNER
@@ -1542,6 +1668,9 @@ def main() -> int:
         if not f.exists():
             print(f"ABORT: missing kit file {f}", file=sys.stderr)
             return 2
+
+    if a.selftest:
+        return _run_order_selftest()
 
     # CANONICALISE THE SCAFFOLD ROOT ONCE, HERE, AT THE SOURCE.
     #
