@@ -233,6 +233,50 @@ EXEMPT_REASONS = {
 # that keeps them the same claim - and dies if one of them is rewritten to a
 # different claim, which is what should happen.
 WAIVERS: dict = {
+    # RULED 2026-09-19 at the 0.1.8 hotfix's local CI run, the first run of
+    # every kit-ci step before a tag. Twenty-one pairs, three classes.
+    ('modules/01-governance/charters/CHARTER-hostile-reader.md', 'modules/01-governance/charters/CHARTER-implementer.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-hostile-reader.md', 'modules/01-governance/charters/CHARTER-reviewer.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-hostile-reader.md', 'modules/01-governance/charters/CHARTER-scout.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-hostile-reader.md', 'modules/01-governance/charters/CHARTER-synthesis-writer.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-implementer.md', 'modules/01-governance/charters/CHARTER-reviewer.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-implementer.md', 'modules/01-governance/charters/CHARTER-scout.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-implementer.md', 'modules/01-governance/charters/CHARTER-synthesis-writer.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-reviewer.md', 'modules/01-governance/charters/CHARTER-scout.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-reviewer.md', 'modules/01-governance/charters/CHARTER-synthesis-writer.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('modules/01-governance/charters/CHARTER-scout.md', 'modules/01-governance/charters/CHARTER-synthesis-writer.md'):
+        'The wrapper rule (a refused tool call is quoted, never re-encoded) and the REFUSALS section note are the same closed wording in every charter template by design: REFUSAL LEDGER charter item 2 and Amendment 1, 2026-09-19. A change to one is a change to all five. Deliberate.',
+    ('docs/ORACLE-refusals.md', 'modules/01-governance/charters/CHARTER-hostile-reader.md'):
+        'docs/ORACLE-refusals.md quotes the wrapper rule in the closed wording the charter templates carry, because the page records the control the rule names. Deliberate; the templates are the source.',
+    ('docs/ORACLE-refusals.md', 'modules/01-governance/charters/CHARTER-implementer.md'):
+        'docs/ORACLE-refusals.md quotes the wrapper rule in the closed wording the charter templates carry, because the page records the control the rule names. Deliberate; the templates are the source.',
+    ('docs/ORACLE-refusals.md', 'modules/01-governance/charters/CHARTER-reviewer.md'):
+        'docs/ORACLE-refusals.md quotes the wrapper rule in the closed wording the charter templates carry, because the page records the control the rule names. Deliberate; the templates are the source.',
+    ('docs/ORACLE-refusals.md', 'modules/01-governance/charters/CHARTER-scout.md'):
+        'docs/ORACLE-refusals.md quotes the wrapper rule in the closed wording the charter templates carry, because the page records the control the rule names. Deliberate; the templates are the source.',
+    ('docs/ORACLE-refusals.md', 'modules/01-governance/charters/CHARTER-synthesis-writer.md'):
+        'docs/ORACLE-refusals.md quotes the wrapper rule in the closed wording the charter templates carry, because the page records the control the rule names. Deliberate; the templates are the source.',
+    ('docs/ORACLE-example_lint.md', 'docs/ORACLE-example_unit.md'):
+        "The ORACLE page pattern carries a fixed lineage line (no row in BLUEPRINT section 12 names this mechanism) and a fixed restore line (the scratch files were never inside the repository). Deliberate: the pattern's sentences are the same on every page that follows it.",
+    ('docs/ORACLE-example_lint.md', 'docs/ORACLE-hooks.md'):
+        "The ORACLE page pattern carries a fixed lineage line (no row in BLUEPRINT section 12 names this mechanism) and a fixed restore line (the scratch files were never inside the repository). Deliberate: the pattern's sentences are the same on every page that follows it.",
+    ('docs/ORACLE-example_lint.md', 'docs/ORACLE-refusals.md'):
+        "The ORACLE page pattern carries a fixed lineage line (no row in BLUEPRINT section 12 names this mechanism) and a fixed restore line (the scratch files were never inside the repository). Deliberate: the pattern's sentences are the same on every page that follows it.",
+    ('docs/ORACLE-example_unit.md', 'docs/ORACLE-hooks.md'):
+        "The ORACLE page pattern carries a fixed lineage line (no row in BLUEPRINT section 12 names this mechanism) and a fixed restore line (the scratch files were never inside the repository). Deliberate: the pattern's sentences are the same on every page that follows it.",
+    ('docs/ORACLE-example_unit.md', 'docs/ORACLE-refusals.md'):
+        "The ORACLE page pattern carries a fixed lineage line (no row in BLUEPRINT section 12 names this mechanism) and a fixed restore line (the scratch files were never inside the repository). Deliberate: the pattern's sentences are the same on every page that follows it.",
+    ('docs/ORACLE-hooks.md', 'docs/ORACLE-refusals.md'):
+        "The ORACLE page pattern carries a fixed lineage line (no row in BLUEPRINT section 12 names this mechanism) and a fixed restore line (the scratch files were never inside the repository). Deliberate: the pattern's sentences are the same on every page that follows it.",
     # RULED IN ROUND 32, on this tool's first live run. Each pair below was
     # found by the tool, read, and ruled a DELIBERATE restatement: the same
     # sentence is meant to appear in both places, and the ruling is written

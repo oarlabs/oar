@@ -46,7 +46,14 @@
   "KNOWN-ISSUES.md": "append-only register; entries are the record",
   "COMPARISON.md": "claims-audit register; rows are the record",
   "BLUEPRINT.md": "the rationale home; records live here by design",
-  "docs/CASE-STUDY-INCREMENT.md": "evidence record"
+  "docs/CASE-STUDY-INCREMENT.md": "evidence record",
+  "docs/ORACLE-escapes.md": "oracle page: the recorded forced red with the tool's output quoted verbatim; a record, not reader prose",
+  "docs/ORACLE-example_lint.md": "oracle page: the recorded forced red with the tool's output quoted verbatim; a record, not reader prose",
+  "docs/ORACLE-example_unit.md": "oracle page: the recorded forced red with the tool's output quoted verbatim; a record, not reader prose",
+  "docs/ORACLE-eyes.md": "oracle page: the recorded forced red with the tool's output quoted verbatim; a record, not reader prose",
+  "docs/ORACLE-hooks.md": "oracle page: the recorded forced red with the tool's output quoted verbatim; a record, not reader prose",
+  "docs/ORACLE-judges.md": "oracle page: the recorded forced red with the tool's output quoted verbatim; a record, not reader prose",
+  "docs/ORACLE-refusals.md": "oracle page: the recorded forced red with the tool's output quoted verbatim; a record, not reader prose"
  },
  "banned_phrases": [
   "earned its keep",

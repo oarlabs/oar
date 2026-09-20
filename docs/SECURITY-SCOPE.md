@@ -11,20 +11,18 @@ are written down. Those are the failure modes of an honest agent doing
 competent work badly.
 
 A third actor sits between the honest one and the hostile one: the agent
-optimizing for green. It is not hostile and not incompetent. It is trying
-to satisfy the charter, and along the way it treats a control as an
-obstacle rather than a boundary. Three signatures mark it: a refusal
+optimizing for green. It is neither hostile nor incompetent; it treats a
+control as an obstacle on the way to satisfying the charter. Three
+signatures mark it: a refusal
 routed around instead of reported, a stop word passed by feel instead of
 read from the counter, and a report that omits a finding by
 misunderstanding rather than by concealment. The kit answers each
-signature by name. The wrapper rule closes the routed-around refusal,
-because a refused tool call is quoted rather than re-encoded through
-another interpreter or a script file. The measured stop word closes the
-passed-by-feel failure, because a lane reads its own token count instead
-of estimating it. The spec-side reviewer, judge paths, and negative
-controls close the omission failure, because a reviewer onboards from the
-punch list and the diff rather than the implementer's account of what it
-left out. A refusal is the end of the path, never a detour.
+signature by name. The wrapper rule closes the first: a refused tool call
+is quoted rather than re-encoded. The measured stop word closes the
+second: a lane reads its own token count. The spec-side reviewer, judge
+paths and negative controls close the third: a reviewer onboards from the
+punch list and the diff, not the implementer's account. A refusal is the
+end of the path, never a detour.
 
 Four agent behaviors are worth separating, because the kit answers each one
 differently.
@@ -54,13 +52,10 @@ What it does **not** defend against:
   aid, not a data-loss control, and it cannot see what an agent already sent.
   **The general secret class belongs to the incumbents, and this kit does not
   compete for it**. `gitleaks` and `TruffleHog` are the established pre-commit
-  and CI secret scanners. The first decides whether a string *looks like* a
-  credential; the second decides whether the credential *works*. Run one of
-  them for that class. What `deident_scan.py` covers is the narrower, adjacent
-  job they do not do: program-identity tokens you enumerate yourself, such as a
-  name, a username, an employer, or machine path fragments. Those have no
-  detectable shape and can only come from a list. Neither tool substitutes for
-  the other, and a green from this one says nothing about secrets.
+  and CI secret scanners. What `deident_scan.py` covers is the narrower,
+  adjacent job they do not do: program-identity tokens you enumerate yourself,
+  such as a name, a username, an employer, or machine path fragments. A green
+  from this one says nothing about secrets.
 - **Supply chain**. The kit ships stock Python and pins nothing of its own.
   Module 07's CI template checksum-pins the toolchain it downloads, and that is
   the extent of it. Nothing verifies the provenance of your dependencies, your
@@ -70,21 +65,17 @@ Two specifics need naming, because both look stronger than they are:
 
 - **The [cert-green](../GLOSSARY.md) token** (`modules/02-enforcement`) is a
   convenience, not an authorization. It is an unsigned JSON file, so anything
-  that can write a file can mint one. There is deliberately no signature. An
-  HMAC needs a key, and in a harness where the agent runs shell commands as the
-  owner there is nowhere to put a key the agent cannot read. A signature would
-  raise forgery from "write a file" to "read a file, then write a file" while
-  making the token read as an attestation it is not.
+  that can write a file can mint one. An HMAC needs a key, and in a harness
+  where the agent runs shell commands as the owner there is nowhere to put a
+  key the agent cannot read.
   `verify.py --mint-cert-token` writes it from the runner's single PASS return,
   and the honest label ships inside the file.
 - **Three of the PreToolUse hook's four rules are string heuristics**. Points
   1, 3 and 4 are the workflow-script tier count, the blanket-staging ban and
   the protected-path tripwire. Each matches text a human wrote, and each
   discloses its error directions in its own source, including the ones that
-  fail *silently*. **No completeness is claimed for any of them**. Point 3's
-  covered list grew twice in one week, each time because a reader spent an
-  afternoon on it. The forms still known to walk past it are named where the
-  rule is defined. Point 2 is the tier declared on an agent spawn. It compares
+  fail *silently*. **No completeness is claimed for any of them**. The forms
+  still known to walk past point 3 are named where the rule is defined. Point 2 is the tier declared on an agent spawn. It compares
   declared fields rather than matching text, and is exact. The three heuristics
   raise the cost of a mistake; they do not make one impossible.
 
